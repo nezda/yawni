@@ -49,10 +49,10 @@ public class hyponym {
 		//   new FileBackedDictionary(searchDir);
 		// To use a remote server via RMI, use
 		//   new FileBackedDictionary(RemoteFileManager.lookup(hostname));
-		DictionaryDatabase dictionary = new FileBackedDictionary();
+		DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
 		// For this example, we use POS.NOUN. However, POS.VERB, POS.ADJ, POS.ADV are also valid.
 		IndexWord word = dictionary.lookupIndexWord(POS.NOUN, args[0]);
-		Synset[] senses = word.getSenses();
+		Synset[] senses = word.getSynsets();
 		int taggedCount = word.getTaggedSenseCount();
 		System.out.print("The " + word.getPOS().getLabel() + " " + word.getLemma() + " has " + senses.length + " sense" + (senses.length == 1 ? "" : "s") + " ");
 		System.out.print("(");
