@@ -23,7 +23,7 @@ import java.util.logging.*;
  * database operations.  <i>The LRU cache will be replaced by a cache based on WeakHashMap, once
  * JDK 1.2 becomes more widely available.</i>
  *
- * @see edu.brandeis.cs.steele.util.DictionaryDatabase
+ * @see edu.brandeis.cs.steele.wn.DictionaryDatabase
  * @see edu.brandeis.cs.steele.util.Cache
  * @see edu.brandeis.cs.steele.util.LRUCache
  * @author Oliver Steele, steele@cs.brandeis.edu
@@ -63,7 +63,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** Construct a dictionary backed by a set of files contained in the default
    * WordNet search directory.  
-   * @see {@link FileManager} for a description of the location of the default
+   * @see FileManager for a description of the location of the default
    * WordNet search directory (<code>$WNSEARCHDIR</code>). 
    */
   FileBackedDictionary() {
@@ -84,7 +84,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** Factory method to get <i>the</i> dictionary backed by a set of files contained
    * in the default WordNet search directory.
-   * @see {@link FileManager} for a description of the location of the default
+   * @see FileManager for a description of the location of the default
    * WordNet search directory (<code>$WNSEARCHDIR</code>). 
    */
   public static FileBackedDictionary getInstance() {

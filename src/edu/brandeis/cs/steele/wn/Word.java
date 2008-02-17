@@ -11,9 +11,9 @@ import java.util.*;
 
 /** A <code>Word</code> represents the lexical information related to a specific sense of an <code>IndexWord</code>.
  *
- * <code>Word</code>'s are linked by {@link Pointer}s into a network of lexically related words.
- * {@link Word#getTarget getTarget} retrieves the targets of these links, and
- * {@link Word#getPointer getPointer} retrieves the pointers themselves.
+ * <code>Word</code>'s are linked by {@link Pointer}s into a network of lexically related Words.
+ * {@link Word#getTargets} retrieves the targets of these links, and
+ * {@link Word#getPointers} retrieves the pointers themselves.
  *
  * @see Pointer
  * @see Synset
