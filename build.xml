@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- JWordnet ant build file.	-->
+<!-- For version 1.1		-->
+<project name="jwordnet" default="all" basedir="." >
+
+    <property name="builds.lib.dir" value="/builds/lib" />
+
+    <!-- Main targets -->
+
+	<target name="all" depends="build"/>
+
+    <target name="build" depends="init,clean,compile,jar"/>
+    <target name="build.browser" depends="build,clean.browser,compile.browser,jar.browser"/>
+
+    <!-- Child targets -->
+
+    <!-- initialize variables. -->
+    <target name="init">
+
+        <tstamp>
+            <format property="build.date" pattern="MM-dd-yyyy"/>
+        </tstamp>
+
+        <property name="outdir"  value="./classes"/>
+		<property name="outdir.browser" value="./classes/browser_classes"/>
+        <property name="javadoc.dest" value="./docs/api"/>
+        <property name="javadoc.source" value="./docs/src"/>
+		<property name="jar.file" value="jwordnet_1_1.jar"/>
+		<property name="jar.browser.file" value="jwordnet_browser.jar"/>
+
+
+        <patternset id="patternset-javadocable-sources">
+            <include name="**/*"/>
+            <exclude name="**/*Test.java"/>
+        </patternset>
+
+        <available file="./edu" type="dir" property="src.exists"/>
+
+		<available file="./browser/Browser.java" type="file" property="browser.src.exists"/>
+    </target>
+
+    <!-- remove files/subdirectories created by build process -->
+    <target name="clean" depends="init">
+	<echo message="Deleting ./lib/${jar.file}"/>
+       	<delete file="./lib/${jar.file}"/>
+	<echo message="Deleting directory ${outdir}"/>
+	<delete dir="${outdir}"/>
+    </target>
+
+    <!-- remove files/subdirectories created by build process -->
+    <target name="clean.browser" depends="init">
+	<echo message="Deleting ./lib/${jar.browser.file}"/>
+	<delete file="./lib/${jar.browser.file}"/>
+	<echo message="Deleting directory ${outdir.browser}"/>
+       	<delete dir="${outdir.browser}"/>
+    </target>
+
+
+    <!-- 	javadoc targets 							-->
+    <!-- 	These are not currently working properly. 	-->
+    <!-- 	They need some additional debugging.      	-->
+
+    <target name="docs" depends="init" if="src.exists">
+        <delete dir="${javadoc.source}" />
+        <delete dir="${javadoc.dest}" />
+        <mkdir dir="${javadoc.source}"/>
+        <antcall target="javadoc.copy" />
+        <antcall target="javadoc.build" />
+    </target>
+
+    <target name="javadoc.copy" depends="init" if="src.exists">
+        <mkdir dir="${javadoc.source}"/>
+        <copy todir="${javadoc.source}">
+            <fileset dir="./edu">
+                <patternset refid="patternset-javadocable-sources"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="javadoc.build" depends="init,classpath" >
+		<echo message="Making directory ${javadoc.dest}"/>
+        <mkdir dir="${javadoc.dest}"/>
+		<echo message="Running javadocs on ${javadoc.source}"/>
+        <javadoc packagenames="edu.brandeis.*"
+                classpathref="build.classpath"
+                sourcepath="${javadoc.source}"
+                defaultexcludes="yes"
+                destdir="${javadoc.dest}"
+                author="true"
+                version="true"
+                verbose="false"
+                use="true">
+        </javadoc>
+		<echo message="Deleting directory ${javadoc.source}"/>
+        <delete dir="${javadoc.source}" />
+    </target>
+
+
+    <!-- set classpath -->
+    <target name="classpath" depends="init" >
+        <path id="build.classpath">
+            <fileset dir="lib">
+                <include name="**/*.jar"/>
+            </fileset>
+        </path>
+    </target>
+
+
+    <!-- compile java source -->
+    <target name="compile" depends="init,classpath" if="src.exists">
+		<echo message="Making directory ${outdir}"/>
+        <mkdir dir="${outdir}"/>
+		<echo message="Compiling java src to ${outdir}"/>
+        <javac srcdir="./edu" destdir="${outdir}" deprecation="true" debug="true">
+            <classpath refid="build.classpath"/>
+        </javac>
+		<echo message="Copying ./conf/**/*.properties to ${outdir}"/>
+        <copy todir="${outdir}">
+            <fileset dir="./conf" includes="**/*.properties">
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- compile java source -->
+    <target name="compile.browser" depends="init,classpath" if="src.exists">
+	<echo message="Making directory ${outdir.browser}"/>
+        <mkdir dir="${outdir.browser}"/>
+	<echo message="Compiling java src to ${outdir.browser}"/>
+        <javac srcdir="./browser" destdir="${outdir.browser}" deprecation="true" debug="true">
+            <classpath refid="build.classpath"/>
+        </javac>
+	<echo message="Copying ./conf/**/*.properties to ${outdir.browser}"/>
+        <copy todir="${outdir.browser}">
+            <fileset dir="./conf" includes="**/*.properties">
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="init,jar.src"/>
+
+    <target name="jar.src" depends="compile" if="src.exists">
+        <mkdir dir="./lib"/>
+        <jar jarfile="./lib/${jar.file}" basedir="${outdir}" update="false"/>
+    </target>
+
+    <target name="jar.browser" depends="init,jar.src.browser"/>
+
+    <target name="jar.src.browser" depends="compile.browser" if="browser.src.exists">
+        <mkdir dir="./lib"/>
+        <jar jarfile="./lib/${jar.browser.file}" basedir="${outdir.browser}" update="false"/>
+    </target>
+
+
+
+
+
+
+</project>

@@ -1,0 +1,10 @@
+Change in version 1.1
+
+JWordnet 1.1 provides support for Wordnet 2.0 data files.  It includes pointer types for derived relationships as well as domain membership.
+
+The code has been slightly upgraded to include logging through jakarta commons/log4j.  Additionally, the build can now be performed by an ant build script.
+The ant targets are:
+build - Compiles all the wordnet libraries and utilities and creates the jwordnet_1.1.jar file.
+build.browser - Compiles the wordnet browser and creates the jwordnet_browser.jar file.
+
+
