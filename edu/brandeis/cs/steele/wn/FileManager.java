@@ -1,612 +1,393 @@
 /*
-
  * WordNet-Java
-
  *
-
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
-
  * the copyright notice and this restriction, and label your changes.
-
  */
-
 package edu.brandeis.cs.steele.wn;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.PropertyResourceBundle;
-import java.util.Hashtable;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.util.*;
+import java.util.logging.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.io.*;
 
 /** An implementation of FileManagerInterface that reads files from the local file system.
-
  * a file.  <code>FileManager</code> caches the file position before and after
-
  * <code>readLineAt</code> in order to eliminate the redundant IO activity that a naive implementation
-
  * of these methods would necessitate.
-
  *
-
  * Instances of this class are guarded.  Operations are synchronized by file.
-
  *
-
+ * TODO complete tagged sense count by parsing this file
+ * // The name of the file that contain word sense frequency information.
+ * protected static final String frequencyFile = "/dict/cntlist";
+ *
  * @author Oliver Steele, steele@cs.brandeis.edu
-
  * @version 1.0
-
  */
-
 public class FileManager implements FileManagerInterface {
-
-	//
-
-	// Class variables
-
-	//
-
-    private Log log = LogFactory.getLog(this.getClass());
-
-	/** The API version, used by <CODE>RemoteFileManager</CODE> for constructing a binding name. */
-
-	public static String VERSION = "1.0";
-
-
-
-	/** Set this to true to enable debugging messages in <code>getIndexedLinePointer</code>. */
-
-	public static final boolean TRACE_LOOKUP = false;
-
-	
-
-	// work around some bugs in the Metrowerks VM
-
-	protected static final boolean IS_MW_VM = System.getProperties().getProperty("java.vendor").equalsIgnoreCase("Metrowerks Corp.");
-
-    // Get resource bundle.
-    protected static PropertyResourceBundle resourceBundle = (PropertyResourceBundle)PropertyResourceBundle.getBundle("FileManager");
-
-    //
-
-    // Filename caching
-
-    //
-
-    protected static final boolean IS_WINDOWS_OS = resourceBundle.getString("OSNAME").startsWith("Windows");
-
-    protected static final boolean IS_MAC_OS = resourceBundle.getString("OSNAME").startsWith("Mac");
-
-
-
-	//
-
-	// Instance variables
-
-	//
-
-	protected String searchDirectory;
-
-	protected Hashtable filenameCache = new Hashtable();
-
-	
-
-	protected class NextLineCache {
-
-		protected String filename;
-
-		protected long previous;
-
-		protected long next;
-
-		
-
-		void setNextLineOffset(String filename, long previous, long next) {
-
-			this.filename = filename;
-
-			this.previous = previous;
-
-			this.next = next;
-
-		}
-
-		
-
-		boolean matchingOffset(String filename, long offset) {
-
-			return this.filename != null && previous == offset && this.filename.equals(filename);
-
-		}
-
-		
-
-		long getNextOffset() {
-
-			return next;
-
-		}
-
-	};
-
-	protected NextLineCache nextLineCache = new NextLineCache();
-
-	
-
-	//
-
-	// Constructors
-
-	//
-
-	/** Construct a file manager backed by a set of files contained in the default WN search directory.
-
-	 * The default search directory is the location named by the system property WNSEARCHDIR; or, if this
-
-	 * is undefined, by the directory named WNHOME/Database (under MacOS) or WNHOME/dict (otherwise);
-
-	 * or, if the WNHOME is undefined, the current directory (under MacOS), "C:\wn16" (WIndows),
-
-	 * or "/usr/local/wordnet1.6" (otherwise).
-
-	 */
-
-	public FileManager() {
-
-		this(getWNSearchDir());
-
-	}
-
-	
-
-	/** Construct a file manager backed by a set of files contained in <var>searchDirectory</var>. */
-
-	public FileManager(String searchDirectory) {
-
-		this.searchDirectory = searchDirectory;
-
-	}
-
-	
-
-	
-
-
-
-	// work around a bug in the MW installation
-
-	protected static final String fileSeparator = IS_MW_VM ? ":" : File.separator;
-
-	
-
-	protected static String getWNHome() {
-
-		String home = System.getProperty("WNHOME");
-
-		if (home != null) {
-
-			return home;
-
-        } else {
-
-            return resourceBundle.getString("WNHOME");
-
-        }
-
-	}
-
-	
-
-	protected static String getWNSearchDir() {
-
-		String searchDir = System.getProperty("WNSEARCHDIR");
-
-		if (searchDir != null) {
-
-			return searchDir;
-
-		} else if (IS_MAC_OS && getWNHome().equals("."))
-
-			return "Database";
-
-		else {
-
-			return getWNHome() + fileSeparator + (IS_MAC_OS ? "Database" : "dict");
-
-		}
-
-	}
-
-	
-
-	static String mapToWindowsFilename(String filename) {
-
-		if (filename.startsWith("data.")) {
-
-			filename = filename.substring("data.".length()) + ".dat";
-
-		} else if (filename.startsWith("index.")) {
-
-			filename = filename.substring("index.".length()) + ".idx";
-
-		}
-
-		return filename;
-
-	}
-
-	
-
-	protected synchronized RandomAccessFile getFileStream(String filename) throws IOException {
-
-		if (IS_WINDOWS_OS) {
-
-			filename = mapToWindowsFilename(filename);
-		}
-
-		RandomAccessFile stream = (RandomAccessFile) filenameCache.get(filename);
-
-		if (stream == null) {
-
-			String pathname = searchDirectory + fileSeparator + filename;
-
-			stream = new RandomAccessFile(pathname, "r");
-            if (stream == null) {
-                log.debug("stream is null");
+  //
+  // Class variables
+  //
+  private static final Logger log = Logger.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
+  
+  /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
+  public static String VERSION = "1.5.0";
+
+  /** Set this to true to enable debugging messages in <code>getIndexedLinePointer</code>. */
+  public static final boolean TRACE_LOOKUP = false; // unused
+
+  //
+  // Filename caching
+  //
+  protected static final boolean IS_WINDOWS_OS = System.getProperty("os.name").startsWith("Windows");
+  protected static final boolean IS_MAC_OS = false; //System.getProperty("os.name").startsWith("Mac");
+
+  //
+  // Instance variables
+  //
+  protected String searchDirectory;
+  protected Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
+
+  protected static class NextLineCache {
+    protected String filename;
+    protected long previous;
+    protected long next;
+
+    void setNextLineOffset(String filename, long previous, long next) {
+      this.filename = filename;
+      this.previous = previous;
+      this.next = next;
+    }
+
+    boolean matchingOffset(String filename, long offset) {
+      return this.filename != null && previous == offset && this.filename.equals(filename);
+    }
+
+    long getNextOffset() {
+      return next;
+    }
+  }
+  protected NextLineCache nextLineCache = new NextLineCache();
+
+  //
+  // Constructors
+  //
+  /** Construct a file manager backed by a set of files contained in the default WordNet search directory.
+   * The default search directory is the location named by the system property WNSEARCHDIR; or, if this
+   * is undefined, by the directory named WNHOME/Database (under MacOS) or WNHOME/dict (otherwise);
+   * or, if the WNHOME is undefined, the current directory (under MacOS), "C:\wn16" (Windows),
+   * or "/usr/local/wordnet1.6" (otherwise).
+   */
+  public FileManager() {
+    this(getWNSearchDir());
+  }
+
+  /** Construct a file manager backed by a set of files contained in <var>searchDirectory</var>. */
+  public FileManager(String searchDirectory) {
+    this.searchDirectory = searchDirectory;
+  }
+
+  protected static String getWNHome() {
+    String home = System.getProperty("WNHOME");
+    if (home != null) {
+      return home;
+    } else {
+      home = System.getenv("WNHOME");
+      if(home != null) {
+        return home;
+      }
+    }
+    throw new IllegalStateException("WNHOME is undefined in both Java System properties AND environment. "+
+        System.getenv());
+  }
+
+  protected static String getWNSearchDir() {
+    final String searchDir = System.getProperty("WNSEARCHDIR");
+    if (searchDir != null) {
+      return searchDir;
+    } else if (IS_MAC_OS && getWNHome().equals(".")) {
+      return "Database";
+    } else {
+      return getWNHome() + File.separator + (IS_MAC_OS ? "Database" : "dict");
+    }
+  }
+
+  static String mapToWindowsFilename(String filename) {
+    if (filename.startsWith("data.")) {
+      filename = filename.substring("data.".length()) + ".dat";
+    } else if (filename.startsWith("index.")) {
+      filename = filename.substring("index.".length()) + ".idx";
+    }
+    return filename;
+  }
+
+  static abstract class CharStream {
+    abstract void seek(final long position) throws IOException;
+    abstract long position() throws IOException;
+    abstract long length() throws IOException;
+    /** This works just like {@link RandomAccessFile#readLine} -- doesn't
+     * support Unicode 
+     */
+    abstract String readLine() throws IOException;
+    void skipLine() throws IOException {
+      readLine();
+    }
+  } // end class CharStream
+
+  static class RAFCharStream extends CharStream {
+    private RandomAccessFile raf;
+    RAFCharStream(final RandomAccessFile raf) {
+      this.raf = raf;
+    }
+    @Override void seek(final long position) throws IOException {
+      raf.seek(position);
+    }
+    @Override long position() throws IOException {
+      return raf.getFilePointer();
+    }
+    @Override long length() throws IOException {
+      return raf.length();
+    }
+    @Override String readLine() throws IOException {
+      return raf.readLine();
+    }
+  } // end class RAFCharStream
+
+  static class NIOCharStream extends CharStream {
+    // TODO switch from absolute get methods to relative methods (don't know
+    // how right now)
+    private int position;
+    private ByteBuffer buf;
+    NIOCharStream(final RandomAccessFile raf) throws IOException {
+      // optionally, mmap this file
+      final FileChannel fileChannel = raf.getChannel();
+      final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
+      this.buf = mmap;
+    }
+    @Override void seek(final long position) throws IOException {
+      // buffer cannot exceed Integer.MAX_VALUE since arrays are limited by this
+      this.position = (int) position;
+    }
+    @Override long position() throws IOException {
+      return position;
+    }
+    @Override long length() throws IOException {
+      return buf.capacity();
+    }
+    @Override String readLine() throws IOException {
+      final int s = position;
+      final int e = scanToLineBreak();
+      int len = e - s;
+      if(len <= 0) {
+        return null;
+      }
+      final char[] line = new char[len];
+      for(int j = s, i = 0; i < line.length; ++i, ++j) {
+        line[i] = (char) buf.get(j);
+      }
+      final String toReturn = new String(line);
+      //System.err.println("returning: \""+toReturn+"\"");
+      return toReturn;
+    }
+    @Override void skipLine() throws IOException {
+      scanToLineBreak();
+    }
+    private int scanToLineBreak() {
+      // scan from current position to first ("\r\n"|"\r"|"\n")
+      boolean done = false;
+      boolean crnl = false;
+      char c;
+      while(done == false && position < buf.capacity()) {
+        c = (char) buf.get(position++);
+        switch(c) {
+          case '\r':
+            // if next is \n, skip that too
+            c = (char) buf.get(position++);
+            if(c != '\n') {
+              // put it back
+              --position;
+            } else {
+              crnl = true;
             }
-			filenameCache.put(filename, stream);
-
-		}
-
-		return stream;
-
-	}
-
-	
-
-	//
-
-	// IO primitives
-
-	//
-
-	
-
-	// work around a bug in Metrowerks Java
-
-	protected String readLine(RandomAccessFile stream) throws IOException {
-
-		if (IS_MW_VM) {
-
-			StringBuffer input = new StringBuffer();
-
-			int c;
-
-
-
-			while (((c = stream.read()) != -1) && (c != '\n') && c != '\r') {
-
-				input.append((char) c);
-
-			}
-
-			if ((c == -1) && (input.length() == 0)) {
-
-				return null;
-
-			}
-
-			return input.toString();
-
-		} else {
-
-			return stream.readLine();
-
-		}
-
-	}
-
-	
-
-	protected void skipLine(RandomAccessFile stream) throws IOException {
-
-        stream.readLine();
-
-	}
-
-	
-
-	//
-
-	// Line-based interface methods
-
-	//
-
-	public String readLineAt(String filename, long offset) throws IOException {
-
-		RandomAccessFile stream = getFileStream(filename);
-
-		synchronized (stream) {
-
-			stream.seek(offset);
-
-			String line = readLine(stream);
-
-
-			long nextOffset = stream.getFilePointer();
-
-			if (line == null) {
-
-				nextOffset = -1;
-
-			}
-			nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-
-			return line;
-
-		}
-
-	}
-
-	
-
-	protected String readLineWord(RandomAccessFile stream) throws IOException {
-        String ret = stream.readLine();
-        String word = ret.substring(0,ret.indexOf(' '));
-
-        return word;
-
-	}
-
-	
-
-	public long getNextLinePointer(String filename, long offset) throws IOException {
-
-		RandomAccessFile stream = getFileStream(filename);
-
-		synchronized (stream) {
-
-			if (nextLineCache.matchingOffset(filename, offset)) {
-
-				return nextLineCache.getNextOffset();
-
-			}
-
-			stream.seek(offset);
-
-			skipLine(stream);
-
-			return stream.getFilePointer();
-
-		}
-
-	}
-
-	
-
-	//
-
-	// Searching
-
-	//
-
-	public long getMatchingLinePointer(String filename, long offset, String substring) throws IOException {
-
-		RandomAccessFile stream = getFileStream(filename);
-
-		synchronized (stream) {
-
-			stream.seek(offset);
-
-			do {
-
-				String line = readLineWord(stream);
-
-				long nextOffset = stream.getFilePointer();
-
-				if (line == null) {
-
-					return -1;
-
-				}
-
-				nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-
-				if (line.indexOf(substring) >= 0) {
-
-					return offset;
-
-				}
-
-				offset = nextOffset;
-
-			} while (true);
-
-		}
-
-	}
-
-	
-	public long getMatchingBeginningLinePointer(String filename, long offset, String substring) throws IOException {
-
-		RandomAccessFile stream = getFileStream(filename);
-
-		synchronized (stream) {
-
-			stream.seek(offset);
-
-			do {
-
-				String line = readLineWord(stream);
-
-				long nextOffset = stream.getFilePointer();
-
-				if (line == null) {
-
-					return -1;
-
-				}
-
-				nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-
-				if (line.startsWith(substring)) {
-
-					return offset;
-
-				}
-
-				offset = nextOffset;
-
-			} while (true);
-
-		}
-
-	}
-
-	public long getIndexedLinePointer(String filename, String target) throws IOException {
-
-		if (log.isDebugEnabled()) {
-			log.debug("target:"+target);
-            log.debug("filename:"+filename);
-		}
-
-		RandomAccessFile stream = getFileStream(filename);
-
-		synchronized (stream) {
-
-			long start = 0;
-
-			long stop = stream.length();
-
-			while (true) {
-
-				long midpoint = (start + stop) / 2;
-
-				stream.seek(midpoint);
-
-				skipLine(stream);
-
-				long offset = stream.getFilePointer();
-
-				if (log.isDebugEnabled()) {
-					log.debug("  "+start+", "+((start+stop)/2)+", "+stop+" -> "+offset);
-
-				}
-
-				if (offset == start) {
-
-					return -1;
-
-				} else if (offset == stop) {
-
-					stream.seek(start + 1);
-
-					skipLine(stream);
-
-					if (log.isDebugEnabled()) {
-
-						log.debug(". "+stream.getFilePointer());
-
-					}
-
-					while (stream.getFilePointer() < stop) {
-
-						long result = stream.getFilePointer();
-
-						String line = readLineWord(stream);
-
-						if (log.isDebugEnabled()) {
-
-							log.debug(". "+line+" -> "+line.equals(target));
-
-						}
-
-						if (line.equals(target)) {
-
-							return result;
-
-						}
-
-					}
-
-					return -1;
-
-				}
-
-				long result = stream.getFilePointer();
-
-				String line = readLineWord(stream);
-
-				if (line.equals(target)) return result;
-
-				int compare = target.compareTo(line);
-                //int compare = compare(target, line);
-
-				if (log.isDebugEnabled()) {
-
-					log.debug(line + ": " + compare);
-
-				}
-
-				if (compare > 0) {
-
-					start = offset;
-
-				} else if (compare < 0) {
-
-					stop = offset;
-
-				} else {
-
-					return result;
-
-				}
-
-			}
-
-		}
-
-	}
-
-	
-
-	/** Return a negative value if a precedes b, a positive value if a follows b,
-
-	 * otherwise 0. */
-
-	protected int compare(String a, String b) {
-
-		int maxLength = Math.min(a.length(), b.length());
-
-		for (int i = 0; i < maxLength; i++) {
-
-			int d = a.charAt(i) - b.charAt(i);
-
-			if (d != 0) {
-
-				return d;
-
-			}
-
-		}
-
-		if (a.length() < maxLength) {
-
-			return 1;
-
-		} else if (maxLength < b.length()) {
-
-			return -1;
-
-		} else {
-
-			return 0;
-
-		}
-
-	}
-
+            done = true;
+            break;
+          case '\n':
+            done = true;
+            break;
+          default:
+            // no-op
+        }
+      }
+      // return exclusive end chopping line break delimitter(s)
+      return crnl ? position - 2 : position - 1;
+    }
+  } // end class NIOCharStream
+
+  protected synchronized CharStream getFileStream(String filename) throws IOException {
+    if (IS_WINDOWS_OS) {
+      //TODO would be slow on Windows
+      filename = mapToWindowsFilename(filename);
+    }
+    CharStream stream = filenameCache.get(filename);
+    if (stream == null) {
+      final String pathname = searchDirectory + File.separator + filename;
+      //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
+      stream = new NIOCharStream(new RandomAccessFile(pathname, "r"));
+      filenameCache.put(filename, stream);
+    }
+    return stream;
+  }
+
+  //
+  // IO primitives
+  //
+
+  protected String readLine(final CharStream stream) throws IOException {
+    return stream.readLine();
+  }
+
+  protected void skipLine(final CharStream stream) throws IOException {
+    stream.skipLine();
+  }
+
+  //
+  // Line-based interface methods
+  //
+  public String readLineAt(final String filename, final long offset) throws IOException {
+    final CharStream stream = getFileStream(filename);
+    synchronized (stream) {
+      stream.seek(offset);
+      final String line = readLine(stream);
+
+      long nextOffset = stream.position();
+      if (line == null) {
+        nextOffset = -1;
+      }
+      nextLineCache.setNextLineOffset(filename, offset, nextOffset);
+      return line;
+    }
+  }
+
+  protected String readLineWord(final CharStream stream) throws IOException {
+    final String ret = stream.readLine();
+    if(ret == null) {
+      return null;
+    }
+    // LN added new to leak less String memory here
+    final int space = ret.indexOf(' ');
+    assert space >= 0;
+    String word = new String(ret.substring(0, space));
+    return word;
+  }
+
+  public long getNextLinePointer(final String filename, final long offset) throws IOException {
+    final CharStream stream = getFileStream(filename);
+    synchronized (stream) {
+      if (nextLineCache.matchingOffset(filename, offset)) {
+        return nextLineCache.getNextOffset();
+      }
+      stream.seek(offset);
+      skipLine(stream);
+      return stream.position();
+    }
+  }
+
+  //
+  // Low-level Searching
+  //
+  public long getMatchingLinePointer(final String filename, long offset, final String substring) throws IOException {
+    final CharStream stream = getFileStream(filename);
+    synchronized (stream) {
+      stream.seek(offset);
+      do {
+        final String line = readLineWord(stream);
+        final long nextOffset = stream.position();
+        if (line == null) {
+          return -1;
+        }
+        nextLineCache.setNextLineOffset(filename, offset, nextOffset);
+        if (line.indexOf(substring) >= 0) {
+          return offset;
+        }
+        offset = nextOffset;
+      } while (true);
+    }
+  }
+
+  public long getMatchingBeginningLinePointer(final String filename, long offset, final String prefix) throws IOException {
+    final CharStream stream = getFileStream(filename);
+    synchronized (stream) {
+      stream.seek(offset);
+      do {
+        final String line = readLineWord(stream);
+        final long nextOffset = stream.position();
+        if (line == null) {
+          return -1;
+        }
+        nextLineCache.setNextLineOffset(filename, offset, nextOffset);
+        if (line.startsWith(prefix)) {
+          return offset;
+        }
+        offset = nextOffset;
+      } while (true);
+    }
+  }
+  
+  /** Binary search line implied by <param>filename</param> for <param>target</param>. */
+  public long getIndexedLinePointer(final String filename, final String target) throws IOException {
+    if (log.isLoggable(Level.FINEST)) {
+      log.finest("target:"+target);
+      log.finest("filename:"+filename);
+    }
+    final CharStream stream = getFileStream(filename);
+    synchronized (stream) {
+      long start = 0;
+      long stop = stream.length();
+      while (true) {
+        final long midpoint = (start + stop) / 2;
+        stream.seek(midpoint);
+        skipLine(stream);
+        final long offset = stream.position();
+        if (log.isLoggable(Level.FINEST)) {
+          log.finest("  "+start+", "+((start+stop)/2)+", "+stop+" -> "+offset);
+        }
+        if (offset == start) {
+          return -1;
+        } else if (offset == stop) {
+          stream.seek(start + 1);
+          skipLine(stream);
+          if (log.isLoggable(Level.FINEST)) {
+            log.finest(". "+stream.position());
+          }
+          while (stream.position() < stop) {
+            final long result = stream.position();
+            final String line = readLineWord(stream);
+            if (log.isLoggable(Level.FINEST)) {
+              log.finest(". "+line+" -> "+line.equals(target));
+            }
+            if (line.equals(target)) {
+              return result;
+            }
+          }
+          return -1;
+        }
+        final long result = stream.position();
+        final String line = readLineWord(stream);
+        if (line.equals(target)) return result;
+        final int compare = target.compareTo(line);
+        if (log.isLoggable(Level.FINEST)) {
+          log.finest(line + ": " + compare);
+        }
+        if (compare > 0) {
+          start = offset;
+        } else if (compare < 0) {
+          stop = offset;
+        } else {
+          return result;
+        }
+      }
+    }
+  }
 }

@@ -7,40 +7,39 @@
 //package edu.brandeis.cs.steele.wn.browser;
 package browser;
 
-import java.applet.Applet;
+import javax.swing.JApplet;
+import java.util.logging.*;
 import java.net.URL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import edu.brandeis.cs.steele.wn.DictionaryDatabase;
 import edu.brandeis.cs.steele.wn.FileBackedDictionary;
 import edu.brandeis.cs.steele.wn.RemoteFileManager;
 
-public class BrowserApplet extends Applet {
 
-    private Log log = LogFactory.getLog(this.getClass());
+public class BrowserApplet extends JApplet {
+  private static final Logger log = Logger.getLogger(BrowserApplet.class.getName());
 
-	public void init() {
-		URL url = getCodeBase();
-        if (log.isDebugEnabled()) {
-            log.debug("url = "+url);
-        }
-        String hostname = url.getHost();
-		if (url.getPort() != -1) {
-			hostname += ":" + url.getPort();
-		}
-        if (log.isDebugEnabled()) {
-            log.debug("hostname = "+hostname);
-        }
-        DictionaryDatabase dictionary;
-		try {
-			dictionary = new FileBackedDictionary(RemoteFileManager.lookup(hostname));
-		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
-		}
-        if (log.isDebugEnabled()) {
-            log.debug("dictionary = "+dictionary);
-        }
-        add(new BrowserPanel(dictionary));
-	}
+  public void init() {
+    final URL url = getCodeBase();
+    if (log.isLoggable(Level.FINEST)) {
+      log.finest("url = "+url);
+    }
+    String hostname = url.getHost();
+    if (url.getPort() != -1) {
+      hostname += ":" + url.getPort();
+    }
+    if (log.isLoggable(Level.FINEST)) {
+      log.finest("hostname = "+hostname);
+    }
+    final DictionaryDatabase dictionary;
+    try {
+      dictionary = FileBackedDictionary.getInstance(RemoteFileManager.lookup(hostname));
+    } catch (Exception e) {
+      throw new RuntimeException(e.toString());
+    }
+    if (log.isLoggable(Level.FINEST)) {
+      log.finest("dictionary = "+dictionary);
+    }
+    add(new BrowserPanel(dictionary));
+  }
 }

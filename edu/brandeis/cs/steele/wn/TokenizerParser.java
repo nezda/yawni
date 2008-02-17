@@ -14,31 +14,31 @@ import java.util.*;
  * @version 1.0
  */
 public class TokenizerParser extends StringTokenizer {
-	public TokenizerParser(String string, String delimiters) {
-		super(string, delimiters);
-	}
-	
-	public int nextByte() {
-		return Byte.parseByte(nextToken());
-	}
-	
-	public int nextShort() {
-		return Short.parseShort(nextToken());
-	}
-	
-	public int nextInt() {
-		return Integer.parseInt(nextToken());
-	}
-	
-	public int nextInt(int radix) {
-		return Integer.parseInt(nextToken(), radix);
-	}
-	
-	public int nextHexInt() {
-		return nextInt(16);
-	}
-	
-	public long nextLong() {
-		return Long.parseLong(nextToken());
-	}
+  public TokenizerParser(String string, String delimiters) {
+    super(string, delimiters);
+  }
+
+  public int nextByte() {
+    return Byte.parseByte(nextToken());
+  }
+
+  public int nextShort() {
+    return Short.parseShort(nextToken());
+  }
+
+  public int nextInt() {
+    return Integer.parseInt(nextToken());
+  }
+
+  public int nextInt(final int radix) {
+    return Integer.parseInt(nextToken(), radix);
+  }
+
+  public int nextHexInt() {
+    return nextInt(16);
+  }
+
+  public long nextLong() {
+    return Long.parseLong(nextToken());
+  }
 }

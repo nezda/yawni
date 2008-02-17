@@ -18,15 +18,15 @@ import java.util.*;
  * failure to generate must therefore cache the next result.  This class can be used as a
  * wrapper, to cache the result independently of the generator logic.  <code>LookaheadEnumeration.hasMoreElements</code>
  * returns false when <code>hasMoreElements</code> of the wrapped object returns false,
- * <it>or</it> when <code>nextElement</code> of the wrapped class 
+ * <i>or</i> when <code>nextElement</code> of the wrapped class 
  *
- * <P>An <code>Enumeration</code> that supplies the lines of a file until the file ends
+ * <p>An <code>Enumeration&gt;String&lt;</code> that supplies the lines of a file until the file ends
  * can be written thus:
- * <PRE>
- * new LookaheadEnumeration(new Enumeration() {
+ * <pre>
+ * new LookaheadEnumeration&gt;String&lt;(new Enumeration&gt;String&lt;() {
  *   InputStream input = ...;
  *   public boolean hasMoreElements() { return true; }
- *   public Object nextElement() {
+ *   public String nextElement() {
  *     String line = input.readLine();
  *     if (line == null) {
  *       throw new NoSuchElementException();
@@ -34,15 +34,15 @@ import java.util.*;
  *     return line;
  *   }
  * }
- * </PRE>
+ * </pre>
  *
- * <P>An <code>Enumeration</code> that generates the natural numbers below the first with
+ * <p>An <code>Enumeration</code> that generates the natural numbers below the first with
  * the property <var>p</var> can be written thus:
- * <PRE>
- * new LookaheadEnumeration(new Enumeration() {
+ * <pre>
+ * new LookaheadEnumeration&gt;Integer&lt;(new Enumeration&gt;Integer&lt;() {
  *   int n = 0;
  *   public boolean hasMoreElements() { return true; }
- *   public Object nextElement() {
+ *   public Integer nextElement() {
  *     int value = n++;
  *     if (p(value)) {
  *       throw new NoSuchElementException();
@@ -50,49 +50,49 @@ import java.util.*;
  *     return value;
  *   }
  * }
- * </PRE>
+ * </pre>
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class LookaheadEnumeration implements Enumeration {
-	protected Enumeration ground;
-	protected boolean peeked = false;
-	protected Object nextObject;
-	protected boolean more;
-	
-	public LookaheadEnumeration(Enumeration ground) {
-		this.ground = ground;
-	}
-	
-	protected void lookahead() {
-		if (!peeked) {
-			more = ground.hasMoreElements();
-			if (more) {
-				try {
-					nextObject = ground.nextElement();
-				} catch (NoSuchElementException e) {
-					more = false;
-				}
-			}
-			peeked = true;
-		}
-	}
-		
-	public boolean hasMoreElements() {
-		lookahead();
-		return more;
-	}
-	
-	public Object nextElement() {
-		lookahead();
-		if (more) {
-			Object result = nextObject;
-			nextObject = null;	// to facilite GC
-			peeked = false;
-			return result;
-		} else {
-			throw new NoSuchElementException();
-		}
-	}
+public class LookaheadEnumeration<T> implements Enumeration<T> {
+  protected Enumeration<T> ground;
+  protected boolean peeked = false;
+  protected T nextObject;
+  protected boolean more;
+
+  public LookaheadEnumeration(Enumeration<T> ground) {
+    this.ground = ground;
+  }
+
+  protected void lookahead() {
+    if (peeked == false) {
+      more = ground.hasMoreElements();
+      if (more) {
+        try {
+          nextObject = ground.nextElement();
+        } catch (NoSuchElementException e) {
+          more = false;
+        }
+      }
+      peeked = true;
+    }
+  }
+
+  public boolean hasMoreElements() {
+    lookahead();
+    return more;
+  }
+
+  public T nextElement() {
+    lookahead();
+    if (more) {
+      T result = nextObject;
+      nextObject = null;	// to facilite GC
+      peeked = false;
+      return result;
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
 }

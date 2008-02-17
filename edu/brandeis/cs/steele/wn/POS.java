@@ -14,61 +14,72 @@ import java.util.NoSuchElementException;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class POS {
-	//
-	// Class variables
-	//
-	public static final POS NOUN = new POS("noun", "n");
-	public static final POS VERB = new POS("verb", "v");
-	public static final POS ADJ = new POS("adjective", "a");
-	public static final POS ADV = new POS("adverb", "r");
-	
-	/** A list of all <code>POS</code>s. */
-	public static final POS[] CATS = {NOUN, VERB, ADJ, ADV};
+public enum POS {
+  //
+  // Class variables
+  //
+  NOUN("noun", "n", 1),
+  VERB("verb", "v", 2),
+  ADJ("adjective", "a", 3),
+  ADV("adverb", "r", 4),
+  SAT_ADJ("satellite adjective", "s", 5); // ADJECTIVE_SATELLITE
 
-	//
-	// Instance implementation
-	//
-	protected String label;
-	protected String key;
+  private static POS[] VALUES = values();
 
-	protected POS(String label, String key) {
-		this.label = label;
-		this.key = key;
-	}
-	
-	//
-	// Object methods
-	//
-	public String toString() {
-		return "[POS " + label + "]";
-	}
+  static POS fromOrdinal(final byte ordinal) {
+    return VALUES[ordinal];
+  }
 
-	public boolean equals(Object object) {
-		return (object instanceof POS) && key.equals(((POS) object).key);
-	}
-	
-	public int hashCode() {
-		return key.hashCode();
-	}
-	
-	//
-	// Accessor
-	//
-	/** Return a label intended for textual presentation. */
-	public String getLabel() {
-		return label;
-	}
-  	
-	/** Return the <code>PointerType</code> whose key matches <var>key</var>.
-	 * @exception NoSuchElementException If <var>key</var> doesn't name any <code>POS</code>.
-	 */
-	public static POS lookup(String key) {
-		for (int i = 0; i < CATS.length; ++i) {
-			if (key.equals(CATS[i].key)) {
-				return CATS[i];
-			}
-		}
-		throw new NoSuchElementException("unknown POS " + key);
-	}
+  /** A list of all <code>POS</code>s <b>except {@link POS#SAT_ADJ}</b> which doesn't
+   * have its own data files. 
+   */
+  public static final POS[] CATS = {NOUN, VERB, ADJ, ADV}; 
+
+  //
+  // Instance implementation
+  //
+  protected final String label;
+  protected final String key;
+  protected final int wnCode;
+
+  POS(final String label, final String key, final int wnCode) {
+    this.label = label;
+    this.key = key;
+    this.wnCode = wnCode;
+  }
+
+  //
+  // Object methods
+  //
+
+  @Override public String toString() {
+    return new StringBuffer("[POS ").append(label).append("]").toString();
+  }
+  
+  /** Note: Enum provides the method {@link name()} for us too */
+
+  //
+  // Accessor
+  //
+  /** Return a label intended for textual presentation. */
+  public String getLabel() {
+    return label;
+  }
+
+  /** The integer used in the original C WordNet APIs. */
+  public int getWordNetCode() {
+    return wnCode;
+  }
+
+  /** Return the <code>PointerType</code> whose key matches <var>key</var>.
+   * @exception NoSuchElementException If <var>key</var> doesn't name any <code>POS</code>.
+   */
+  public static POS lookup(final String key) {
+    for (int i = 0; i < CATS.length; ++i) {
+      if (key.equals(CATS[i].key)) {
+        return CATS[i];
+      }
+    }
+    throw new NoSuchElementException("unknown POS " + key);
+  }
 }

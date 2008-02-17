@@ -6,7 +6,7 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import java.util.Vector;
+import java.util.*;
 
 
 /** A <code>Word</code> represents the lexical information related to a specific sense of an <code>IndexWord</code>.
@@ -21,125 +21,151 @@ import java.util.Vector;
  * @version 1.0
  */
 public class Word implements PointerTarget {
-	//
-	// Adjective Position Flags
-	//
-	public static final int NONE = 0;
-	public static final int PREDICATIVE = 1;
-	public static final int ATTRIBUTIVE = 2;
-	public static final int IMMEDIATE_POSTNOMINAL = 4;
+  //
+  // Adjective Position Flags
+  //
+  public static final int NONE = 0;
+  public static final int PREDICATIVE = 1;
+  public static final int ATTRIBUTIVE = 2;
+  public static final int IMMEDIATE_POSTNOMINAL = 4;
 
-	//
-	// Instance implementation
-	//
-	protected Synset synset;
-	protected int index;
-	protected String lemma;
-	protected int flags;
-	protected long verbFrameFlags;
-	
-	public Word(Synset synset, int index, String lemma, int flags) {
-		this.synset = synset;
-		this.index = index;
-		this.lemma = lemma;
-		this.flags = flags;
-	}
-	
-	void setVerbFrameFlag(int fnum) {
-		verbFrameFlags |= 1 << fnum;
-	}
-	
-	
-	//
-	// Object methods
-	//
-	public boolean equals(Object object) {
-		return (object instanceof Word)
-			&& ((Word) object).synset.equals(synset)
-			&& ((Word) object).index == index;
-	}
+  //
+  // Instance implementation
+  //
+  protected final Synset synset;
+  protected final String lemma;
+  protected final int flags;
+  protected long verbFrameFlags;
+  protected short senseNumber;
 
-	public int hashCode() {
-		return synset.hashCode() ^ index;
-	}
-	
-	public String toString() {
-		return "[Word " + synset.offset + "@" + synset.pos + "(" + index + ")"
-			 + ": \"" + getLemma() + "\"]";
-	}
-	
+  Word(final Synset synset, final String lemma, final int flags) {
+    this.synset = synset;
+    this.lemma = lemma;
+    this.flags = flags;
+    this.senseNumber = -1;
+  }
 
-	//
-	// Accessors
-	//
-	public Synset getSynset() {
-		return synset;
-	}
-	
-	public POS getPOS() {
-		return synset.getPOS();
-	}
-	
-	public int getIndex() {
-		return index;
-	}
-	
-	public String getLemma() {
-		return lemma;
-	}
-	
-	public long getFlags() {
-		return flags;
-	}
-	
-	public long getVerbFrameFlags() {
-		return verbFrameFlags;
-	}
-	
-	public String getDescription() {
-		return lemma;
-	}
-	
-	public String getLongDescription() {
-		String description = getDescription();
-		String gloss = synset.getGloss();
-		if (gloss != null) {
-			description += " -- (" + gloss + ")";
-		}
-		return description;
-	}
+  void setVerbFrameFlag(int fnum) {
+    verbFrameFlags |= 1 << fnum;
+  }
+
+  //
+  // Object methods
+  //
+  @Override public boolean equals(Object object) {
+    return (object instanceof Word)
+      && ((Word) object).synset.equals(synset)
+      && ((Word) object).lemma.equals(lemma);
+  }
+
+  @Override public int hashCode() {
+    return synset.hashCode() ^ lemma.hashCode();
+  }
+
+  @Override public String toString() {
+    return new StringBuilder("[Word ").
+      append(synset.offset).
+      append("@").
+      append(synset.getPOS()).
+      append(":\"").
+      append(getLemma()).
+      append("\"#").
+      append(getSenseNumber()).
+      append("]").toString();
+  }
 
 
+  //
+  // Accessors
+  //
+  public Synset getSynset() {
+    return synset;
+  }
 
-	//
-	// Pointers
-	//
-	protected Pointer[] restrictPointers(Pointer[] source) {
-		Vector vector = new Vector(source.length);
-		for (int i = 0; i < source.length; ++i) {
-			Pointer pointer = source[i];
-			if (pointer.getSource() == this) {
-				vector.addElement(pointer);
-			}
-		}
-		Pointer[] result = new Pointer[vector.size()];
-		vector.copyInto(result);
-		return result;
-	}
-	
-	public Pointer[] getPointers() {
-		return restrictPointers(synset.getPointers());
-	}
-	
-	public Pointer[] getPointers(PointerType type) {
-		return restrictPointers(synset.getPointers(type));
-	}
-	
-	public PointerTarget[] getTargets() {
-		return Synset.collectTargets(getPointers());
-	}
-	
-	public PointerTarget[] getTargets(PointerType type) {
-		return Synset.collectTargets(getPointers(type));
-	}
+  public POS getPOS() {
+    return synset.getPOS();
+  }
+
+  public int getSenseNumber() {
+    if(senseNumber < 1) {
+      final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+      final IndexWord indexWord = dictionary.lookupIndexWord(getPOS(), lemma);
+      assert indexWord != null;
+      int senseNumber = 0;
+      for(final Synset syn : indexWord.getSynsets()) {
+        --senseNumber;
+        if(syn == synset) {
+          senseNumber = -senseNumber;
+          break;
+        }
+      }
+      assert senseNumber > 0;
+      assert senseNumber < Short.MAX_VALUE;
+      this.senseNumber = (short)senseNumber;
+    }
+    return senseNumber;
+  }
+
+  public String getLemma() {
+    return lemma;
+  }
+
+  public long getFlags() {
+    return flags;
+  }
+
+  public long getVerbFrameFlags() {
+    return verbFrameFlags;
+  }
+
+  public String getDescription() {
+    return lemma;
+  }
+
+  public String getLongDescription() {
+    String description = getDescription();
+    String gloss = synset.getGloss();
+    if (gloss != null) {
+      description += " -- (" + gloss + ")";
+    }
+    return description;
+  }
+
+  private static final Pointer[] NO_POINTERS = new Pointer[0];
+  
+  //
+  // Pointers
+  //
+  protected Pointer[] restrictPointers(final Pointer[] source) {
+    List<Pointer> vector = null;
+    for (int i = 0; i < source.length; ++i) {
+      final Pointer pointer = source[i];
+      if (pointer.getSource() == this) {
+        if(vector == null) {
+          vector = new ArrayList<Pointer>();
+        }
+        vector.add(pointer);
+      }
+    }
+    if(vector == null) {
+      return NO_POINTERS;
+    }
+    return vector.toArray(new Pointer[vector.size()]);
+  }
+
+  public Pointer[] getPointers() {
+    return restrictPointers(synset.getPointers());
+  }
+
+  public Pointer[] getPointers(final PointerType type) {
+    return restrictPointers(synset.getPointers(type));
+  }
+
+  public PointerTarget[] getTargets() {
+    return Synset.collectTargets(getPointers());
+  }
+
+  public PointerTarget[] getTargets(final PointerType type) {
+    return Synset.collectTargets(getPointers(type));
+  }
 }

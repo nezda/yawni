@@ -15,60 +15,59 @@ package browser;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
 
-public class AboutDialog extends Dialog {
-	protected static final String[] LABEL_TEXT = {
-		"A graphical interface to the WordNet online lexical database.",
-		"",
-		"This Java version by Oliver Steele.",
-		"",
-		"The GUI is loosely based on the interface to the Tcl/Tk version by David Slomin."
-	};
+public class AboutDialog extends JDialog {
+  protected static final String[] LABEL_TEXT = {
+    "A graphical interface to the WordNet online lexical database.",
+    "",
+    "This Java version by Oliver Steele.",
+    "",
+    "The GUI is loosely based on the interface to the Tcl/Tk version by David Slomin."
+  };
 
-	public AboutDialog(Frame parent) {
-		super(parent, true);
-		setVisible(false);
-		setTitle("About");
-		//setResizable(false);
-		setSize(300,200);
+  public AboutDialog(Frame parent) {
+    super(parent, true);
+    setVisible(false);
+    setTitle("About");
+    //setResizable(false);
+    //setSize(300,200);
 
-		setLayout(new GridBagLayout());
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridx = 0;
-		
-		Label label1 = new Label("WordNet Browser");
-		add(label1, constraints);
-		TextArea label2 = makeTextArea(LABEL_TEXT);
-		add(label2, constraints);
-		Button okButton = new Button("OK");
-		add(okButton, constraints);
+    setLayout(new GridBagLayout());
+    GridBagConstraints constraints = new GridBagConstraints();
+    constraints.gridx = 0;
 
-		okButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				setVisible(false);
-                dispose();
-			}
-		});
+    JLabel label1 = new JLabel("JWordNet Browser");
+    add(label1, constraints);
+    JTextArea label2 = makeTextArea(LABEL_TEXT);
+    add(label2, constraints);
+    JButton okButton = new JButton("OK");
+    add(okButton, constraints);
 
-		Rectangle bounds = getParent().bounds();
-		Rectangle abounds = bounds();
-		move(bounds.x + (bounds.width - abounds.width)/ 2,
-			 bounds.y + (bounds.height - abounds.height)/2);
-		invalidate();
-		setVisible(true);
-	}
+    okButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent event) {
+        setVisible(false);
+        dispose();
+      }
+    });
 
-	protected TextArea makeTextArea(String[] paragraphs) {
-		int maxColumns = 0;
-		for (int i = 0; i < paragraphs.length; ++i) {
-			maxColumns = Math.max(maxColumns, paragraphs[i].length());
-		}
-		TextArea area = new TextArea("", paragraphs.length, maxColumns, TextArea.SCROLLBARS_NONE);
-		area.setEditable(false);
-		for (int i = 0; i < paragraphs.length; ++i) {
-			if (i > 0) area.append("\n");
-			area.append(paragraphs[i]);
-		}
-		return area;
-	}
+    Rectangle bounds = getParent().getBounds();
+    Rectangle abounds = getBounds();
+    setLocation(bounds.x + (bounds.width - abounds.width) / 2,
+        bounds.y + (bounds.height - abounds.height) / 2);
+    // the * 1.2 is a quick workaround 
+    setSize((int)(getPreferredSize().width * 1.2), (int)(getPreferredSize().height * 1.3));
+    setVisible(true);
+  }
+
+  protected JTextArea makeTextArea(String[] paragraphs) {
+    JTextArea area = new JTextArea();
+    //area.(TextArea.SCROLLBARS_NONE)
+    area.setEditable(false);
+    for (int i = 0; i < paragraphs.length; ++i) {
+      if (i > 0) area.append("\n");
+      area.append(paragraphs[i]);
+    }
+    return area;
+  }
 }
