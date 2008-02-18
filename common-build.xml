@@ -17,7 +17,7 @@
     limitations under the License.
  -->
         
-<project name="common" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="common" >
   <description>
     This file is designed for importing into a main build file, and not intended
     for standalone use.
@@ -71,6 +71,7 @@
   <property name="build.encoding" value="utf-8"/>
 
   <property name="src.dir" location="src"/>
+  <property name="test.dir" location="test"/>
   <property name="build.dir" location="build"/>
   <property name="dist.dir" location="dist"/>
 
@@ -145,14 +146,14 @@
 
   <target name="compile-test" depends="compile-core">
     <compile
-      srcdir="src/test"
+      srcdir="${test.dir}"
       destdir="${build.dir}/classes/test">
       <classpath refid="test.classpath"/>
     </compile>
 
     <!-- Copy any data files present to the classpath -->
     <copy todir="${build.dir}/classes/test">
-      <fileset dir="src/test" excludes="**/*.java"/>
+      <fileset dir="${test.dir}" excludes="**/*.java"/>
     </copy>
   </target>
 
@@ -171,23 +172,17 @@
       <sysproperty key="tests.verbose" value="${tests.verbose}"/>
 
       <!-- TODO: create propertyset for test properties, so each project can have its own set -->
-      <sysproperty key="dataDir" file="src/test"/>
+      <sysproperty key="dataDir" file="test"/>
       <sysproperty key="tempDir" file="${build.dir}/test"/>
       <sysproperty key="java.io.tmpdir" file="${build.dir}/test"/>
 
-      <!-- set as a system property so contrib tests can have a fixed root
-           to reference file paths from, and "ant test" can work from
-           anywhere.
-       -->
-      <sysproperty key="jwordnet.common.dir" file="${common.dir}" />
-      
       <formatter type="xml"/>
       <formatter type="brief" usefile="false"/>
       <batchtest fork="yes" todir="${junit.output.dir}" unless="testcase">
-        <fileset dir="src/test" includes="${junit.includes}" excludes="${junit.excludes}"/>
+        <fileset dir="${test.dir}" includes="${junit.includes}" excludes="${junit.excludes}"/>
       </batchtest>
       <batchtest fork="yes" todir="${junit.output.dir}" if="testcase">
-        <fileset dir="src/test" includes="**/${testcase}.java"/>
+        <fileset dir="${test.dir}" includes="**/${testcase}.java"/>
       </batchtest>
     </junit>
     <!-- create this file, then if we don't fail, delete it -->

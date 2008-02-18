@@ -19,8 +19,6 @@
 
 <project name="core" default="default" basedir=".">
 
-  <property name="junit.includes" value="**/Test*.java"/>
-
   <import file="common-build.xml"/>
 
   <property name="build.demo.template" value="src/demo/demo-build.template"/> 
@@ -47,6 +45,9 @@
 
   <path id="junit.classpath">
     <path refid="junit-path"/>
+    <!-- TODO pre-1.7 ant classpath issues with the junit suck;
+    using ant -lib pathToJunit -->
+    <!-- <pathelement location="${ant.home}/lib/ant-junit.jar"/> -->
     <pathelement location="${build.dir}/classes/test"/>
     <pathelement location="${build.dir}/classes/java"/>
     <pathelement location="${build.dir}/classes/demo"/>
@@ -108,7 +109,7 @@
         destdir="${javadoc.dir}/core"
       	title="${Name} ${version} core API">
         <sources>
-          <packageset dir="${src.dir}"/>
+          <packageset dir="{src.dir}"/>
         </sources>
       </invoke-javadoc>
      <jarify basedir="${javadoc.dir}/core" destfile="${build.dir}/${final.name}-javadoc.jar"/>
@@ -195,6 +196,7 @@
     <!-- Package is not called first if packaging src standalone, so the dist.dir may not exist -->
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${maven.dist.dir}"/>
   </target>
   <!-- ================================================================== -->
   <!-- Packages the sources with zip                                      -->
