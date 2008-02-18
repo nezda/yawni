@@ -109,7 +109,7 @@
         destdir="${javadoc.dir}/core"
       	title="${Name} ${version} core API">
         <sources>
-          <packageset dir="{src.dir}"/>
+          <packageset dir="${src.dir}"/>
         </sources>
       </invoke-javadoc>
      <jarify basedir="${javadoc.dir}/core" destfile="${build.dir}/${final.name}-javadoc.jar"/>
