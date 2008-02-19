@@ -94,12 +94,13 @@ public class Word implements PointerTarget {
       int senseNumber = 0;
       for(final Synset syn : indexWord.getSynsets()) {
         --senseNumber;
-        if(syn == synset) {
+        //XXX LN figure out why syn==synset won't work here
+        if(syn.equals(synset)) {
           senseNumber = -senseNumber;
           break;
         }
       }
-      assert senseNumber > 0;
+      assert senseNumber > 0 : "IndexWord lemma: "+lemma+" "+getPOS();
       assert senseNumber < Short.MAX_VALUE;
       this.senseNumber = (short)senseNumber;
     }
