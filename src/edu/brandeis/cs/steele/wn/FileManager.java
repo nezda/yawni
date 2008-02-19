@@ -123,6 +123,7 @@ public class FileManager implements FileManagerInterface {
     return filename;
   }
 
+  // NOTE: CharStream is not thread-safe
   static abstract class CharStream {
     abstract void seek(final long position) throws IOException;
     abstract long position() throws IOException;
@@ -244,10 +245,12 @@ public class FileManager implements FileManagerInterface {
   // IO primitives
   //
 
+  // only called from within synchronized blocks
   protected String readLine(final CharStream stream) throws IOException {
     return stream.readLine();
   }
 
+  // only called from within synchronized blocks
   protected void skipLine(final CharStream stream) throws IOException {
     stream.skipLine();
   }
@@ -270,6 +273,7 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
+  // only called from within synchronized blocks
   protected String readLineWord(final CharStream stream) throws IOException {
     final String ret = stream.readLine();
     if(ret == null) {
