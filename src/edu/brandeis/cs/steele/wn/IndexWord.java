@@ -52,7 +52,6 @@ public class IndexWord {
           ptrTypes[i] = PointerType.parseKey(tokenizer.nextToken());
         } catch (final java.util.NoSuchElementException exc) {
           log.log(Level.SEVERE, "initializeFrom parseKey error:", exc);
-          exc.printStackTrace();
         }
       }
 
@@ -64,7 +63,8 @@ public class IndexWord {
         synsetOffsets[i] = tokenizer.nextLong();
       }
     } catch (final RuntimeException e) {
-      log.severe("IndexWord parse error on line:\n" + line);
+      log.log(Level.SEVERE, "IndexWord parse error on line:\n{0}", line);
+      log.log(Level.SEVERE, "",  e);
       throw e;
     }
   }
@@ -126,6 +126,7 @@ public class IndexWord {
       final Synset[] syns = new Synset[synsetOffsets.length];
       for (int i = 0; i < synsetOffsets.length; ++i) {
         syns[i] = FileBackedDictionary.getInstance().getSynsetAt(getPOS(), synsetOffsets[i]);
+        assert syns[i] != null;
       }
       synsets = syns;
     }
@@ -137,7 +138,9 @@ public class IndexWord {
     int senseNumberMinusOne = 0;
     for(final Synset synset : getSynsets()) {
       final Word word = synset.getWord(this);
-      senses[senseNumberMinusOne++] = word;
+      senses[senseNumberMinusOne] = word;
+      assert senses[senseNumberMinusOne] != null : this+" senseNumberMinusOne: "+senseNumberMinusOne;
+      senseNumberMinusOne++;
     }
     return senses;
   }
