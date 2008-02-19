@@ -161,8 +161,13 @@
 
   <target name="test" depends="compile-test" description="Runs unit tests">
     <mkdir dir="${junit.output.dir}"/>
-    <junit printsummary="off" haltonfailure="no"
-      errorProperty="tests.failed" failureProperty="tests.failed">
+    <junit 
+      fork="yes"
+      maxmemory="256m"
+      printsummary="off"
+      haltonfailure="no"
+      errorProperty="tests.failed" 
+      failureProperty="tests.failed">
       <classpath refid="junit.classpath"/>
       <assertions>
         <enable package="edu.brandeis.cs.steele"/>
