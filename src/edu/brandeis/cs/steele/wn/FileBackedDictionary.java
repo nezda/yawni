@@ -94,6 +94,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** Factory method to get <i>the</i> dictionary backed by a set of files contained
    * in <var>searchDirectory</var>.
    */
+  //FIXME ignores passed in searchDirectory reference
   public static FileBackedDictionary getInstance(final String searchDirectory) {
     return InstanceHolder.instance;
   }
@@ -103,6 +104,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
    * @see RemoteFileManager
    */
+  //FIXME ignores passed in fileManager reference
   public static FileBackedDictionary getInstance(final FileManagerInterface fileManager) {
     return InstanceHolder.instance;
   }
@@ -427,9 +429,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   
   /** 
-   * TODO don't do this throw NoSuchElementException iterator stuff
    * @see DictionaryDatabase#indexWords 
    */
+  // TODO don't do this throw NoSuchElementException iterator stuff
   private class IndexWordIterator implements Iterator<IndexWord> {
     private final POS pos;
     private final String filename;
@@ -458,8 +460,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
           }
           nextOffset = db.getNextLinePointer(filename, nextOffset);
         } while (line.startsWith("  ")); // first few lines start with "  "
+        //FIXME something is wrong with this
         return new IndexWord(line, offset);
-      } catch (IOException e) {
+      } catch (final IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -473,9 +476,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
   
   /** 
-   * TODO don't do this throw NoSuchElementException iterator stuff
    * @see DictionaryDatabase#searchIndexWords 
    */
+  // TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchIterator implements Iterator<IndexWord> {
     private final POS pos;
     private final String substring;
@@ -515,9 +518,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
   
   /** 
-   * TODO don't do this throw NoSuchElementException iterator stuff
    * @see DictionaryDatabase#searchIndexBeginning 
    */
+  // TODO don't do this throw NoSuchElementException iterator stuff
   private class StartsWithSearchIterator implements Iterator<IndexWord> {
     private final POS pos;
     private final String prefix;
@@ -556,9 +559,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** 
-   * TODO don't do this throw NoSuchElementException iterator stuff
    * @see DictionaryDatabase#synsets 
    */
+  // TODO don't do this throw NoSuchElementException iterator stuff
   private class POSSynsetsIterator implements Iterator<Synset> {
     private final POS pos;
     private final String filename;
