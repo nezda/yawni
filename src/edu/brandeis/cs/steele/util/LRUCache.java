@@ -13,34 +13,32 @@ import java.util.*;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class LRUCache extends LinkedHashMap implements Cache {
+public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   protected int capacity;
 
   public LRUCache(int capacity) {
     this.capacity = capacity;
   }
 
-  public synchronized boolean isCached(Object key) {
-    return super.containsKey(key);
-  }
-
-  public synchronized Object put(Object key, Object value) {
+  @Override 
+  public synchronized V put(K key, V value) {
+    //FIXME XXX HACK DISABLED
+    //if(true) { return null; }
     return super.put(key, value);
   }
 
-  public synchronized Object get(Object key) {
+  @Override 
+  public synchronized V get(Object key) {
     return super.get(key);
   }
 
-  public synchronized Object remove(Object key) {
-    return super.remove(key);
-  }
-
+  @Override 
   public synchronized void clear() {
     super.clear();
   }
 
-  @Override protected boolean removeEldestEntry(Map.Entry eldest) {
+  @Override 
+  protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
     // Return true to cause the oldest elm to be removed
     return size() > capacity;
   }

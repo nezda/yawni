@@ -10,23 +10,18 @@ import java.util.*;
  * @author Luke Nezda
  * @version 1.0
  */
-public class UnboundedCache extends HashMap implements Cache {
-  public synchronized Object put(Object key, Object value) {
+public class UnboundedCache<K, V> extends HashMap<K, V> implements Cache<K, V> {
+  @Override
+  public synchronized V put(K key, V value) {
     return super.put(key, value);
   }
 
-  public synchronized boolean isCached(Object key) {
-    return super.containsKey(key);
-  }
-
-  public synchronized Object get(Object key) {
+  @Override
+  public synchronized V get(Object key) {
     return super.get(key);
   }
 
-  public synchronized Object remove(Object key) {
-    return super.remove(key);
-  }
-
+  @Override
   public synchronized void clear() {
     super.clear();
   }
