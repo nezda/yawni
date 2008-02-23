@@ -21,9 +21,9 @@ public class Pointer {
    * target has been queried.
    */
   protected static class TargetIndex {
-    long offset;
-    int index;
-    byte posOrdinal;
+    final long offset;
+    final int index;
+    final byte posOrdinal;
 
     TargetIndex(final POS pos, final long offset, final int index) {
       this.offset = offset;
@@ -35,33 +35,29 @@ public class Pointer {
   //
   // Instance variables
   //
-  protected Synset synset;
+  protected final Synset synset;
 
   /** The index of this Pointer within the array of Pointer's in the source Synset.
-   * Used by <code>equal</code>.
-   * LN This is <b>NOT</b> the sense number! 
+   * Used by <code>equals</code>.
    */
-  protected int index;
+  protected final int index;
   //TODO use a byte
-  protected PointerType pointerType;
-  protected PointerTarget source;
+  protected final PointerTarget source;
+  protected final PointerType pointerType;
 
   /** An index that can be used to retrieve the target.  The first time this is
    * used, it acts as an external key; subsequent uses, in conjunction with
    * {@link FileBackedDictionary}'s caching mechanism, can be thought of as a
    * {@link java.lang.ref.WeakReference}.
    */
-  protected TargetIndex targetIndex;
+  protected final TargetIndex targetIndex;
 
   //
   // Constructor and initialization
   //
-  Pointer(final Synset synset, final int index) {
+  Pointer(final Synset synset, final int index, final TokenizerParser tokenizer) {
     this.synset = synset;
     this.index = index;
-  }
-
-  Pointer initializeFrom(TokenizerParser tokenizer) {
     this.pointerType = PointerType.parseKey(tokenizer.nextToken());
 
     final long targetOffset = tokenizer.nextLong();
@@ -73,11 +69,10 @@ public class Pointer {
 
     this.source = resolveTarget(synset, sourceIndex);
     this.targetIndex = new TargetIndex(pos, targetOffset, targetIndex);
-    return this;
   }
 
   static Pointer parsePointer(final Synset source, final int index, final TokenizerParser tokenizer) {
-    return new Pointer(source, index).initializeFrom(tokenizer);
+    return new Pointer(source, index, tokenizer);
   }
 
 
@@ -86,8 +81,8 @@ public class Pointer {
   //
   @Override public boolean equals(Object object) {
     return (object instanceof Pointer)
-      && ((Pointer) object).source.equals(source)
-      && ((Pointer) object).index == index;
+      && ((Pointer) object).source.equals(this.source)
+      && ((Pointer) object).index == this.index;
   }
 
   @Override public int hashCode() {
