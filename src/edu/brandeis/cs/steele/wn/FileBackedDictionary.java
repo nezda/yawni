@@ -14,14 +14,14 @@ import java.util.logging.*;
 /** A <code>DictionaryDatabase</code> that retrieves objects from the text files in the WordNet distribution
  * directory.
  *
- * A <code>FileBackedDictionary</code> has an <it>entity cache</it>.  The entity cache is used to resolve multiple
+ * A <code>FileBackedDictionary</code> has an <i>entity cache</i>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
  * calls to <code>lookupIndexWord</code> with the same parameters would return the same value
  * (<code>==</code> as well as <code>equals</code>), as would traversal of two <code>Pointer</code>s
  * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
  * two different objects to represent the same entity, if their retrieval is separated by other
- * database operations.  <i>The LRU cache will be replaced by a cache based on WeakHashMap, once
- * JDK 1.2 becomes more widely available.</i>
+ * database operations.  FIXME revisit this comment FIXME <i>The LRU cache will be replaced by a 
+ * cache based on WeakHashMap, once JDK 1.2 becomes more widely available.</i>
  *
  * @see edu.brandeis.cs.steele.wn.DictionaryDatabase
  * @see edu.brandeis.cs.steele.util.Cache
@@ -217,6 +217,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   // Entity retrieval
   //
   
+  //FIXME cache's don't store null values!
   private static void cacheDebug(final Cache cache) {
     //System.err.println(cache.getClass().getSimpleName());
     //System.err.printf("getIndexWordAtCacheMiss: %d getIndexWordAtCacheHit: %d weirdGetIndexWordAtCacheMiss: %d\n", 
@@ -257,7 +258,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int getSynsetAtCacheMiss = 0;
   static int getSynsetAtCacheHit = 0;
   static int weirdGetSynsetAtCacheMiss = 0;
-
+  
   protected Synset getSynsetAt(final POS pos, final long offset, String line) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Synset synset = (Synset) synsetCache.get(cacheKey);
@@ -267,14 +268,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
     } else {
       ++getSynsetAtCacheMiss;
       cacheDebug(synsetCache);
-      if (true || line == null) {
+      if (line == null) {
         final String filename = getDataFilename(pos);
         try {
-          String altLine = db.readLineAt(filename, offset);
-          if(line != null) {
-            assert line.equals(altLine) : "\n"+line+"\n"+altLine;
-          }
-          line = altLine;
+          line = db.readLineAt(filename, offset);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -320,7 +317,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
       indexWordCache.put(cacheKey, indexWord);
     }
-    return (IndexWord)indexWordCache.get(cacheKey);
+    return indexWord;
   }
   
   /** LN Not used much - this might not even have a <i>unique</i> result ? */
@@ -345,6 +342,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return null;
   }
   
+  /** {@inheritDoc} */
   public String[] lookupBaseForms(final POS pos, final String someString) {
     // TODO use getindex() too ?
     final List<String> morphs = morphy.morphstr(someString, pos);
@@ -357,6 +355,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   private static final Synset[] NO_SYNSETS = new Synset[0];
 
+  /** {@inheritDoc} */
   public Synset[] lookupSynsets(final POS pos, final String someString) {
     // TODO use getindex() too ?
     final List<String> morphs = morphy.morphstr(someString, pos);
@@ -471,8 +470,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class IndexWordIterator
 
-  public Iterator<IndexWord> indexWords(final POS pos) {
-    return new LookaheadIterator<IndexWord>(new IndexWordIterator(pos));
+  /** {@inheritDoc} */
+  public Iterable<IndexWord> indexWords(final POS pos) {
+    return new Iterable<IndexWord>() {
+      public Iterator<IndexWord> iterator() {
+        return new LookaheadIterator<IndexWord>(new IndexWordIterator(pos));
+      }
+    };
   }
   
   /** 
@@ -513,8 +517,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class SearchIterator
 
-  public Iterator<IndexWord> searchIndexWords(final POS pos, final String substring) {
-    return new LookaheadIterator<IndexWord>(new SearchIterator(pos, substring));
+  /** {@inheritDoc} */
+  public Iterable<IndexWord> searchIndexWords(final POS pos, final String substring) {
+    return new Iterable<IndexWord>() {
+      public Iterator<IndexWord> iterator() {
+        return new LookaheadIterator<IndexWord>(new SearchIterator(pos, substring));
+      }
+    };
   }
   
   /** 
@@ -553,9 +562,14 @@ public class FileBackedDictionary implements DictionaryDatabase {
       throw new UnsupportedOperationException();
     }
   } // end class StartsWithSearchIterator
-
-  public Iterator<IndexWord> searchIndexBeginning(final POS pos, final String prefix) {
-    return new LookaheadIterator<IndexWord>(new StartsWithSearchIterator(pos, prefix));
+  
+  /** {@inheritDoc} */
+  public Iterable<IndexWord> searchIndexBeginning(final POS pos, final String prefix) {
+    return new Iterable<IndexWord>() {
+      public Iterator<IndexWord> iterator() {
+        return new LookaheadIterator<IndexWord>(new StartsWithSearchIterator(pos, prefix));
+      }
+    };
   }
 
   /** 
@@ -599,8 +613,12 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class POSSynsetsIterator
 
-  public Iterator<Synset> synsets(final POS pos) {
-    return new LookaheadIterator<Synset>(new POSSynsetsIterator(pos));
+  public Iterable<Synset> synsets(final POS pos) {
+    return new Iterable<Synset> () {
+      public Iterator<Synset> iterator() {
+        return new LookaheadIterator<Synset>(new POSSynsetsIterator(pos));
+      }
+    };
   }
 }
 

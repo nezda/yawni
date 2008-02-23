@@ -62,6 +62,8 @@ public class FileManager implements FileManagerInterface {
     }
 
     boolean matchingOffset(String filename, long offset) {
+      //FIXME XXX HACK HACK DISABLING
+      if(true) return false;
       return this.filename != null && previous == offset && this.filename.equals(filename);
     }
 
@@ -180,6 +182,8 @@ public class FileManager implements FileManagerInterface {
     @Override String readLine() throws IOException {
       final int s = position;
       final int e = scanToLineBreak();
+      assert s >= 0;
+      assert e >= 0;
       int len = e - s;
       if(len <= 0) {
         return null;
@@ -234,7 +238,9 @@ public class FileManager implements FileManagerInterface {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
       final String pathname = searchDirectory + File.separator + filename;
+      //slow CharStream? TODO test
       //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
+      //fast CharStream stream? TODO test
       stream = new NIOCharStream(new RandomAccessFile(pathname, "r"));
       filenameCache.put(filename, stream);
     }

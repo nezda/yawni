@@ -1,6 +1,7 @@
 Changes in 1.5.x versions
 - many bug fixes
   - fixed broken PointerType's
+  - iteration bugs
 - updating to Java 1.5 functionality
   - use built in java.util.logging.* for logging
   - added LookaheadIterator (analagous to LookaheadEnumeration)
@@ -8,11 +9,11 @@ Changes in 1.5.x versions
   - partial port of GUI to use Java Swing (largely broken right now)
   - generics
 - implemented Morhpy stemming algorithms
-- support for WordNet 3.0 data files
 - extreme speed improvements mainly due to
   - FileManager.CharStream and FileManager.NIOCharStream
   - copious amounts of caching (bounded, LRU strategy)
   - re-implemented LRUCache in terms of LinkedHashMap (much more efficient)
+- support for WordNet 3.0 data files
 - new/changed API methods
   - Word.getSenseNumber()
   - IndexWord.getSenses() -> IndexWord.getSynsets() and added Word[] IndexWord.getSenses()
