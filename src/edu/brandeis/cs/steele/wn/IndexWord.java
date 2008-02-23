@@ -20,7 +20,7 @@ public class IndexWord {
   private static final Logger log = Logger.getLogger(IndexWord.class.getName());
   
   /** offset in <var>pos</var><code>.index<code> file */
-  protected final long offset;
+  protected final int offset;
   /** LN No case "lemma"! Each {@link Word} has at least 1 true case lemma
    * (could vary by POS). 
    */
@@ -28,7 +28,7 @@ public class IndexWord {
   // number of senses with counts in sense tagged corpora
   protected final int taggedSenseCount;
   // senses are initially stored as offsets, and paged in on demand.
-  protected long[] synsetOffsets;
+  protected int[] synsetOffsets;
   /** This is null until {@link #getSynsets()} has been called. */
   protected Synset[] synsets;
 
@@ -37,7 +37,7 @@ public class IndexWord {
   //
   // Initialization
   //
-  IndexWord(final String line, final long offset) {
+  IndexWord(final String line, final int offset) {
     try {
       log.log(Level.FINEST, "parsing line: {0}", line);
       final TokenizerParser tokenizer = new TokenizerParser(line, " ");
@@ -59,9 +59,9 @@ public class IndexWord {
       //XXX what's the difference between poly_cnt and senseCount ?
       final int senseCount = tokenizer.nextInt();
       this.taggedSenseCount = tokenizer.nextInt();
-      this.synsetOffsets = new long[senseCount];
+      this.synsetOffsets = new int[senseCount];
       for (int i = 0; i < senseCount; ++i) {
-        synsetOffsets[i] = tokenizer.nextLong();
+        synsetOffsets[i] = tokenizer.nextInt();
       }
     } catch (final RuntimeException e) {
       log.log(Level.SEVERE, "IndexWord parse error on offset: {0} line:\n\"{1}\"", 

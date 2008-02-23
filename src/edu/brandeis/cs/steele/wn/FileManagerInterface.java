@@ -53,26 +53,26 @@ public interface FileManagerInterface extends Remote {
    * @return The file offset of the start of the matching line, or <code>-1</code> if no such line
    *         exists.
    */
-  public long getIndexedLinePointer(String filename, String index) throws IOException, RemoteException;
+  public int getIndexedLinePointer(String filename, String index) throws IOException, RemoteException;
 
   /** Read the line that begins at file offset <var>offset</var> in the file named by <var>filename</var>. */
-  public String readLineAt(String filename, long offset) throws IOException, RemoteException;
+  public String readLineAt(String filename, int offset) throws IOException, RemoteException;
 
   /** Search for the line following the line that begins at <var>offset</var>.
    * @return The file offset of the start of the line, or <code>-1</code> if <var>offset</var>
    *         is the last line in the file.
    */
-  public long getNextLinePointer(String filename, long offset) throws IOException, RemoteException;
+  public int getNextLinePointer(String filename, int offset) throws IOException, RemoteException;
 
   /** Search for a line whose index word <i>contains</i> <var>substring</var>.
    * @return The file offset of the start of the matching line, or <code>-1</code> if
    *         no such line exists.
    */
-  public long getMatchingLinePointer(String filename, long offset, String substring) throws IOException, RemoteException;
+  public int getMatchingLinePointer(String filename, int offset, String substring) throws IOException, RemoteException;
 
   /** Search for a line whose index word <i>begins with</i> <var>substring</var>.
    * @return The file offset of the start of the matching line, or <code>-1</code> if
    *         no such line exists.
    */
-  public long getMatchingBeginningLinePointer(String filename, long offset, String substring) throws IOException, RemoteException;
+  public int getMatchingBeginningLinePointer(String filename, int offset, String substring) throws IOException, RemoteException;
 }

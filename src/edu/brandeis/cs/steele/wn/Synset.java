@@ -28,12 +28,12 @@ public class Synset implements PointerTarget {
   // 
   // Instance implementation
   // 
-  /** offset in <tt>data.<i>pos</i><tt> file */
-  protected final long offset;
   protected final Word[] words;
   protected final Pointer[] pointers;
   //TODO make this a byte[]
   protected final char[] gloss;
+  /** offset in <tt>data.<i>pos</i><tt> file */
+  protected final int offset;
   protected final boolean isAdjectiveCluster;
   protected final byte posOrdinal;
 
@@ -43,7 +43,7 @@ public class Synset implements PointerTarget {
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   Synset(final String line) {
     final TokenizerParser tokenizer = new TokenizerParser(line, " ");
-    this.offset = tokenizer.nextLong();
+    this.offset = tokenizer.nextInt();
     //TODO expose this
     final String lex_filenum = tokenizer.nextToken();
     String ss_type = tokenizer.nextToken();
