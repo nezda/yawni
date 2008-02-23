@@ -21,11 +21,11 @@ public class Pointer {
    * target has been queried.
    */
   protected static class TargetIndex {
-    final int offset;
+    final long offset;
     final int index;
     final byte posOrdinal;
 
-    TargetIndex(final POS pos, final int offset, final int index) {
+    TargetIndex(final POS pos, final long offset, final int index) {
       this.offset = offset;
       this.index = index;
       this.posOrdinal = (byte)pos.ordinal();
@@ -60,7 +60,7 @@ public class Pointer {
     this.index = index;
     this.pointerType = PointerType.parseKey(tokenizer.nextToken());
 
-    final int targetOffset = tokenizer.nextInt();
+    final long targetOffset = tokenizer.nextLong();
 
     final POS pos = POS.lookup(tokenizer.nextToken());
     final int linkIndices = tokenizer.nextHexInt();

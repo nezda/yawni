@@ -123,10 +123,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
   } // end interface DatabaseKey
   
   protected static class POSOffsetDatabaseKey implements DatabaseKey {
-    private final int offset;
+    private final long offset;
     private final byte posOrdinal;
 
-    POSOffsetDatabaseKey(final POS pos, final int offset) {
+    POSOffsetDatabaseKey(final POS pos, final long offset) {
       this.offset = offset;
       this.posOrdinal = (byte) pos.ordinal();
     }
@@ -232,7 +232,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int getIndexWordAtCacheHit = 0;
   static int weirdGetIndexWordAtCacheMiss = 0;
   
-  public IndexWord getIndexWordAt(final POS pos, final int offset) {
+  public IndexWord getIndexWordAt(final POS pos, final long offset) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     IndexWord indexWord = (IndexWord) indexWordCache.get(cacheKey);
     if (indexWord != null) {
@@ -259,7 +259,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int getSynsetAtCacheHit = 0;
   static int weirdGetSynsetAtCacheMiss = 0;
   
-  protected Synset getSynsetAt(final POS pos, final int offset, String line) {
+  protected Synset getSynsetAt(final POS pos, final long offset, String line) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Synset synset = (Synset) synsetCache.get(cacheKey);
     if (synset != null) {
@@ -283,7 +283,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return synset;
   }
 
-  public Synset getSynsetAt(final POS pos, final int offset) {
+  public Synset getSynsetAt(final POS pos, final long offset) {
     return getSynsetAt(pos, offset, null);
   }
 
@@ -306,7 +306,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       ++lookupIndexWordCacheMiss;
       cacheDebug(indexWordCache);
       final String filename = getIndexFilename(pos);
-      final int offset;
+      final long offset;
       try {
         offset = db.getIndexedLinePointer(filename, lemma.toLowerCase().replace(' ', '_'));
       } catch (IOException e) {
@@ -327,7 +327,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     // use getindex() too ?
     final String filename = getExceptionsFilename(pos);
     try {
-      final int offset = db.getIndexedLinePointer(filename, derivation.toLowerCase());
+      final long offset = db.getIndexedLinePointer(filename, derivation.toLowerCase());
       if (offset >= 0) {
         final String line = db.readLineAt(filename, offset);
         // FIXME there could be > 1 entry on this line of the exception file
@@ -405,7 +405,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     assert pos != null;
     final String filename = getExceptionsFilename(pos);
     try {
-      final int offset = db.getIndexedLinePointer(filename, someString);
+      final long offset = db.getIndexedLinePointer(filename, someString);
       if (offset >= 0) {
         final String line = db.readLineAt(filename, offset);
         final String[] toReturn = line.split(" ");
@@ -434,8 +434,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private class IndexWordIterator implements Iterator<IndexWord> {
     private final POS pos;
     private final String filename;
-    private int nextOffset = 0;
-    private int offset = -1;
+    private long nextOffset = 0;
+    private long offset = -1;
 
     IndexWordIterator(final POS pos) {
       this.pos = pos;
@@ -487,7 +487,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     private final POS pos;
     private final String substring;
     private final String filename;
-    private int nextOffset = 0;
+    private long nextOffset = 0;
 
     SearchIterator(final POS pos, final String substring) {
       this.pos = pos;
@@ -500,7 +500,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
     public IndexWord next() {
       try {
-        final int offset = db.getMatchingLinePointer(filename, nextOffset, substring);
+        final long offset = db.getMatchingLinePointer(filename, nextOffset, substring);
         if (offset >= 0) {
           final IndexWord value = getIndexWordAt(pos, offset);
           nextOffset = db.getNextLinePointer(filename, offset);
@@ -534,7 +534,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     private final POS pos;
     private final String prefix;
     private final String filename;
-    private int nextOffset = 0;
+    private long nextOffset = 0;
     StartsWithSearchIterator(final POS pos, final String prefix) {
       this.pos = pos;
       this.prefix = prefix;
@@ -546,7 +546,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
     public IndexWord next() {
       try {
-        final int offset = db.getMatchingBeginningLinePointer(filename, nextOffset, prefix);
+        final long offset = db.getMatchingBeginningLinePointer(filename, nextOffset, prefix);
         if (offset >= 0) {
           final IndexWord value = getIndexWordAt(pos, offset);
           nextOffset = db.getNextLinePointer(filename, offset);
@@ -579,7 +579,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private class POSSynsetsIterator implements Iterator<Synset> {
     private final POS pos;
     private final String filename;
-    private int nextOffset = 0;
+    private long nextOffset = 0;
     POSSynsetsIterator(final POS pos) {
       this.pos = pos;
       this.filename = getDataFilename(pos);
@@ -591,7 +591,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     public Synset next() {
       try {
         String line;
-        int offset;
+        long offset;
         do {
           if (nextOffset < 0) {
             throw new NoSuchElementException();
