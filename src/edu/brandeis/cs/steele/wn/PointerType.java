@@ -147,15 +147,15 @@ public class PointerType {
   /** Return the <code>PointerType</code> whose key matches <var>key</var>.
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>PointerType</code>.
    */
-  static PointerType parseKey(String key) {
+  static PointerType parseKey(final String key) {
     for (int i = 0; i < TYPES.length; ++i) {
-      PointerType type = TYPES[i];
+      final PointerType type = TYPES[i];
       if (type.key.equals(key)) {
         return type;
       }
     }
     for (int i = 0; i < INDEX_ONLY.length; ++i) {
-      PointerType type = INDEX_ONLY[i];
+      final PointerType type = INDEX_ONLY[i];
       if (type.key.equals(key)) {
         return type;
       }
@@ -166,12 +166,12 @@ public class PointerType {
   /*
    * Instance Interface
    */
-  protected String label;
-  protected String key;
-  protected int flags;
+  protected final String label;
+  protected final String key;
+  protected final int flags;
   protected PointerType symmetricType;
 
-  protected PointerType(String label, String key, int flags) {
+  protected PointerType(final String label, final String key, final int flags) {
     this.label = label;
     this.key = key;
     this.flags = flags;
@@ -189,7 +189,7 @@ public class PointerType {
     return this.key;
   }
 
-  public boolean appliesTo(POS pos) {
+  public boolean appliesTo(final POS pos) {
     return (flags & POS_MASK[ArrayUtilities.indexOf(CATS, pos)]) != 0;
   }
 
