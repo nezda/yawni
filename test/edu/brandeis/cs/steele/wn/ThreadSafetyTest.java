@@ -1,6 +1,7 @@
 package edu.brandeis.cs.steele.wn;
 
-import junit.framework.TestCase;
+import junit.framework.JUnit4TestAdapter;
+import org.junit.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -10,15 +11,7 @@ import java.util.concurrent.*;
  * exceptions and expected input for given output.  Also stresses
  * memory usage demanded by the system.
  */
-public class ThreadSafetyTest extends TestCase {
-  private static <T> Iterable<T> iterablize(final Iterator<T> iterator) {
-    return new Iterable<T>() {
-      public Iterator<T> iterator() {
-        return iterator;
-      }
-    };
-  }
-
+public class ThreadSafetyTest {
   static class Antagonizer extends Thread {
     private final int id;
     private final Semaphore semaphore;
@@ -26,7 +19,6 @@ public class ThreadSafetyTest extends TestCase {
     Antagonizer(final int id, final Semaphore semaphore) { 
       this.id = id;
       this.semaphore = semaphore;
-      System.err.println(id+" Antagonizer created");
     }
 
     protected void antagonize1() {
@@ -34,18 +26,28 @@ public class ThreadSafetyTest extends TestCase {
     }
 
     protected void antagonize() {
+      System.err.println(id+" Antagonizer starting... "+Thread.currentThread());
       final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
       // iterate through Synset's of dictionary
       // iterate through XXX
-      for(final POS pos : POS.CATS) {
-        for(final IndexWord indexWord : iterablize(dictionary.indexWords(pos))) {
-          for(final Word word : indexWord.getSenses()) {
-            final String lemma = word.getLemma();
-            final Synset synset = word.getSynset();
-            String msg = id+" "+word;
-            //System.err.println(msg);
+      int wordsVisited = 0;
+      int indexWordsVisited = 0;
+      try {
+        for(final POS pos : POS.CATS) {
+          for(final IndexWord indexWord : dictionary.indexWords(pos)) {
+            ++indexWordsVisited;
+            for(final Word word : indexWord.getSenses()) {
+              final String lemma = word.getLemma();
+              final Synset synset = word.getSynset();
+              String msg = id+" "+word;
+              //System.err.println(msg);
+              ++wordsVisited;
+            }
           }
         }
+      } finally {
+        System.err.println("Antagonizer: "+id+
+            " wordsVisited: "+wordsVisited+" indexWordsVisited: "+indexWordsVisited);
       }
     }
 
@@ -58,6 +60,7 @@ public class ThreadSafetyTest extends TestCase {
     }
   }
 
+  @Test
   public void test1() {
     // synchronization strategy: CountDownLatch implemented with Semaphore
     // acquire 1 - n permits
@@ -82,12 +85,11 @@ public class ThreadSafetyTest extends TestCase {
     }
     System.err.println("done");
   }
-  // 2 Antagonizers detected errors:
-  // [junit] SEVERE: IndexWord parse error on line:
-  // [junit]  n 1 3 @ #m %m 1 0 12301917
-  // [junit] SEVERE: IndexWord parse error on line:
-  // [junit]  2 \ + 1 0 02658412
-  // [junit] SEVERE: IndexWord parse error on line:
-  // [junit]  00457072
-  // not reproducible with 1 Antagonizer
+  // possible bugs:
+  // - 2 threads trying to use CharStream at once - insufficient synchronization
+  // - NextLineCache ?
+
+  public static junit.framework.Test suite() {
+    return new JUnit4TestAdapter(ThreadSafetyTest.class);
+  }
 }
