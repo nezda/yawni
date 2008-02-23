@@ -29,29 +29,29 @@ public class Synset implements PointerTarget {
   // Instance implementation
   // 
   /** offset in <tt>data.<i>pos</i><tt> file */
-  protected long offset;
-  protected Word[] words;
-  protected Pointer[] pointers;
-  protected char[] gloss;
-  protected boolean isAdjectiveCluster;
-  protected byte posOrdinal;
+  protected final long offset;
+  protected final Word[] words;
+  protected final Pointer[] pointers;
+  //TODO make this a byte[]
+  protected final char[] gloss;
+  protected final boolean isAdjectiveCluster;
+  protected final byte posOrdinal;
 
   //
   // Object initialization
   //
-  Synset() {
-  }
-
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
-  Synset initializeFrom(final String line) {
+  Synset(final String line) {
     final TokenizerParser tokenizer = new TokenizerParser(line, " ");
     this.offset = tokenizer.nextLong();
+    //TODO expose this
     final String lex_filenum = tokenizer.nextToken();
     String ss_type = tokenizer.nextToken();
-    this.isAdjectiveCluster = false;
     if (ss_type.equals("s")) {
       ss_type = "a";
       this.isAdjectiveCluster = true;
+    } else {
+      this.isAdjectiveCluster = false;
     }
     this.posOrdinal = (byte) POS.lookup(ss_type).ordinal();
 
@@ -126,16 +126,18 @@ public class Synset implements PointerTarget {
         }
       }
       final int finalLen = (incEnd + 1) - (index + 2);
-      gloss = new char[finalLen];
+      this.gloss = new char[finalLen];
       assert gloss.length == finalLen: "gloss.length: "+gloss.length+" finalLen: "+finalLen;
       line.getChars(index + 2, incEnd + 1, gloss, 0);
+    } else {
+      log.log(Level.SEVERE, "Synset has no gloss?:\n" + line);
+      this.gloss = null;
     }
-    return this;
   }
 
   static Synset parseSynset(final String line) {
     try {
-      return new Synset().initializeFrom(line);
+      return new Synset(line);
     } catch (RuntimeException e) {
       log.log(Level.SEVERE, "Synset parse error on line:\n" + line);
       throw e;
@@ -208,7 +210,7 @@ public class Synset implements PointerTarget {
       if (i > 0) {
         buffer.append(", ");
       }
-      buffer.append(words[i].lemma);
+      buffer.append(words[i].getLemma());
     }
     return buffer.toString();
   }
