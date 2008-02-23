@@ -22,7 +22,7 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
 
   @Override 
   public synchronized V put(K key, V value) {
-    //FIXME XXX HACK DISABLED
+    //to disable for testing uncomment this
     //if(true) { return null; }
     return super.put(key, value);
   }
