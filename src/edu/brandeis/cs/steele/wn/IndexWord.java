@@ -20,20 +20,20 @@ public class IndexWord {
   private static final Logger log = Logger.getLogger(IndexWord.class.getName());
   
   /** offset in <var>pos</var><code>.index<code> file */
-  protected long offset;
+  protected final long offset;
   /** LN No case "lemma"! Each {@link Word} has at least 1 true case lemma
    * (could vary by POS). 
    */
-  protected String lemma; 
+  protected final String lemma; 
   // number of senses with counts in sense tagged corpora
-  protected int taggedSenseCount;
+  protected final int taggedSenseCount;
   // senses are initially stored as offsets, and paged in on demand.
   protected long[] synsetOffsets;
   /** This is null until {@link #getSynsets()} has been called. */
   protected Synset[] synsets;
 
-  protected PointerType[] ptrTypes = null;
-  protected byte posOrdinal;
+  protected final PointerType[] ptrTypes;
+  protected final byte posOrdinal;
   //
   // Initialization
   //
@@ -46,16 +46,17 @@ public class IndexWord {
 
       tokenizer.nextToken();	// poly_cnt
       final int p_cnt = tokenizer.nextInt();
-      ptrTypes = new PointerType[p_cnt];
+      this.ptrTypes = new PointerType[p_cnt];
       for (int i = 0; i < p_cnt; ++i) {
         try {
           ptrTypes[i] = PointerType.parseKey(tokenizer.nextToken());
         } catch (final java.util.NoSuchElementException exc) {
-          log.log(Level.SEVERE, "initializeFrom parseKey error:", exc);
+          log.log(Level.SEVERE, "IndexWord() got PointerType.parseKey() error:", exc);
         }
       }
 
       this.offset = offset;
+      //XXX what's the difference between poly_cnt and senseCount ?
       final int senseCount = tokenizer.nextInt();
       this.taggedSenseCount = tokenizer.nextInt();
       this.synsetOffsets = new long[senseCount];
@@ -63,7 +64,8 @@ public class IndexWord {
         synsetOffsets[i] = tokenizer.nextLong();
       }
     } catch (final RuntimeException e) {
-      log.log(Level.SEVERE, "IndexWord parse error on line:\n{0}", line);
+      log.log(Level.SEVERE, "IndexWord parse error on offset: {0} line:\n\"{1}\"", 
+          new Object[]{ offset, line });
       log.log(Level.SEVERE, "",  e);
       throw e;
     }
@@ -113,7 +115,7 @@ public class IndexWord {
    * or <code>"u.s."</code>.
    */
   public String getLemma() {
-    return lemma;
+    return lemma; 
   }
 
   public int getTaggedSenseCount() {
@@ -122,11 +124,12 @@ public class IndexWord {
 
   public Synset[] getSynsets() {
     if (synsets == null) {
+      final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
       //XXX could synsets be a WeakReference ?
       final Synset[] syns = new Synset[synsetOffsets.length];
       for (int i = 0; i < synsetOffsets.length; ++i) {
-        syns[i] = FileBackedDictionary.getInstance().getSynsetAt(getPOS(), synsetOffsets[i]);
-        assert syns[i] != null;
+        syns[i] = dictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
+        assert syns[i] != null : "null Synset at index "+i+" of "+this;
       }
       synsets = syns;
     }
@@ -139,7 +142,8 @@ public class IndexWord {
     for(final Synset synset : getSynsets()) {
       final Word word = synset.getWord(this);
       senses[senseNumberMinusOne] = word;
-      assert senses[senseNumberMinusOne] != null : this+" senseNumberMinusOne: "+senseNumberMinusOne;
+      assert senses[senseNumberMinusOne] != null : 
+        this+" null Word at senseNumberMinusOne: "+senseNumberMinusOne;
       senseNumberMinusOne++;
     }
     return senses;
