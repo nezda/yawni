@@ -1,9 +1,13 @@
 package edu.brandeis.cs.steele.wn;
 
-import junit.framework.TestCase;
+import junit.framework.JUnit4TestAdapter;
+import org.junit.*;
+import static org.junit.Assert.*;
 import java.util.*;
 
-public class MorphyTest extends TestCase {
+public class MorphyTest {
+  //TODO consider proper Parameterized tests
+  @Test
   public void test1() {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     String[][] unstemmedStemmedCases = new String[][] {
@@ -43,7 +47,6 @@ public class MorphyTest extends TestCase {
     }
   }
   // TODO
-  // - upgrade to junit4 (@Test, @Ignore, paramterized tests) - don't forget adapter
   // - test plan
   //   - Morphy
   //     - make sure caching strategies are not harming correctness (uses DatabaseKey(pos, someString))
@@ -51,10 +54,15 @@ public class MorphyTest extends TestCase {
   //     - using offets will require changes as WN is improved
   //     - could use lemmma, pos, and (sense number OR gloss)
   //   - other relations including derivationally related
-  //   * DictionaryDatabase iteration (require Xmx)
-  //     - check if iteration returns first AND last item (boundary cases) - look at data files manually
-  //   * multi-threaded correctness and no exceptions 
+  //   - add speed tests
+  //     - task-based: count unique Word's in all DBs
+  //     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
+  //     - compare speed with various CharStream impls (add some package private methods)
   //   - sense numbers
   //   - gloss
   //   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
+
+  public static junit.framework.Test suite() {
+    return new JUnit4TestAdapter(MorphyTest.class);
+  }
 }
