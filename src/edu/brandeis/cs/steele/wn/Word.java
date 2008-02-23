@@ -90,7 +90,7 @@ public class Word implements PointerTarget {
     if(senseNumber < 1) {
       final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
       final IndexWord indexWord = dictionary.lookupIndexWord(getPOS(), lemma);
-      assert indexWord != null;
+      assert indexWord != null : "lookupIndexWord failed for \""+lemma+"\" "+getPOS();
       int senseNumber = 0;
       for(final Synset syn : indexWord.getSynsets()) {
         --senseNumber;
