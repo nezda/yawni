@@ -5,16 +5,38 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
 
+// By far most complex features involve multi-words, esp those containing
+// prepositions and "-"
+// TODO add tests with prepositions
 public class MorphyTest {
   //TODO consider proper Parameterized tests
+
+  private static DictionaryDatabase dictionary;
+  @BeforeClass
+  public static void init() {
+    dictionary = FileBackedDictionary.getInstance();
+  }
+
+  private static List<String> stem(final String someString, final POS pos) {
+    return Arrays.asList(dictionary.lookupBaseForms(pos, someString));
+  }
+
+  private static boolean containsIgnoreCase(final String needle, final List<String> haystack) {
+    for(final String item : haystack) {
+      if(item.equalsIgnoreCase(needle)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Test
   public void test1() {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     String[][] unstemmedStemmedCases = new String[][] {
       { POS.NOUN.name(), "dogs", "dog" },
       { POS.NOUN.name(), "geese", "goose" },
       { POS.NOUN.name(), "handfuls", "handful" },
-      //"true case" bug { POS.NOUN.name(), "villas", "villa" },
+      { POS.NOUN.name(), "villas", "villa" }, // exposed true case bug
       { POS.NOUN.name(), "heiresses", "heiress" }, 
         //WN missing derivationally relation to neuter form "heir" - intentional?
       { POS.NOUN.name(), "heiress", "heiress" },
@@ -32,7 +54,13 @@ public class MorphyTest {
       { POS.NOUN.name(), "I ran", null }, // WN gets this as "Iran" - " " -> "" seems bad unless a variant has "-" in same position (WN online doesn't do this)
       { POS.NOUN.name(), "be an", null }, // WN gets this as "bean" (WN online doesn't do this)
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
+      { POS.NOUN.name(), "_slovaks_", "Slovak" },
+      { POS.NOUN.name(), "superheroes", "superhero" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
+      { POS.NOUN.name(), "_", null },
+      { POS.NOUN.name(), "armful", "armful" },
       { POS.VERB.name(), "dogs", "dog" },
+      { POS.VERB.name(), "abided by", "abide by" },
+      { POS.VERB.name(), "accounting for", "account for" },
       { POS.ADJ.name(), "onliner" /* no idea */, "online" },
       // should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
       { POS.ADJ.name(), "redder" /* no idea */, "red" },
@@ -41,11 +69,64 @@ public class MorphyTest {
       final POS pos = POS.valueOf(unstemmedStemmed[0]);
       final String unstemmed = unstemmedStemmed[1];
       final String stemmed = unstemmedStemmed[2];
-      final List<String> baseForms = Arrays.asList(dictionary.lookupBaseForms(pos, unstemmed));
+      final List<String> baseForms = stem(unstemmed, pos);
       assertTrue("unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms,
           baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
+      //TODO tighten up this test - don't allow any extra unspecified variants
+      // note this considers case variants distinct
+      assertTrue(isUnique(baseForms));
     }
   }
+
+  @Test
+  public void testMorphyUtils() {
+    // odd empty string is considered a word
+    assertEquals(1, Morphy.cntwords("", ' '));
+    assertEquals(1, Morphy.cntwords("dog", ' '));
+    // odd that cntwords uses passed in separator AND ' ' and '_'
+    assertEquals(2, Morphy.cntwords("dog_gone", ' '));
+    assertEquals(1, Morphy.cntwords("dog-gone", ' '));
+    assertEquals(2, Morphy.cntwords("dog-gone", '-'));
+  }
+
+  @Test
+  public void detectLostVariants() {
+    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+    int issues = 0;
+    int nonCaseIssues = 0;
+    for(final POS pos : POS.CATS) {
+      for(final IndexWord indexWord : dictionary.indexWords(pos)) {
+        for(final Word word : indexWord.getSenses()) {
+          final String lemma = word.getLemma();
+          final List<String> restems = stem(lemma, pos);
+          String msg = "ok";
+          if(false == restems.contains(lemma)) {
+            msg = "restems: "+restems+" doesn't contain lemma: "+lemma;
+            ++issues;
+            boolean nonCaseIssue = false == containsIgnoreCase(lemma, restems);
+            if(nonCaseIssue) {
+              ++nonCaseIssues;
+            }
+            System.err.println(
+                "issues: "+issues+" nonCases: "+nonCaseIssues+
+                (nonCaseIssue ? "*" : " ")+
+                " "+msg);
+          }
+          if(restems.size() > 1) {
+            //System.err.println(pos+" lemma: "+lemma+" restems: "+restems);
+          }
+          assertTrue(msg, restems.contains(lemma));
+          // note this considers case variants distinct
+          assertTrue(isUnique(restems));
+        }
+      }
+    }
+  }
+
+  private static boolean isUnique(final List<String> items) {
+    return items.size() == new HashSet<String>(items).size();
+  }
+
   // TODO
   // - test plan
   //   - Morphy
