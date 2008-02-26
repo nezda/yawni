@@ -165,8 +165,9 @@
     <junit 
       fork="yes"
       maxmemory="256m"
-      printsummary="off"
-      haltonfailure="no"
+      printsummary="false"
+      showoutput="yes"
+      haltonfailure="yes"
       errorProperty="tests.failed" 
       failureProperty="tests.failed">
       <classpath refid="junit.classpath"/>
