@@ -17,6 +17,7 @@ Changes in 1.5.x versions
 - new/changed API methods
   - Word.getSenseNumber()
   - IndexWord.getSenses() -> IndexWord.getSynsets() and added Word[] IndexWord.getSenses()
+  - made DictionaryDatabase Iterator's Iterables for ease of use (e.g. for loops)
 
 Changes in version 1.1
 
