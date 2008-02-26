@@ -9,6 +9,7 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 import java.util.logging.*;
 import java.nio.*;
+import java.nio.charset.*;
 import java.nio.channels.*;
 import java.io.*;
 
@@ -159,14 +160,14 @@ public class FileManager implements FileManagerInterface {
   } // end class RAFCharStream
 
   static class NIOCharStream extends CharStream {
-    // TODO switch from absolute get methods to relative methods (don't know
-    // how right now)
-    private int position;
-    private ByteBuffer buf;
+    protected int position;
+    protected final ByteBuffer buf;
+    
     NIOCharStream(final RandomAccessFile raf) throws IOException {
-      // optionally, mmap this file
       final FileChannel fileChannel = raf.getChannel();
       final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
+      // this buffer isDirect()
+      //log.log(Level.FINE, "mmap.fine(): {0}", mmap.isDirect());
       this.buf = mmap;
     }
     @Override void seek(final long position) throws IOException {
@@ -184,22 +185,23 @@ public class FileManager implements FileManagerInterface {
       final int e = scanToLineBreak();
       assert s >= 0;
       assert e >= 0;
-      int len = e - s;
+      final int len = e - s;
       if(len <= 0) {
         return null;
       }
       final char[] line = new char[len];
       for(int j = s, i = 0; i < line.length; ++i, ++j) {
+        // NOTE: casting byte to char here since WordNet is currently
+        // only ASCII
         line[i] = (char) buf.get(j);
       }
       final String toReturn = new String(line);
-      //System.err.println("returning: \""+toReturn+"\"");
       return toReturn;
     }
     @Override void skipLine() throws IOException {
       scanToLineBreak();
     }
-    private int scanToLineBreak() {
+    protected int scanToLineBreak() {
       // scan from current position to first ("\r\n"|"\r"|"\n")
       boolean done = false;
       boolean crnl = false;
@@ -230,6 +232,52 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class NIOCharStream
 
+  static class NIOCharStream2 extends NIOCharStream {
+    private CharBuffer cbuf;
+    private final CharsetDecoder decoder;
+    
+    NIOCharStream2(final RandomAccessFile raf) throws IOException {
+      super(raf);
+      this.cbuf = CharBuffer.allocate(1024);
+      final Charset US_ASCII = Charset.forName(/*"US-ASCII"*/"ISO-8859-1");
+      this.decoder = US_ASCII.newDecoder();
+    }
+    @Override String readLine() throws IOException {
+      final int s = position;
+      final int e = scanToLineBreak();
+      assert s >= 0;
+      assert e >= 0;
+      final int len = e - s;
+      if(len <= 0) {
+        return null;
+      }
+      buf.position(s);
+      buf.limit(e);
+      cbuf = resize(cbuf, len);
+      cbuf.clear();
+      decoder.reset();
+      CoderResult coderResult = decoder.decode(buf, cbuf, false);
+      assert coderResult == CoderResult.UNDERFLOW;
+      coderResult = decoder.decode(buf, cbuf, true);
+      assert coderResult == CoderResult.UNDERFLOW;
+      coderResult = decoder.flush(cbuf);
+      assert coderResult == CoderResult.UNDERFLOW;
+      cbuf.flip();
+      final String nioline = cbuf.toString();
+      buf.clear();
+      return nioline;
+    }
+    private static CharBuffer resize(final CharBuffer cbuf, final int len) {
+      if(len <= cbuf.capacity()) {
+        return cbuf;
+      }
+      final CharBuffer newBuf = CharBuffer.allocate(Math.max(len, cbuf.capacity() * 2));
+      cbuf.flip();
+      newBuf.put(cbuf);
+      return newBuf;
+    }
+  } // end class NIOCharStream2
+
   protected synchronized CharStream getFileStream(String filename) throws IOException {
     if (IS_WINDOWS_OS) {
       //TODO would be slow on Windows
@@ -238,10 +286,12 @@ public class FileManager implements FileManagerInterface {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
       final String pathname = searchDirectory + File.separator + filename;
-      //slow CharStream? TODO test
+      //slow CharStream
       //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
-      //fast CharStream stream? TODO test
+      //fast CharStream stream
       stream = new NIOCharStream(new RandomAccessFile(pathname, "r"));
+      //not as fast as NIOCharStream
+      //stream = new NIOCharStream2(new RandomAccessFile(pathname, "r"));
       filenameCache.put(filename, stream);
     }
     return stream;
