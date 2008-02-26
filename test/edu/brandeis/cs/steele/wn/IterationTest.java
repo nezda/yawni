@@ -39,7 +39,7 @@ public class IterationTest {
     assertTrue("not distinct objects?", first != nounIndexWords.iterator().next()); 
   }
 
-  //@Ignore // this test is kinda slow
+  @Ignore // this test is kinda slow
   @Test
   public void sequentialIterationTest() {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
