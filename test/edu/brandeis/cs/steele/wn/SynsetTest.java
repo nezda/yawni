@@ -15,7 +15,7 @@ public class SynsetTest {
         if(++count > 10) break;
         // exercise toString() and getGloss()
         final String msg = count+" "+synset+"\n  "+synset.getGloss();
-        System.err.println(msg);
+        //System.err.println(msg);
       }
     }
   }
