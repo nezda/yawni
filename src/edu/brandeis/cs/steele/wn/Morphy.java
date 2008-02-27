@@ -151,7 +151,7 @@ class Morphy {
     if (str.length() == 0) {
       return Collections.emptyList();
     }
-    int wordCount = cntwords(str, '_');
+    int wordCount = countWords(str, '_');
     if (log.isLoggable(Level.FINEST)) {
       log.finest("origstr: "+origstr+" wordCount: "+wordCount);
     }
@@ -161,14 +161,15 @@ class Morphy {
     int svprep = 0;
 
     boolean phase1Done = false;
+    //TODO no need to allocate this if we don't use it
     final List<String> toReturn = new ArrayList<String>();
 
     // first try exception list
-    String[] tmp = dictionary.exc_lookup(str, pos);
+    String[] tmp = dictionary.getExceptions(str, pos);
     if (tmp != null && tmp.length != 0 && tmp[1].equalsIgnoreCase(str) == false) {
       // force next time to pass null
       svcnt = 1;
-      // add variants from exclusion list
+      // add variants from exception list
       // verb.exc line "saw see"
       //  e.g. input: "saw" output: "see", "saw"
       //ONLY root: toReturn.add(clean(tmp[1]));
@@ -212,7 +213,7 @@ class Morphy {
       }
       phase1Done = true;
     } else if (phase1Done == false) {
-      svcnt = wordCount = cntwords(str, '-');
+      svcnt = wordCount = countWords(str, '-');
       if (log.isLoggable(Level.FINER)) {
         log.finer("origstr: \""+origstr+
             "\" str: \""+str+"\" wordCount: "+wordCount+" "+pos);
@@ -295,7 +296,6 @@ class Morphy {
       // if single-word, st_idx == 0, queryStr == original string and word == original string and searchStr == ""
       // else st_idx = s.length() and queryStr == "" and queryStr =="" and searchstr == (possibly) stemmed items collocation
       final String queryStr = word = str.substring(st_idx);
-      //XXX note queryStr.equals(word) now
 
       // this will trivially return null if queryStr == ""
       final String[] morphWords = morphword(queryStr, pos);
@@ -352,14 +352,14 @@ class Morphy {
       svprep = 0;
     } else if (svcnt == 1) {
       //assert toReturn.isEmpty() == false; // we should already have added 1 thing right ?
-      tmp = dictionary.exc_lookup(str, pos);
+      tmp = dictionary.getExceptions(str, pos);
       for (int i=1; tmp != null && i<tmp.length; ++i) {
         toReturn.add(tmp[i]);
       }
     } else {
       svcnt = 1; // LN pushes us back to above case (for subsequent calls) all this is destined for death anyway
       assert str != null; 
-      tmp = dictionary.exc_lookup(str, pos);
+      tmp = dictionary.getExceptions(str, pos);
       if (tmp != null && tmp.length != 0 && tmp[1].equalsIgnoreCase(str) == false) {
         for (int i=1; i < tmp.length; ++i) {
           toReturn.add(tmp[i]);
@@ -388,7 +388,7 @@ class Morphy {
 
   //TODO FIXME XXX
   // - this does not always produce unique answers - remove it and handle it all
-  //   in 1 spot in morpstr - not in morphword() or morphprep
+  //   in 1 spot in morphstr - not in morphword() or morphprep()
   // - revisit all equalsIgnoreCase() checks in here
   @Deprecated
   private String getTrueCaseLemma(final IndexWord indexWord, final POS pos) {
@@ -415,10 +415,9 @@ class Morphy {
         synsets.length+" synsets?");
   }
 
-  static String clean(String s) {
+  static String clean(final String s) {
     if (s == null) return s;
     return s.replace('_', ' ');
-    //return s;
   }
 
   /**
@@ -435,23 +434,21 @@ class Morphy {
   /**
    * Try to find baseform (lemma) of <b>individual word</b> <param>word</param>
    * in POS <param>pos</param>.
+   * Port of morph.c morphword().
    */
   private String[] morphword(final String word, final POS pos) {
-    if (log.isLoggable(Level.FINER)) {
-      log.finer("\""+word+"\", "+pos);
-    }
     if (word == null || word.length() == 0) {
       return null;
     }
     // first look for word on exception list
-    final String[] tmp = dictionary.exc_lookup(word, pos);
+    final String[] tmp = dictionary.getExceptions(word, pos);
     if (tmp != null && tmp.length != 0) {
       // found it in exception list
-      // LN skips first one because of modified exc_lookup semantics
+      // LN skips first one because of modified getExceptions semantics
       final String[] rest = new String[tmp.length - 1];
       System.arraycopy(tmp, 1, rest, 0, rest.length);
       if (log.isLoggable(Level.FINER)) {
-        log.finer("exc_lookup returning: "+Arrays.toString(rest));
+        log.finer("getExceptions returning: "+Arrays.toString(rest));
       }
       return rest;
     }
@@ -465,51 +462,12 @@ class Morphy {
     String end = "";
     if (pos == POS.NOUN) {
       if (word.endsWith("ful")) {
-        //TODO check that this is correct
         tmpbuf = word.substring(0, word.length() - "ful".length());
         end = "ful";
-        final IndexWord indexWord = is_defined(word, pos);
-        if (log.isLoggable(Level.FINER)) {
-          log.finer("trimming \"ful\" from word \""+word+"\" indexWord: "+indexWord);
-          //new Exception().printStackTrace();
-        }
-        //LN added - i'm not sure what they're getting at with this
-        //special case for *ful
-        if(indexWord != null) {
-          return new String[]{ getTrueCaseLemma(indexWord, pos) };
-        }
-      } else {
-        //TODO check that this is correct
-        IndexWord indexWord = null;
-        boolean bail = false;
+        //special case for *ful "boxesful" -> "boxful"
+      } else if (word.length() <= 2 || word.endsWith("ss")) {
         // check for noun ending with 'ss' or short words
-        if (word.endsWith("ss")) {
-          bail = true;
-          indexWord = is_defined(word, pos);
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("returning null ss word \""+word+"\" indexWord: "+indexWord);
-            //new Exception().printStackTrace();
-          }
-          //LN added - i'm not sure what they're getting at with this
-          //special case for *ful
-          if(indexWord != null) {
-            return new String[]{ getTrueCaseLemma(indexWord, pos) };
-          }
-        }
-        if (word.length() <= 2) {
-          bail = true;
-          indexWord = is_defined(word, pos);
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("returning null for short word \""+word+"\" indexWord: "+indexWord);
-          }
-        }
-        if (bail) {
-          if (indexWord == null) {
-            return null;
-          } else {
-            return new String[]{ getTrueCaseLemma(indexWord, pos) };
-          }
-        }
+        return null;
       }
     }
 
@@ -519,8 +477,6 @@ class Morphy {
       tmpbuf = word;
     }
 
-    //System.err.println("tmpbuf: "+tmpbuf);
-      
     final int offset = offsets[pos.getWordNetCode()];
     final int cnt = cnts[pos.getWordNetCode()];
     String[] toReturn = null;
@@ -536,25 +492,7 @@ class Morphy {
         lastRetval = retval;
       }
       IndexWord indexWord;
-      //if (log.isLoggable(Level.FINER)) {
-      //  final boolean same = retval.equals(tmpbuf);
-      //  if (null != is_defined(retval, pos)) {
-      //    if (same) {
-      //      if (log.isLoggable(Level.FINER)) {
-      //        log.finer(
-      //          "tmpbuf: \""+tmpbuf+"\" IGNORING retval: \""+retval+"\" same: "+
-      //          same+" cnt: "+cnt+" "+pos+" is_defined: true");
-      //      }
-      //    }
-      //  }
-      //}
-      if (/*retval.equals(tmpbuf) == false &&*/ null != (indexWord = is_defined(retval, pos))) {
-        if (end != null && end.length() != 0) {
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("end: "+end+" retval: "+retval);
-          }
-        }
-        //log.warning("trying to return "+retval);
+      if (retval.equals(tmpbuf) == false && null != (indexWord = is_defined(retval, pos))) {
         if (toReturn == null) {
           toReturn = new String[]{ getTrueCaseLemma(indexWord, pos) };
         } else {
@@ -568,18 +506,13 @@ class Morphy {
           System.arraycopy(toReturn, 0, newToReturn, 0, toReturn.length);
           newToReturn[toReturn.length] = nextWord;
           toReturn = newToReturn;
-          //System.err.println("2+ morphword()'s "+Arrays.toString(toReturn));
           if (log.isLoggable(Level.FINER)) {
             log.finer("returning: \""+retval+"\"");
           }
         }
-        //XXX wrong? return new String[]{ retval + end };
+        return new String[]{ retval + end };
       }
     }
-    //if (toReturn == null && lastRetval != null) {
-    //  debug(Level.WARNING, "IGNORING "+lastRetval);
-    //  //return new String[]{ lastRetval };
-    //}
     return toReturn;
   }
 
@@ -591,13 +524,14 @@ class Morphy {
     }
   }
 
+  /**
+   * Port of morph.c wordbase().
+   */
   private String wordbase(final String word, final int enderIdx) {
     if (log.isLoggable(Level.FINEST)) {
       log.finest("word: "+word+" enderIdx: "+enderIdx);
     }
     if (word.endsWith(SUFX[enderIdx])) {
-      //System.err.println("  output: "+word.substring(0, SUFX[enderIdx].length()) + ADDR[enderIdx]+
-      //    " fixed: "+word.substring(0, word.length() - SUFX[enderIdx].length()) + ADDR[enderIdx]);
       return word.substring(0, word.length() - SUFX[enderIdx].length()) + ADDR[enderIdx];
     }
     return word;
@@ -606,8 +540,9 @@ class Morphy {
   /**
    * Find a preposition in the verb string and return its
    * corresponding word number. 
+   * Port of morph.c hasprep().
    */
-  private int hasprep(String s, int wdcnt) {
+  private int hasprep(final String s, final int wdcnt) {
     if (log.isLoggable(Level.FINER)) {
       log.finer("s: "+s+" wdcnt: "+wdcnt);
     }
@@ -616,6 +551,7 @@ class Morphy {
       assert startIdx >= 0;
       ++startIdx; // bump past '_'
       for(final String prep : PREPOSITIONS) {
+        // LN if matches a known preposition on a word boundary
         if (s.regionMatches(startIdx, prep, 0, prep.length()) &&
            ( startIdx + prep.length() == s.length() ||
              s.charAt(startIdx + prep.length()) == '_' )
@@ -633,6 +569,7 @@ class Morphy {
 
   /** 
    * Note: all letters in <param>s</param> are lowercase.
+   * Port of morph.c morphprep()
    */
   private String morphprep(final String s) {
     // Assume that the verb is the first word in the phrase.  Strip it
@@ -644,33 +581,25 @@ class Morphy {
     final int rest = s.indexOf('_');
     final int last = s.lastIndexOf('_');
     if (rest != last) {           
-      // more than 2 words
-      lastwd = morphword(s.substring(last + 1), POS.NOUN);
-      //FIXME loosing some words from morphword ?
+      // implies more than 2 words (required for prepositional phrase)
       if (lastwd != null) {
         // last word found as a NOUN
-        if (lastwd.length != 1) {
-          if (log.isLoggable(Level.WARNING)) {
-            log.warning("morphprep() losing variants!: "+Arrays.toString(lastwd));
-          }
-        }
+        checkLosingVariants(lastwd, "morphprep()");
         // end = s[2:-1*] * noun stemmed form of last word
         end = s.substring(rest, last) + lastwd[0];
       }
     }
 
     final String firstWord = s.substring(0, rest);
-    for (int i = 0, cnt = firstWord.length(); i < cnt; i++) {
-      if (Character.isLetterOrDigit(firstWord.charAt(i)) == false) {
-        return null;
-      }
+    if(isPossibleVerb(firstWord) == false) {
+      return null;
     }
 
     // First try to find the verb (which were are assuming is the first word) in
     // the exception list
 
     String retval = null;
-    final String[] exc_words = dictionary.exc_lookup(firstWord, POS.VERB);
+    final String[] exc_words = dictionary.getExceptions(firstWord, POS.VERB);
     if (log.isLoggable(Level.FINER) && 
         exc_words != null && exc_words.length > 0 && exc_words[1].equals(firstWord) == false) {
       log.finer("exc_words "+Arrays.toString(exc_words)+
@@ -682,8 +611,6 @@ class Morphy {
           log.warning("losing exception list variant(s)?!: "+Arrays.toString(exc_words));
         }
       }
-      //System.err.println("exc_words "+Arrays.toString(exc_words)+
-      //    " found for firstWord \""+firstWord+"\" rest: "+rest+" end: "+end);
       retval = exc_words[1] + s.substring(rest);
       IndexWord indexWord;
       if (null != (indexWord = is_defined(retval, POS.VERB))) {
@@ -730,15 +657,9 @@ class Morphy {
         }
       }
     }
-    //LN: this does not mean it was in the database does it?
-    if (log.isLoggable(Level.FINER)) {
-      log.finer("firstWord: "+firstWord+" rest: "+rest+" s.substring(rest): "+s.substring(7)+" end: "+end);
-    }
     retval = firstWord + s.substring(rest);
     if (false == s.equals(retval)) {
-      if (log.isLoggable(Level.FINER)) {
-        //log.finer("returning retval: "+retval+" indexWord: "+indexWord);
-      }
+      // this makes no senses -- copied from morph.c
       return retval;
     }
     if (lastwd != null) {
@@ -748,14 +669,33 @@ class Morphy {
       }
     }
     return null;
-  } // end morphprep()
+  }
+
+  private void checkLosingVariants(final String[] words, final String message) {
+    if (words != null && words.length != 1) {
+      if (log.isLoggable(Level.WARNING)) {
+        log.warning(message+" losing variants!: "+Arrays.toString(words));
+      }
+    }
+  }
+
+  private boolean isPossibleVerb(final CharSequence word) {
+    for (int i = 0, cnt = word.length(); i < cnt; i++) {
+      if (Character.isLetterOrDigit(word.charAt(i)) == false &&
+          word.charAt(i) != '-') {
+        // added minor extension to allow verbs containing dashes
+        return false;
+      }
+    }
+    return true;
+  }
 
   /** 
    * Count the number of words in a string delimited by space, underscore or
    * the passed in separator.
-   * wnutil.c
+   * Port of wnutil.c cntwords().
    */
-  static int cntwords(final String s, char separator) {
+  static int countWords(final String s, final char separator) {
     int wdcnt = 0;
     int i = 0;
     final int len = s.length();

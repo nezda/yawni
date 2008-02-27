@@ -58,9 +58,21 @@ public class MorphyTest {
       { POS.NOUN.name(), "superheroes", "superhero" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
       { POS.NOUN.name(), "_", null },
       { POS.NOUN.name(), "armful", "armful" },
+      { POS.NOUN.name(), "attorneys general", "attorney general" },
+      { POS.NOUN.name(), "axes", "ax", "axis", "Axis" }, //XXX currently fails! NOTE: noun "axe" is only derivationally related to "ax"
+      { POS.NOUN.name(), "boxesful", "boxful" },
+      //{ POS.NOUN.name(), "bachelor of art", "Bachelor of Arts" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
+      { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
+      { POS.NOUN.name(), "lines of business", "line of business" },
+      { POS.NOUN.name(), "SS", "SS" },
       { POS.VERB.name(), "dogs", "dog" },
       { POS.VERB.name(), "abided by", "abide by" },
+      { POS.VERB.name(), "gave a damn", "give a damn" },
+      { POS.VERB.name(), "asking for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
+      { POS.VERB.name(), "was", "be" },
+      //{ POS.VERB.name(), "finesses", "finess" }, not in WordNet 3.0
+      { POS.VERB.name(), "accesses", "access" },
       { POS.ADJ.name(), "onliner" /* no idea */, "online" },
       // should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
       { POS.ADJ.name(), "redder" /* no idea */, "red" },
@@ -72,8 +84,11 @@ public class MorphyTest {
       final List<String> baseForms = stem(unstemmed, pos);
       assertTrue("unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms,
           baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
-      //TODO tighten up this test - don't allow any extra unspecified variants
-      // note this considers case variants distinct
+      if(baseForms.size() > 2) {
+        //TODO tighten up this test - don't allow any extra unspecified variants
+        // note this considers case variants distinct
+        System.err.println("extra variants for \""+unstemmed+"\": "+baseForms);
+      }
       assertTrue(isUnique(baseForms));
     }
   }
@@ -81,12 +96,12 @@ public class MorphyTest {
   @Test
   public void testMorphyUtils() {
     // odd empty string is considered a word
-    assertEquals(1, Morphy.cntwords("", ' '));
-    assertEquals(1, Morphy.cntwords("dog", ' '));
-    // odd that cntwords uses passed in separator AND ' ' and '_'
-    assertEquals(2, Morphy.cntwords("dog_gone", ' '));
-    assertEquals(1, Morphy.cntwords("dog-gone", ' '));
-    assertEquals(2, Morphy.cntwords("dog-gone", '-'));
+    assertEquals(1, Morphy.countWords("", ' '));
+    assertEquals(1, Morphy.countWords("dog", ' '));
+    // odd that countWords uses passed in separator AND ' ' and '_'
+    assertEquals(2, Morphy.countWords("dog_gone", ' '));
+    assertEquals(1, Morphy.countWords("dog-gone", ' '));
+    assertEquals(2, Morphy.countWords("dog-gone", '-'));
   }
 
   @Test

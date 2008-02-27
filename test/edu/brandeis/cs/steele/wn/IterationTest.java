@@ -10,6 +10,9 @@ import java.util.concurrent.*;
  * Goal: verify various iteration methods of dictiony behave as expected
  */
 public class IterationTest {
+  // test searching iterators
+  //   searchIndexBeginning()
+  //   searchIndexWords()
   /** <b>Parts of this test uses hard coded values for WordNet 3.0 </b> */
   @Test
   public void indexWordIterationBoundaryTests() {
@@ -44,7 +47,6 @@ public class IterationTest {
   public void sequentialIterationTest() {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     // iterate through Synset's of dictionary
-    // iterate through XXX
     int n = 2;
     System.err.println("starting "+n+" full iterations...");
     int totalWordsVisited = 0;

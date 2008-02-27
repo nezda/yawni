@@ -394,7 +394,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * <b>NOTE: Skip the first entry (the exceptional word itself!)</b>
    * morph.c exc_lookup()
    */
-  String[] exc_lookup(final String someString, final POS pos) {
+  String[] getExceptions(final String someString, final POS pos) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(someString, pos);
     final Object cached = exceptionsCache.get(cacheKey);
     if(cached != null) {
