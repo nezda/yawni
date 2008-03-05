@@ -30,6 +30,15 @@ public class MorphyTest {
     return false;
   }
 
+  private static boolean baseFormContainsUnderScore(final List<String> baseForms) {
+    for(final String baseForm : baseForms) {
+      if(baseForm.indexOf("_") >= 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Test
   public void test1() {
     String[][] unstemmedStemmedCases = new String[][] {
@@ -37,6 +46,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "geese", "goose" },
       { POS.NOUN.name(), "handfuls", "handful" },
       { POS.NOUN.name(), "villas", "villa" }, // exposed true case bug
+      { POS.NOUN.name(), "Villa", "Villa" }, // exposed true case bug
       { POS.NOUN.name(), "heiresses", "heiress" }, 
         //WN missing derivationally relation to neuter form "heir" - intentional?
       { POS.NOUN.name(), "heiress", "heiress" },
@@ -59,23 +69,35 @@ public class MorphyTest {
       { POS.NOUN.name(), "_", null },
       { POS.NOUN.name(), "armful", "armful" },
       { POS.NOUN.name(), "attorneys general", "attorney general" },
-      { POS.NOUN.name(), "axes", "ax", "axis", "Axis" }, //XXX currently fails! NOTE: noun "axe" is only derivationally related to "ax"
+      { POS.NOUN.name(), "axes", "ax", "axis", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
       { POS.NOUN.name(), "boxesful", "boxful" },
       //{ POS.NOUN.name(), "bachelor of art", "Bachelor of Arts" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
-      { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
+      { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" }, 
       { POS.NOUN.name(), "lines of business", "line of business" },
       { POS.NOUN.name(), "SS", "SS" },
+      { POS.NOUN.name(), "mamma's boy", "mamma's boy" },
+      { POS.NOUN.name(), "15_minutes", "15 minutes" },
       { POS.VERB.name(), "dogs", "dog" },
       { POS.VERB.name(), "abided by", "abide by" },
       { POS.VERB.name(), "gave a damn", "give a damn" },
       { POS.VERB.name(), "asking for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
       { POS.VERB.name(), "was", "be" },
-      //{ POS.VERB.name(), "finesses", "finess" }, not in WordNet 3.0
+      { POS.VERB.name(), "cannonball along", "cannonball along" },
+      //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, //XXX currently fails wnb too
+      //{ POS.VERB.name(), "finesses", "finesse" }, //not in WordNet 3.0 as a Verb
       { POS.VERB.name(), "accesses", "access" },
+      { POS.VERB.name(), "went", "go" },
+      { POS.VERB.name(), "bloging" /* spelled wrong */, "blog" },
+      //{ POS.VERB.name(), "blogging" /* spelled correctly, not in exceptions file */, "blog" },
+      { POS.VERB.name(), "shook hands", "shake hands" },
+      { POS.VERB.name(), "Americanize", "Americanize" }, // capitalized verb - grep "v [0-9]+ [A-Z]" data.verb
+      { POS.VERB.name(), "saw", "see", "saw" },
       { POS.ADJ.name(), "onliner" /* no idea */, "online" },
       // should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
       { POS.ADJ.name(), "redder" /* no idea */, "red" },
+      { POS.ADJ.name(), "Middle Eastern", "Middle Eastern" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
+      { POS.ADJ.name(), "Latin-American", "Latin-American" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
     };
     for(final String[] unstemmedStemmed : unstemmedStemmedCases) {
       final POS pos = POS.valueOf(unstemmedStemmed[0]);
@@ -84,6 +106,8 @@ public class MorphyTest {
       final List<String> baseForms = stem(unstemmed, pos);
       assertTrue("unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms,
           baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
+      assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
+      //TODO on failure, could try other POS
       if(baseForms.size() > 2) {
         //TODO tighten up this test - don't allow any extra unspecified variants
         // note this considers case variants distinct
@@ -95,7 +119,7 @@ public class MorphyTest {
 
   @Test
   public void testMorphyUtils() {
-    // odd empty string is considered a word
+    // odd empty string is considered 1 word (not 0)
     assertEquals(1, Morphy.countWords("", ' '));
     assertEquals(1, Morphy.countWords("dog", ' '));
     // odd that countWords uses passed in separator AND ' ' and '_'
@@ -141,6 +165,51 @@ public class MorphyTest {
   private static boolean isUnique(final List<String> items) {
     return items.size() == new HashSet<String>(items).size();
   }
+
+  //won't find anything without getindex() functionality?
+  //@Test
+  //public void findLexicalAmbiguity() {
+  //  final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+  //  int issues = 0;
+  //  int nonCaseIssues = 0;
+  //  for(final POS pos : POS.CATS) {
+  //    for(final IndexWord indexWord : dictionary.indexWords(pos)) {
+  //      for(final Word word : indexWord.getSenses()) {
+  //        final String lemma = word.getLemma();
+  //        for(final POS otherPOS : POS.CATS) {
+  //          if(otherPOS == pos) {
+  //            continue;
+  //          }
+  //          // TODO
+  //          // search for this lemma in other POS
+  //          // see if we can find lexical ambiguity
+  //          // e.g. NOUN("long time")
+  //          // ADJ("longtime)
+  //        }
+  //        //XXX final List<String> restems = stem(lemma, pos);
+  //        //XXX String msg = "ok";
+  //        //XXX if(false == restems.contains(lemma)) {
+  //        //XXX   msg = "restems: "+restems+" doesn't contain lemma: "+lemma;
+  //        //XXX   ++issues;
+  //        //XXX   boolean nonCaseIssue = false == containsIgnoreCase(lemma, restems);
+  //        //XXX   if(nonCaseIssue) {
+  //        //XXX     ++nonCaseIssues;
+  //        //XXX   }
+  //        //XXX   System.err.println(
+  //        //XXX       "issues: "+issues+" nonCases: "+nonCaseIssues+
+  //        //XXX       (nonCaseIssue ? "*" : " ")+
+  //        //XXX       " "+msg);
+  //        //XXX }
+  //        //XXX if(restems.size() > 1) {
+  //        //XXX   //System.err.println(pos+" lemma: "+lemma+" restems: "+restems);
+  //        //XXX }
+  //        //XXX assertTrue(msg, restems.contains(lemma));
+  //        //XXX // note this considers case variants distinct
+  //        //XXX assertTrue(isUnique(restems));
+  //      }
+  //    }
+  //  }
+  //}
 
   // TODO
   // - test plan
