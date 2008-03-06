@@ -74,9 +74,9 @@ public enum POS {
   /** Return the <code>PointerType</code> whose key matches <var>key</var>.
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>POS</code>.
    */
-  public static POS lookup(final String key) {
+  public static POS lookup(final CharSequence key) {
     for (int i = 0; i < CATS.length; ++i) {
-      if (key.equals(CATS[i].key)) {
+      if (CATS[i].key.contentEquals(key)) {
         return CATS[i];
       }
     }

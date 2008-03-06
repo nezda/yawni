@@ -37,11 +37,11 @@ public class IndexWord {
   //
   // Initialization
   //
-  IndexWord(final String line, final long offset) {
+  IndexWord(final CharSequence line, final long offset) {
     try {
       log.log(Level.FINEST, "parsing line: {0}", line);
-      final TokenizerParser tokenizer = new TokenizerParser(line, " ");
-      this.lemma = tokenizer.nextToken().replace('_', ' ');
+      final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
+      this.lemma = tokenizer.nextToken().toString().replace('_', ' ');
       this.posOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
 
       tokenizer.nextToken();	// poly_cnt

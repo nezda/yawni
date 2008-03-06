@@ -147,16 +147,16 @@ public class PointerType {
   /** Return the <code>PointerType</code> whose key matches <var>key</var>.
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>PointerType</code>.
    */
-  static PointerType parseKey(final String key) {
+  static PointerType parseKey(final CharSequence key) {
     for (int i = 0; i < TYPES.length; ++i) {
       final PointerType type = TYPES[i];
-      if (type.key.equals(key)) {
+      if (type.key.contentEquals(key)) {
         return type;
       }
     }
     for (int i = 0; i < INDEX_ONLY.length; ++i) {
       final PointerType type = INDEX_ONLY[i];
-      if (type.key.equals(key)) {
+      if (type.key.contentEquals(key)) {
         return type;
       }
     }
