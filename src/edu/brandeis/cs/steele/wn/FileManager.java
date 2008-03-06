@@ -232,6 +232,52 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class NIOCharStream
 
+  /**
+   * Like a read-only CharBuffer made from a ByteBuffer with a stride of 1
+   * instead of 2.
+   */
+  static class ByteCharBuffer implements CharSequence {
+    private final ByteBuffer bb;
+    ByteCharBuffer(final ByteBuffer bb) {
+      this(bb, true);
+    }
+    ByteCharBuffer(final ByteBuffer bb, final boolean dupAndClear) {
+      if(dupAndClear) {
+        this.bb = bb.duplicate();
+        this.bb.clear();
+      } else {
+        this.bb = bb;
+      }
+    }
+    public int capacity() { return bb.capacity(); }
+    public ByteCharBuffer clear() { bb.clear(); return this; }
+    public ByteCharBuffer duplicate() {
+      return new ByteCharBuffer(bb.duplicate(), false);
+    }
+    public ByteCharBuffer flip() { bb.flip(); return this; }
+    public char get() { return (char) bb.get(); }
+    public char get(final int index) { return (char) bb.get(index); }
+    public boolean hasRemaining() { return bb.hasRemaining(); }
+    public boolean isDirect() { return bb.isDirect(); }
+    public ByteCharBuffer slice() {
+      return new ByteCharBuffer(bb.slice(), false);
+    }
+    public int limit() { return bb.limit(); }
+    public ByteCharBuffer limit(final int newLimit){ bb.limit(newLimit); return this; }
+    public ByteCharBuffer mark() { bb.mark(); return this; }
+    public int position() { return bb.position(); }
+    public ByteCharBuffer position(final int newPosition) { bb.position(newPosition); return this; }
+    public int remaining() { return bb.remaining(); }
+    public ByteCharBuffer reset() { bb.reset(); return this; }
+    public ByteCharBuffer rewind() { bb.rewind(); return this; }
+    public char charAt(final int index) { return get(index); }
+    public int length() { return bb.remaining(); }
+    public CharSequence subSequence(final int start, final int end) {
+      // XXX not sure if a slice should be used here
+      throw new UnsupportedOperationException("IMPLEMENT ME");
+    }
+  } // end class ByteCharBuffer
+
   static class NIOCharStream2 extends NIOCharStream {
     private CharBuffer cbuf;
     private final CharsetDecoder decoder;
@@ -241,6 +287,12 @@ public class FileManager implements FileManagerInterface {
       this.cbuf = CharBuffer.allocate(1024);
       final Charset US_ASCII = Charset.forName(/*"US-ASCII"*/"ISO-8859-1");
       this.decoder = US_ASCII.newDecoder();
+      //XXX can CharBuffer be created  which wraps
+      //ByteBuffer and decodes on-the-fly?
+      //- seems the best strategy is to decode the entire ByteBuffer
+      //- into a CharBuffer ?
+      //* can create a trivial CharBuffer which wraps a ByteBuffer
+      //but uses a "stride" of 1 instead of the default 2 ByteBuffer.asCharBuffer() uses
     }
     @Override String readLine() throws IOException {
       final int s = position;
