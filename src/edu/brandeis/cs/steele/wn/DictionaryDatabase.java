@@ -31,7 +31,7 @@ public interface DictionaryDatabase {
    * exists in the database. e.g. returns "goose" from derivation query term
    * "geese" as <code>POS.NOUN</code>.
    * @param pos The part-of-speech.
-   * @param derivationLemma The <i>inflected</i> form of the word.
+   * @param derivationLemma A (possibly <i>inflected</i>) form of the a word.
    * @return The <i>uninflected</i> word, or <code>null</code> if no exception entry exists.
    */
   public String lookupBaseForm(final POS pos, final String derivationLemma);
@@ -55,7 +55,7 @@ public interface DictionaryDatabase {
   public Synset[] lookupSynsets(final POS pos, final String someString);
 
   /**
-   * Return an enumeration of all the IndexWords of the <var>pos</var> <code>POS</code>.
+   * Return an enumeration of <b>all</b> the IndexWords of in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>IndexWord</code>s.
    */
@@ -71,7 +71,7 @@ public interface DictionaryDatabase {
   public Iterable<IndexWord> searchIndexWords(final POS pos, final String substring);
 
   /** 
-   * Return an enumeration of all the IndexWords whose lemmas <b>begin with</b> <var>substring</var>.
+   * Return an enumeration of all the IndexWords whose lemmas <b>begin with</b> <var>prefix</var>.
    * @param pos The part-of-speech.
    * @param substring
    * @return An iterable of <code>IndexWord</code>s.
