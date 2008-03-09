@@ -12,16 +12,18 @@ package edu.brandeis.cs.steele.util;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public abstract class ArrayUtilities {
-	/** Return the index of the first element of <var>array</var> that is <code>equal</code>
-	 * to <var>value</var>, or <code>-1</code>, if no such element exists.
-	 */
-	public static int indexOf(Object[] array, Object value) {
-		for (int i = 0; i < array.length; ++i) {
-			if (array[i].equals(value)) {
-				return i;
-			}
-		}
-		return -1;
-	}
+public class ArrayUtilities {
+  private ArrayUtilities(){};
+
+  /** Return the index of the first element of <var>array</var> that is <code>equal</code>
+   * to <var>value</var>, or <code>-1</code>, if no such element exists.
+   */
+  public static int indexOf(final Object[] array, final Object value) {
+    for (int i = 0; i < array.length; ++i) {
+      if (array[i].equals(value)) {
+        return i;
+      }
+    }
+    return -1;
+  }
 }
