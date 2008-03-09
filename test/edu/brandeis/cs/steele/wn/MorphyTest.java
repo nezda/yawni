@@ -40,6 +40,32 @@ public class MorphyTest {
   }
 
   @Test
+  public void testCharSequenceTokenizer() {
+    //CharSequenceTokenizer tokens = new CharSequenceTokenizer("1 2 3");
+    //CharSequenceTokenizer tokens = new CharSequenceTokenizer(" 1 2 3");
+    //CharSequenceTokenizer tokens = new CharSequenceTokenizer(" 1");
+    //while(tokens.hasNext()) {
+    //  System.err.printf("next: \"%s\"\n", tokens.nextInt());
+    //}
+
+    String s = "0";
+    assertEquals(0, new CharSequenceTokenizer(s).nextInt());
+    s = " 0";
+    assertEquals(0, new CharSequenceTokenizer(s).nextInt());
+    s = "1";
+    assertEquals(1, new CharSequenceTokenizer(s).nextInt());
+    s = " 1";
+    assertEquals(1, new CharSequenceTokenizer(s).nextInt());
+    s = " 1 ";
+    assertEquals(1, new CharSequenceTokenizer(s).nextInt());
+    s = "-1";
+    assertEquals(-1, new CharSequenceTokenizer(s).nextInt());
+    s = " -1";
+    assertEquals(-1, new CharSequenceTokenizer(s).nextInt());
+    //System.err.println("testCharSequenceTokenizer passed");
+  }
+
+  @Test
   public void test1() {
     String[][] unstemmedStemmedCases = new String[][] {
       { POS.NOUN.name(), "dogs", "dog" },
