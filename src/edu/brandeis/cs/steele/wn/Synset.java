@@ -42,12 +42,12 @@ public class Synset implements PointerTarget {
   //
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   Synset(final String line) {
-    final TokenizerParser tokenizer = new TokenizerParser(line, " ");
+    final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextLong();
     //TODO expose this
-    final String lex_filenum = tokenizer.nextToken();
-    String ss_type = tokenizer.nextToken();
-    if (ss_type.equals("s")) {
+    final CharSequence lex_filenum = tokenizer.nextToken();
+    CharSequence ss_type = tokenizer.nextToken();
+    if ("s".contentEquals(ss_type)) {
       ss_type = "a";
       this.isAdjectiveCluster = true;
     } else {
@@ -58,7 +58,7 @@ public class Synset implements PointerTarget {
     final int wordCount = tokenizer.nextHexInt();
     this.words = new Word[wordCount];
     for (int i = 0; i < wordCount; ++i) {
-      String lemma = tokenizer.nextToken();
+      String lemma = tokenizer.nextToken().toString();
       final String originalLemma = lemma;
       final int id = tokenizer.nextHexInt();
       int flags = Word.NONE;
@@ -85,14 +85,14 @@ public class Synset implements PointerTarget {
     final int pointerCount = tokenizer.nextInt();
     this.pointers = new Pointer[pointerCount];
     for (int i = 0; i < pointerCount; ++i) {
-      pointers[i] = Pointer.parsePointer(this, i, tokenizer);
+      pointers[i] = new Pointer(this, i, tokenizer);
     }
 
     if (posOrdinal == POS.VERB.ordinal()) {
       final int f_cnt = tokenizer.nextInt();
       for (int i = 0; i < f_cnt; i++) {
-        final String skip = tokenizer.nextToken(); // "+"
-        assert skip.equals("+") : "skip: "+skip;
+        final CharSequence skip = tokenizer.nextToken(); // "+"
+        assert "+".contentEquals(skip) : "skip: "+skip;
         final int f_num = tokenizer.nextInt();
         //LN guess int f_num = tokenizer.nextHexInt();
         int w_num;
@@ -132,15 +132,6 @@ public class Synset implements PointerTarget {
     } else {
       log.log(Level.SEVERE, "Synset has no gloss?:\n" + line);
       this.gloss = null;
-    }
-  }
-
-  static Synset parseSynset(final String line) {
-    try {
-      return new Synset(line);
-    } catch (RuntimeException e) {
-      log.log(Level.SEVERE, "Synset parse error on line:\n" + line);
-      throw e;
     }
   }
 
