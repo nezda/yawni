@@ -29,7 +29,7 @@ public class Synset implements PointerTarget {
   // Instance implementation
   // 
   /** offset in <tt>data.<i>pos</i><tt> file */
-  protected final long offset;
+  protected final int offset;
   protected final Word[] words;
   protected final Pointer[] pointers;
   //TODO make this a byte[]
@@ -43,7 +43,7 @@ public class Synset implements PointerTarget {
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   Synset(final String line) {
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
-    this.offset = tokenizer.nextLong();
+    this.offset = tokenizer.nextInt();
     //TODO expose this
     final CharSequence lex_filenum = tokenizer.nextToken();
     CharSequence ss_type = tokenizer.nextToken();
@@ -184,7 +184,7 @@ public class Synset implements PointerTarget {
     return null;
   }
 
-  public long getOffset() {
+  int getOffset() {
     return offset;
   }
   
