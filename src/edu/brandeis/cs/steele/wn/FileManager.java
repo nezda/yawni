@@ -102,7 +102,7 @@ public class FileManager implements FileManagerInterface {
         return home;
       }
     }
-    throw new IllegalStateException("WNHOME is undefined in both Java System properties AND environment. "+
+    throw new IllegalStateException("WNHOME is not defined as either a Java System properties or environment variable. "+
         System.getenv());
   }
 
@@ -159,16 +159,19 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class RAFCharStream
 
-  static class NIOCharStream extends CharStream {
+  private static class NIOCharStream extends CharStream {
+    //FIXME position seems redundant
     protected int position;
-    protected final ByteBuffer buf;
+    //protected final ByteBuffer buf;
+    protected final ByteCharBuffer buf;
     
     NIOCharStream(final RandomAccessFile raf) throws IOException {
       final FileChannel fileChannel = raf.getChannel();
       final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
       // this buffer isDirect()
       //log.log(Level.FINE, "mmap.fine(): {0}", mmap.isDirect());
-      this.buf = mmap;
+      //this.buf = mmap;
+      this.buf = new ByteCharBuffer(mmap, false);
     }
     @Override void seek(final long position) throws IOException {
       // buffer cannot exceed Integer.MAX_VALUE since arrays are limited by this
@@ -236,7 +239,7 @@ public class FileManager implements FileManagerInterface {
    * Like a read-only CharBuffer made from a ByteBuffer with a stride of 1
    * instead of 2.
    */
-  static class ByteCharBuffer implements CharSequence {
+  private static class ByteCharBuffer implements CharSequence {
     private final ByteBuffer bb;
     ByteCharBuffer(final ByteBuffer bb) {
       this(bb, true);
@@ -275,60 +278,15 @@ public class FileManager implements FileManagerInterface {
     public CharSequence subSequence(final int start, final int end) {
       // XXX not sure if a slice should be used here
       throw new UnsupportedOperationException("IMPLEMENT ME");
+      // start and end are relative to position
+      // this operation should not change position though
+      // so cannot simply "return this;"
+      // (position()+start, position()+end]
+    }
+    @Override public String toString() {
+      throw new UnsupportedOperationException("IMPLEMENT ME");
     }
   } // end class ByteCharBuffer
-
-  static class NIOCharStream2 extends NIOCharStream {
-    private CharBuffer cbuf;
-    private final CharsetDecoder decoder;
-    
-    NIOCharStream2(final RandomAccessFile raf) throws IOException {
-      super(raf);
-      this.cbuf = CharBuffer.allocate(1024);
-      final Charset US_ASCII = Charset.forName(/*"US-ASCII"*/"ISO-8859-1");
-      this.decoder = US_ASCII.newDecoder();
-      //XXX can CharBuffer be created  which wraps
-      //ByteBuffer and decodes on-the-fly?
-      //- seems the best strategy is to decode the entire ByteBuffer
-      //- into a CharBuffer ?
-      //* can create a trivial CharBuffer which wraps a ByteBuffer
-      //but uses a "stride" of 1 instead of the default 2 ByteBuffer.asCharBuffer() uses
-    }
-    @Override String readLine() throws IOException {
-      final int s = position;
-      final int e = scanToLineBreak();
-      assert s >= 0;
-      assert e >= 0;
-      final int len = e - s;
-      if(len <= 0) {
-        return null;
-      }
-      buf.position(s);
-      buf.limit(e);
-      cbuf = resize(cbuf, len);
-      cbuf.clear();
-      decoder.reset();
-      CoderResult coderResult = decoder.decode(buf, cbuf, false);
-      assert coderResult == CoderResult.UNDERFLOW;
-      coderResult = decoder.decode(buf, cbuf, true);
-      assert coderResult == CoderResult.UNDERFLOW;
-      coderResult = decoder.flush(cbuf);
-      assert coderResult == CoderResult.UNDERFLOW;
-      cbuf.flip();
-      final String nioline = cbuf.toString();
-      buf.clear();
-      return nioline;
-    }
-    private static CharBuffer resize(final CharBuffer cbuf, final int len) {
-      if(len <= cbuf.capacity()) {
-        return cbuf;
-      }
-      final CharBuffer newBuf = CharBuffer.allocate(Math.max(len, cbuf.capacity() * 2));
-      cbuf.flip();
-      newBuf.put(cbuf);
-      return newBuf;
-    }
-  } // end class NIOCharStream2
 
   protected synchronized CharStream getFileStream(String filename) throws IOException {
     if (IS_WINDOWS_OS) {
@@ -342,8 +300,6 @@ public class FileManager implements FileManagerInterface {
       //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
       //fast CharStream stream
       stream = new NIOCharStream(new RandomAccessFile(pathname, "r"));
-      //not as fast as NIOCharStream
-      //stream = new NIOCharStream2(new RandomAccessFile(pathname, "r"));
       filenameCache.put(filename, stream);
     }
     return stream;
@@ -387,11 +343,9 @@ public class FileManager implements FileManagerInterface {
     if(ret == null) {
       return null;
     }
-    // LN added new to leak less String memory here
     final int space = ret.indexOf(' ');
     assert space >= 0;
-    String word = new String(ret.substring(0, space));
-    return word;
+    return ret.substring(0, space);
   }
 
   public long getNextLinePointer(final String filename, final long offset) throws IOException {
@@ -477,9 +431,9 @@ public class FileManager implements FileManagerInterface {
             final long result = stream.position();
             final String line = readLineWord(stream);
             if (log.isLoggable(Level.FINEST)) {
-              log.finest(". "+line+" -> "+line.equals(target));
+              log.finest(". "+line+" -> "+target.contentEquals(line));
             }
-            if (line.equals(target)) {
+            if (target.contentEquals(line)) {
               return result;
             }
           }
@@ -487,7 +441,7 @@ public class FileManager implements FileManagerInterface {
         }
         final long result = stream.position();
         final String line = readLineWord(stream);
-        if (line.equals(target)) return result;
+        if (target.contentEquals(line)) return result;
         final int compare = target.compareTo(line);
         if (log.isLoggable(Level.FINEST)) {
           log.finest(line + ": " + compare);
