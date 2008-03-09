@@ -21,7 +21,7 @@ public class IndexWord {
   
   /** offset in <var>pos</var><code>.index<code> file */
   protected final long offset;
-  /** LN No case "lemma"! Each {@link Word} has at least 1 true case lemma
+  /** No case "lemma". Each {@link Word} has at least 1 true case lemma
    * (could vary by POS). 
    */
   protected final String lemma; 
@@ -32,6 +32,7 @@ public class IndexWord {
   /** This is null until {@link #getSynsets()} has been called. */
   protected Synset[] synsets;
 
+  //TODO would this be lighter if it were an EnumSet ?
   protected final PointerType[] ptrTypes;
   protected final byte posOrdinal;
   //
@@ -44,7 +45,7 @@ public class IndexWord {
       this.lemma = tokenizer.nextToken().toString().replace('_', ' ');
       this.posOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
 
-      tokenizer.nextToken();	// poly_cnt
+      tokenizer.skipNextToken(); // poly_cnt
       final int p_cnt = tokenizer.nextInt();
       this.ptrTypes = new PointerType[p_cnt];
       for (int i = 0; i < p_cnt; ++i) {
