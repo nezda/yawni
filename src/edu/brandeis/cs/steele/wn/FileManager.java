@@ -53,22 +53,22 @@ public class FileManager implements FileManagerInterface {
 
   protected static class NextLineCache {
     protected String filename;
-    protected long previous;
-    protected long next;
+    protected int previous;
+    protected int next;
 
-    void setNextLineOffset(String filename, long previous, long next) {
+    void setNextLineOffset(String filename, int previous, int next) {
       this.filename = filename;
       this.previous = previous;
       this.next = next;
     }
 
-    boolean matchingOffset(String filename, long offset) {
+    boolean matchingOffset(String filename, int offset) {
       //FIXME XXX HACK HACK DISABLING
       if(true) return false;
       return this.filename != null && previous == offset && this.filename.equals(filename);
     }
 
-    long getNextOffset() {
+    int getNextOffset() {
       return next;
     }
   }
@@ -128,9 +128,9 @@ public class FileManager implements FileManagerInterface {
 
   // NOTE: CharStream is not thread-safe
   static abstract class CharStream {
-    abstract void seek(final long position) throws IOException;
-    abstract long position() throws IOException;
-    abstract long length() throws IOException;
+    abstract void seek(final int position) throws IOException;
+    abstract int position() throws IOException;
+    abstract int length() throws IOException;
     /** This works just like {@link RandomAccessFile#readLine} -- doesn't
      * support Unicode 
      */
@@ -145,14 +145,14 @@ public class FileManager implements FileManagerInterface {
     RAFCharStream(final RandomAccessFile raf) {
       this.raf = raf;
     }
-    @Override void seek(final long position) throws IOException {
+    @Override void seek(final int position) throws IOException {
       raf.seek(position);
     }
-    @Override long position() throws IOException {
-      return raf.getFilePointer();
+    @Override int position() throws IOException {
+      return (int) raf.getFilePointer();
     }
-    @Override long length() throws IOException {
-      return raf.length();
+    @Override int length() throws IOException {
+      return (int) raf.length();
     }
     @Override String readLine() throws IOException {
       return raf.readLine();
@@ -173,14 +173,14 @@ public class FileManager implements FileManagerInterface {
       //this.buf = mmap;
       this.buf = new ByteCharBuffer(mmap, false);
     }
-    @Override void seek(final long position) throws IOException {
+    @Override void seek(final int position) throws IOException {
       // buffer cannot exceed Integer.MAX_VALUE since arrays are limited by this
-      this.position = (int) position;
+      this.position = position;
     }
-    @Override long position() throws IOException {
+    @Override int position() throws IOException {
       return position;
     }
-    @Override long length() throws IOException {
+    @Override int length() throws IOException {
       return buf.capacity();
     }
     @Override String readLine() throws IOException {
@@ -277,14 +277,14 @@ public class FileManager implements FileManagerInterface {
     public int length() { return bb.remaining(); }
     public CharSequence subSequence(final int start, final int end) {
       // XXX not sure if a slice should be used here
-      throw new UnsupportedOperationException("IMPLEMENT ME");
+      throw new UnsupportedOperationException("TODO IMPLEMENT ME");
       // start and end are relative to position
       // this operation should not change position though
       // so cannot simply "return this;"
       // (position()+start, position()+end]
     }
     @Override public String toString() {
-      throw new UnsupportedOperationException("IMPLEMENT ME");
+      throw new UnsupportedOperationException("TODO IMPLEMENT ME");
     }
   } // end class ByteCharBuffer
 
@@ -322,13 +322,13 @@ public class FileManager implements FileManagerInterface {
   //
   // Line-based interface methods
   //
-  public String readLineAt(final String filename, final long offset) throws IOException {
+  public String readLineAt(final String filename, final int offset) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
       final String line = readLine(stream);
 
-      long nextOffset = stream.position();
+      int nextOffset = stream.position();
       if (line == null) {
         nextOffset = -1;
       }
@@ -348,7 +348,7 @@ public class FileManager implements FileManagerInterface {
     return ret.substring(0, space);
   }
 
-  public long getNextLinePointer(final String filename, final long offset) throws IOException {
+  public int getNextLinePointer(final String filename, final int offset) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       if (nextLineCache.matchingOffset(filename, offset)) {
@@ -363,13 +363,13 @@ public class FileManager implements FileManagerInterface {
   //
   // Low-level Searching
   //
-  public long getMatchingLinePointer(final String filename, long offset, final String substring) throws IOException {
+  public int getMatchingLinePointer(final String filename, int offset, final String substring) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
       do {
         final String line = readLineWord(stream);
-        final long nextOffset = stream.position();
+        final int nextOffset = stream.position();
         if (line == null) {
           return -1;
         }
@@ -382,13 +382,13 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
-  public long getMatchingBeginningLinePointer(final String filename, long offset, final String prefix) throws IOException {
+  public int getMatchingBeginningLinePointer(final String filename, int offset, final String prefix) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
       do {
         final String line = readLineWord(stream);
-        final long nextOffset = stream.position();
+        final int nextOffset = stream.position();
         if (line == null) {
           return -1;
         }
@@ -402,20 +402,20 @@ public class FileManager implements FileManagerInterface {
   }
   
   /** Binary search line implied by <param>filename</param> for <param>target</param>. */
-  public long getIndexedLinePointer(final String filename, final String target) throws IOException {
+  public int getIndexedLinePointer(final String filename, final String target) throws IOException {
     if (log.isLoggable(Level.FINEST)) {
       log.finest("target:"+target);
       log.finest("filename:"+filename);
     }
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
-      long start = 0;
-      long stop = stream.length();
+      int start = 0;
+      int stop = stream.length();
       while (true) {
-        final long midpoint = (start + stop) / 2;
+        final int midpoint = (start + stop) / 2;
         stream.seek(midpoint);
         skipLine(stream);
-        final long offset = stream.position();
+        final int offset = stream.position();
         if (log.isLoggable(Level.FINEST)) {
           log.finest("  "+start+", "+((start+stop)/2)+", "+stop+" -> "+offset);
         }
@@ -428,7 +428,7 @@ public class FileManager implements FileManagerInterface {
             log.finest(". "+stream.position());
           }
           while (stream.position() < stop) {
-            final long result = stream.position();
+            final int result = stream.position();
             final String line = readLineWord(stream);
             if (log.isLoggable(Level.FINEST)) {
               log.finest(". "+line+" -> "+target.contentEquals(line));
@@ -439,7 +439,7 @@ public class FileManager implements FileManagerInterface {
           }
           return -1;
         }
-        final long result = stream.position();
+        final int result = stream.position();
         final String line = readLineWord(stream);
         if (target.contentEquals(line)) return result;
         final int compare = target.compareTo(line);
