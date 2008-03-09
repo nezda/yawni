@@ -41,8 +41,8 @@ public class Pointer {
    * Used by <code>equals</code>.
    */
   protected final int index;
-  //TODO use a byte
   protected final PointerTarget source;
+  //TODO use a byte
   protected final PointerType pointerType;
 
   /** An index that can be used to retrieve the target.  The first time this is
@@ -55,7 +55,7 @@ public class Pointer {
   //
   // Constructor and initialization
   //
-  Pointer(final Synset synset, final int index, final TokenizerParser tokenizer) {
+  Pointer(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
     this.synset = synset;
     this.index = index;
     this.pointerType = PointerType.parseKey(tokenizer.nextToken());
@@ -71,15 +71,10 @@ public class Pointer {
     this.targetIndex = new TargetIndex(pos, targetOffset, targetIndex);
   }
 
-  static Pointer parsePointer(final Synset source, final int index, final TokenizerParser tokenizer) {
-    return new Pointer(source, index, tokenizer);
-  }
-
-
   //
   // Object methods
   //
-  @Override public boolean equals(Object object) {
+  @Override public boolean equals(final Object object) {
     return (object instanceof Pointer)
       && ((Pointer) object).source.equals(this.source)
       && ((Pointer) object).index == this.index;
