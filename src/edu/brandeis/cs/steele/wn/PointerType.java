@@ -7,6 +7,7 @@
 package edu.brandeis.cs.steele.wn;
 import edu.brandeis.cs.steele.util.ArrayUtilities;
 import java.util.*;
+import static edu.brandeis.cs.steele.wn.PointerTypeFlags.*;
 
 /** Instances of this class enumerate the possible WordNet pointer types, and
  * are used to label <code>PointerType</code>s.  
@@ -23,64 +24,56 @@ import java.util.*;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class PointerType {
-  // Flags for tagging a pointer type with the POS types it apples to.
-  protected static final int N = 1;
-  protected static final int V = 2;
-  protected static final int ADJ = 4;
-  protected static final int ADV = 8;
-  protected static final int SAT_ADJ = 16;
-  protected static final int LEXICAL = 32;
-
-  protected static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.SAT_ADJ};
-  protected static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
-
-  // All categories
-  public static final PointerType ANTONYM = new PointerType("antonym", "!", N | V | ADJ | ADV | LEXICAL);
-  public static final PointerType DOMAIN_OF_TOPIC = new PointerType("Domain of synset - TOPIC", ";c", N | V | ADJ | ADV); // LN fixed
-  public static final PointerType MEMBER_OF_THIS_DOMAIN_TOPIC = new PointerType("Member of this domain - TOPIC", "-c", N | V | ADJ | ADV); // LN
-  public static final PointerType DOMAIN_OF_REGION = new PointerType("Domain of synset - REGION", ";r", N | V | ADJ | ADV);
-  public static final PointerType MEMBER_OF_THIS_DOMAIN_REGION = new PointerType("Member of this domain - REGION", "-r", N | V | ADJ | ADV); // LN
-  public static final PointerType DOMAIN_OF_USAGE = new PointerType("Domain of synset - USAGE", ";u", N | V | ADJ | ADV);
-  public static final PointerType MEMBER_OF_THIS_DOMAIN_USAGE = new PointerType("Member of this domain - USAGE", "-u", N | V | ADJ | ADV); // LN
-  public static final PointerType DOMAIN_MEMBER = new PointerType("Domain Member", "-", N | V | ADJ | ADV);
-  public static final PointerType DOMAIN = new PointerType("Domain", ";", N | V | ADJ | ADV);
-
+public enum PointerType {
+  // All parts of speech
+  ANTONYM("antonym", "!", N | V | ADJ | ADV | LEXICAL),
+  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", N | V | ADJ | ADV),
+  MEMBER_OF_THIS_DOMAIN_TOPIC("Member of this domain - TOPIC", "-c", N | V | ADJ | ADV),
+  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", N | V | ADJ | ADV),
+  MEMBER_OF_THIS_DOMAIN_REGION("Member of this domain - REGION", "-r", N | V | ADJ | ADV),
+  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", N | V | ADJ | ADV),
+  MEMBER_OF_THIS_DOMAIN_USAGE("Member of this domain - USAGE", "-u", N | V | ADJ | ADV),
+  DOMAIN_MEMBER("Domain Member", "-", N | V | ADJ | ADV),
+  DOMAIN("Domain", ";", N | V | ADJ | ADV),
 
   // Nouns and Verbs
-  public static final PointerType HYPERNYM = new PointerType("hypernym", "@", N | V);
-  public static final PointerType INSTANCE_HYPERNYM = new PointerType("instance hypernym", "@i", N | V); // LN
-  public static final PointerType HYPONYM = new PointerType("hyponym", "~", N | V);
-  public static final PointerType INSTANCE_HYPONYM = new PointerType("instance hyponym", "~i", N | V); // LN
-  public static final PointerType DERIVATIONALLY_RELATED = new PointerType("derivationally related", "+", N | V);
+  HYPERNYM("hypernym", "@", N | V),
+  INSTANCE_HYPERNYM("instance hypernym", "@i", N | V),
+  HYPONYM("hyponym", "~", N | V),
+  INSTANCE_HYPONYM("instance hyponym", "~i", N | V),
+  DERIVATIONALLY_RELATED("derivationally related", "+", N | V),
 
   // Nouns and Adjectives
-  public static final PointerType ATTRIBUTE = new PointerType("attribute", "=", N | ADJ);
-  public static final PointerType SEE_ALSO = new PointerType("also see", "^", N | ADJ | LEXICAL);
+  ATTRIBUTE("attribute", "=", N | ADJ),
+  SEE_ALSO("also see", "^", N | ADJ | LEXICAL),
 
   // Verbs
-  public static final PointerType ENTAILMENT = new PointerType("entailment", "*", V);
-  public static final PointerType CAUSE = new PointerType("cause", ">", V);
-  public static final PointerType VERB_GROUP = new PointerType("verb group", "$", V);
+  ENTAILMENT("entailment", "*", V),
+  CAUSE("cause", ">", V),
+  VERB_GROUP("verb group", "$", V),
 
   // Nouns
-  public static final PointerType MEMBER_MERONYM = new PointerType("member meronym", "%m", N); // LN fixed
-  public static final PointerType SUBSTANCE_MERONYM = new PointerType("substance meronym", "%s", N); // LN fixed
-  public static final PointerType PART_MERONYM = new PointerType("part meronym", "%p", N); // LN fixed
-  public static final PointerType MEMBER_HOLONYM = new PointerType("member holonym", "#m", N); // LN fixed
-  public static final PointerType SUBSTANCE_HOLONYM = new PointerType("substance holonym", "#s", N); // LN fixed
-  public static final PointerType PART_HOLONYM = new PointerType("part holonym", "#p", N); // LN fixed
-  public static final PointerType MEMBER_OF_TOPIC_DOMAIN = new PointerType("Member of TOPIC domain", "-c", N);
-  public static final PointerType MEMBER_OF_REGION_DOMAIN = new PointerType("Member of REGION domain", "-r", N);
-  public static final PointerType MEMBER_OF_USAGE_DOMAIN = new PointerType("Member of USAGE domain", "-u", N);
+  MEMBER_MERONYM("member meronym", "%m", N),
+  SUBSTANCE_MERONYM("substance meronym", "%s", N),
+  PART_MERONYM("part meronym", "%p", N),
+  MEMBER_HOLONYM("member holonym", "#m", N),
+  SUBSTANCE_HOLONYM("substance holonym", "#s", N),
+  PART_HOLONYM("part holonym", "#p", N),
+  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", N),
+  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", N),
+  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", N),
 
   // Adjectives
-  public static final PointerType SIMILAR_TO = new PointerType("similar", "&", ADJ);
-  public static final PointerType PARTICIPLE_OF = new PointerType("participle of", "<", ADJ | LEXICAL);
-  public static final PointerType PERTAINYM = new PointerType("pertainym", "\\", ADJ | LEXICAL);
+  SIMILAR_TO("similar", "&", ADJ),
+  PARTICIPLE_OF("participle of", "<", ADJ | LEXICAL),
+  PERTAINYM("pertainym", "\\", ADJ | LEXICAL),
 
   // Adverbs
-  public static final PointerType DERIVED = new PointerType("derived from", "\\", ADV);	// from adjective
+  DERIVED("derived from", "\\", ADV);	// from adjective
+
+  private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.SAT_ADJ};
+  private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
+
 
   /** A list of all <code>PointerType</code>s. */
   public static final PointerType[] TYPES = {
@@ -103,7 +96,7 @@ public class PointerType {
 
   public static final PointerType[] INDEX_ONLY = { DOMAIN_MEMBER, DOMAIN };
 
-  static protected void setSymmetric(final PointerType a, final PointerType b) {
+  static private void setSymmetric(final PointerType a, final PointerType b) {
     a.symmetricType = b;
     b.symmetricType = a;
   }
@@ -122,8 +115,6 @@ public class PointerType {
     }
     return false;
   }
-
-
 
   static {
     setSymmetric(ANTONYM, ANTONYM);
@@ -166,12 +157,12 @@ public class PointerType {
   /*
    * Instance Interface
    */
-  protected final String label;
-  protected final String key;
-  protected final int flags;
-  protected PointerType symmetricType;
+  private final String label;
+  private final String key;
+  private final int flags;
+  private PointerType symmetricType;
 
-  protected PointerType(final String label, final String key, final int flags) {
+  private PointerType(final String label, final String key, final int flags) {
     this.label = label;
     this.key = key;
     this.flags = flags;
@@ -193,7 +184,19 @@ public class PointerType {
     return (flags & POS_MASK[ArrayUtilities.indexOf(CATS, pos)]) != 0;
   }
 
-  public boolean symmetricTo(PointerType type) {
+  public boolean symmetricTo(final PointerType type) {
     return symmetricType != null && symmetricType.equals(type);
   }
+}
+/** 
+ * Flags for tagging a pointer type with the POS types it apples to. 
+ * Separate class to allow PointerType enum constructor to reference it.
+ */
+class PointerTypeFlags {
+  static final int N = 1;
+  static final int V = 2;
+  static final int ADJ = 4;
+  static final int ADV = 8;
+  static final int SAT_ADJ = 16;
+  static final int LEXICAL = 32;
 }
