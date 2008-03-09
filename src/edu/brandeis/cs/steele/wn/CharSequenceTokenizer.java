@@ -20,44 +20,25 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * XXX borrowed from Apache Harmony java.util.StringTokenizer
+ * XXX borrowed from Apache Harmony java.util.StringTokenizer<br><br>
  *
  * CharSequenceTokenizer is used to break a string apart into tokens.  Lighter
  * than a Scanner, more features than java.util.StringTokenizer, with full
  * support for CharSequences.
- * 
- * If returnDelimiters is false, successive calls to nextToken() return maximal
- * blocks of characters that do not contain a delimiter.
- * 
- * If returnDelimiters is true, delimiters are considered to be tokens, and
- * successive calls to nextToken() return either a one character delimiter, or a
- * maximal block of text between delimiters.
  */
 public class CharSequenceTokenizer implements Iterator<CharSequence> {
   private final CharSequence string;
   private String delimiters;
-  private final boolean returnDelimiters;
   private int position;
 
   /**
    * Constructs a new CharSequenceTokenizer for string using whitespace as
-   * the delimiter, returnDelimiters is false.
+   * the delimiter.
    * 
    * @param string the CharSequence to be tokenized
    */
   public CharSequenceTokenizer(final CharSequence string) {
-    this(string, " \t\n\r\f", false);
-  }
-
-  /**
-   * Constructs a new CharSequenceTokenizer for string using the specified
-   * delimiters, returnDelimiters is false.
-   * 
-   * @param string the string to be tokenized
-   * @param delimiters the delimiters to use
-   */
-  public CharSequenceTokenizer(final CharSequence string, final String delimiters) {
-    this(string, delimiters, false);
+    this(string, " \t\n\r\f");
   }
 
   /**
@@ -66,14 +47,11 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * 
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
-   * @param returnDelimiters true to return each delimiter as a token
    */
-  public CharSequenceTokenizer(final CharSequence string, final String delimiters,
-      final boolean returnDelimiters) {
+  public CharSequenceTokenizer(final CharSequence string, final String delimiters) {
     if (string != null) {
       this.string = string;
       this.delimiters = delimiters;
-      this.returnDelimiters = returnDelimiters;
       this.position = 0;
     } else {
       throw new NullPointerException();
@@ -91,9 +69,6 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
     boolean inToken = false;
     for (int i = position, length = string.length(); i < length; i++) {
       if (delimiters.indexOf(string.charAt(i), 0) >= 0) {
-        if (returnDelimiters) {
-          count++;
-        }
         if (inToken) {
           count++;
           inToken = false;
@@ -123,13 +98,8 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @return true if unprocessed tokens remain
    */
   public boolean hasMoreTokens() {
-    int length = string.length();
+    final int length = string.length();
     if (position < length) {
-      if (returnDelimiters) {
-        return true; // there is at least one character and even if
-      }
-      // it is a delimiter it is a token
-
       // otherwise find a character which is not a delimiter
       for (int i = position; i < length; i++) {
         if (delimiters.indexOf(string.charAt(i), 0) == -1) {
@@ -150,6 +120,9 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
     return nextToken();
   }
 
+  /**
+   * @exception UnsupportedOperationException
+   */
   public void remove() {
     throw new UnsupportedOperationException();
   }
@@ -161,36 +134,39 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @exception NoSuchElementException if no tokens remain
    */
   public CharSequence nextToken() {
-    int i = position;
-    int length = string.length();
+    final int s = scanToTokenStart();
+    final int e = scanToTokenEnd();
+    return string.subSequence(s, e);
+  }
 
-    if (i < length) {
-      if (returnDelimiters) {
-        if (delimiters.indexOf(string.charAt(position), 0) >= 0) {
-          return String.valueOf(string.charAt(position++));
-        }
-        for (position++; position < length; position++) {
-          if (delimiters.indexOf(string.charAt(position), 0) >= 0) {
-            return string.subSequence(i, position);
-          }
-        }
-        return string.subSequence(i, length);
+  private int scanToTokenStart() {
+    final int length = string.length();
+    if (position < length) {
+      while (position < length && delimiters.indexOf(string.charAt(position)) >= 0) {
+        position++;
       }
-
-      while (i < length && delimiters.indexOf(string.charAt(i), 0) >= 0) {
-        i++;
-      }
-      position = i;
-      if (i < length) {
-        for (position++; position < length; position++) {
-          if (delimiters.indexOf(string.charAt(position), 0) >= 0) {
-            return string.subSequence(i, position);
-          }
-        }
-        return string.subSequence(i, length);
-      }
+      return position;
     }
     throw new NoSuchElementException();
+  }
+
+  private int scanToTokenEnd() {
+    final int length = string.length();
+    if (position < length) {
+      for (position++; position < length; position++) {
+        if (delimiters.indexOf(string.charAt(position)) >= 0) {
+          return position;
+        }
+      }
+      assert length == position;
+      return length;
+    }
+    throw new NoSuchElementException();
+  }
+
+  public void skipNextToken() {
+    scanToTokenStart();
+    scanToTokenEnd();
   }
 
   /**
@@ -215,11 +191,13 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   //}
 
   public int nextInt() {
-    return parseInt(nextToken(), 10);
+    return nextInt(10);
   }
 
   public int nextInt(final int radix) {
-    return parseInt(nextToken(), radix);
+    final int s = scanToTokenStart();
+    final int e = scanToTokenEnd();
+    return parseInt(string, s, e, radix);
   }
 
   public int nextHexInt() {
@@ -227,10 +205,12 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   }
 
   public long nextLong() {
-    return parseLong(nextToken(), 10);
+    final int s = scanToTokenStart();
+    final int e = scanToTokenEnd();
+    return parseLong(string, s, e, 10);
   }
 
-  //TODO move to a new CharSequenceUtils class
+  //TODO move to a new CharSequenceUtils class - is there one of these in Commons?
 
   /**
    * XXX borrowed from Apache Harmony
@@ -245,47 +225,47 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @exception NumberFormatException
    *                if the argument could not be parsed as an int quantity.
    */
-  public static int parseInt(final CharSequence string, final int radix)
+  private static int parseInt(final CharSequence string, final int radix)
     throws NumberFormatException {
-      if (string == null || radix < Character.MIN_RADIX
-          || radix > Character.MAX_RADIX) {
-        throw new NumberFormatException();
-      }
-      int length = string.length(), i = 0;
-      if (length == 0) {
-        throw new NumberFormatException(string.toString());
-      }
-      boolean negative = string.charAt(i) == '-';
-      if (negative && ++i == length) {
-        throw new NumberFormatException(string.toString());
-      }
-
-      return parseInt(string, i, radix, negative);
+      return parseInt(string, 0, string.length(), radix);
     }
 
   // XXX borrowed from Apache Harmony
-  private static int parseInt(final CharSequence string, int offset, final int radix,
-      final boolean negative) throws NumberFormatException {
-    int max = Integer.MIN_VALUE / radix;
-    int result = 0, length = string.length();
-    while (offset < length) {
-      int digit = Character.digit(string.charAt(offset++), radix);
+  private static int parseInt(final CharSequence string, int offset, 
+      final int end, final int radix) {
+    final int start = offset;
+    if (string == null || radix < Character.MIN_RADIX
+        || radix > Character.MAX_RADIX) {
+      throw new NumberFormatException();
+    }
+    if (start >= end) {
+      throw new NumberFormatException(toString(string, start, end));
+    }
+    final boolean negative = string.charAt(offset) == '-';
+    if (negative && ++offset == end) {
+      throw new NumberFormatException(toString(string, start, end));
+    }
+
+    final int max = Integer.MIN_VALUE / radix;
+    int result = 0;
+    while (offset < end) {
+      final int digit = Character.digit(string.charAt(offset++), radix);
       if (digit == -1) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
       if (max > result) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
-      int next = result * radix - digit;
+      final int next = result * radix - digit;
       if (next > result) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
       result = next;
     }
     if (!negative) {
       result = -result;
       if (result < 0) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
     }
     return result;
@@ -293,60 +273,63 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
 
   /**
    * XXX borrowed from Apache Harmony
-   * Parses the string argument as if it was an long value and returns the
-   * result. Throws NumberFormatException if the string does not represent an
+   * Parses the string argument as if it was a long value and returns the
+   * result. Throws NumberFormatException if the string does not represent a
    * long quantity. The second argument specifies the radix to use when
    * parsing the value.
-   * 
    * @param string a string representation of an long quantity.
    * @param radix the base to use for conversion.
    * @return long the value represented by the argument
    * @exception NumberFormatException
-   *                if the argument could not be parsed as an long quantity.
+   *                if the argument could not be parsed as a long quantity.
    */
-  public static long parseLong(final CharSequence string, final int radix)
+  private static long parseLong(final CharSequence string, final int radix)
     throws NumberFormatException {
-      if (string == null || radix < Character.MIN_RADIX
-          || radix > Character.MAX_RADIX) {
-        throw new NumberFormatException();
-      }
-      int length = string.length(), i = 0;
-      if (length == 0) {
-        throw new NumberFormatException(string.toString());
-      }
-      boolean negative = string.charAt(i) == '-';
-      if (negative && ++i == length) {
-        throw new NumberFormatException(string.toString());
-      }
-
-      return parseLong(string, i, radix, negative);
+      return parseLong(string, 0, string.length(), radix);
     }
 
   // XXX borrowed from Apache Harmony
-  private static long parseLong(final CharSequence string, int offset, final int radix,
-      final boolean negative) {
-    long max = Long.MIN_VALUE / radix;
-    long result = 0, length = string.length();
-    while (offset < length) {
-      int digit = Character.digit(string.charAt(offset++), radix);
+  private static long parseLong(final CharSequence string, int offset, 
+      final int end, final int radix) {
+    final int start = offset;
+    if (string == null || radix < Character.MIN_RADIX
+        || radix > Character.MAX_RADIX) {
+      throw new NumberFormatException();
+    }
+    if (start >= end) {
+      throw new NumberFormatException(toString(string, start, end));
+    }
+    final boolean negative = string.charAt(offset) == '-';
+    if (negative && ++offset == end) {
+      throw new NumberFormatException(toString(string, start, end));
+    }
+    final long max = Long.MIN_VALUE / radix;
+    long result = 0;
+    while (offset < end) {
+      final int digit = Character.digit(string.charAt(offset++), radix);
       if (digit == -1) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
       if (max > result) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
-      long next = result * radix - digit;
+      final long next = result * radix - digit;
       if (next > result) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
       result = next;
     }
     if (!negative) {
       result = -result;
       if (result < 0) {
-        throw new NumberFormatException(string.toString());
+        throw new NumberFormatException(toString(string, start, end));
       }
     }
     return result;
+  }
+
+  private static String toString(final CharSequence charSequence, 
+      final int offset, final int end) {
+    return charSequence.subSequence(offset, end).toString();
   }
 }
