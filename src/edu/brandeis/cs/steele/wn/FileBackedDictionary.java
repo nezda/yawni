@@ -276,7 +276,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
           throw new RuntimeException(e);
         }
       }
-      synset = Synset.parseSynset(line);
+      synset = new Synset(line);
       synsetCache.put(cacheKey, synset);
     }
     assert synset != null : "pos: "+pos+" offset: "+offset+" line: "+line;
