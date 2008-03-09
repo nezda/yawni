@@ -7,9 +7,9 @@
 package edu.brandeis.cs.steele.wn;
 import java.util.NoSuchElementException;
 
-/** Instances of this class enumerate the possible major syntactic categories, or
- * <b>p</b>art's <b>o</b>f <b>s</b>peech.  Each <code>POS</code> has
- * a human-readable label that can be used to print it, and a key by which it can be looked up.
+/** Represents the major syntactic categories, or <b>p</b>art's <b>o</b>f
+ * <b>s</b>peech used in WordNet.  Each <code>POS</code> has a human-readable
+ * label that can be used to print it, and a key by which it can be looked up.
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
@@ -39,6 +39,7 @@ public enum POS {
   // Instance implementation
   //
   protected final String label;
+  protected final String toString;
   protected final String key;
   protected final int wnCode;
 
@@ -46,6 +47,7 @@ public enum POS {
     this.label = label;
     this.key = key;
     this.wnCode = wnCode;
+    this.toString = new StringBuffer("[POS ").append(label).append("]").toString();
   }
 
   //
@@ -53,11 +55,9 @@ public enum POS {
   //
 
   @Override public String toString() {
-    return new StringBuffer("[POS ").append(label).append("]").toString();
+    return toString;
   }
   
-  /** Note: Enum provides the method {@link name()} for us too */
-
   //
   // Accessor
   //
@@ -67,11 +67,11 @@ public enum POS {
   }
 
   /** The integer used in the original C WordNet APIs. */
-  public int getWordNetCode() {
+  int getWordNetCode() {
     return wnCode;
   }
 
-  /** Return the <code>PointerType</code> whose key matches <var>key</var>.
+  /** Return the <code>POS</code> whose key matches <var>key</var>.
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>POS</code>.
    */
   public static POS lookup(final CharSequence key) {
