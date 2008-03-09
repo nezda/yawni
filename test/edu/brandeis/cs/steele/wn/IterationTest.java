@@ -53,8 +53,12 @@ public class IterationTest {
     try {
       for(int i=0; i < n; ++i) {
         int iterationWordsVisited = 0;
+        int iterationIndexWordsVisited = 0;
+        int iteration_total_p_cnt = 0;
         for(final POS pos : POS.CATS) {
           for(final IndexWord indexWord : dictionary.indexWords(pos)) {
+            ++iterationIndexWordsVisited;
+            iteration_total_p_cnt += indexWord.getPointerTypes().size();
             for(final Word word : indexWord.getSenses()) {
               //final String lemma = word.getLemma();
               final Synset synset = word.getSynset();
@@ -65,6 +69,9 @@ public class IterationTest {
             }
           }
         }
+        System.err.println("iterationIndexWordsVisited: "+iterationIndexWordsVisited+
+            " iteration_total_p_cnt: "+iteration_total_p_cnt+
+            " avg p_cnt: "+(((double)iteration_total_p_cnt)/iterationIndexWordsVisited));
         assertEquals((i+1) * iterationWordsVisited, totalWordsVisited);
       }
     } finally {
