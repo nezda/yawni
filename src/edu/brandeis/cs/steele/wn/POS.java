@@ -24,7 +24,7 @@ public enum POS {
   ADV("adverb", "r", 4),
   SAT_ADJ("satellite adjective", "s", 5); // ADJECTIVE_SATELLITE
 
-  private static POS[] VALUES = values();
+  private static final POS[] VALUES = values();
 
   static POS fromOrdinal(final byte ordinal) {
     return VALUES[ordinal];
@@ -38,10 +38,10 @@ public enum POS {
   //
   // Instance implementation
   //
-  protected final String label;
-  protected final String toString;
-  protected final String key;
-  protected final int wnCode;
+  private final String label;
+  private final String toString;
+  private final String key;
+  private final int wnCode;
 
   POS(final String label, final String key, final int wnCode) {
     this.label = label;
