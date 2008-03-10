@@ -14,7 +14,7 @@ import java.nio.channels.*;
 import java.io.*;
 
 /** An implementation of FileManagerInterface that reads files from the local file system.
- * a file.  <code>FileManager</code> caches the file position before and after
+ * A file  <code>FileManager</code> caches the file position before and after
  * <code>readLineAt</code> in order to eliminate the redundant IO activity that a naive implementation
  * of these methods would necessitate.
  *
@@ -36,9 +36,6 @@ public class FileManager implements FileManagerInterface {
   /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
   public static String VERSION = "1.5.0";
 
-  /** Set this to true to enable debugging messages in <code>getIndexedLinePointer</code>. */
-  public static final boolean TRACE_LOOKUP = false; // unused
-
   //
   // Filename caching
   //
@@ -51,10 +48,10 @@ public class FileManager implements FileManagerInterface {
   protected String searchDirectory;
   protected Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
-  protected static class NextLineCache {
-    protected String filename;
-    protected int previous;
-    protected int next;
+  static class NextLineCache {
+    String filename;
+    int previous;
+    int next;
 
     void setNextLineOffset(String filename, int previous, int next) {
       this.filename = filename;
@@ -72,7 +69,7 @@ public class FileManager implements FileManagerInterface {
       return next;
     }
   }
-  protected NextLineCache nextLineCache = new NextLineCache();
+  private NextLineCache nextLineCache = new NextLineCache();
 
   //
   // Constructors
@@ -126,6 +123,10 @@ public class FileManager implements FileManagerInterface {
     return filename;
   }
 
+  //
+  // IO primitives
+  //
+
   // NOTE: CharStream is not thread-safe
   static abstract class CharStream {
     abstract void seek(final int position) throws IOException;
@@ -138,10 +139,19 @@ public class FileManager implements FileManagerInterface {
     void skipLine() throws IOException {
       readLine();
     }
+    String readLineWord() throws IOException {
+      final String ret = readLine();
+      if(ret == null) {
+        return null;
+      }
+      final int space = ret.indexOf(' ');
+      assert space >= 0;
+      return ret.substring(0, space);
+    }
   } // end class CharStream
 
   static class RAFCharStream extends CharStream {
-    private RandomAccessFile raf;
+    private final RandomAccessFile raf;
     RAFCharStream(final RandomAccessFile raf) {
       this.raf = raf;
     }
@@ -183,6 +193,7 @@ public class FileManager implements FileManagerInterface {
     @Override int length() throws IOException {
       return buf.capacity();
     }
+    //TODO add readFirstWord();
     @Override String readLine() throws IOException {
       final int s = position;
       final int e = scanToLineBreak();
@@ -203,6 +214,37 @@ public class FileManager implements FileManagerInterface {
     }
     @Override void skipLine() throws IOException {
       scanToLineBreak();
+    }
+    @Override String readLineWord() throws IOException {
+      final int s = position;
+      int e = scanToLineBreak();
+      assert s >= 0;
+      assert e >= 0;
+      int len = e - s;
+      if(len <= 0) {
+        return null;
+      }
+      e = scanToSpace(s);
+      len = e - s;
+      final char[] word = new char[len];
+      for(int j = s, i = 0; i < word.length; ++i, ++j) {
+        // NOTE: casting byte to char here since WordNet is currently
+        // only ASCII
+        word[i] = (char) buf.get(j);
+      }
+      final String toReturn = new String(word);
+      return toReturn;
+    }
+    protected int scanToSpace(int s) {
+      // scan from current position to first ' '
+      char c;
+      while(s < buf.capacity()) {
+        c = (char) buf.get(s++);
+        if(c == ' ') {
+          return s - 1;
+        }
+      }
+      throw new IllegalStateException();
     }
     protected int scanToLineBreak() {
       // scan from current position to first ("\r\n"|"\r"|"\n")
@@ -273,8 +315,11 @@ public class FileManager implements FileManagerInterface {
     public int remaining() { return bb.remaining(); }
     public ByteCharBuffer reset() { bb.reset(); return this; }
     public ByteCharBuffer rewind() { bb.rewind(); return this; }
+    /** @inheritDoc */
     public char charAt(final int index) { return get(index); }
+    /** @inheritDoc */
     public int length() { return bb.remaining(); }
+    /** @inheritDoc */
     public CharSequence subSequence(final int start, final int end) {
       // XXX not sure if a slice should be used here
       throw new UnsupportedOperationException("TODO IMPLEMENT ME");
@@ -288,7 +333,7 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class ByteCharBuffer
 
-  protected synchronized CharStream getFileStream(String filename) throws IOException {
+  synchronized CharStream getFileStream(String filename) throws IOException {
     if (IS_WINDOWS_OS) {
       //TODO would be slow on Windows
       filename = mapToWindowsFilename(filename);
@@ -306,27 +351,16 @@ public class FileManager implements FileManagerInterface {
   }
 
   //
-  // IO primitives
-  //
-
-  // only called from within synchronized blocks
-  protected String readLine(final CharStream stream) throws IOException {
-    return stream.readLine();
-  }
-
-  // only called from within synchronized blocks
-  protected void skipLine(final CharStream stream) throws IOException {
-    stream.skipLine();
-  }
-
-  //
   // Line-based interface methods
   //
+
+  // only called from within synchronized blocks
+  // core search routine
   public String readLineAt(final String filename, final int offset) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
-      final String line = readLine(stream);
+      final String line = stream.readLine();
 
       int nextOffset = stream.position();
       if (line == null) {
@@ -338,16 +372,7 @@ public class FileManager implements FileManagerInterface {
   }
 
   // only called from within synchronized blocks
-  protected String readLineWord(final CharStream stream) throws IOException {
-    final String ret = stream.readLine();
-    if(ret == null) {
-      return null;
-    }
-    final int space = ret.indexOf(' ');
-    assert space >= 0;
-    return ret.substring(0, space);
-  }
-
+  // core search routine
   public int getNextLinePointer(final String filename, final int offset) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
@@ -355,7 +380,7 @@ public class FileManager implements FileManagerInterface {
         return nextLineCache.getNextOffset();
       }
       stream.seek(offset);
-      skipLine(stream);
+      stream.skipLine();
       return stream.position();
     }
   }
@@ -363,12 +388,14 @@ public class FileManager implements FileManagerInterface {
   //
   // Low-level Searching
   //
+
+  // used by substring search iterator
   public int getMatchingLinePointer(final String filename, int offset, final String substring) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
       do {
-        final String line = readLineWord(stream);
+        final String line = stream.readLineWord();
         final int nextOffset = stream.position();
         if (line == null) {
           return -1;
@@ -382,12 +409,13 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
+  // used by prefix search iterator
   public int getMatchingBeginningLinePointer(final String filename, int offset, final String prefix) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
       do {
-        final String line = readLineWord(stream);
+        final String line = stream.readLineWord();
         final int nextOffset = stream.position();
         if (line == null) {
           return -1;
@@ -414,7 +442,7 @@ public class FileManager implements FileManagerInterface {
       while (true) {
         final int midpoint = (start + stop) / 2;
         stream.seek(midpoint);
-        skipLine(stream);
+        stream.skipLine();
         final int offset = stream.position();
         if (log.isLoggable(Level.FINEST)) {
           log.finest("  "+start+", "+((start+stop)/2)+", "+stop+" -> "+offset);
@@ -423,13 +451,13 @@ public class FileManager implements FileManagerInterface {
           return -1;
         } else if (offset == stop) {
           stream.seek(start + 1);
-          skipLine(stream);
+          stream.skipLine();
           if (log.isLoggable(Level.FINEST)) {
             log.finest(". "+stream.position());
           }
           while (stream.position() < stop) {
             final int result = stream.position();
-            final String line = readLineWord(stream);
+            final CharSequence line = stream.readLineWord();
             if (log.isLoggable(Level.FINEST)) {
               log.finest(". "+line+" -> "+target.contentEquals(line));
             }
@@ -440,20 +468,48 @@ public class FileManager implements FileManagerInterface {
           return -1;
         }
         final int result = stream.position();
-        final String line = readLineWord(stream);
-        if (target.contentEquals(line)) return result;
-        final int compare = target.compareTo(line);
+        final CharSequence line = stream.readLineWord();
+        final int compare = CharSequenceComparator.INSTANCE.compare(target, line);
         if (log.isLoggable(Level.FINEST)) {
           log.finest(line + ": " + compare);
         }
+        if (compare == 0) return result;
         if (compare > 0) {
           start = offset;
-        } else if (compare < 0) {
-          stop = offset;
         } else {
-          return result;
+          assert compare < 0;
+          stop = offset;
         }
       }
     }
+  }
+  
+  // generic comparator for CharSequence / String pairs
+  static class CharSequenceComparator implements Comparator {
+    public int compare(final Object o1, final Object o2) {
+      if(o1 instanceof String && o2 instanceof String) {
+        return ((String)o1).compareTo((String)o2);
+      } else if(o1 instanceof CharSequence && 
+          o2 instanceof CharSequence) {
+        final CharSequence s1 = (CharSequence) o1;
+        final CharSequence s2 = (CharSequence) o2;
+        int i = 0;
+        int n = Math.min(s1.length(), s2.length());
+        while (n-- != 0) {
+          final char c1 = s1.charAt(i);
+          final char c2 = s2.charAt(i++);
+          if (c1 != c2) {
+            return c1 - c2;
+          }
+        }
+        return s1.length() - s2.length();
+      } else {
+        throw new IllegalArgumentException();
+      }
+    }
+    public boolean equals(Object obj) {
+      return obj instanceof CharSequenceComparator;
+    }
+    public static final CharSequenceComparator INSTANCE = new CharSequenceComparator();
   }
 }
