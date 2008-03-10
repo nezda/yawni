@@ -18,6 +18,7 @@ public enum POS {
   //
   // Class variables
   //
+  // NOTE: do not reorder - PointerTypes relies on this
   NOUN("noun", "n", 1),
   VERB("verb", "v", 2),
   ADJ("adjective", "a", 3),
@@ -75,9 +76,9 @@ public enum POS {
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>POS</code>.
    */
   public static POS lookup(final CharSequence key) {
-    for (int i = 0; i < CATS.length; ++i) {
-      if (CATS[i].key.contentEquals(key)) {
-        return CATS[i];
+    for (final POS pos : CATS) {
+      if (pos.key.contentEquals(key)) {
+        return pos;
       }
     }
     throw new NoSuchElementException("unknown POS " + key);
