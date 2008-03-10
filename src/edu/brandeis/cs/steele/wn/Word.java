@@ -32,11 +32,11 @@ public class Word implements PointerTarget {
   //
   // Instance implementation
   //
-  protected final Synset synset;
-  protected final String lemma;
-  protected final int flags;
-  protected long verbFrameFlags;
-  protected short senseNumber;
+  private final Synset synset;
+  private final String lemma;
+  private final int flags;
+  private long verbFrameFlags;
+  private short senseNumber;
 
   Word(final Synset synset, final String lemma, final int flags) {
     this.synset = synset;
@@ -64,7 +64,7 @@ public class Word implements PointerTarget {
 
   @Override public String toString() {
     return new StringBuilder("[Word ").
-      append(synset.offset).
+      append(synset.getOffset()).
       append("@").
       append(synset.getPOS()).
       append(":\"").
@@ -137,7 +137,7 @@ public class Word implements PointerTarget {
   //
   // Pointers
   //
-  protected Pointer[] restrictPointers(final Pointer[] source) {
+  private Pointer[] restrictPointers(final Pointer[] source) {
     List<Pointer> vector = null;
     for (int i = 0; i < source.length; ++i) {
       final Pointer pointer = source[i];
