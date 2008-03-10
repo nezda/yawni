@@ -5,7 +5,7 @@
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.wn;
-import edu.brandeis.cs.steele.util.ArrayUtilities;
+
 import java.util.*;
 import static edu.brandeis.cs.steele.wn.PointerTypeFlags.*;
 
@@ -71,12 +71,12 @@ public enum PointerType {
   // Adverbs
   DERIVED("derived from", "\\", ADV);	// from adjective
 
-  private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.SAT_ADJ};
+  //OLD private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.SAT_ADJ};
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
 
 
   /** A list of all <code>PointerType</code>s. */
-  public static final PointerType[] TYPES = {
+  public static final EnumSet<PointerType> TYPES = EnumSet.of(
     ANTONYM, HYPERNYM, HYPONYM, ATTRIBUTE, SEE_ALSO,
     ENTAILMENT, CAUSE, VERB_GROUP,
     MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
@@ -87,14 +87,13 @@ public enum PointerType {
     MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_REGION_DOMAIN, MEMBER_OF_USAGE_DOMAIN,
     DERIVATIONALLY_RELATED,
     INSTANCE_HYPERNYM, INSTANCE_HYPONYM
-  };
-
-  static {
-    // seems to be 30
-    //assert TYPES.length == 32 : "TYPES.length: "+TYPES.length+" "+Arrays.toString(TYPES);
-  }
+  );
 
   public static final Set<PointerType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN);
+
+  static {
+    assert EnumSet.complementOf(TYPES).equals(INDEX_ONLY);
+  }
 
   static private void setSymmetric(final PointerType a, final PointerType b) {
     a.symmetricType = b;
@@ -154,16 +153,18 @@ public enum PointerType {
   private final String label;
   private final String key;
   private final int flags;
+  private final String toString;
   private PointerType symmetricType;
 
   PointerType(final String label, final String key, final int flags) {
     this.label = label;
     this.key = key;
     this.flags = flags;
+    this.toString = getLabel()+" "+getKey();
   }
 
   @Override public String toString() {
-    return getLabel()+" "+getKey();
+    return toString;
   }
 
   public String getLabel() {
@@ -175,13 +176,15 @@ public enum PointerType {
   }
 
   public boolean appliesTo(final POS pos) {
-    return (flags & POS_MASK[ArrayUtilities.indexOf(CATS, pos)]) != 0;
+    //OLD return (flags & POS_MASK[ArrayUtilities.indexOf(CATS, pos)]) != 0;
+    return (flags & POS_MASK[pos.ordinal()]) != 0;
   }
 
   public boolean symmetricTo(final PointerType type) {
     return symmetricType != null && symmetricType.equals(type);
   }
 }
+
 /** 
  * Flags for tagging a pointer type with the POS types it apples to. 
  * Separate class to allow PointerType enum constructor to reference it.
