@@ -17,6 +17,7 @@ public class ThreadSafetyTest {
     private final Semaphore semaphore;
 
     Antagonizer(final int id, final Semaphore semaphore) { 
+      super("Antagonizer "+id);
       this.id = id;
       this.semaphore = semaphore;
     }
@@ -26,11 +27,12 @@ public class ThreadSafetyTest {
     }
 
     protected void antagonize() {
-      System.err.println(id+" Antagonizer starting... "+Thread.currentThread());
+      System.err.println(id+"  "+Thread.currentThread()+" starting...");
       final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
       // iterate through Synset's of dictionary
       // iterate through XXX
       int wordsVisited = 0;
+      int pointersVisited = 0;
       int indexWordsVisited = 0;
       try {
         for(final POS pos : POS.CATS) {
@@ -43,11 +45,19 @@ public class ThreadSafetyTest {
               //System.err.println(msg);
               ++wordsVisited;
             }
+            for(final Synset synset : indexWord.getSynsets()) {
+              for(final Pointer pointer : synset.getPointers()) {
+                pointer.getTarget();
+                // note these are not unique - they are visited from both sides
+                ++pointersVisited;
+              }
+            }
           }
         }
       } finally {
         System.err.println("Antagonizer: "+id+
-            " wordsVisited: "+wordsVisited+" indexWordsVisited: "+indexWordsVisited);
+            " wordsVisited: "+wordsVisited+" indexWordsVisited: "+indexWordsVisited+
+            " pointersVisited: "+pointersVisited);
       }
     }
 

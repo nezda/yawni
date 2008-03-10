@@ -27,15 +27,15 @@ public class IterationTest {
     // the first char of the line you expect (e.g. first content line, last
     // line), and g CTRL-g will report "Byte n of m" -- n is a 1 based file
     // offset - IndexWord offsets are zero based so you would expect n-1
-    assertEquals(1740, first.offset);
-    assertEquals("'hood", first.lemma);
+    assertEquals(1740, first.getOffset());
+    assertEquals("'hood", first.getLemma());
     IndexWord last = null;
     for(final IndexWord indexWord : nounIndexWords) {
       last = indexWord;
     }
     //System.err.println("last: "+last);
-    assertEquals(4786625, last.offset);
-    assertEquals("zyrian", last.lemma);
+    assertEquals(4786625, last.getOffset());
+    assertEquals("zyrian", last.getLemma());
 
     assertEquals(first, nounIndexWords.iterator().next()); 
     // IF iteration used caching, this might or might not be the case
@@ -54,9 +54,13 @@ public class IterationTest {
       for(int i=0; i < n; ++i) {
         int iterationWordsVisited = 0;
         int iterationIndexWordsVisited = 0;
+        int iterationGlossLetters = 0;
         int iteration_total_p_cnt = 0;
         for(final POS pos : POS.CATS) {
           for(final IndexWord indexWord : dictionary.indexWords(pos)) {
+            for(final Synset synset : indexWord.getSynsets()) {
+              iterationGlossLetters += synset.getGloss().length();
+            }
             ++iterationIndexWordsVisited;
             iteration_total_p_cnt += indexWord.getPointerTypes().size();
             for(final Word word : indexWord.getSenses()) {
@@ -72,6 +76,7 @@ public class IterationTest {
         System.err.println("iterationIndexWordsVisited: "+iterationIndexWordsVisited+
             " iteration_total_p_cnt: "+iteration_total_p_cnt+
             " avg p_cnt: "+(((double)iteration_total_p_cnt)/iterationIndexWordsVisited));
+        System.err.println("iterationGlossLetters: "+iterationGlossLetters);
         assertEquals((i+1) * iterationWordsVisited, totalWordsVisited);
       }
     } finally {
