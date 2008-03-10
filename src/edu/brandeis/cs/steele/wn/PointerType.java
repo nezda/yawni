@@ -94,7 +94,7 @@ public enum PointerType {
     //assert TYPES.length == 32 : "TYPES.length: "+TYPES.length+" "+Arrays.toString(TYPES);
   }
 
-  public static final PointerType[] INDEX_ONLY = { DOMAIN_MEMBER, DOMAIN };
+  public static final Set<PointerType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN);
 
   static private void setSymmetric(final PointerType a, final PointerType b) {
     a.symmetricType = b;
@@ -107,13 +107,8 @@ public enum PointerType {
    * @param pType
    * @return True if the pType is an index-only pointer type.  Otherwise, it is false.
    */
-  public static boolean isIndexOnly(PointerType pType) {
-    for (int i=0; i<INDEX_ONLY.length; ++i) {
-      if (pType.getKey().equals(INDEX_ONLY[i].getKey())) {
-        return true;
-      }
-    }
-    return false;
+  public static boolean isIndexOnly(final PointerType pType) {
+    return INDEX_ONLY.contains(pType);
   }
 
   static {
@@ -135,20 +130,19 @@ public enum PointerType {
     setSymmetric(VERB_GROUP, VERB_GROUP);
   }
 
+  private static final PointerType[] VALUES = values();
+
+  static PointerType fromOrdinal(final byte ordinal) {
+    return VALUES[ordinal];
+  }
+
   /** Return the <code>PointerType</code> whose key matches <var>key</var>.
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>PointerType</code>.
    */
-  static PointerType parseKey(final CharSequence key) {
-    for (int i = 0; i < TYPES.length; ++i) {
-      final PointerType type = TYPES[i];
-      if (type.key.contentEquals(key)) {
-        return type;
-      }
-    }
-    for (int i = 0; i < INDEX_ONLY.length; ++i) {
-      final PointerType type = INDEX_ONLY[i];
-      if (type.key.contentEquals(key)) {
-        return type;
+  public static PointerType parseKey(final CharSequence key) {
+    for (final PointerType pType : VALUES) {
+      if (pType.key.contentEquals(key)) {
+        return pType;
       }
     }
     throw new NoSuchElementException("unknown link type " + key);
@@ -162,7 +156,7 @@ public enum PointerType {
   private final int flags;
   private PointerType symmetricType;
 
-  private PointerType(final String label, final String key, final int flags) {
+  PointerType(final String label, final String key, final int flags) {
     this.label = label;
     this.key = key;
     this.flags = flags;
