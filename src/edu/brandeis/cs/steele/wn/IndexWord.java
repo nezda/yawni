@@ -21,21 +21,21 @@ import java.util.Set;
 public class IndexWord {
   private static final Logger log = Logger.getLogger(IndexWord.class.getName());
   
-  /** offset in <var>pos</var><code>.index<code> file */
-  protected final int offset;
+  /** offset in <var>pos</var><code>.index</code> file */
+  private final int offset;
   /** No case "lemma". Each {@link Word} has at least 1 true case lemma
    * (could vary by POS). 
    */
-  protected final String lemma; 
+  private final String lemma; 
   // number of senses with counts in sense tagged corpora
-  protected final int taggedSenseCount;
+  private final int taggedSenseCount;
   // senses are initially stored as offsets, and paged in on demand.
-  protected int[] synsetOffsets;
-  /** This is null until {@link #getSynsets()} has been called. */
-  protected Synset[] synsets;
+  private int[] synsetOffsets;
+  /** This is <code>null</code> until {@link #getSynsets()} has been called. */
+  private Synset[] synsets;
 
-  protected final EnumSet<PointerType> ptrTypes;
-  protected final byte posOrdinal;
+  private final EnumSet<PointerType> ptrTypes;
+  private final byte posOrdinal;
   //
   // Initialization
   //
@@ -149,5 +149,9 @@ public class IndexWord {
       senseNumberMinusOne++;
     }
     return senses;
+  }
+
+  int getOffset() {
+    return offset;
   }
 }
