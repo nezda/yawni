@@ -43,8 +43,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     log.addHandler(handler);
   }
 
-  protected final FileManagerInterface db;
-  protected final Morphy morphy;
+  private final FileManagerInterface db;
+  private final Morphy morphy;
 
 
   //
@@ -77,9 +77,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     this(new FileManager(searchDirectory));
   }
 
-  protected static class InstanceHolder {
+  static class InstanceHolder {
     /** singleton reference */
-    protected static final FileBackedDictionary instance = new FileBackedDictionary();
+    static final FileBackedDictionary instance = new FileBackedDictionary();
   } // end class InstanceHolder
 
   /** Factory method to get <i>the</i> dictionary backed by a set of files contained
@@ -114,15 +114,15 @@ public class FileBackedDictionary implements DictionaryDatabase {
   // Entity lookup caching
   //
   final int DEFAULT_CACHE_CAPACITY = 100000;
-  protected Cache synsetCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
-  protected Cache indexWordCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
+  private Cache synsetCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
+  private Cache indexWordCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
   
-  protected static interface DatabaseKey {
+  static interface DatabaseKey {
     public int hashCode();
     public boolean equals(Object that);
   } // end interface DatabaseKey
   
-  protected static class POSOffsetDatabaseKey implements DatabaseKey {
+  static class POSOffsetDatabaseKey implements DatabaseKey {
     private final int offset;
     private final byte posOrdinal;
 
@@ -144,7 +144,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class POSOffsetDatabaseKey
   
-  protected static class StringPOSDatabaseKey implements DatabaseKey {
+  static class StringPOSDatabaseKey implements DatabaseKey {
     private final String key;
     private final byte posOrdinal;
 
@@ -169,19 +169,24 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   // File name computation
   //
-  protected static final POS[] POS_KEYS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV};
-  protected static final String[] POS_FILENAME_ROOTS = {"noun", "verb", "adj", "adv"};
-
-  /** NOTE: Called at most once per POS */
-  protected static String getDatabaseSuffixName(final POS pos) {
-    int index = ArrayUtilities.indexOf(POS_KEYS, pos);
-    assert index >= 0 : "index: "+pos;
-    return POS_FILENAME_ROOTS[index];
+  private static final Map<POS, String> POS_TO_FILENAME_ROOT;
+  static {
+    POS_TO_FILENAME_ROOT = new EnumMap<POS, String>(POS.class);
+    POS_TO_FILENAME_ROOT.put(POS.NOUN, "noun");
+    POS_TO_FILENAME_ROOT.put(POS.VERB, "verb");
+    POS_TO_FILENAME_ROOT.put(POS.ADJ, "adj");
+    POS_TO_FILENAME_ROOT.put(POS.ADV, "adv");
   }
 
-  protected static final Map<POS, String> DATA_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+  /** NOTE: Called at most once per POS */
+  private static String getDatabaseSuffixName(final POS pos) {
+    assert POS_TO_FILENAME_ROOT.containsKey(pos);
+    return POS_TO_FILENAME_ROOT.get(pos);
+  }
+
+  private static final Map<POS, String> DATA_FILE_NAMES = new EnumMap<POS, String>(POS.class);
   
-  protected static String getDataFilename(final POS pos) {
+  private static String getDataFilename(final POS pos) {
     String toReturn = DATA_FILE_NAMES.get(pos);
     if(toReturn == null) {
       toReturn = "data." + getDatabaseSuffixName(pos);
@@ -190,9 +195,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return toReturn;
   }
   
-  protected static final Map<POS, String> INDEX_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+  private static final Map<POS, String> INDEX_FILE_NAMES = new EnumMap<POS, String>(POS.class);
   
-  protected static String getIndexFilename(final POS pos) {
+  private static String getIndexFilename(final POS pos) {
     String toReturn = INDEX_FILE_NAMES.get(pos);
     if(toReturn == null) {
       toReturn = "index." + getDatabaseSuffixName(pos);
@@ -201,9 +206,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return toReturn;
   }
 
-  protected static final Map<POS, String> EXCEPTION_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+  private static final Map<POS, String> EXCEPTION_FILE_NAMES = new EnumMap<POS, String>(POS.class);
   
-  protected static String getExceptionsFilename(final POS pos) {
+  private static String getExceptionsFilename(final POS pos) {
     String toReturn = EXCEPTION_FILE_NAMES.get(pos);
     if(toReturn == null) {
       toReturn = getDatabaseSuffixName(pos) + ".exc";
@@ -232,7 +237,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int getIndexWordAtCacheHit = 0;
   static int weirdGetIndexWordAtCacheMiss = 0;
   
-  public IndexWord getIndexWordAt(final POS pos, final int offset) {
+  IndexWord getIndexWordAt(final POS pos, final int offset) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     IndexWord indexWord = (IndexWord) indexWordCache.get(cacheKey);
     if (indexWord != null) {
@@ -242,7 +247,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       ++getIndexWordAtCacheMiss;
       cacheDebug(indexWordCache);
       final String filename = getIndexFilename(pos);
-      final String line;
+      final CharSequence line;
       try {
         line = db.readLineAt(filename, offset);
       } catch (IOException e) {
@@ -259,7 +264,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int getSynsetAtCacheHit = 0;
   static int weirdGetSynsetAtCacheMiss = 0;
   
-  protected Synset getSynsetAt(final POS pos, final int offset, String line) {
+  Synset getSynsetAt(final POS pos, final int offset, String line) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Synset synset = (Synset) synsetCache.get(cacheKey);
     if (synset != null) {
@@ -283,7 +288,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return synset;
   }
 
-  public Synset getSynsetAt(final POS pos, final int offset) {
+  Synset getSynsetAt(final POS pos, final int offset) {
     return getSynsetAt(pos, offset, null);
   }
 
@@ -296,10 +301,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int lookupIndexWordCacheHit = 0;
   static int weirdLookupIndexWordCacheMiss = 0;
 
+  private static Object NULL_INDEX_WORD = new Object();
+
+  /** {@inheritDoc} */
   public IndexWord lookupIndexWord(final POS pos, final String lemma) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
-    IndexWord indexWord = (IndexWord) indexWordCache.get(cacheKey);
-    if (indexWord != null) {
+    Object indexWord = indexWordCache.get(cacheKey);
+    if (indexWord != null && indexWord != NULL_INDEX_WORD) {
       ++lookupIndexWordCacheHit;
       cacheDebug(indexWordCache);
     } else {
@@ -314,10 +322,12 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
       if (offset >= 0) {
         indexWord = getIndexWordAt(pos, offset);
+      } else {
+        indexWord = NULL_INDEX_WORD;
       }
       indexWordCache.put(cacheKey, indexWord);
     }
-    return indexWord;
+    return indexWord != NULL_INDEX_WORD ? (IndexWord) indexWord : null;
   }
   
   /** LN Not used much - this might not even have a <i>unique</i> result ? */
