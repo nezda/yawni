@@ -5,10 +5,8 @@
 package edu.brandeis.cs.steele.util;
 import java.util.*;
 
-/** A <code>Cache</code> of unbounded capacity.  Uses this at your own risk.
- *
- * @author Luke Nezda
- * @version 1.0
+/** 
+ * A {@link Cache} of unbounded capacity.  Use this at your own risk.
  */
 public class UnboundedCache<K, V> extends HashMap<K, V> implements Cache<K, V> {
   @Override

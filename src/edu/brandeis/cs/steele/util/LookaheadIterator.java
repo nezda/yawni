@@ -18,13 +18,13 @@ import java.util.*;
  * failure to generate must therefore cache the next result.  This class can be used as a
  * wrapper, to cache the result independently of the generator logic.  <code>LookaheadIterator.hasNext</code>
  * returns false when <code>hasNext</code> of the wrapped object returns false,
- * <i>or</i> when <code>next</code> of the wrapped class 
+ * <i>or</i> when <code>next</code> of the wrapped class throws a {@link NoSuchElementException}.
  *
- * <p>An <code>Iterator&gt;String&lt;</code> that supplies the lines of a file until the file ends
+ * <p>An <code>Iterator&lt;String&gt;</code> that supplies the lines of a file until the file ends
  * can be written thus:
  * <pre>
- * new LookaheadIterator&gt;String&lt;(new Iterator&gt;String&lt;() {
- *   InputStream input = ...;
+ * new LookaheadIterator&lt;String&gt;(new Iterator&lt;String&gt;() {
+ *   BuffereredReader input = ...;
  *   public boolean hasNext() { return true; }
  *   public String next() {
  *     String line = input.readLine();
@@ -37,9 +37,9 @@ import java.util.*;
  * </pre>
  *
  * <p>An <code>Iterator</code> that generates the natural numbers below the first with
- * the property <var>p</var> can be written thus:
+ * that satisfy predicate <var>p</var> can be written thus:
  * <pre>
- * new LookaheadIterator&gt;Integer&lt;(new Iterator&gt;Integer&lt;() {
+ * new LookaheadIterator&lt;Integer&gt;(new Iterator&lt;Integer&gt;() {
  *   int n = 0;
  *   public boolean hasNext() { return true; }
  *   public Integer next() {
