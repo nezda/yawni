@@ -6,7 +6,7 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-/** A Pointer encodes a lexical or semantic relationship between WordNet entities.  A lexical
+/** A Pointer encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
  * relationship holds between Words; a semantic relationship holds between Synsets.  Relationships
  * are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
  * Relationships are <i>typed</i>: the type of a relationship is a {@link PointerType}, and can
@@ -16,59 +16,43 @@ package edu.brandeis.cs.steele.wn;
  * @version 1.0
  */
 public class Pointer {
-  /** This class is used to avoid paging in the target before it is required,
-   * and to prevent keeping a large portion of the database resident once the
-   * target has been queried.
+  /** These target* fields are used to avoid paging in the target before it is
+   * required, and to prevent keeping a large portion of the database resident
+   * once the target has been queried.  The first time they are used, they acts as
+   * an external key; subsequent uses, in conjunction with {@link
+   * FileBackedDictionary}'s caching mechanism, can be thought of as a {@link
+   * java.lang.ref.WeakReference}.
    */
-  protected static class TargetIndex {
-    final int offset;
-    final int index;
-    final byte posOrdinal;
-
-    TargetIndex(final POS pos, final int offset, final int index) {
-      this.offset = offset;
-      this.index = index;
-      this.posOrdinal = (byte)pos.ordinal();
-    }
-  } // end class TargetIndex
+  private final int targetOffset;
+  private final int targetIndex;
+  private final byte targetPOSOrdinal;
 
   //
   // Instance variables
   //
-  protected final Synset synset;
 
   /** The index of this Pointer within the array of Pointer's in the source Synset.
    * Used by <code>equals</code>.
    */
-  protected final int index;
-  protected final PointerTarget source;
-  //TODO use a byte
-  protected final PointerType pointerType;
-
-  /** An index that can be used to retrieve the target.  The first time this is
-   * used, it acts as an external key; subsequent uses, in conjunction with
-   * {@link FileBackedDictionary}'s caching mechanism, can be thought of as a
-   * {@link java.lang.ref.WeakReference}.
-   */
-  protected final TargetIndex targetIndex;
+  private final int index;
+  private final PointerTarget source;
+  private final byte pointerTypeOrdinal;
 
   //
   // Constructor and initialization
   //
   Pointer(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
-    this.synset = synset;
     this.index = index;
-    this.pointerType = PointerType.parseKey(tokenizer.nextToken());
+    this.pointerTypeOrdinal = (byte)PointerType.parseKey(tokenizer.nextToken()).ordinal();
 
-    final int targetOffset = tokenizer.nextInt();
+    this.targetOffset = tokenizer.nextInt();
 
-    final POS pos = POS.lookup(tokenizer.nextToken());
+    this.targetPOSOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
     final int linkIndices = tokenizer.nextHexInt();
     final int sourceIndex = linkIndices >> 8;
-    final int targetIndex = linkIndices & 0xFF;
+    this.targetIndex = linkIndices & 0xFF;
 
     this.source = resolveTarget(synset, sourceIndex);
-    this.targetIndex = new TargetIndex(pos, targetOffset, targetIndex);
   }
 
   //
@@ -96,7 +80,7 @@ public class Pointer {
   // Accessors
   //
   public PointerType getType() {
-    return pointerType;
+    return PointerType.fromOrdinal(pointerTypeOrdinal);
   }
 
   public boolean isLexical() {
@@ -106,14 +90,6 @@ public class Pointer {
   //
   // Targets
   //
-  protected PointerTarget resolveTarget(final Synset synset, final int index) {
-    if (index == 0) {
-      return synset;
-    } else {
-      return synset.getWord(index - 1);
-    }
-  }
-
   public PointerTarget getSource() {
     return source;
   }
@@ -121,8 +97,17 @@ public class Pointer {
   public PointerTarget getTarget() {
     return resolveTarget(
         FileBackedDictionary.getInstance().getSynsetAt(
-          POS.fromOrdinal(targetIndex.posOrdinal), 
-          targetIndex.offset), 
-        targetIndex.index);
+          POS.fromOrdinal(targetPOSOrdinal),
+          targetOffset), 
+        targetIndex);
   }
+
+  private static PointerTarget resolveTarget(final Synset synset, final int index) {
+    if (index == 0) {
+      return synset;
+    } else {
+      return synset.getWord(index - 1);
+    }
+  }
+
 }
