@@ -28,14 +28,14 @@ public class Synset implements PointerTarget {
   // 
   // Instance implementation
   // 
-  /** offset in <tt>data.<i>pos</i><tt> file */
-  protected final int offset;
-  protected final Word[] words;
-  protected final Pointer[] pointers;
+  /** offset in <code>data.</code><var>pos</var> file */
+  private final int offset;
+  private final Word[] words;
+  private final Pointer[] pointers;
   //TODO make this a byte[]
-  protected final char[] gloss;
-  protected final boolean isAdjectiveCluster;
-  protected final byte posOrdinal;
+  private final char[] gloss;
+  private final boolean isAdjectiveCluster;
+  private final byte posOrdinal;
 
   //
   // Object initialization
@@ -219,7 +219,7 @@ public class Synset implements PointerTarget {
   //
   // Pointers
   //
-  protected static PointerTarget[] collectTargets(final Pointer[] pointers) {
+  static PointerTarget[] collectTargets(final Pointer[] pointers) {
     final PointerTarget[] targets = new PointerTarget[pointers.length];
     for (int i = 0; i < pointers.length; ++i) {
       targets[i] = pointers[i].getTarget();
