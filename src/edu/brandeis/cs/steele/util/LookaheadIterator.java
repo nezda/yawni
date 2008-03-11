@@ -89,7 +89,7 @@ public class LookaheadIterator<T> implements Iterator<T> {
     lookahead();
     if (more) {
       T result = nextObject;
-      nextObject = null;	// to facilite GC
+      nextObject = null; // to facilite GC
       peeked = false;
       return result;
     } else {
