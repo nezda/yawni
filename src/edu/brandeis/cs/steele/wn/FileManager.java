@@ -49,24 +49,22 @@ public class FileManager implements FileManagerInterface {
   protected Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
   static class NextLineCache {
-    String filename;
-    int previous;
-    int next;
+    private String filename;
+    private int previous;
+    private int next;
 
-    void setNextLineOffset(String filename, int previous, int next) {
+    synchronized void setNextLineOffset(String filename, int previous, int next) {
       this.filename = filename;
       this.previous = previous;
       this.next = next;
     }
 
-    boolean matchingOffset(String filename, int offset) {
-      //FIXME XXX HACK HACK DISABLING
-      if(true) return false;
-      return this.filename != null && previous == offset && this.filename.equals(filename);
-    }
-
-    int getNextOffset() {
-      return next;
+    synchronized int matchingOffset(final String filename, final int offset) {
+      if (this.filename == null || previous != offset || false == this.filename.equals(filename)) {
+        return -1;
+      } else {
+        return next;
+      }
     }
   }
   private NextLineCache nextLineCache = new NextLineCache();
@@ -193,7 +191,6 @@ public class FileManager implements FileManagerInterface {
     @Override int length() throws IOException {
       return buf.capacity();
     }
-    //TODO add readFirstWord();
     @Override String readLine() throws IOException {
       final int s = position;
       final int e = scanToLineBreak();
@@ -376,8 +373,9 @@ public class FileManager implements FileManagerInterface {
   public int getNextLinePointer(final String filename, final int offset) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
-      if (nextLineCache.matchingOffset(filename, offset)) {
-        return nextLineCache.getNextOffset();
+      final int next;
+      if (0 <= (next = nextLineCache.matchingOffset(filename, offset))) {
+        return next;
       }
       stream.seek(offset);
       stream.skipLine();
