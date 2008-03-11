@@ -171,8 +171,13 @@
       errorProperty="tests.failed" 
       failureProperty="tests.failed">
       <classpath refid="junit.classpath"/>
+      <!-- <jvmarg value="-XrunShark"/> -->
+      <!-- <jvmarg value="-Xrunhprof:file=dump.hprof,format=b"/> -->
+      <!-- <jvmarg value="-Xloggc:gcfile"/> -->
+      <!-- <jvmarg value="-Xrunhprof:cpu=samples,depth=20,interval=10,monitor=y,thread=y"/> -->
+      <!-- <jvmarg value="-Xrunhprof:cpu=times,depth=20,interval=10,monitor=y,thread=y"/> -->
       <assertions>
-        <enable package="edu.brandeis.cs.steele"/>
+        <enable package="edu.brandeis.cs.steele.wn"/>
       </assertions>
 
       <!-- allow tests to control debug prints -->

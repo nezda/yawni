@@ -81,6 +81,6 @@ public enum POS {
         return pos;
       }
     }
-    throw new NoSuchElementException("unknown POS " + key);
+    throw new NoSuchElementException("unknown POS \"" + key + "\"");
   }
 }
