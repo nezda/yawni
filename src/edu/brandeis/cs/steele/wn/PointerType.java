@@ -69,7 +69,7 @@ public enum PointerType {
   PERTAINYM("pertainym", "\\", ADJ | LEXICAL),
 
   // Adverbs
-  DERIVED("derived from", "\\", ADV);	// from adjective
+  DERIVED("derived from", "\\", ADV); // from adjective
 
   //OLD private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.SAT_ADJ};
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
