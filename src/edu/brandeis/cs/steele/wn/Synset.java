@@ -36,6 +36,7 @@ public class Synset implements PointerTarget {
   private final char[] gloss;
   private final boolean isAdjectiveCluster;
   private final byte posOrdinal;
+  private final byte lexfilenum;
 
   //
   // Object initialization
@@ -44,8 +45,11 @@ public class Synset implements PointerTarget {
   Synset(final String line) {
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextInt();
-    //TODO expose this
-    final CharSequence lex_filenum = tokenizer.nextToken();
+    final int lexfilenumInt = tokenizer.nextInt(); 
+    // there are only 45 lexfiles
+    // http://wordnet.princeton.edu/man/lexnames.5WN
+    assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
+    this.lexfilenum = (byte)lexfilenumInt;
     CharSequence ss_type = tokenizer.nextToken();
     if ("s".contentEquals(ss_type)) {
       ss_type = "a";
@@ -60,7 +64,7 @@ public class Synset implements PointerTarget {
     for (int i = 0; i < wordCount; ++i) {
       String lemma = tokenizer.nextToken().toString();
       final String originalLemma = lemma;
-      final int id = tokenizer.nextHexInt();
+      final int lexid = tokenizer.nextHexInt();
       int flags = Word.NONE;
       // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
       if (lemma.charAt(lemma.length() - 1) == ')' && lemma.indexOf('(') > 0) {
@@ -79,7 +83,7 @@ public class Synset implements PointerTarget {
           throw new RuntimeException("unknown syntactic marker " + marker);
         }
       }
-      words[i] = new Word(this, lemma.replace('_', ' '), flags);
+      words[i] = new Word(this, lemma.replace('_', ' '), lexid, flags);
     }
 
     final int pointerCount = tokenizer.nextInt();
@@ -165,6 +169,14 @@ public class Synset implements PointerTarget {
   //
   public POS getPOS() {
     return POS.fromOrdinal(posOrdinal);
+  }
+
+  boolean isAdjectiveCluster() {
+    return isAdjectiveCluster;
+  }
+  
+  int lexfilenum() {
+    return lexfilenum;
   }
 
   public String getGloss() {
