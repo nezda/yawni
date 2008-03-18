@@ -22,10 +22,6 @@ public class ThreadSafetyTest {
       this.semaphore = semaphore;
     }
 
-    protected void antagonize1() {
-      System.err.println(id+" antagonizer antagonize()");
-    }
-
     protected void antagonize() {
       System.err.println(id+"  "+Thread.currentThread()+" starting...");
       final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
@@ -78,7 +74,7 @@ public class ThreadSafetyTest {
     //   release permit (n times: implies 1 permit remains after last completion)
     // acquire 1 permit
     // 3 Antagonizer's takes a while to run
-    final int numAntagonizers = 2;
+    final int numAntagonizers = 4;
     final Semaphore finisher = new Semaphore(1 - numAntagonizers, true /* fair */);
     final Antagonizer[] antagonizers = new Antagonizer[numAntagonizers];
     for(int i=0; i<numAntagonizers; ++i) {
@@ -95,9 +91,6 @@ public class ThreadSafetyTest {
     }
     System.err.println("done");
   }
-  // possible bugs:
-  // - 2 threads trying to use CharStream at once - insufficient synchronization
-  // - NextLineCache ?
 
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(ThreadSafetyTest.class);
