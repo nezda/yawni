@@ -113,7 +113,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   // Entity lookup caching
   //
-  final int DEFAULT_CACHE_CAPACITY = 100000;
+  final int DEFAULT_CACHE_CAPACITY = 10000;//100000;
   private Cache synsetCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
   private Cache indexWordCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
   
@@ -215,6 +215,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
       EXCEPTION_FILE_NAMES.put(pos, toReturn);
     }
     return toReturn;
+  }
+  
+  private static String getCntlistDotRevFilename() {
+    return "cntlist.rev";
   }
 
 
@@ -397,7 +401,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return syns.toArray(new Synset[syns.size()]);
   }
 
-  private Cache exceptionsCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
+  private final Cache exceptionsCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
+  //private final Cache exceptionsCache = new LRUCache(0);
   
   /** 
    * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given <param>pos</param>.
@@ -429,6 +434,27 @@ public class FileBackedDictionary implements DictionaryDatabase {
       throw new RuntimeException(e);
     }
     return NO_STRINGS;
+  }
+
+  /** 
+   * <i>looks up</i> <a href="">senskey</a> in the <code>cntlist.rev</code> file
+   * and returns the matching line (or <code>null</code>).
+   */
+  String lookupCntlistDotRevLine(final String senseKey) {
+    //TODO add caching
+    final int offset;
+    final String line;
+    try {
+      offset = db.getIndexedLinePointer(getCntlistDotRevFilename(), senseKey);
+      if(offset < 0) {
+        line = null;
+      } else {
+        line = db.readLineAt(getCntlistDotRevFilename(), offset);
+      }
+    } catch(IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
   }
 
   private static final String[] NO_STRINGS = new String[0];
