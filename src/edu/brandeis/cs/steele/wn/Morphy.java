@@ -91,7 +91,8 @@ class Morphy {
 
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
-    morphyCache = new LRUCache(dictionary.DEFAULT_CACHE_CAPACITY);
+    //morphyCache = new LRUCache(dictionary.DEFAULT_CACHE_CAPACITY);
+    morphyCache = new LRUCache(0);
   }
 
   private String searchNormalize(String origstr) {
