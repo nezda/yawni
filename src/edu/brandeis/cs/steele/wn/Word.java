@@ -34,18 +34,22 @@ public class Word implements PointerTarget {
   //
   private final Synset synset;
   private final String lemma;
+  private final int lexid;
+  //FIXME only needs to be a byte since there are only 3 bits of flag values
   private final int flags;
+  //TODO what are these ? and can this be an int or byte?
   private long verbFrameFlags;
   private short senseNumber;
 
-  Word(final Synset synset, final String lemma, final int flags) {
+  Word(final Synset synset, final String lemma, final int lexid, final int flags) {
     this.synset = synset;
     this.lemma = lemma;
+    this.lexid = lexid;
     this.flags = flags;
     this.senseNumber = -1;
   }
 
-  void setVerbFrameFlag(int fnum) {
+  void setVerbFrameFlag(final int fnum) {
     verbFrameFlags |= 1 << fnum;
   }
 
@@ -86,6 +90,10 @@ public class Word implements PointerTarget {
     return synset.getPOS();
   }
 
+  public String getLemma() {
+    return lemma;
+  }
+
   public int getSenseNumber() {
     if(senseNumber < 1) {
       final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
@@ -94,7 +102,6 @@ public class Word implements PointerTarget {
       int senseNumber = 0;
       for(final Synset syn : indexWord.getSynsets()) {
         --senseNumber;
-        //XXX LN figure out why syn==synset won't work here
         if(syn.equals(synset)) {
           senseNumber = -senseNumber;
           break;
@@ -107,14 +114,99 @@ public class Word implements PointerTarget {
     return senseNumber;
   }
 
-  public String getLemma() {
-    return lemma;
+  /**
+   * Build 'sensekey'.  Used for searching cntlist.rev<br>
+   * <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
+   */
+  String getSenseKey() {
+    final String searchWord;
+    final int headSense;
+    if(synset.isAdjectiveCluster()) {
+      final PointerTarget[] adjsses = synset.getTargets(PointerType.SIMILAR_TO);
+      assert adjsses.length == 1;
+      final Synset adjss = (Synset)adjsses[0];
+      // if satellite, key lemma in cntlist.rev
+      // is adjss's first word  (no case) and
+      // adjss's lexid (aka lexfilenum) otherwise
+      searchWord = adjss.getWords()[0].getLemma();
+      headSense = adjss.getWords()[0].lexid;
+    } else {
+      searchWord = getLemma();
+      headSense = lexid;
+    }
+    int synsetIndex;
+    for (synsetIndex = 0; synsetIndex < getSynset().getWords().length; synsetIndex++) {
+      if(getSynset().getWords()[synsetIndex].getLemma() == getLemma()) {
+        break;
+      }
+    }
+    assert synsetIndex != getSynset().getWords().length;
+    final String senseKey;
+    if (synset.isAdjectiveCluster()) {
+      senseKey = String.format("%s%%%d:%02d:%02d:%s:%02d",
+          getLemma().toLowerCase(),
+          POS.SAT_ADJ.getWordNetCode(), 
+          getSynset().lexfilenum(),
+          getSynset().getWords()[synsetIndex].lexid,
+          searchWord.toLowerCase(),
+          headSense);
+    } else {
+      senseKey = String.format("%s%%%d:%02d:%02d::",
+          getLemma().toLowerCase(), 
+          getPOS().getWordNetCode(),
+          getSynset().lexfilenum(),
+          getSynset().getWords()[synsetIndex].lexid
+          );
+    }
+    return senseKey;
   }
 
+  /** 
+   * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html">cntlist</a>
+   */
+  public int getSensesTaggedFrequency() {
+    //TODO cache this value
+    //TODO we could use this IndexWord's getTaggedSenseCount() to determine if
+    //there were any tagged senses for *any* sense of it (including this one)
+    //and really we wouldn't need to look at sense (numbers) exceeding that value
+    //as an optimization
+    final String senseKey = getSenseKey();
+    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    final String line = dictionary.lookupCntlistDotRevLine(senseKey);
+    int count = 0;
+    if(line != null) {
+      // cntlist.rev line format:
+      // <sense_key>  <sense_number>  tag_cnt
+      final int lastSpace = line.lastIndexOf(" ");
+      assert lastSpace > 0;
+      count = CharSequenceTokenizer.parseInt(line, lastSpace + 1, line.length());
+      // sanity check final int firstSpace = line.indexOf(" ");
+      // sanity check assert firstSpace > 0 && firstSpace != lastSpace;
+      // sanity check final int mySenseNumber = getSenseNumber();
+      // sanity check final int foundSenseNumber =
+      // sanity check   CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+      // sanity check if(mySenseNumber != foundSenseNumber) {
+      // sanity check   System.err.println(this+" foundSenseNumber: "+foundSenseNumber+" count: "+count);
+      // sanity check } else {
+      // sanity check   //System.err.println(this+" OK");
+      // sanity check }
+      //[Word 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
+      //assert getSenseNumber() == 
+      //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+    }
+    return count;
+  }
+
+  /**
+   * TODO document me
+   */
   public long getFlags() {
     return flags;
   }
 
+  /**
+   * TODO document me
+   */
   public long getVerbFrameFlags() {
     return verbFrameFlags;
   }
@@ -124,16 +216,25 @@ public class Word implements PointerTarget {
   }
 
   public String getLongDescription() {
-    String description = getDescription();
-    String gloss = synset.getGloss();
-    if (gloss != null) {
-      description += " -- (" + gloss + ")";
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append(getSenseNumber());
+    buffer.append(". ");
+    final int sensesTaggedFrequency = getSensesTaggedFrequency();
+    if(sensesTaggedFrequency != 0) {
+      buffer.append("(");
+      buffer.append(sensesTaggedFrequency);
+      buffer.append(") ");
     }
-    return description;
+    buffer.append(getLemma());
+    final String gloss = getSynset().getGloss();
+    if (gloss != null) {
+      buffer.append(" -- (");
+      buffer.append(gloss);
+      buffer.append(")");
+    }
+    return buffer.toString();
   }
 
-  private static final Pointer[] NO_POINTERS = new Pointer[0];
-  
   //
   // Pointers
   //
@@ -153,6 +254,8 @@ public class Word implements PointerTarget {
     }
     return vector.toArray(new Pointer[vector.size()]);
   }
+  
+  private static final Pointer[] NO_POINTERS = new Pointer[0];
 
   public Pointer[] getPointers() {
     return restrictPointers(synset.getPointers());
