@@ -20,10 +20,6 @@ import java.io.*;
  *
  * Instances of this class are guarded.  Operations are synchronized by file.
  *
- * TODO complete tagged sense count by parsing this file
- * // The name of the file that contain word sense frequency information.
- * protected static final String frequencyFile = "/dict/cntlist";
- *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
@@ -60,7 +56,11 @@ public class FileManager implements FileManagerInterface {
     }
 
     synchronized int matchingOffset(final String filename, final int offset) {
-      if (this.filename == null || previous != offset || false == this.filename.equals(filename)) {
+      if (this.filename == null || 
+          previous != offset || 
+          //false == this.filename.equals(filename)
+          this.filename != filename
+          ) {
         return -1;
       } else {
         return next;
@@ -112,7 +112,7 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
-  static String mapToWindowsFilename(String filename) {
+  private static String mapToWindowsFilename(String filename) {
     if (filename.startsWith("data.")) {
       filename = filename.substring("data.".length()) + ".dat";
     } else if (filename.startsWith("index.")) {
