@@ -164,7 +164,7 @@
     <mkdir dir="${junit.output.dir}"/>
     <junit 
       fork="yes"
-      maxmemory="256m"
+      maxmemory="64m"
       printsummary="false"
       showoutput="yes"
       haltonfailure="yes"
