@@ -225,13 +225,18 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @exception NumberFormatException
    *                if the argument could not be parsed as an int quantity.
    */
-  private static int parseInt(final CharSequence string, final int radix)
+  static int parseInt(final CharSequence string, final int radix)
     throws NumberFormatException {
       return parseInt(string, 0, string.length(), radix);
     }
 
+  static int parseInt(final CharSequence string, int offset, 
+      final int end) {
+    return parseInt(string, offset, end, 10);
+  }
+
   // XXX borrowed from Apache Harmony
-  private static int parseInt(final CharSequence string, int offset, 
+  static int parseInt(final CharSequence string, int offset, 
       final int end, final int radix) {
     final int start = offset;
     if (string == null || radix < Character.MIN_RADIX
