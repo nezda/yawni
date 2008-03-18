@@ -8,6 +8,22 @@ import java.util.*;
 // By far most complex features involve multi-words, esp those containing
 // prepositions and "-"
 // TODO add tests with prepositions
+//
+// - test plan
+//   - Morphy
+//     - make sure caching strategies are not harming correctness (uses DatabaseKey(pos, someString))
+//   - specific synsets
+//     - using offets will require changes as WN is improved
+//     - could use lemmma, pos, and (sense number OR gloss)
+//   - other relations including derivationally related
+//   - add speed tests
+//     - task-based: count unique Word's in all DBs
+//     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
+//     - compare speed with various CharStream impls (add some package private methods)
+//   - sense numbers
+//   - gloss
+//   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
+
 public class MorphyTest {
   //TODO consider proper Parameterized tests
 
@@ -69,7 +85,7 @@ public class MorphyTest {
   public void test1() {
     String[][] unstemmedStemmedCases = new String[][] {
       { POS.NOUN.name(), "dogs", "dog" },
-      { POS.NOUN.name(), "geese", "goose" },
+      { POS.NOUN.name(), "geese", "goose", "geese" },
       { POS.NOUN.name(), "handfuls", "handful" },
       { POS.NOUN.name(), "villas", "villa" }, // exposed true case bug
       { POS.NOUN.name(), "Villa", "Villa" }, // exposed true case bug
@@ -79,7 +95,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "George W. \t\tBush", "George W. Bush" }, //WN doesn't get this (extra internal space) (WN online does - probably string preprocessing)
       { POS.NOUN.name(), "george w. bush", "George W. Bush" },
       //WN doesn't get this either (missing ".") { POS.NOUN.name(), "george w bush", "George W. Bush" },
-      { POS.NOUN.name(), "mice", "mouse" },
+      { POS.NOUN.name(), "mice", "mouse", "mice" },
       { POS.NOUN.name(), "internal-combustion engine", "internal-combustion engine" },
       //WN 3 doesn't get this? { POS.NOUN.name(), "internal combustion engine", "internal-combustion engine" },
       { POS.NOUN.name(), "hangers-on", "hanger-on" },
@@ -92,6 +108,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
       { POS.NOUN.name(), "_slovaks_", "Slovak" },
       { POS.NOUN.name(), "superheroes", "superhero" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
+      { POS.NOUN.name(), "businessmen", "businessmen", "businessman" },
       { POS.NOUN.name(), "_", null },
       { POS.NOUN.name(), "armful", "armful" },
       { POS.NOUN.name(), "attorneys general", "attorney general" },
@@ -108,15 +125,15 @@ public class MorphyTest {
       { POS.VERB.name(), "gave a damn", "give a damn" },
       { POS.VERB.name(), "asking for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
-      { POS.VERB.name(), "was", "be" },
+      { POS.VERB.name(), "was", "be", "was" },
       { POS.VERB.name(), "cannonball along", "cannonball along" },
       //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, //XXX currently fails wnb too
       //{ POS.VERB.name(), "finesses", "finesse" }, //not in WordNet 3.0 as a Verb
       { POS.VERB.name(), "accesses", "access" },
-      { POS.VERB.name(), "went", "go" },
+      { POS.VERB.name(), "went", "go", "went" },
       { POS.VERB.name(), "bloging" /* spelled wrong */, "blog" },
       //{ POS.VERB.name(), "blogging" /* spelled correctly, not in exceptions file */, "blog" },
-      { POS.VERB.name(), "shook hands", "shake hands" },
+      { POS.VERB.name(), "shook hands", "shake hands", "shook hands" },
       { POS.VERB.name(), "Americanize", "Americanize" }, // capitalized verb - grep "v [0-9]+ [A-Z]" data.verb
       { POS.VERB.name(), "saw", "see", "saw" },
       { POS.ADJ.name(), "onliner" /* no idea */, "online" },
@@ -125,19 +142,24 @@ public class MorphyTest {
       { POS.ADJ.name(), "Middle Eastern", "Middle Eastern" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
       { POS.ADJ.name(), "Latin-American", "Latin-American" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
     };
-    for(final String[] unstemmedStemmed : unstemmedStemmedCases) {
-      final POS pos = POS.valueOf(unstemmedStemmed[0]);
-      final String unstemmed = unstemmedStemmed[1];
-      final String stemmed = unstemmedStemmed[2];
+    for(final String[] testElements : unstemmedStemmedCases) {
+      final POS pos = POS.valueOf(testElements[0]);
+      final String unstemmed = testElements[1];
+      final String stemmed = testElements[2];
+      final List<String> goldStems = new ArrayList<String>();
+      for(int i = 2; i < testElements.length; ++i) {
+        goldStems.add(testElements[i]);
+      }
       final List<String> baseForms = stem(unstemmed, pos);
-      assertTrue("unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms,
-          baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
+      String msg = "unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms;
+      assertTrue(msg, baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
+      //System.err.println(msg);
       assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
       //TODO on failure, could try other POS
-      if(baseForms.size() > 2) {
+      if(baseForms.size() >= 2) {
         //TODO tighten up this test - don't allow any extra unspecified variants
         // note this considers case variants distinct
-        System.err.println("extra variants for \""+unstemmed+"\": "+baseForms);
+        System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
       }
       assertTrue(isUnique(baseForms));
     }
@@ -155,8 +177,18 @@ public class MorphyTest {
   }
 
   @Test
+  public void testWordSense() {
+    assertEquals(42, dictionary.lookupIndexWord(POS.NOUN, "dog").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(2, dictionary.lookupIndexWord(POS.VERB, "dog").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(3, dictionary.lookupIndexWord(POS.ADJ, "cardinal").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(0, dictionary.lookupIndexWord(POS.ADJ, "cardinal").getSenses()[1].getSensesTaggedFrequency());
+    assertEquals(9, dictionary.lookupIndexWord(POS.ADJ, "concrete").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(1, dictionary.lookupIndexWord(POS.ADJ, "dogmatic").getSenses()[0].getSensesTaggedFrequency());
+    System.err.println("testWordSense() passed");
+  }
+
+  @Test
   public void detectLostVariants() {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     int issues = 0;
     int nonCaseIssues = 0;
     for(final POS pos : POS.CATS) {
@@ -186,6 +218,7 @@ public class MorphyTest {
         }
       }
     }
+    IterationTest.printMemoryUsage();
   }
 
   private static boolean isUnique(final List<String> items) {
@@ -206,7 +239,7 @@ public class MorphyTest {
   //          if(otherPOS == pos) {
   //            continue;
   //          }
-  //          // TODO
+  //          // TODO implement getindex() and then activate this test
   //          // search for this lemma in other POS
   //          // see if we can find lexical ambiguity
   //          // e.g. NOUN("long time")
@@ -236,22 +269,6 @@ public class MorphyTest {
   //    }
   //  }
   //}
-
-  // TODO
-  // - test plan
-  //   - Morphy
-  //     - make sure caching strategies are not harming correctness (uses DatabaseKey(pos, someString))
-  //   - specific synsets
-  //     - using offets will require changes as WN is improved
-  //     - could use lemmma, pos, and (sense number OR gloss)
-  //   - other relations including derivationally related
-  //   - add speed tests
-  //     - task-based: count unique Word's in all DBs
-  //     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
-  //     - compare speed with various CharStream impls (add some package private methods)
-  //   - sense numbers
-  //   - gloss
-  //   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
 
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(MorphyTest.class);
