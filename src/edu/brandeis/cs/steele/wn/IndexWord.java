@@ -47,9 +47,10 @@ public class IndexWord {
       this.posOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
 
       tokenizer.skipNextToken(); // poly_cnt
-      final int p_cnt = tokenizer.nextInt();
+      //final int poly_cnt = tokenizer.nextInt(); // poly_cnt
+      final int pointerCount = tokenizer.nextInt();
       this.ptrTypes = EnumSet.noneOf(PointerType.class);
-      for (int i = 0; i < p_cnt; ++i) {
+      for (int i = 0; i < pointerCount; ++i) {
         try {
           ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
         } catch (final java.util.NoSuchElementException exc) {
@@ -58,8 +59,9 @@ public class IndexWord {
       }
 
       this.offset = offset;
-      //XXX what's the difference between poly_cnt and senseCount ?
       final int senseCount = tokenizer.nextInt();
+      // this is redundant information
+      //assert senseCount == poly_cnt;
       this.taggedSenseCount = tokenizer.nextInt();
       this.synsetOffsets = new int[senseCount];
       for (int i = 0; i < senseCount; ++i) {
