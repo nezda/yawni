@@ -97,17 +97,11 @@ public class Synset implements PointerTarget {
       for (int i = 0; i < f_cnt; i++) {
         final CharSequence skip = tokenizer.nextToken(); // "+"
         assert "+".contentEquals(skip) : "skip: "+skip;
+        //FIXME what is f_num?
         final int f_num = tokenizer.nextInt();
         //LN guess int f_num = tokenizer.nextHexInt();
-        int w_num;
-        w_num = tokenizer.nextHexInt();
-        //XXX try {
-        //XXX   w_num = tokenizer.nextInt();
-        //XXX } catch(NumberFormatException nfe) {
-        //XXX   System.err.println("hell. "+words[0]);
-        //XXX   continue;
-        //XXX   //throw nfe;
-        //XXX }
+        //FIXME what is w_num?
+        final int w_num = tokenizer.nextHexInt();
         if (w_num > 0) {
           words[w_num - 1].setVerbFrameFlag(f_num);
         } else {
