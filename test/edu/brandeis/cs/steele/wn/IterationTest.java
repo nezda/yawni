@@ -5,6 +5,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.lang.management.*;
 
 /**
  * Goal: verify various iteration methods of dictiony behave as expected
@@ -68,11 +69,14 @@ public class IterationTest {
               final Synset synset = word.getSynset();
               //String msg = i+" "+word;
               //System.err.println(msg);
+              String longMsg = word.getLongDescription();
+              //System.err.println(longMsg);
               ++totalWordsVisited;
               ++iterationWordsVisited;
             }
           }
         }
+        printMemoryUsage();
         System.err.println("iterationIndexWordsVisited: "+iterationIndexWordsVisited+
             " iteration_total_p_cnt: "+iteration_total_p_cnt+
             " avg p_cnt: "+(((double)iteration_total_p_cnt)/iterationIndexWordsVisited));
@@ -84,9 +88,20 @@ public class IterationTest {
     }
   }
 
+  static void printMemoryUsage() {
+    System.err.println("heap: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+    //System.err.println("non-heap: "+ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage());
+    for(final MemoryPoolMXBean memPool : ManagementFactory.getMemoryPoolMXBeans()) {
+      if(memPool.getType() != MemoryType.HEAP) {
+        continue;
+      }
+      System.err.println("  "+memPool.getName()+/*" "+memPool.getType()+*/" peak: "+memPool.getPeakUsage());//+" "+memPool);
+    }
+  }
+
   @Test
   public void parallelIterationTest() {
-    // TODO
+    // TODO implement parallelIterationTest
     // start 2 iterators and increment each in "lock step"
   }
   
