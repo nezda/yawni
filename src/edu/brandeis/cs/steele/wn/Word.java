@@ -94,6 +94,9 @@ public class Word implements PointerTarget {
     return lemma;
   }
 
+  /**
+   * 1-indexed value.
+   */
   public int getSenseNumber() {
     if(senseNumber < 1) {
       final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
@@ -197,16 +200,10 @@ public class Word implements PointerTarget {
     return count;
   }
 
-  /**
-   * TODO document me
-   */
   public long getFlags() {
     return flags;
   }
 
-  /**
-   * TODO document me
-   */
   public long getVerbFrameFlags() {
     return verbFrameFlags;
   }
