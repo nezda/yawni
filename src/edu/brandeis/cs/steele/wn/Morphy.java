@@ -514,7 +514,7 @@ class Morphy {
       assert startIdx >= 0;
       ++startIdx; // bump past '_'
       for(final String prep : PREPOSITIONS) {
-        // LN if matches a known preposition on a word boundary
+        // if matches a known preposition on a word boundary
         if (s.regionMatches(startIdx, prep, 0, prep.length()) &&
            ( startIdx + prep.length() == s.length() ||
              s.charAt(startIdx + prep.length()) == '_' )

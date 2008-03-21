@@ -88,20 +88,25 @@ public class FileManager implements FileManagerInterface {
   }
 
   protected static String getWNHome() {
+    // FIXME see notes in getWNSearchDir()
     String home = System.getProperty("WNHOME");
-    if (home != null) {
+    if (home != null && new File(home).exists()) {
       return home;
     } else {
       home = System.getenv("WNHOME");
-      if(home != null) {
+      if(home != null && new File(home).exists()) {
         return home;
       }
     }
-    throw new IllegalStateException("WNHOME is not defined as either a Java System properties or environment variable. "+
-        System.getenv());
+    log.log(Level.SEVERE, "WNHOME is not defined correctly as either a Java system property or environment variable. "+
+        System.getenv()+" \n\nsystem properties: "+System.getProperties());
+    throw new IllegalStateException("WNHOME is not defined correctly as either a Java system property or environment variable. "+
+        System.getenv()+" \n\nsystem properties: "+System.getProperties());
   }
 
   protected static String getWNSearchDir() {
+    //FIXME unify logic for this and getWNSearchDir() to try both
+    //system property AND environment variables and check readable
     final String searchDir = System.getProperty("WNSEARCHDIR");
     if (searchDir != null) {
       return searchDir;
