@@ -21,40 +21,38 @@ import javax.swing.*;
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
 
-  protected DictionaryDatabase dictionary;
+  private static final long serialVersionUID = 1L;
 
-  protected JTextField searchField;
-  protected JEditorPane resultEditorPane;
-  protected JComboBox[] posBoxes = new JComboBox[POS.CATS.length];
+  final DictionaryDatabase dictionary;
 
-  public BrowserPanel(DictionaryDatabase dictionary) {
+  private JTextField searchField;
+  private JEditorPane resultEditorPane;
+  private JComboBox[] posBoxes = new JComboBox[POS.CATS.length];
+
+  public BrowserPanel(final DictionaryDatabase dictionary) {
     this.dictionary = dictionary;
 
-    JPanel searchPanel;
-    JPanel pointerPanel;
-    JLabel searchLabel;
-
     setLayout(new GridBagLayout());
-    GridBagConstraints constraints = new GridBagConstraints();
+    final GridBagConstraints constraints = new GridBagConstraints();
     constraints.gridx = 0;
     constraints.gridy = GridBagConstraints.RELATIVE;
     constraints.fill = GridBagConstraints.BOTH;
-    searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    searchPanel.setBackground(Color.LIGHT_GRAY);
-    searchLabel = new JLabel("Search Word:");
+    final JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    //searchPanel.setBackground(Color.LIGHT_GRAY);
+    final JLabel searchLabel = new JLabel("Search Word:");
     searchPanel.add(searchLabel);
     searchField = new JTextField("", 20);
-    searchField.setBackground(Color.WHITE);
+    //searchField.setBackground(Color.WHITE);
     searchPanel.add(searchField);
     add(searchPanel, constraints);
 
-    pointerPanel = makePointerPanel();
+    final JPanel pointerPanel = makePointerPanel();
     add(pointerPanel, constraints);
 
     constraints.weightx = constraints.weighty = 1.0;
     resultEditorPane = new JEditorPane();
     resultEditorPane.setContentType("text/html");
-    resultEditorPane.setBackground(Color.WHITE);
+    //resultEditorPane.setBackground(Color.WHITE);
     resultEditorPane.setEditable(false);
     add(new JScrollPane(resultEditorPane), constraints);
 
@@ -67,19 +65,19 @@ public class BrowserPanel extends JPanel {
     validate();
   }
 
+  @Override
   public void setVisible(boolean visible) {
     searchField.requestFocus();
     super.setVisible(visible);
   }
 
-  protected JPanel makePointerPanel() {
-    JPanel pointerPanel = new JPanel();
+  private JPanel makePointerPanel() {
+    final JPanel pointerPanel = new JPanel();
     pointerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-    pointerPanel.setBackground(Color.LIGHT_GRAY);
+    //pointerPanel.setBackground(Color.LIGHT_GRAY);
 
     final ButtonGroup group = new ButtonGroup();
     for (int i = 0; i < POS.CATS.length; ++i) {
-
       final POS pos = POS.CATS[i];
       final Vector pointerTypes = new Vector();
       pointerTypes.add(pos.getLabel()); // this will be a marker
@@ -98,7 +96,7 @@ public class BrowserPanel extends JPanel {
 
       final ItemListener listener = new ItemListener() {
         public void itemStateChanged(ItemEvent event) {
-          if(event.getStateChange() == ItemEvent.DESELECTED) {
+          if (event.getStateChange() == ItemEvent.DESELECTED) {
             return;
           }
           //FIXME have to do morphstr logic here
@@ -113,7 +111,7 @@ public class BrowserPanel extends JPanel {
       };
 
       comboBox.addItemListener(listener);
-      JPanel panel = new JPanel(new GridBagLayout());
+      final JPanel panel = new JPanel(new GridBagLayout());
       //GridBagConstraints constraints = new GridBagConstraints();
       //constraints.gridy = GridBagConstraints.RELATIVE;
       //constraints.gridx = 0;
@@ -126,14 +124,14 @@ public class BrowserPanel extends JPanel {
     return pointerPanel;
   }
 
-  synchronized void setWord(IndexWord word) {
+  synchronized void setWord(final IndexWord word) {
     searchField.setText(word.getLemma());
     displayOverview();
   }
 
-  protected synchronized void displayOverview() {
+  private synchronized void displayOverview() {
     final String inputString = searchField.getText().trim(); // FIXME trim edge whitespace and normalize internal space
-    final StringBuffer buffer = new StringBuffer();
+    final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (int i = 0; i < POS.CATS.length; ++i) {
       final POS pos = POS.CATS[i];
@@ -147,27 +145,26 @@ public class BrowserPanel extends JPanel {
       //  }
       //}
       String[] forms = dictionary.lookupBaseForms(pos, inputString);
-      if(forms == null) {
+      if (forms == null) {
         forms = new String[]{ inputString };
       } else {
         boolean found = false;
-        for(final String form : forms) {
-          if(form.equals(inputString)) {
+        for (final String form : forms) {
+          if (form.equals(inputString)) {
             found = true;
             break;
           }
         }
-        if(forms != null && forms.length > 0 && found == false) {
+        if (forms != null && forms.length > 0 && found == false) {
           //throw new RuntimeException("inputString: \"" + inputString +
           //    "\" not found in forms: "+Arrays.toString(forms));
           System.err.println("    BrowserPanel inputString: \"" + inputString +
               "\" not found in forms: "+Arrays.toString(forms));
         }
       }
-      IndexWord word = null;
       boolean enabled = false;
-      for(final String form : forms) {
-        word = dictionary.lookupIndexWord(pos, form);
+      for (final String form : forms) {
+        final IndexWord word = dictionary.lookupIndexWord(pos, form);
         System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" IndexWord found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer);
@@ -181,15 +178,16 @@ public class BrowserPanel extends JPanel {
       buffer.append("\" is not defined.");
     }
     resultEditorPane.setText(buffer.toString());
+    resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
-  protected synchronized void displaySenses(IndexWord word) {
-    StringBuffer buffer = new StringBuffer();
+  private synchronized void displaySenses(final IndexWord word) {
+    final StringBuilder buffer = new StringBuilder();
     appendSenses(word, buffer);
     resultEditorPane.setText(buffer.toString());
   }
 
-  protected void appendSenses(IndexWord word, StringBuffer buffer) {
+  private void appendSenses(final IndexWord word, final StringBuilder buffer) {
     if (word != null) {
       final Synset[] senses = word.getSynsets();
       final int taggedCount = word.getTaggedSenseCount();
@@ -203,8 +201,7 @@ public class BrowserPanel extends JPanel {
       }
       buffer.append(")<br><br>");
       buffer.append("<ol>");
-      for (int i = 0; i < senses.length; ++i) {
-        final Synset sense = senses[i];
+      for (final Synset sense : senses) {
         buffer.append("<li>");
         buffer.append(sense.getLongDescription());
         buffer.append("</li>");
@@ -213,10 +210,10 @@ public class BrowserPanel extends JPanel {
     }
   }
 
-  protected synchronized void displaySenseChain(IndexWord word, PointerType pointerType) {
-    StringBuffer buffer = new StringBuffer();
-    Synset[] senses = word.getSynsets();
-    buffer.append("" + senses.length + " senses of <b>" + word.getLemma() + "</b><br><br>");
+  private synchronized void displaySenseChain(IndexWord word, PointerType pointerType) {
+    final StringBuilder buffer = new StringBuilder();
+    final Synset[] senses = word.getSynsets();
+    buffer.append(senses.length + " senses of <b>" + word.getLemma() + "</b><br><br>");
     for (int i = 0; i < senses.length; ++i) {
       if (senses[i].getTargets(pointerType).length > 0) {
         buffer.append("Sense " + (i + 1) + "<br>");
@@ -235,11 +232,11 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setText(buffer.toString());
   }
 
-  protected static class Link {
-    Object object;
-    Link link;
+  private static class Link {
+    private final Object object;
+    private final Link link;
 
-    Link(Object object, Link link) {
+    Link(final Object object, final Link link) {
       this.object = object;
       this.link = link;
     }
@@ -254,12 +251,16 @@ public class BrowserPanel extends JPanel {
     }
   } // end class Link
 
-  void appendSenseChain(StringBuffer buffer, PointerTarget sense, PointerType inheritanceType, PointerType attributeType) {
+  void appendSenseChain(
+    final StringBuilder buffer, 
+    final PointerTarget sense, 
+    final PointerType inheritanceType, 
+    final PointerType attributeType) {
     appendSenseChain(buffer, sense, inheritanceType, attributeType, 0, null);
   }
 
   void appendSenseChain(
-      final StringBuffer buffer, 
+      final StringBuilder buffer, 
       final PointerTarget sense, 
       final PointerType inheritanceType, 
       final PointerType attributeType, 
@@ -270,10 +271,9 @@ public class BrowserPanel extends JPanel {
     buffer.append("</li>");
 
     if (attributeType != null) {
-      final PointerTarget[] targets = sense.getTargets(attributeType);
-      for (int i = 0; i < targets.length; ++i) {
+      for(final PointerTarget target : sense.getTargets(attributeType)) {
         buffer.append("<li>");
-        buffer.append(targets[i].getLongDescription());
+        buffer.append(target.getLongDescription());
         buffer.append("</li>");
       }
     }
@@ -289,10 +289,9 @@ public class BrowserPanel extends JPanel {
     }
     if (ancestors == null || ancestors.contains(sense) == false) {
       ancestors = new Link(sense, ancestors);
-      final PointerTarget[] parents = sense.getTargets(inheritanceType);
-      for (int i = 0; i < parents.length; ++i) {
+      for(final PointerTarget parent : sense.getTargets(inheritanceType)) {
         buffer.append("<ul>");
-        appendSenseChain(buffer, parents[i], inheritanceType, attributeType, tab + 4, ancestors);
+        appendSenseChain(buffer, parent, inheritanceType, attributeType, tab + 4, ancestors);
         buffer.append("</ul>");
       }
     }

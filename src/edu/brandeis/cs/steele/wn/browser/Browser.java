@@ -10,6 +10,7 @@ import edu.brandeis.cs.steele.wn.DictionaryDatabase;
 import edu.brandeis.cs.steele.wn.RemoteFileManager;
 import edu.brandeis.cs.steele.wn.FileBackedDictionary;
 
+import java.util.logging.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.rmi.RMISecurityManager;
@@ -42,20 +43,20 @@ import javax.swing.*;
  * @version 1.0
  */
 public class Browser extends JFrame {
-  protected JMenuBar mainMenuBar;
-  protected JMenu fileMenu;
-  protected JMenuItem miSearch;
-  protected JMenuItem miQuit;
-  protected JMenu editMenu;
-  protected JMenuItem miCut;
-  protected JMenuItem miCopy;
-  protected JMenuItem miPaste;
-  protected JMenu helpMenu;
-  protected JMenuItem miAbout;
+  private static final Logger log = Logger.getLogger(Browser.class.getName());
 
-  protected JFrame searchWindow;
+  private static final long serialVersionUID = 1L;
 
-  public Browser(DictionaryDatabase dictionary) {
+  private JMenuBar mainMenuBar;
+  private JMenu fileMenu;
+  private JMenuItem miSearch;
+  private JMenuItem miQuit;
+  private JMenu helpMenu;
+  private JMenuItem miAbout;
+
+  private JFrame searchWindow;
+
+  public Browser(final DictionaryDatabase dictionary) {
     super("JWordNet Browser");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setVisible(false);
@@ -76,17 +77,6 @@ public class Browser extends JFrame {
     fileMenu.add(miQuit);
 
     mainMenuBar.add(fileMenu);
-    editMenu = new JMenu("Edit");
-    miCut = new JMenuItem("Cut");
-    miCut.setMnemonic(KeyEvent.VK_X);
-    editMenu.add(miCut);
-    miCopy = new JMenuItem("Copy");
-    miCopy.setMnemonic(KeyEvent.VK_C);
-    editMenu.add(miCopy);
-    miPaste = new JMenuItem("Paste");
-    miPaste.setMnemonic(KeyEvent.VK_V);
-    editMenu.add(miPaste);
-    mainMenuBar.add(editMenu);
     mainMenuBar.add(Box.createHorizontalGlue());
     helpMenu = new JMenu("Help");
     mainMenuBar.add(helpMenu);
@@ -95,27 +85,37 @@ public class Browser extends JFrame {
     mainMenuBar.add(helpMenu);
     setJMenuBar(mainMenuBar);
 
-    addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent event) {
-        setVisible(false);
-        dispose();
-      }
-     });
-
-    ActionListener listener = new ActionListener() {
+    final ActionListener listener = new ActionListener() {
       public void actionPerformed(ActionEvent event) {
-        Object object = event.getSource();
-        JFrame parent = Browser.this;
+        final Object object = event.getSource();
         if (object == miAbout) {
-          new AboutDialog(parent);
+          final String[] options = new String[] {      
+            "Dismiss"
+          };
+          JOptionPane.showOptionDialog(
+              Browser.this,
+              "<html>"+
+              "<h2>JWordNet Browser</h2>"+
+                "A graphical interface to the<br>"+
+                "WordNet online lexical database.<br>"+
+                "<br>"+
+                "This Java version by Oliver Steele.<br>"+
+                "The GUI is loosely based on the interface<br>"+
+                "to the Tcl/Tk version by David Slomin and Randee Tengi.",
+              "About JWordNet Browser",
+              JOptionPane.DEFAULT_OPTION,
+              JOptionPane.PLAIN_MESSAGE,
+              null,
+              options,
+              options[0]);
         } else if (object == miSearch) {
           if (searchWindow == null) {
             searchWindow = new SearchFrame(browser);
           }
           searchWindow.toFront();
           searchWindow.setVisible(true);
-        } else if (object == miQuit) {
-          new QuitDialog(parent, true).setVisible(true);
+        } else {
+          log.log(Level.SEVERE, "unhandled object: {0}", object);
         }
       }
     };
@@ -187,7 +187,7 @@ public class Browser extends JFrame {
     new Browser(dictionary).setVisible(true);
   }
 
-  static protected void displayUsageError() {
+  static void displayUsageError() {
     System.err.println("usage: Browser [-hostname | -server] [searchDir]");
   }
 

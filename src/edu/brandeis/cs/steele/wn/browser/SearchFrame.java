@@ -12,18 +12,23 @@ import edu.brandeis.cs.steele.wn.IndexWord;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Vector;
-import java.util.Iterator;
 import javax.swing.*;
+import javax.swing.event.*;
+import java.util.*;
+import java.util.List;
 
 class SearchFrame extends JFrame {
+  private static final long serialVersionUID = 1L;
+
   protected BrowserPanel browser;
   protected DictionaryDatabase dictionary;
   protected JTextField searchField;
-  protected java.awt.List resultList;
+  //protected java.awt.List resultList;
+  protected JList resultList;
+  private DefaultListModel resultListModel;
   protected POS pos = POS.CATS[0];
 
-  SearchFrame(BrowserPanel browser) {
+  SearchFrame(final BrowserPanel browser) {
     super("Substring Search");
     this.browser = browser;
     this.dictionary = browser.dictionary;
@@ -32,27 +37,27 @@ class SearchFrame extends JFrame {
     setSize(400,300);
     setLocation(browser.getLocation().x + 20, browser.getLocation().y + 20);
     setLayout(new GridBagLayout());
-    GridBagConstraints constraints = new GridBagConstraints();
+    final GridBagConstraints constraints = new GridBagConstraints();
     constraints.fill = GridBagConstraints.BOTH;
 
-    JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    JLabel searchLabel = new JLabel("Substring");
+    final JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    final JLabel searchLabel = new JLabel("Substring");
     searchPanel.add(searchLabel);
-    searchField = new JTextField("", 20);
-    searchField.setBackground(Color.white);
+    searchField = new JTextField("", 12);
+    //searchField.setBackground(Color.WHITE);
     searchPanel.add(searchField);
     searchField.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         recomputeResults();
       }
     });
-    Choice posChoice = new Choice();
+    final Choice posChoice = new Choice();
     for (int i = 0; i < POS.CATS.length; ++i) {
       posChoice.add(POS.CATS[i].getLabel());
     }
     posChoice.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent event) {
-        Choice choice = (Choice) event.getSource();
+      public void itemStateChanged(final ItemEvent event) {
+        final Choice choice = (Choice) event.getSource();
         pos = POS.CATS[choice.getSelectedIndex()];
       }
     });
@@ -61,20 +66,35 @@ class SearchFrame extends JFrame {
 
     constraints.gridx = 0;
     constraints.weightx = constraints.weighty = 1.0;
-    resultList = new java.awt.List();
-    resultList.setBackground(Color.white);
-    resultList.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
-        IndexWord word = dictionary.lookupIndexWord(pos, resultList.getSelectedItem());
+    //resultList = new java.awt.List();
+    resultListModel = new DefaultListModel();
+    resultList = new JList(resultListModel);
+    resultList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    resultList.setLayoutOrientation(JList.VERTICAL);
+    
+    //resultList.setBackground(Color.WHITE);
+    //XXX resultList.addActionListener(new ActionListener() {
+    //XXX   public void actionPerformed(final ActionEvent event) {
+    //XXX     int index = resultList.getSelectedIndex();
+    //XXX     //XXX final IndexWord word = dictionary.lookupIndexWord(pos, resultList.getSelectedItem());
+    //XXX     final IndexWord word = dictionary.lookupIndexWord(pos, (String)resultListModel.getElementAt(index));
+    //XXX     SearchFrame.this.browser.setWord(word);
+    //XXX   }
+    //XXX });
+    resultList.addListSelectionListener(new ListSelectionListener() {
+      public void valueChanged(final ListSelectionEvent event) {
+        int index = event.getFirstIndex();
+        //XXX final IndexWord word = dictionary.lookupIndexWord(pos, resultList.getSelectedItem());
+        final IndexWord word = dictionary.lookupIndexWord(pos, (String)resultListModel.getElementAt(index));
         SearchFrame.this.browser.setWord(word);
       }
     });
-    add(resultList, constraints);
+    add(new JScrollPane(resultList), constraints);
 
     addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent event) {
+      public void windowClosing(final WindowEvent event) {
         setVisible(false);
-        }
+      }
     });
 
     validate();
@@ -84,17 +104,17 @@ class SearchFrame extends JFrame {
   }
 
   protected void recomputeResults() {
-    String searchString = searchField.getText();
-    resultList.removeAll();
-    resultList.add("Searching for " + searchString + "...");
+    final String searchString = searchField.getText();
+    resultListModel.removeAllElements();
+    resultListModel.addElement("Searching for " + searchString + "...");
     resultList.setEnabled(false);
-    Vector<String> strings = new Vector<String>();
+    final List<String> strings = new ArrayList<String>();
     for (final IndexWord word : dictionary.searchIndexWords(pos, searchString)) {
-      strings.addElement(word.getLemma());
+      strings.add(word.getLemma());
     }
-    resultList.removeAll();
+    resultListModel.removeAllElements();
     for (final String e : strings) {
-      resultList.add(e);
+      resultListModel.addElement(e);
     }
     resultList.setEnabled(true);
   }
