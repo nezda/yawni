@@ -4,8 +4,7 @@
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
-//package edu.brandeis.cs.steele.wn.browser;
-package browser;
+package edu.brandeis.cs.steele.wn.browser;
 
 import javax.swing.JApplet;
 import java.util.logging.*;

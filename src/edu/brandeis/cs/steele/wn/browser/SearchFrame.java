@@ -4,8 +4,7 @@
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
-//package edu.brandeis.cs.steele.wn.browser;
-package browser;
+package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.DictionaryDatabase;
 import edu.brandeis.cs.steele.wn.POS;
@@ -90,8 +89,7 @@ class SearchFrame extends JFrame {
     resultList.add("Searching for " + searchString + "...");
     resultList.setEnabled(false);
     Vector<String> strings = new Vector<String>();
-    for (Iterator<IndexWord> e = dictionary.searchIndexWords(pos, searchString); e.hasNext(); ) {
-      IndexWord word = e.next();
+    for (final IndexWord word : dictionary.searchIndexWords(pos, searchString)) {
       strings.addElement(word.getLemma());
     }
     resultList.removeAll();

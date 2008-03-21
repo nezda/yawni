@@ -10,8 +10,8 @@
  * - make button not stretch to fit
  * - remove scroll bars on text field
  */
-//package edu.brandeis.cs.steele.wn.browser;
-package browser;
+package edu.brandeis.cs.steele.wn.browser;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

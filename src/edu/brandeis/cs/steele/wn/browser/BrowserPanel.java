@@ -4,8 +4,7 @@
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
-//package edu.brandeis.cs.steele.wn.browser;
-package browser;
+package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.*;
 
@@ -86,8 +85,7 @@ public class BrowserPanel extends JPanel {
       pointerTypes.add(pos.getLabel()); // this will be a marker
       pointerTypes.add("Senses"); // this is special
 
-      for (int j = 0; j < PointerType.TYPES.length; ++j) {
-        final PointerType pointerType = PointerType.TYPES[j];
+      for (final PointerType pointerType : PointerType.values()) {
         if (pointerType.appliesTo(pos)) {
           if (log.isLoggable(Level.FINEST)) {
             log.finest("Pointer Type:"+pointerType.getLabel());
