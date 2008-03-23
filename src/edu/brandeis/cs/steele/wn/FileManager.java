@@ -394,6 +394,9 @@ public class FileManager implements FileManagerInterface {
 
   // used by substring search iterator
   public int getMatchingLinePointer(final String filename, int offset, final String substring) throws IOException {
+    if(substring.length() == 0) {
+      return -1;
+    }
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
@@ -414,6 +417,7 @@ public class FileManager implements FileManagerInterface {
 
   // used by prefix search iterator
   public int getMatchingBeginningLinePointer(final String filename, int offset, final String prefix) throws IOException {
+    //TODO test if prefix is empty string
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
