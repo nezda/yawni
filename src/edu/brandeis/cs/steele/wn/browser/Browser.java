@@ -47,33 +47,37 @@ public class Browser extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
-  private JMenuBar mainMenuBar;
-  private JMenu fileMenu;
-  private JMenuItem miSearch;
-  private JMenuItem miQuit;
-  private JMenu helpMenu;
-  private JMenuItem miAbout;
+  private final JMenuBar mainMenuBar;
+  private final JMenu fileMenu;
+  private final JMenuItem miSearch;
+  private final JMenuItem miQuit;
+  private final JMenu helpMenu;
+  private final JMenuItem miAbout;
+  private final BrowserPanel browserPanel;
 
   private JFrame searchWindow;
 
   public Browser(final DictionaryDatabase dictionary) {
     super("JWordNet Browser");
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setVisible(false);
-    setLocation(50, 50);
-    setSize(640, 480);
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    this.setVisible(false);
+    this.setLocation(50, 50);
+    this.setSize(640, 480);
 
-    final BrowserPanel browser = new BrowserPanel(dictionary);
-    add(browser);
+    this.browserPanel = new BrowserPanel(dictionary);
+    this.add(browserPanel);
 
-    mainMenuBar = new JMenuBar();
-    fileMenu = new JMenu("File");
-    miSearch = new JMenuItem("Substring Search");
-    miSearch.setMnemonic(KeyEvent.VK_F);
-    fileMenu.add(miSearch);
+    final int metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+    this.mainMenuBar = new JMenuBar();
+    this.fileMenu = new JMenu("File");
+    this.miSearch = new JMenuItem("Substring Search");
+    this.miSearch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, metaKey));
+    this.fileMenu.add(miSearch);
     fileMenu.addSeparator();
     miQuit = new JMenuItem("Quit");
-    miQuit.setMnemonic(KeyEvent.VK_Q);
+    miSearch.setMnemonic(KeyEvent.VK_Q);
+    miQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, metaKey));
     fileMenu.add(miQuit);
 
     mainMenuBar.add(fileMenu);
@@ -86,7 +90,7 @@ public class Browser extends JFrame {
     setJMenuBar(mainMenuBar);
 
     final ActionListener listener = new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
+      public void actionPerformed(final ActionEvent event) {
         final Object object = event.getSource();
         if (object == miAbout) {
           final String[] options = new String[] {      
@@ -109,11 +113,7 @@ public class Browser extends JFrame {
               options,
               options[0]);
         } else if (object == miSearch) {
-          if (searchWindow == null) {
-            searchWindow = new SearchFrame(browser);
-          }
-          searchWindow.toFront();
-          searchWindow.setVisible(true);
+          showSearchWindow();
         } else {
           log.log(Level.SEVERE, "unhandled object: {0}", object);
         }
@@ -123,11 +123,21 @@ public class Browser extends JFrame {
     miAbout.addActionListener(listener);
     miQuit.addActionListener(listener);
 
-    //setSize(getPreferredSize().width, getPreferredSize().height);
     setVisible(true);
   }
 
+  private void showSearchWindow() {
+    if (searchWindow == null) {
+      searchWindow = new SearchFrame(browserPanel);
+    }
+    searchWindow.toFront();
+    searchWindow.setVisible(true);
+  }
+
   public static void main(final String[] args) {
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+    System.setProperty("apple.awt.brushMetalRounded", "true");
+
     DictionaryDatabase dictionary;
     String searchDir = null;
     String hostname = null;
@@ -190,5 +200,4 @@ public class Browser extends JFrame {
   static void displayUsageError() {
     System.err.println("usage: Browser [-hostname | -server] [searchDir]");
   }
-
 }
