@@ -527,7 +527,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
     SearchIterator(final POS pos, final String substring) {
       this.pos = pos;
-      this.substring = substring;
+      this.substring = Morphy.searchNormalize(substring);
       this.filename = getIndexFilename(pos);
     }
     public boolean hasNext() {
