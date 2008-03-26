@@ -16,7 +16,7 @@ package edu.brandeis.cs.steele.wn;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public interface PointerTarget {
+public interface PointerTarget extends Iterable<Word> {
   public POS getPOS();
 
   /** Return a description of the target.  For a <code>Word</code>, this is
