@@ -16,9 +16,9 @@ import java.util.*;
 public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
-  protected int capacity;
+  protected final int capacity;
 
-  public LRUCache(int capacity) {
+  public LRUCache(final int capacity) {
     this.capacity = capacity;
   }
 
