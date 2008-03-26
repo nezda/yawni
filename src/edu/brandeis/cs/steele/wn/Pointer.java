@@ -69,10 +69,15 @@ public class Pointer {
   }
 
   @Override public String toString() {
-    return new StringBuilder("[Pointer #").
-      append(index).
+    return new StringBuilder("[Pointer").
+      //append("#").
+      //append(index).
       append(" from ").
+      //append(source).
       append(source).
+      //append(" → ").
+      append(" to ").
+      append(getTarget()).
       append("]").toString();
   }
 
