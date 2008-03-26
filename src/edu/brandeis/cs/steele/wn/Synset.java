@@ -88,7 +88,7 @@ public class Synset implements PointerTarget {
 
     final int pointerCount = tokenizer.nextInt();
     this.pointers = new Pointer[pointerCount];
-    for (int i = 0; i < pointerCount; ++i) {
+    for (int i = 0; i < pointerCount; i++) {
       pointers[i] = new Pointer(this, i, tokenizer);
     }
 
@@ -190,35 +190,57 @@ public class Synset implements PointerTarget {
     return null;
   }
 
+  public Iterator<Word> iterator() {
+    return Arrays.asList(words).iterator();
+  }
+
   int getOffset() {
     return offset;
   }
   
-  Word getWord(int index) {
+  Word getWord(final int index) {
     return words[index];
   }
 
   //
   // Description
   //
+  
   public String getDescription() {
+    return getDescription(false);
+  }
+
+  public String getDescription(final boolean verbose) {
     final StringBuilder buffer = new StringBuilder();
+    buffer.append("{");
     for (int i = 0; i < words.length; ++i) {
       if (i > 0) {
         buffer.append(", ");
       }
-      buffer.append(words[i].getLemma());
+      if(verbose) {
+        buffer.append(words[i].getDescription());
+      } else {
+        buffer.append(words[i].getLemma());
+      }
     }
+    buffer.append("}");
     return buffer.toString();
   }
 
   public String getLongDescription() {
-    String description = this.getDescription();
+    return getLongDescription(false);
+  }
+
+  public String getLongDescription(final boolean verbose) {
+    final StringBuilder description = new StringBuilder(this.getDescription(verbose));
     final String gloss = this.getGloss();
     if (gloss != null) {
-      description += " -- (" + gloss + ")";
+      description.
+        append(" -- (").
+        append(gloss).
+        append(")");
     }
-    return description;
+    return description.toString();
   }
 
 
@@ -227,7 +249,7 @@ public class Synset implements PointerTarget {
   //
   static PointerTarget[] collectTargets(final Pointer[] pointers) {
     final PointerTarget[] targets = new PointerTarget[pointers.length];
-    for (int i = 0; i < pointers.length; ++i) {
+    for (int i = 0; i < pointers.length; i++) {
       targets[i] = pointers[i].getTarget();
     }
     return targets;
@@ -241,9 +263,8 @@ public class Synset implements PointerTarget {
   
   public Pointer[] getPointers(final PointerType type) {
     List<Pointer> vector = null;
-    for (int i = 0; i < pointers.length; ++i) {
-      final Pointer pointer = pointers[i];
-      if (pointer.getType().equals(type)) {
+    for (final Pointer pointer : pointers) {
+      if (pointer.getType() == type) {
         if(vector == null) {
           vector = new ArrayList<Pointer>();
         }
@@ -261,6 +282,7 @@ public class Synset implements PointerTarget {
   }
 
   public PointerTarget[] getTargets(final PointerType type) {
+    //TODO could be a little more efficient (no need for intermediate Pointer[]
     return collectTargets(getPointers(type));
   }
 
