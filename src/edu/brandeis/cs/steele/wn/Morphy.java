@@ -95,7 +95,7 @@ class Morphy {
     morphyCache = new LRUCache(0);
   }
 
-  private String searchNormalize(String origstr) {
+  static String searchNormalize(String origstr) {
     if (log.isLoggable(Level.FINEST)) {
       log.log(Level.FINEST, "origstr: "+origstr);
     }
