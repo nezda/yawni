@@ -1,5 +1,8 @@
 #!/bin/bash
 # Run the browser
-VERSION=1.5.6
-LOG_LEVEL=SEVERE
-java -Dedu.brandeis.cs.steele.wn.Morphy.level=$LOG_LEVEL -Dfile.encoding=US-ASCII -ea -esa -DWNHOME="$WNHOME" -cp ./lib/jwordnet-$VERSION.jar:./lib/jwordnet-browser-$VERSION.jar:. browser.Browser "$@"
+VERSION=1.5.6-dev
+#LEVEL_ARG=-Dedu.brandeis.cs.steele.wn.Morphy.level=SEVERE
+#ASSERT_ENABLE="-ea -esa"
+# system assertions cause tons of logging on OS X ([AWT-\d+] ...)
+ASSERT_ENABLE="-ea"
+java -Xdock:name="JWordNet Browser" $ARGS $LEVEL_ARG $ARGS -Dfile.encoding=US-ASCII $ASSERT_ENABLE -DWNHOME="$WNHOME" -cp ./build/jwordnet-core-$VERSION.jar edu.brandeis.cs.steele.wn.browser.Browser "$@"
