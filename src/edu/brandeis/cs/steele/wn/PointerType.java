@@ -25,51 +25,54 @@ import static edu.brandeis.cs.steele.wn.PointerTypeFlags.*;
  * @version 1.0
  */
 public enum PointerType {
-  // All parts of speech
-  ANTONYM("antonym", "!", N | V | ADJ | ADV | LEXICAL),
-  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", N | V | ADJ | ADV),
-  MEMBER_OF_THIS_DOMAIN_TOPIC("Member of this domain - TOPIC", "-c", N | V | ADJ | ADV),
-  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", N | V | ADJ | ADV),
-  MEMBER_OF_THIS_DOMAIN_REGION("Member of this domain - REGION", "-r", N | V | ADJ | ADV),
-  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", N | V | ADJ | ADV),
-  MEMBER_OF_THIS_DOMAIN_USAGE("Member of this domain - USAGE", "-u", N | V | ADJ | ADV),
-  DOMAIN_MEMBER("Domain Member", "-", N | V | ADJ | ADV),
-  DOMAIN("Domain", ";", N | V | ADJ | ADV),
+  //consider Unicde ellipsis: …
 
-  // Nouns and Verbs
-  HYPERNYM("hypernym", "@", N | V),
+  // Nouns and Verbs 
+  HYPERNYM("hypernym", "@", N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
   INSTANCE_HYPERNYM("instance hypernym", "@i", N | V),
-  HYPONYM("hyponym", "~", N | V),
+  HYPONYM("hyponym", "~", N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   INSTANCE_HYPONYM("instance hyponym", "~i", N | V),
-  DERIVATIONALLY_RELATED("derivationally related", "+", N | V),
+  DERIVATIONALLY_RELATED("derivationally related", "+", N | V, "Derivationally related forms"),
 
   // Nouns and Adjectives
-  ATTRIBUTE("attribute", "=", N | ADJ),
+  ATTRIBUTE("attribute", "=", N | ADJ, "%s is a value of ..."),
   SEE_ALSO("also see", "^", N | ADJ | LEXICAL),
 
   // Verbs
-  ENTAILMENT("entailment", "*", V),
-  CAUSE("cause", ">", V),
+  ENTAILMENT("entailment", "*", V, "%s entails doing ..."),
+  CAUSE("cause", ">", V, null, "%s causes ..."),
   VERB_GROUP("verb group", "$", V),
 
   // Nouns
-  MEMBER_MERONYM("member meronym", "%m", N),
+  MEMBER_MERONYM("member meronym", "%m", N, "Meronyms (parts of %s)"),
   SUBSTANCE_MERONYM("substance meronym", "%s", N),
   PART_MERONYM("part meronym", "%p", N),
   MEMBER_HOLONYM("member holonym", "#m", N),
   SUBSTANCE_HOLONYM("substance holonym", "#s", N),
-  PART_HOLONYM("part holonym", "#p", N),
+  PART_HOLONYM("part holonym", "#p", N, "Holonyms (%s is part of ...)"),
   MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", N),
   MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", N),
   MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", N),
 
   // Adjectives
-  SIMILAR_TO("similar", "&", ADJ),
+  SIMILAR_TO("similar to", "&", ADJ),
   PARTICIPLE_OF("participle of", "<", ADJ | LEXICAL),
-  PERTAINYM("pertainym", "\\", ADJ | LEXICAL),
+  PERTAINYM("pertainym", "\\", ADJ | LEXICAL, "... are nouns related to %s"),
 
   // Adverbs
-  DERIVED("derived from", "\\", ADV); // from adjective
+  DERIVED("derived from", "\\", ADV), // from adjective
+
+  // All parts of speech
+  ANTONYM("antonym", "!", N | V | ADJ | ADV | LEXICAL, "Antonyms"),
+  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", N | V | ADJ | ADV),
+  ///**/MEMBER_OF_THIS_DOMAIN_TOPIC("Member of this domain - TOPIC", "-c", N | V | ADJ | ADV),
+  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", N | V | ADJ | ADV),
+  ///**/MEMBER_OF_THIS_DOMAIN_REGION("Member of this domain - REGION", "-r", N | V | ADJ | ADV),
+  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", N | V | ADJ | ADV),
+  ///**/MEMBER_OF_THIS_DOMAIN_USAGE("Member of this domain - USAGE", "-u", N | V | ADJ | ADV),
+  DOMAIN_MEMBER("Domain Member", "-", N | V | ADJ | ADV),
+  DOMAIN("Domain", ";", N | V | ADJ | ADV);
+
 
   //OLD private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.SAT_ADJ};
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
@@ -82,8 +85,10 @@ public enum PointerType {
     MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
     MEMBER_HOLONYM, SUBSTANCE_HOLONYM, PART_HOLONYM,
     SIMILAR_TO, PARTICIPLE_OF, PERTAINYM, DERIVED,
-    DOMAIN_OF_TOPIC, MEMBER_OF_THIS_DOMAIN_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE, 
-    MEMBER_OF_THIS_DOMAIN_REGION, MEMBER_OF_THIS_DOMAIN_USAGE,
+    DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION, 
+    ///**/MEMBER_OF_THIS_DOMAIN_TOPIC, 
+    ///**/MEMBER_OF_THIS_DOMAIN_REGION, 
+    ///**/MEMBER_OF_THIS_DOMAIN_USAGE,
     MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_REGION_DOMAIN, MEMBER_OF_USAGE_DOMAIN,
     DERIVATIONALLY_RELATED,
     INSTANCE_HYPERNYM, INSTANCE_HYPONYM
@@ -151,16 +156,41 @@ public enum PointerType {
    * Instance Interface
    */
   private final String label;
+  private final String longNounLabel;
+  private final String longVerbLabel;
   private final String key;
   private final int flags;
   private final String toString;
   private PointerType symmetricType;
 
   PointerType(final String label, final String key, final int flags) {
+    this(label, key, flags, null, null);
+  }
+  
+  PointerType(final String label, final String key, final int flags, final String longNounLabel) {
+    this(label, key, flags, longNounLabel, null);
+  }
+
+  PointerType(final String label, final String key, final int flags, final String longNounLabel, final String longVerbLabel) {
     this.label = label;
     this.key = key;
     this.flags = flags;
     this.toString = getLabel()+" "+getKey();
+    if (longNounLabel != null) {
+      this.longNounLabel = longNounLabel;
+    } else {
+      this.longNounLabel = label;
+    }
+    if (longVerbLabel != null) {
+      this.longVerbLabel = longVerbLabel;
+    } else {
+      if(longNounLabel != null) {
+        this.longVerbLabel = longNounLabel;
+      } else {
+        this.longVerbLabel = label;
+      }
+    }
+    //XXX System.err.println(this+" longNounLabel: "+this.longNounLabel+" longVerbLabel: "+this.longVerbLabel+" label: "+this.label);
   }
 
   @Override public String toString() {
@@ -171,12 +201,19 @@ public enum PointerType {
     return label;
   }
 
+  public String getFormatLabel(final POS pos) {
+    switch(pos) {
+      case NOUN: return longNounLabel;
+      case VERB: return longVerbLabel;
+      default: return longNounLabel;
+    }
+  }
+
   public String getKey() {
     return this.key;
   }
 
   public boolean appliesTo(final POS pos) {
-    //OLD return (flags & POS_MASK[ArrayUtilities.indexOf(CATS, pos)]) != 0;
     return (flags & POS_MASK[pos.ordinal()]) != 0;
   }
 
