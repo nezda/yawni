@@ -26,7 +26,8 @@ public class Word implements PointerTarget {
   //
   public static final int NONE = 0;
   public static final int PREDICATIVE = 1;
-  public static final int ATTRIBUTIVE = 2;
+  public static final int ATTRIBUTIVE = 2; // synonymous with PRENOMINAL
+  public static final int PRENOMINAL = 2; // synonymous with ATTRIBUTIVE
   public static final int IMMEDIATE_POSTNOMINAL = 4;
 
   //
@@ -93,6 +94,34 @@ public class Word implements PointerTarget {
   public String getLemma() {
     return lemma;
   }
+
+  public Iterator<Word> iterator() {
+    return Collections.singleton(this).iterator();
+  }
+
+  String flagsToString() {
+    if(flags == NONE) {
+      return "NONE";
+    }
+    final StringBuilder flagString = new StringBuilder();
+    if(0 != (PREDICATIVE & flags)) {
+      flagString.append("predicative");
+    }
+    if(0 != (PRENOMINAL & flags)) {
+      if(flagString.length() != 0) {
+        flagString.append(",");
+      }
+      flagString.append("prenominal");
+    }
+    if(0 != (IMMEDIATE_POSTNOMINAL & flags)) {
+      if(flagString.length() != 0) {
+        flagString.append(",");
+      }
+      flagString.append("immediate_postnominal");
+    }
+    return flagString.toString();
+  }
+
 
   /**
    * 1-indexed value.
@@ -209,20 +238,44 @@ public class Word implements PointerTarget {
   }
 
   public String getDescription() {
-    return lemma;
+    if (getPOS() != POS.ADJ && getPOS() != POS.SAT_ADJ) {
+      return lemma;
+    }
+    final StringBuilder description = new StringBuilder(lemma);
+    if (flags != 0) {
+      description.append("(");
+      description.append(flagsToString());
+      description.append(")");
+    }
+    final PointerTarget[] targets = getTargets(PointerType.ANTONYM);
+    if (targets.length > 0) {
+      // adj acidic has more than 1 antonym (alkaline and amphoteric)
+      for (final PointerTarget target : targets) {
+        description.append(" (vs. ");
+        final Word antonym = (Word)target;
+        description.append(antonym.getLemma());
+        description.append(")");
+      }
+    }
+    return description.toString();
   }
 
   public String getLongDescription() {
     final StringBuilder buffer = new StringBuilder();
-    buffer.append(getSenseNumber());
-    buffer.append(". ");
-    final int sensesTaggedFrequency = getSensesTaggedFrequency();
-    if(sensesTaggedFrequency != 0) {
-      buffer.append("(");
-      buffer.append(sensesTaggedFrequency);
-      buffer.append(") ");
-    }
+    //buffer.append(getSenseNumber());
+    //buffer.append(". ");
+    //final int sensesTaggedFrequency = getSensesTaggedFrequency();
+    //if(sensesTaggedFrequency != 0) {
+    //  buffer.append("(");
+    //  buffer.append(sensesTaggedFrequency);
+    //  buffer.append(") ");
+    //}
     buffer.append(getLemma());
+    if(flags != 0) {
+      buffer.append("(");
+      buffer.append(flagsToString());
+      buffer.append(")");
+    }
     final String gloss = getSynset().getGloss();
     if (gloss != null) {
       buffer.append(" -- (");
@@ -239,7 +292,8 @@ public class Word implements PointerTarget {
     List<Pointer> vector = null;
     for (int i = 0; i < source.length; ++i) {
       final Pointer pointer = source[i];
-      if (pointer.getSource() == this) {
+      if (pointer.getSource().equals(this)) {
+        assert pointer.getSource() == this;
         if(vector == null) {
           vector = new ArrayList<Pointer>();
         }
@@ -259,6 +313,7 @@ public class Word implements PointerTarget {
   }
 
   public Pointer[] getPointers(final PointerType type) {
+    //TODO could be a little more efficient (no need for intermediate Pointer[]
     return restrictPointers(synset.getPointers(type));
   }
 
@@ -267,6 +322,7 @@ public class Word implements PointerTarget {
   }
 
   public PointerTarget[] getTargets(final PointerType type) {
+    //TODO could be a little more efficient (no need for intermediate Pointer[]
     return Synset.collectTargets(getPointers(type));
   }
 }
