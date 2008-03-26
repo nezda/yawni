@@ -110,7 +110,7 @@ public class IndexWord {
    * The pointer types available for this indexed word.  May not apply to all
    * senses of the word.
    */
-  public Set<PointerType> getPointerTypes() {
+  public EnumSet<PointerType> getPointerTypes() {
     return ptrTypes;
   }
 
@@ -151,6 +151,18 @@ public class IndexWord {
       senseNumberMinusOne++;
     }
     return senses;
+  }
+
+  /** Note, <param>senseNumber</param> is a 1-indexed value. */
+  public Word getSense(int senseNumber) {
+    if(senseNumber <= 0) {
+      return null;
+    }
+    final Word[] senses = getSenses();
+    if(senseNumber > senses.length) {
+      return null;
+    }
+    return senses[senseNumber - 1];
   }
 
   int getOffset() {
