@@ -25,7 +25,8 @@ public class BrowserPanel extends JPanel {
   final DictionaryDatabase dictionary;
 
   private JTextField searchField;
-  private JTextPane resultEditorPane;
+  //private JTextPane resultEditorPane;
+  private JTextComponent resultEditorPane;
   private EnumMap<POS, JComboBox> posBoxes;
   private EnumMap<POS, PointerTypeComboBoxModel> posBoxModels;
   private JLabel statusLabel;
@@ -38,30 +39,114 @@ public class BrowserPanel extends JPanel {
       setEditorKit(kit);
       final StyleSheet styleSheet = kit.getStyleSheet();
       styleSheet.addRule("body {font-family:sans-serif;}");
-      styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
+      //styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
+      styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
+      //styleSheet.addRule("ul ul {list-style-type:circle };");
       styleSheet.addRule("ul {margin-left:12px; margin-bottom:0px;}");
       setDocument(kit.createDefaultDocument());
+      //XXX getDocument().putProperty("multiByte", false);
     }
   } // end class StyledTextPane
   
   public BrowserPanel(final DictionaryDatabase dictionary) {
     this.dictionary = dictionary;
     super.setLayout(new BorderLayout());
-    final JPanel searchAndPointersPanel = new JPanel(new BorderLayout());
-    final JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    searchAndPointersPanel.add(searchPanel);
+    final Box searchAndPointersPanel = new Box(BoxLayout.Y_AXIS);
+    //final Box searchPanel = new Box(BoxLayout.X_AXIS);
+    //final JPanel searchPanel = new JPanel();
+    //final JPanel searchPanel = new JPanel(new BorderLayout());
+    final JPanel searchPanel = new JPanel();
+    //searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+    searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+    searchPanel.setAlignmentX(0.0f);
     final JLabel searchLabel = new JLabel("Search Word:");
+    searchLabel.setAlignmentX(0.0f);
+    searchPanel.add(Box.createHorizontalStrut(5));
     searchPanel.add(searchLabel);
     this.searchField = new JTextField("", 20);
+    searchField.setAlignmentX(0.0f);
+    System.err.println("searchPanel.getAlignmentX(): "+searchPanel.getAlignmentX());
+    System.err.println("searchLabel.getAlignmentX(): "+searchLabel.getAlignmentX());
+    System.err.println("searchField.getAlignmentX(): "+searchField.getAlignmentX());
     searchPanel.add(searchField);
-    searchAndPointersPanel.add(searchPanel, BorderLayout.NORTH);
-
+    //searchPanel.add(Box.createHorizontalStrut(3));
     final JPanel pointerPanel = makePointerPanel();
-    searchAndPointersPanel.add(pointerPanel, BorderLayout.SOUTH);
+    pointerPanel.setAlignmentX(0.0f);
+    System.err.println("pointerPanel.getAlignmentX(): "+pointerPanel.getAlignmentX());
+    System.err.println("pointerPanel.getPreferredSize(): "+pointerPanel.getPreferredSize());
+    searchAndPointersPanel.add(Box.createVerticalStrut(3));
+    searchAndPointersPanel.add(searchPanel);
+    searchAndPointersPanel.add(pointerPanel);
+    //width(pointerPanel) = width(searchPanel)
+    final Dimension pointerPanelDim = pointerPanel.getPreferredSize();
+    System.err.println("pointerPanelDim: "+pointerPanelDim);
+    final Dimension searchPanelDim = searchPanel.getPreferredSize();
+    System.err.println("searchPanelDim: "+searchPanelDim);
+    searchPanelDim.width = pointerPanelDim.width;
+    //XXX searchPanel.setSize(searchPanelDim);
+    searchPanel.setMaximumSize(searchPanelDim);
+    searchPanel.setMinimumSize(searchPanelDim);
+    
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
+    
+    //XXX Spring offsetS = Spring.constant(5);
+
+    //XXX //layout.putConstraint(SpringLayout.SOUTH, pointerPanel,
+    //XXX //    Spring.minus(offsetS), SpringLayout.SOUTH, searchAndPointersPanel);
+    //XXX //layout.putConstraint(SpringLayout.EAST, pointerPanel,
+    //XXX //    Spring.minus(offsetS), SpringLayout.EAST, searchAndPointersPanel);
+    //XXX //layout.putConstraint(SpringLayout.EAST, searchPanel,
+    //XXX //    Spring.minus(offsetS), SpringLayout.EAST, pointerPanel);
+    //XXX layout.putConstraint(SpringLayout.NORTH, searchPanel,
+    //XXX     offsetS, SpringLayout.NORTH, searchAndPointersPanel);
+    //XXX layout.putConstraint(SpringLayout.WEST, searchPanel,
+    //XXX     offsetS, SpringLayout.WEST, searchAndPointersPanel);
+    //XXX layout.putConstraint(SpringLayout.WEST, pointerPanel,
+    //XXX     offsetS, SpringLayout.WEST, pointerPanel);
+    //XXX //layout.putConstraint(
+    //XXX //    SpringLayout.SOUTH, searchPanel,
+    //XXX //    offsetS, 
+    //XXX //    SpringLayout.NORTH, pointerPanel
+    //XXX //    );
+    //XXX //XXX layout.putConstraint(SpringLayout.NORTH, pointerPanel,
+    //XXX //XXX     0, SpringLayout.SOUTH, searchPanel);
+    //XXX //layout.putConstraint(SpringLayout.EAST, searchAndPointersPanel,
+    //XXX //    5, SpringLayout.EAST, searchPanel);
+    //XXX //XXX layout.putConstraint(SpringLayout.EAST, pointerPanel,
+    //XXX //XXX     5, SpringLayout.EAST, searchPanel);
+    //XXX //layout.putConstraint(SpringLayout.WEST, searchAndPointersPanel,
+    //XXX //    5, SpringLayout.WEST, pointerPanel);
+    //XXX //layout.putConstraint(SpringLayout.WEST, pointerPanel,
+    //XXX //    5, SpringLayout.WEST, searchAndPointersPanel);
+    //XXX //layout.putConstraint(
+    //XXX //    SpringLayout.SOUTH, searchAndPointersPanel,
+    //XXX //    5, SpringLayout.SOUTH, searchPanel);
+    //XXX 
+    //XXX //layout.putConstraint(SpringLayout.SOUTH, searchAndPointersPanel,
+    //XXX //    5, SpringLayout.SOUTH, pointerPanel);
+    //XXX //layout.putConstraint(SpringLayout.SOUTH, searchPanel,
+    //XXX //    5, SpringLayout.NORTH, pointerPanel);
+
+    //XXX //layout.putConstraint(SpringLayout.WEST, searchPanel,
+    //XXX //    5, SpringLayout.WEST, searchAndPointersPanel);
+    //XXX //layout.putConstraint(SpringLayout.NORTH, searchPanel,
+    //XXX //    5, SpringLayout.NORTH, searchAndPointersPanel);
+    //XXX ////layout.putConstraint(SpringLayout.NORTH, pointerPanel,
+    //XXX ////    5, SpringLayout.SOUTH, searchPanel);
+    //XXX ////layout.putConstraint(SpringLayout.WEST, pointerPanel,
+    //XXX ////    5, SpringLayout.WEST, searchAndPointersPanel);
+    //XXX //layout.putConstraint(SpringLayout.EAST, searchPanel,
+    //XXX //    5, SpringLayout.EAST, searchAndPointersPanel);
+    //XXX ////layout.putConstraint(SpringLayout.EAST, pointerPanel,
+    //XXX ////    5, SpringLayout.EAST, searchAndPointersPanel);
+    //XXX ////layout.putConstraint(SpringLayout.SOUTH, pointerPanel,
+    //XXX ////    5, SpringLayout.SOUTH, searchAndPointersPanel);
+    //XXX //layout.putConstraint(SpringLayout.SOUTH, searchPanel,
+    //XXX //    5, SpringLayout.SOUTH, searchAndPointersPanel);
+    
 
     resultEditorPane = new StyledTextPane();
-    resultEditorPane.setContentType("text/html");
+    //resultEditorPane.setContentType("text/html");
     resultEditorPane.setEditable(false);
     final JScrollPane jsp = new  JScrollPane(resultEditorPane);
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -95,7 +180,7 @@ public class BrowserPanel extends JPanel {
 
   private JPanel makePointerPanel() {
     final JPanel pointerPanel = new JPanel();
-    pointerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+    pointerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     
     this.posBoxes = new EnumMap<POS, JComboBox>(POS.class);
     this.posBoxModels = new EnumMap<POS, PointerTypeComboBoxModel>(POS.class);
@@ -236,6 +321,8 @@ public class BrowserPanel extends JPanel {
         //System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" IndexWord found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer, false);
+        //FIXME adds extra HR at the end
+        buffer.append("<hr>");
         if (word != null) {
           posBoxModels.get(pos).updateFor(pos, word);
         }
@@ -331,7 +418,7 @@ public class BrowserPanel extends JPanel {
             }
             buffer.append("<ul>\n");
             for (final PointerTarget target : similar) {
-              buffer.append("<li>");
+              buffer.append(listOpen());
               final Synset targetSynset = (Synset)target;
               buffer.append(targetSynset.getLongDescription(verbose));
               buffer.append("</li>\n");
@@ -425,6 +512,13 @@ public class BrowserPanel extends JPanel {
     appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
   }
 
+  private String listOpen() {
+    //return "<li>";
+    //return "<li>• ";
+    //return "<li>\u2022 ";
+    return "<li>* ";
+  }
+
   // add information from pointers (recursive)
   void appendSenseChain(
       final StringBuilder buffer, 
@@ -434,7 +528,7 @@ public class BrowserPanel extends JPanel {
       final PointerType attributeType, 
       final int tab, 
       Link ancestors) {
-    buffer.append("<li>");
+    buffer.append(listOpen());
     buffer.append(sense.getLongDescription());
     buffer.append("</li>\n");
 
