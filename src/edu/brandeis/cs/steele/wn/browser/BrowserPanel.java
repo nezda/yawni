@@ -52,99 +52,33 @@ public class BrowserPanel extends JPanel {
     this.dictionary = dictionary;
     super.setLayout(new BorderLayout());
     final Box searchAndPointersPanel = new Box(BoxLayout.Y_AXIS);
-    //final Box searchPanel = new Box(BoxLayout.X_AXIS);
-    //final JPanel searchPanel = new JPanel();
-    //final JPanel searchPanel = new JPanel(new BorderLayout());
     final JPanel searchPanel = new JPanel();
-    //searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-    searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+    searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     searchPanel.setAlignmentX(0.0f);
-    final JLabel searchLabel = new JLabel("Search Word:");
-    searchLabel.setAlignmentX(0.0f);
-    searchPanel.add(Box.createHorizontalStrut(5));
-    searchPanel.add(searchLabel);
+    //final JLabel searchLabel = new JLabel("Search Word:", SwingUtilities.LEFT);
+    searchPanel.add(Box.createHorizontalStrut(3));
+    //searchPanel.add(searchLabel);
     this.searchField = new JTextField("", 20);
     searchField.setAlignmentX(0.0f);
-    System.err.println("searchPanel.getAlignmentX(): "+searchPanel.getAlignmentX());
-    System.err.println("searchLabel.getAlignmentX(): "+searchLabel.getAlignmentX());
-    System.err.println("searchField.getAlignmentX(): "+searchField.getAlignmentX());
     searchPanel.add(searchField);
-    //searchPanel.add(Box.createHorizontalStrut(3));
+    final JButton searchButton = new JButton("Search");
+    searchButton.setAlignmentX(0.0f);
+    searchPanel.add(searchButton);
     final JPanel pointerPanel = makePointerPanel();
     pointerPanel.setAlignmentX(0.0f);
-    System.err.println("pointerPanel.getAlignmentX(): "+pointerPanel.getAlignmentX());
-    System.err.println("pointerPanel.getPreferredSize(): "+pointerPanel.getPreferredSize());
     searchAndPointersPanel.add(Box.createVerticalStrut(3));
     searchAndPointersPanel.add(searchPanel);
     searchAndPointersPanel.add(pointerPanel);
-    //width(pointerPanel) = width(searchPanel)
+    // set width(pointerPanel) = width(searchPanel)
     final Dimension pointerPanelDim = pointerPanel.getPreferredSize();
-    System.err.println("pointerPanelDim: "+pointerPanelDim);
     final Dimension searchPanelDim = searchPanel.getPreferredSize();
-    System.err.println("searchPanelDim: "+searchPanelDim);
     searchPanelDim.width = pointerPanelDim.width;
-    //XXX searchPanel.setSize(searchPanelDim);
+    searchPanel.setPreferredSize(searchPanelDim);
     searchPanel.setMaximumSize(searchPanelDim);
     searchPanel.setMinimumSize(searchPanelDim);
     
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
     
-    //XXX Spring offsetS = Spring.constant(5);
-
-    //XXX //layout.putConstraint(SpringLayout.SOUTH, pointerPanel,
-    //XXX //    Spring.minus(offsetS), SpringLayout.SOUTH, searchAndPointersPanel);
-    //XXX //layout.putConstraint(SpringLayout.EAST, pointerPanel,
-    //XXX //    Spring.minus(offsetS), SpringLayout.EAST, searchAndPointersPanel);
-    //XXX //layout.putConstraint(SpringLayout.EAST, searchPanel,
-    //XXX //    Spring.minus(offsetS), SpringLayout.EAST, pointerPanel);
-    //XXX layout.putConstraint(SpringLayout.NORTH, searchPanel,
-    //XXX     offsetS, SpringLayout.NORTH, searchAndPointersPanel);
-    //XXX layout.putConstraint(SpringLayout.WEST, searchPanel,
-    //XXX     offsetS, SpringLayout.WEST, searchAndPointersPanel);
-    //XXX layout.putConstraint(SpringLayout.WEST, pointerPanel,
-    //XXX     offsetS, SpringLayout.WEST, pointerPanel);
-    //XXX //layout.putConstraint(
-    //XXX //    SpringLayout.SOUTH, searchPanel,
-    //XXX //    offsetS, 
-    //XXX //    SpringLayout.NORTH, pointerPanel
-    //XXX //    );
-    //XXX //XXX layout.putConstraint(SpringLayout.NORTH, pointerPanel,
-    //XXX //XXX     0, SpringLayout.SOUTH, searchPanel);
-    //XXX //layout.putConstraint(SpringLayout.EAST, searchAndPointersPanel,
-    //XXX //    5, SpringLayout.EAST, searchPanel);
-    //XXX //XXX layout.putConstraint(SpringLayout.EAST, pointerPanel,
-    //XXX //XXX     5, SpringLayout.EAST, searchPanel);
-    //XXX //layout.putConstraint(SpringLayout.WEST, searchAndPointersPanel,
-    //XXX //    5, SpringLayout.WEST, pointerPanel);
-    //XXX //layout.putConstraint(SpringLayout.WEST, pointerPanel,
-    //XXX //    5, SpringLayout.WEST, searchAndPointersPanel);
-    //XXX //layout.putConstraint(
-    //XXX //    SpringLayout.SOUTH, searchAndPointersPanel,
-    //XXX //    5, SpringLayout.SOUTH, searchPanel);
-    //XXX 
-    //XXX //layout.putConstraint(SpringLayout.SOUTH, searchAndPointersPanel,
-    //XXX //    5, SpringLayout.SOUTH, pointerPanel);
-    //XXX //layout.putConstraint(SpringLayout.SOUTH, searchPanel,
-    //XXX //    5, SpringLayout.NORTH, pointerPanel);
-
-    //XXX //layout.putConstraint(SpringLayout.WEST, searchPanel,
-    //XXX //    5, SpringLayout.WEST, searchAndPointersPanel);
-    //XXX //layout.putConstraint(SpringLayout.NORTH, searchPanel,
-    //XXX //    5, SpringLayout.NORTH, searchAndPointersPanel);
-    //XXX ////layout.putConstraint(SpringLayout.NORTH, pointerPanel,
-    //XXX ////    5, SpringLayout.SOUTH, searchPanel);
-    //XXX ////layout.putConstraint(SpringLayout.WEST, pointerPanel,
-    //XXX ////    5, SpringLayout.WEST, searchAndPointersPanel);
-    //XXX //layout.putConstraint(SpringLayout.EAST, searchPanel,
-    //XXX //    5, SpringLayout.EAST, searchAndPointersPanel);
-    //XXX ////layout.putConstraint(SpringLayout.EAST, pointerPanel,
-    //XXX ////    5, SpringLayout.EAST, searchAndPointersPanel);
-    //XXX ////layout.putConstraint(SpringLayout.SOUTH, pointerPanel,
-    //XXX ////    5, SpringLayout.SOUTH, searchAndPointersPanel);
-    //XXX //layout.putConstraint(SpringLayout.SOUTH, searchPanel,
-    //XXX //    5, SpringLayout.SOUTH, searchAndPointersPanel);
-    
-
     resultEditorPane = new StyledTextPane();
     //resultEditorPane.setContentType("text/html");
     resultEditorPane.setEditable(false);
