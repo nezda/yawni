@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
 
@@ -25,9 +26,10 @@ public class BrowserPanel extends JPanel {
   final DictionaryDatabase dictionary;
 
   private JTextField searchField;
-  //private JTextPane resultEditorPane;
+  private JButton searchButton;
   private JTextComponent resultEditorPane;
   private EnumMap<POS, JComboBox> posBoxes;
+  private Action slashAction;
   private EnumMap<POS, PointerTypeComboBoxModel> posBoxModels;
   private JLabel statusLabel;
 
@@ -51,38 +53,133 @@ public class BrowserPanel extends JPanel {
   public BrowserPanel(final DictionaryDatabase dictionary) {
     this.dictionary = dictionary;
     super.setLayout(new BorderLayout());
-    final Box searchAndPointersPanel = new Box(BoxLayout.Y_AXIS);
-    final JPanel searchPanel = new JPanel();
-    searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    searchPanel.setAlignmentX(0.0f);
-    //final JLabel searchLabel = new JLabel("Search Word:", SwingUtilities.LEFT);
-    searchPanel.add(Box.createHorizontalStrut(3));
-    //searchPanel.add(searchLabel);
+
     this.searchField = new JTextField("", 20);
-    searchField.setAlignmentX(0.0f);
-    searchPanel.add(searchField);
-    final JButton searchButton = new JButton("Search");
-    searchButton.setAlignmentX(0.0f);
-    searchPanel.add(searchButton);
-    final JPanel pointerPanel = makePointerPanel();
-    pointerPanel.setAlignmentX(0.0f);
-    searchAndPointersPanel.add(Box.createVerticalStrut(3));
-    searchAndPointersPanel.add(searchPanel);
-    searchAndPointersPanel.add(pointerPanel);
-    // set width(pointerPanel) = width(searchPanel)
-    final Dimension pointerPanelDim = pointerPanel.getPreferredSize();
-    final Dimension searchPanelDim = searchPanel.getPreferredSize();
-    searchPanelDim.width = pointerPanelDim.width;
-    searchPanel.setPreferredSize(searchPanelDim);
-    searchPanel.setMaximumSize(searchPanelDim);
-    searchPanel.setMinimumSize(searchPanelDim);
+
+    final Action searchAction = new AbstractAction("Search") {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent event) {
+        if(event.getSource() == searchField) {
+          // doClick() will generate another event
+          // via searchButton
+          searchButton.doClick();
+          return;
+        }
+        displayOverview();
+      }
+    };
+    this.searchButton = new JButton(searchAction);
+    this.searchButton.setFocusable(false);
+    this.searchButton.getActionMap().put("Search", searchAction);
+
+    this.slashAction = new AbstractAction("Slash") {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent event) {
+        searchField.grabFocus();
+      }
+    };
     
+    //final JLabel searchLabel = new JLabel("Search Word:", SwingUtilities.LEFT);
+    makePOSComboBoxes();
+    
+    final JPanel searchAndPointersPanel = new JPanel(new GridBagLayout());
+    final GridBagConstraints c = new GridBagConstraints();
+
+    c.gridy = 0;
+    c.gridx = 0;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.anchor = GridBagConstraints.WEST;
+    //c.gridwidth = GridBagConstraints.RELATIVE;
+    //c.gridx = GridBagConstraints.RELATIVE;
+    //c.gridx = GridBagConstraints.REMAINDER;
+    c.gridwidth = 4;
+    //searchAndPointersPanel.add(searchField, c);
+    //JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    final Box searchPanel = new Box(BoxLayout.X_AXIS);
+
+    searchPanel.add(searchField);
+    searchPanel.add(searchButton);
+    searchAndPointersPanel.add(searchPanel, c);
+
+
+    //c.gridx = 1;
+    //c.gridx = GridBagConstraints.RELATIVE;
+    //c.gridx = GridBagConstraints.REMAINDER;
+    c.fill = GridBagConstraints.NONE;
+    c.gridwidth = 1;
+    //searchAndPointersPanel.add(searchButton, c);
+
+    c.gridy = 1;
+    c.gridx = 0;
+    searchAndPointersPanel.add(this.posBoxes.get(POS.NOUN), c);
+    c.gridx = 1;
+    searchAndPointersPanel.add(this.posBoxes.get(POS.VERB), c);
+    c.gridx = 2;
+    searchAndPointersPanel.add(this.posBoxes.get(POS.ADJ), c);
+    c.gridx = 3;
+    searchAndPointersPanel.add(this.posBoxes.get(POS.ADV), c);
+
+    // set width(pointerPanel) = width(searchPanel)
+
+    //final Box left = new Box(BoxLayout.X_AXIS);
+    //left.add(searchAndPointersPanel);
+    //this.add(Box.createHorizontalGlue());
+    //this.add(left, BorderLayout.NORTH);
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
     
     resultEditorPane = new StyledTextPane();
     //resultEditorPane.setContentType("text/html");
+    // http://www.groupsrv.com/computers/about179434.html
+    // enables scrolling with arrow keys
     resultEditorPane.setEditable(false);
     final JScrollPane jsp = new  JScrollPane(resultEditorPane);
+    final JScrollBar jsb = jsp.getVerticalScrollBar();
+    
+    final Action scrollDown = new AbstractAction() {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent event) {
+        final int max = jsb.getMaximum();
+        final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, +1);
+        final int vpos = jsb.getValue();
+        final int newPos = Math.min(max, vpos + inc);
+        if(newPos != vpos) {
+          jsb.setValue(newPos);
+        }
+      }
+    };
+
+    final Action scrollUp = new AbstractAction() {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent event) {
+        final int max = jsb.getMaximum();
+        final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, -1);
+        final int vpos = jsb.getValue();
+        final int newPos = Math.max(0, vpos - inc);
+        if(newPos != vpos) {
+          jsb.setValue(newPos);
+        }
+      }
+    };
+
+    final String[] extraKeys = new String[] {
+      "pressed",
+        "shift pressed",
+        "meta pressed",
+        "shift meta",
+        };
+    for(final String extraKey : extraKeys) {
+      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
+      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
+    }
+    for(final String extraKey : extraKeys) {
+      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+    }
+
+    jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+    jsp.getActionMap().put("Slash", slashAction);
+    jsp.getVerticalScrollBar().setFocusable(false); 
+    jsp.getHorizontalScrollBar().setFocusable(false); 
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     this.add(jsp, BorderLayout.CENTER);
@@ -91,19 +188,87 @@ public class BrowserPanel extends JPanel {
     this.add(this.statusLabel, BorderLayout.SOUTH);
     updateStatusBar(Status.INTRO);
 
-    searchField.addActionListener(new ActionListener() {
-      public void actionPerformed(final ActionEvent event) {
-        displayOverview();
-      }
-    });
+    this.searchField.addActionListener(searchAction);
 
     validate();
+  }
+
+  private static class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
+    private final Vector<Component> order;
+
+    public SimpleFocusTraversalPolicy(final java.util.List<Component> order) {
+      this.order = new Vector<Component>(order.size());
+      this.order.addAll(order);
+    }
+
+    public Component getComponentAfter(final Container focusCycleRoot, final Component aComponent) {
+      return getNextComponent(focusCycleRoot, aComponent, true);
+    }
+
+    public Component getComponentBefore(final Container focusCycleRoot, final Component aComponent) {
+      return getNextComponent(focusCycleRoot, aComponent, false);
+    }
+
+    public Component getDefaultComponent(Container focusCycleRoot) {
+      return order.get(0);
+    }
+
+    public Component getLastComponent(Container focusCycleRoot) {
+      return order.lastElement();
+    }
+
+    public Component getFirstComponent(Container focusCycleRoot) {
+      return order.get(0);
+    }
+
+    private Component getNextComponent(final Container focusCycleRoot, final Component aComponent, final boolean after) {
+      final int idx = order.indexOf(aComponent);
+      if(idx < 0) {
+        return getDefaultComponent(focusCycleRoot);
+      }
+      for(int 
+        n = order.size(), i = next(idx, n, after), cnt = 0;
+        cnt < n;  
+        i = next(i, n, after), cnt++) {
+        final Component comp = order.get(i);
+        if(comp.isEnabled() && comp.isFocusable()) {
+          return order.get(i);
+        }
+      }
+      return getDefaultComponent(focusCycleRoot);
+    }
+
+    private int next(final int i, final int n, final boolean after) {
+      if(after) {
+        // 0 1 2 0 1 2
+        return (i + 1) % n;
+      } else {
+        assert i >= 0;
+        // 0 2 1 0 2 1
+        if(i - 1 == 0) {
+          return n - 1;
+        } else {
+          return i - 1;
+        }
+      }
+    }
+  } // end class SimpleFocusTraversalPolicy
+  
+
+  void wireToFrame(final JFrame frame) {
+    assert frame.isFocusCycleRoot();
+    final java.util.List<Component> components = new ArrayList<Component>();
+    components.add(this.searchField);
+    components.addAll(this.posBoxes.values());
+    frame.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
+    // a little too aggressive - handles ALL enter key presses
+    //getRootPane().setDefaultButton(searchButton);
   }
 
   @Override
   public void setVisible(final boolean visible) {
     if(visible) {
-      searchField.requestFocus();
+      searchField.requestFocusInWindow();
     }
     super.setVisible(visible);
   }
@@ -112,10 +277,7 @@ public class BrowserPanel extends JPanel {
     return Character.toUpperCase(str.charAt(0))+str.substring(1);
   }
 
-  private JPanel makePointerPanel() {
-    final JPanel pointerPanel = new JPanel();
-    pointerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    
+  private void makePOSComboBoxes() {
     this.posBoxes = new EnumMap<POS, JComboBox>(POS.class);
     this.posBoxModels = new EnumMap<POS, PointerTypeComboBoxModel>(POS.class);
 
@@ -126,13 +288,15 @@ public class BrowserPanel extends JPanel {
       posBoxModel.addElement("Senses"); // this is special
 
       final JComboBox comboBox = new JComboBox(posBoxModel);
+      
+      comboBox.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+      comboBox.getActionMap().put("Slash", slashAction);
+      
       this.posBoxes.put(pos, comboBox);
       
-      final ItemListener listener = new ItemListener() {
-        public void itemStateChanged(final ItemEvent event) {
-          if (event.getStateChange() == ItemEvent.DESELECTED) {
-            return;
-          }
+      final ActionListener listener = new ActionListener() {
+        public void actionPerformed(final ActionEvent event) {
+          //System.err.println("comboBox : "+event);
           final int selection = comboBox.getSelectedIndex();
           comboBox.setSelectedIndex(0);
           //FIXME have to do morphstr logic here
@@ -145,6 +309,7 @@ public class BrowserPanel extends JPanel {
             assert forms.length > 0;
           }
           if (selection == 0 || selection == 1) {
+            System.err.println("word: "+word);
             displaySenses(word);
           } else {
             final PointerType pointerType = posBoxModel.getPointerTypeForIndex(selection);
@@ -153,9 +318,9 @@ public class BrowserPanel extends JPanel {
           }
         }
       };
+      comboBox.addActionListener(listener);
+
       comboBox.setMaximumRowCount(30);
-      comboBox.addItemListener(listener);
-      pointerPanel.add(comboBox);
       comboBox.setEnabled(false);
     }
 
@@ -165,8 +330,6 @@ public class BrowserPanel extends JPanel {
       //comboBox.setPreferredSize(new Dimension(150, d.height));
       comboBox.setPrototypeDisplayValue(comboBox.getItemAt(0));
     }
-
-    return pointerPanel;
   }
 
   // used by substring search panel
@@ -250,7 +413,14 @@ public class BrowserPanel extends JPanel {
         }
       }
       boolean enabled = false;
+      //System.err.println("  BrowserPanel forms: \""+Arrays.asList(forms)+"\" pos: "+pos);
+      final SortedSet<String> noCaseForms = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       for (final String form : forms) {
+        if(noCaseForms.contains(form)) {
+          // block no case dups ("hell"/"Hell", "villa"/"Villa")
+          continue;
+        }
+        noCaseForms.add(form);
         final IndexWord word = dictionary.lookupIndexWord(pos, form);
         //System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" IndexWord found?: "+(word != null));
         enabled |= (word != null);
@@ -272,6 +442,7 @@ public class BrowserPanel extends JPanel {
       resultEditorPane.setText("");
       updateStatusBar(Status.NO_MATCHES);
     }
+    searchField.selectAll();
   }
   
   private enum Status {
@@ -323,7 +494,7 @@ public class BrowserPanel extends JPanel {
     if (word != null) {
       final Synset[] senses = word.getSynsets();
       final int taggedCount = word.getTaggedSenseCount();
-      buffer.append("<html>The " + word.getPOS().getLabel() + " <b>" + 
+      buffer.append("The " + word.getPOS().getLabel() + " <b>" + 
         word.getLemma() + "</b> has " + senses.length + " sense" + (senses.length == 1 ? "" : "s") + " ");
       buffer.append("(");
       if (taggedCount == 0) {

@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.undo.*;
 import java.util.*;
 import java.util.List;
 
@@ -45,11 +46,8 @@ class SearchFrame extends JFrame {
       }
       this.lemmas = Collections.singletonList("Searching for " + searchString + "...");
       this.fireIntervalAdded(this, 0, 0);
-      //XXX resultList.setEnabled(false);
     }
     void showResults(final String searchString, final List<String> lemmas) {
-      //System.err.println("isEventDispatchThread: "+SwingUtilities.isEventDispatchThread());
-      //XXX resultList.setEnabled(true);
       final int size = this.getSize();
       this.lemmas = Collections.emptyList();
       if(size > 0) {
@@ -58,6 +56,7 @@ class SearchFrame extends JFrame {
       this.lemmas = lemmas;
       final int newSize = this.getSize();
       if(newSize > 0) {
+        resultList.setFocusable(true);
         this.fireIntervalAdded(this, 0, newSize - 1);
       }
     }
@@ -90,46 +89,58 @@ class SearchFrame extends JFrame {
     final JLabel searchLabel = new JLabel("Substring");
     searchPanel.add(searchLabel);
     this.searchField = new JTextField("", 12);
+    //fairly involved to add: 
+    //make undo/redo actions, bind to keys Ctrl+z, Ctrl+z+shift
+    //final UndoManager undoManager = new UndoManager();
+    //this.searchField.getDocument().addUndoableEditListener(undoManager);
+    
     this.searchField.addKeyListener(windowHider);
-    //searchField.setBackground(Color.WHITE);
     searchPanel.add(searchField);
     this.searchField.addActionListener(new ActionListener() {
       public void actionPerformed(final ActionEvent event) {
+        searchField.selectAll();
         recomputeResults();
       }
     });
-    final Choice posChoice = new Choice();
+
+    final Action slashAction = new AbstractAction("Slash") {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent event) {
+        searchField.grabFocus();
+      }
+    };
+
+    final JComboBox posChoice = new JComboBox();
     posChoice.addKeyListener(windowHider);
     for (final POS pos : POS.CATS) {
-      posChoice.add(BrowserPanel.capitalize(pos.getLabel()));
+      posChoice.addItem(BrowserPanel.capitalize(pos.getLabel()));
     }
     posChoice.addItemListener(new ItemListener() {
       public void itemStateChanged(final ItemEvent event) {
-        final Choice choice = (Choice) event.getSource();
-        pos = POS.CATS[choice.getSelectedIndex()];
+        final JComboBox posChoice = (JComboBox) event.getSource();
+        pos = POS.CATS[posChoice.getSelectedIndex()];
         recomputeResults();
       }
     });
+    posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+    posChoice.getActionMap().put("Slash", slashAction);
     searchPanel.add(posChoice);
     this.add(searchPanel, BorderLayout.NORTH);
 
     this.resultListModel = new SearchResultsModel();
     this.resultList = new JList(resultListModel);
+    this.resultList.setFocusable(false);
     this.resultList.addKeyListener(windowHider);
     this.resultList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     this.resultList.setLayoutOrientation(JList.VERTICAL);
-    //this.resultList.setBackground(Color.WHITE);
 
     this.resultList.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(final ListSelectionEvent event) {
-        int index = event.getFirstIndex();
-        if(index < 0 || 
-          false == resultList.isEnabled() ||
-          index >= resultListModel.getSize()) {
+        if(resultList.isSelectionEmpty()) {
           return;
         }
+        final int index = resultList.getSelectedIndex();
         final String lemma = resultListModel.getElementAt(index);
-        //XXX System.err.println("event: "+event+" lemma: "+lemma);
         final IndexWord word = dictionary.lookupIndexWord(pos, lemma);
         if(word == null) {
           System.err.println("NULL WORD for lemma: "+lemma);
@@ -139,7 +150,17 @@ class SearchFrame extends JFrame {
       }
     });
 
+    this.resultList.addFocusListener(new FocusAdapter() {
+      public void focusGained(final FocusEvent e) {
+        if(resultList.isSelectionEmpty() && resultListModel.getSize() > 0) {
+          resultList.setSelectedIndex(0);
+        }
+      }
+    });
+
     final JScrollPane jsp = new  JScrollPane(resultList);
+    jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+    jsp.getActionMap().put("Slash", slashAction);
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     this.add(jsp, BorderLayout.CENTER);
@@ -153,10 +174,11 @@ class SearchFrame extends JFrame {
     validate();
     //setSize(getPreferredSize().width, getPreferredSize().height);
     this.setVisible(true);
-    this.searchField.requestFocus();
+    this.searchField.requestFocusInWindow();
   }
 
   protected void recomputeResults() {
+    this.resultList.setFocusable(false);
     final String searchString = searchField.getText().trim();
     resultListModel.searchingFor(searchString);
     final List<String> lemmas = new ArrayList<String>();

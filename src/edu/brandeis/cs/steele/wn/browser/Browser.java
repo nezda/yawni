@@ -66,6 +66,7 @@ public class Browser extends JFrame {
 
     this.browserPanel = new BrowserPanel(dictionary);
     this.add(browserPanel);
+    this.browserPanel.wireToFrame(this);
 
     final int metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
@@ -122,7 +123,8 @@ public class Browser extends JFrame {
     miSearch.addActionListener(listener);
     miAbout.addActionListener(listener);
     miQuit.addActionListener(listener);
-
+    
+    //pack();
     setVisible(true);
   }
 
