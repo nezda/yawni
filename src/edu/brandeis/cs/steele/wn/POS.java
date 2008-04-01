@@ -27,6 +27,7 @@ public enum POS {
 
   private static final POS[] VALUES = values();
 
+  // NOTE: ordinal+1 == wnCode
   static POS fromOrdinal(final byte ordinal) {
     return VALUES[ordinal];
   }
