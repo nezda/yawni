@@ -75,4 +75,7 @@ public interface FileManagerInterface extends Remote {
    *         no such line exists.
    */
   public int getMatchingBeginningLinePointer(String filename, int offset, String substring) throws IOException, RemoteException;
+
+  /** Treat file contents like an array of lines and return the zero-based, inclusive line corresponding to <var>linenum</var> */
+  public String readLineNumber(String filename, int linenum) throws IOException;
 }
