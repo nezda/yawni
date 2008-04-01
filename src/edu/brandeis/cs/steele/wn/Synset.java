@@ -152,6 +152,12 @@ public class Synset implements PointerTarget {
       append(offset).
       append("@").
       append(getPOS()).
+      append("<").
+      append("#").
+      append(lexfilenum()).
+      append("::").
+      append(getLexCategory()).
+      append(">").
       append(": \"").
       append(getDescription()).
       append("\"]").toString();
@@ -171,6 +177,11 @@ public class Synset implements PointerTarget {
   
   int lexfilenum() {
     return lexfilenum;
+  }
+
+  public String getLexCategory() {
+    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    return dictionary.lookupLexCategory(lexfilenum());
   }
 
   public String getGloss() {
