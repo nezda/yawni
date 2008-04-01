@@ -221,6 +221,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return "cntlist.rev";
   }
 
+  private static String getLexnamesFilename() {
+    return "lexnames";
+  }
+
 
   //
   // Entity retrieval
@@ -450,6 +454,26 @@ public class FileBackedDictionary implements DictionaryDatabase {
         line = null;
       } else {
         line = db.readLineAt(getCntlistDotRevFilename(), offset);
+      }
+    } catch(IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
+  }
+
+  String lookupLexCategory(final int lexnum) {
+    String line;
+    try {
+      line = db.readLineNumber(getLexnamesFilename(), lexnum);
+      if(line != null) {
+        // parse line. format example:
+        //00	adj.all	3
+        //<lexnum>\tlexname\t<pos ordinal>
+        int start = line.indexOf('\t');
+        assert start != 0;
+        int end = line.lastIndexOf('\t');
+        assert start != end;
+        line = line.substring(start+1, end);
       }
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
