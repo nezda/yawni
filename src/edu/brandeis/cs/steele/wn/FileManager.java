@@ -151,6 +151,22 @@ public class FileManager implements FileManagerInterface {
       assert space >= 0;
       return ret.substring(0, space);
     }
+    /** 
+     * Treat file contents like an array of lines and return the zero-based,
+     * inclusive line corresponding to <var>linenum</var> 
+     */
+    String readLineNumber(int linenum) throws IOException {
+      //TODO when creating the CharStream, add option to "index"/cache these results as either String[] OR String[][]
+      //where each row is an array of the delimted items on it and a second optional argument
+      //readLineNumber(int linenum, int wordnum)
+      //assumption is these CharStream's will be tiny
+      //and we can still lazy load this
+      seek(0);
+      for(int i = 0; i < linenum; i++) {
+        skipLine();
+      }
+      return readLine();
+    }
   } // end class CharStream
 
   static class RAFCharStream extends CharStream {
@@ -343,10 +359,13 @@ public class FileManager implements FileManagerInterface {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
       final String pathname = searchDirectory + File.separator + filename;
-      //slow CharStream
-      //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
-      //fast CharStream stream
-      stream = new NIOCharStream(new RandomAccessFile(pathname, "r"));
+      final File file = new File(pathname);
+      if(file.exists() && file.canRead()) {
+        //slow CharStream
+        //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
+        //fast CharStream stream
+        stream = new NIOCharStream(new RandomAccessFile(file, "r"));
+      }
       filenameCache.put(filename, stream);
     }
     return stream;
@@ -355,6 +374,16 @@ public class FileManager implements FileManagerInterface {
   //
   // Line-based interface methods
   //
+  
+  public String readLineNumber(final String filename, final int linenum) throws IOException {
+    final CharStream stream = getFileStream(filename);
+    if(stream == null) {
+      return null;
+    }
+    synchronized (stream) {
+      return stream.readLineNumber(linenum);
+    }
+  }
 
   // only called from within synchronized blocks
   // core search routine
@@ -443,6 +472,9 @@ public class FileManager implements FileManagerInterface {
       log.finest("filename:"+filename);
     }
     final CharStream stream = getFileStream(filename);
+    if(stream == null) {
+      return -1;
+    }
     synchronized (stream) {
       int start = 0;
       int stop = stream.length();
