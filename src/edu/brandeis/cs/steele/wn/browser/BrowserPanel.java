@@ -14,6 +14,8 @@ import java.beans.*;
 import java.util.*;
 import java.util.logging.*;
 import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.border.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
@@ -28,7 +30,7 @@ public class BrowserPanel extends JPanel {
   private JTextField searchField;
   private JButton searchButton;
   private JTextComponent resultEditorPane;
-  private EnumMap<POS, JComboBox> posBoxes;
+  private EnumMap<POS, PointerTypeComboBox> posBoxes;
   private Action slashAction;
   private EnumMap<POS, PointerTypeComboBoxModel> posBoxModels;
   private JLabel statusLabel;
@@ -54,7 +56,7 @@ public class BrowserPanel extends JPanel {
     this.dictionary = dictionary;
     super.setLayout(new BorderLayout());
 
-    this.searchField = new JTextField("", 20);
+    this.searchField = new JTextField();
 
     final Action searchAction = new AbstractAction("Search") {
       private static final long serialVersionUID = 1L;
@@ -87,6 +89,7 @@ public class BrowserPanel extends JPanel {
 
     c.gridy = 0;
     c.gridx = 0;
+    c.insets = new Insets(3, 0, 0, 0);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.WEST;
     //c.gridwidth = GridBagConstraints.RELATIVE;
@@ -98,8 +101,12 @@ public class BrowserPanel extends JPanel {
     final Box searchPanel = new Box(BoxLayout.X_AXIS);
 
     searchPanel.add(searchField);
+    searchPanel.add(Box.createHorizontalStrut(3));
     searchPanel.add(searchButton);
     searchAndPointersPanel.add(searchPanel, c);
+    //XXX searchAndPointersPanel.add(searchField, c);
+    //XXX c.gridx = GridBagConstraints.REMAINDER;
+    //XXX searchAndPointersPanel.add(searchButton, c);
 
 
     //c.gridx = 1;
@@ -111,13 +118,16 @@ public class BrowserPanel extends JPanel {
 
     c.gridy = 1;
     c.gridx = 0;
+    c.insets = new Insets(3, 0, 3, 3);
     searchAndPointersPanel.add(this.posBoxes.get(POS.NOUN), c);
     c.gridx = 1;
     searchAndPointersPanel.add(this.posBoxes.get(POS.VERB), c);
     c.gridx = 2;
     searchAndPointersPanel.add(this.posBoxes.get(POS.ADJ), c);
     c.gridx = 3;
+    c.insets = new Insets(3, 0, 3, 0);
     searchAndPointersPanel.add(this.posBoxes.get(POS.ADV), c);
+    //XXX searchAndPointersPanel.add(menuBar, c);
 
     // set width(pointerPanel) = width(searchPanel)
 
@@ -277,59 +287,195 @@ public class BrowserPanel extends JPanel {
     return Character.toUpperCase(str.charAt(0))+str.substring(1);
   }
 
+  // single class which encapsulates a button (for a pos)
+  // which controls a JPopupMenu which is dynamically populated
+  // with a PointerTypeComboBoxModel
+  private static class PointerTypeComboBox extends JButton /* implements ActionListener */ {
+    private static final long serialVersionUID = 1L;
+    //javax.swing.plaf.basic.BasicArrowButton
+    private final POS pos;
+    private final PointerTypeComboBoxModel posBoxModel;
+    private final PointerTypeMenu menu;
+    private boolean showing;
+    private boolean inButton;
+
+    PointerTypeComboBox(final POS pos, final PointerTypeComboBoxModel posBoxModel) {
+      super(capitalize(pos.getLabel()));
+      this.pos = pos;
+      this.posBoxModel = posBoxModel;
+      this.menu = new PointerTypeMenu(this);
+      this.showing = false;
+      this.inButton = false;
+      //addActionListener(this);
+      //System.err.println(this);
+      //final Insets margins = getMargin();
+      //System.err.println("  "+margins);
+      //setMargin(null);
+      //System.err.println("  alt: "+getMargin());
+
+      this.addMouseListener(new MouseAdapter() {
+        public void mouseEntered(final MouseEvent evt) {
+          //System.err.println("mouseEntered");
+          inButton = true;
+        }
+        public void mouseExited(final MouseEvent evt) {
+          //System.err.println("mouseExited");
+          inButton = false;
+        }
+        //public void mouseReleased(final MouseEvent evt) {
+        //  System.err.println("mouseReleased");
+        //}
+        public void mousePressed(final MouseEvent evt) {
+          assert inButton;
+          //System.err.println("mousePressed "+menu.isPopupTrigger(evt));
+          final JButton button = (JButton) evt.getComponent();
+          if(false == showing) {
+            System.err.println("SHOW");
+            final Insets margins = button.getMargin();
+            final int px = 5;
+            final int py = 1 + button.getHeight() - margins.bottom;        
+            menu.show(button, px, py);
+            showing = true;
+          } else {
+            System.err.println("HIDE");
+            menu.setVisible(false);
+            showing = false;
+          }
+          //System.err.println("mousePressed done");
+        }
+      });
+    }
+
+    //public void actionPerformed(final ActionEvent e) {
+    //  final JButton button = (JButton) e.getSource();
+    //  //System.err.println("e: "+e);
+    //  if(false == show) {                 
+    //    System.err.println("show");
+    //    final Insets margins = button.getMargin();
+    //    final int px = 5;
+    //    final int py = 1 + button.getHeight() - margins.bottom;        
+    //    menu.show(button, px, py);
+    //    show = true;
+    //  } else { 
+    //    System.err.println("hide");
+    //    //menu.setVisible(false);
+    //    menu.hide();
+    //    show = false;
+    //  }
+    //}
+
+    //public void actionPerformed(final ActionEvent e) {          
+    //  final JButton button = (JButton) e.getSource();
+    //  //System.err.println("e: "+e);
+    //  if(false == show) {                 
+    //    System.err.println("show");
+    //    final Insets margins = button.getMargin();
+    //    final int px = 5;
+    //    final int py = 1 + button.getHeight() - margins.bottom;        
+    //    menu.show(button, px, py);
+    //    show = true;
+    //  } else { 
+    //    System.err.println("hide");
+    //    //menu.setVisible(false);
+    //    menu.hide();
+    //    show = false;
+    //  }
+    //}
+
+    private class PointerTypeMenu extends JPopupMenu {
+      private static final long serialVersionUID = 1L;
+      final PointerTypeComboBox comboBox;
+      PointerTypeMenu(final PointerTypeComboBox comboBox) {
+        // DefaultComboBoxModel
+        this.comboBox = comboBox;
+      }
+      @Override protected  void firePopupMenuWillBecomeVisible() {
+        //System.err.println("firePopupMenuWillBecomeVisible()");
+        removeAll();
+        for(int i = 0, n = comboBox.posBoxModel.getSize(); i < n; i++) {
+          final String itemLabel = (String)comboBox.posBoxModel.getElementAt(i);
+          this.add(new JMenuItem(itemLabel));
+        }
+        pack();
+      }
+      @Override protected  void firePopupMenuWillBecomeInvisible() {
+        //System.err.println("firePopupMenuWillBecomeInvisible()");
+        if(false == comboBox.inButton) {
+          comboBox.showing = false;
+        }
+      }
+      //@Override protected void firePopupMenuCanceled() {
+      //  System.err.println("firePopupMenuCanceled()");
+      //  //comboBox.show = false;
+      //}
+    }
+  } // end class PointerTypeMenu
+
   private void makePOSComboBoxes() {
-    this.posBoxes = new EnumMap<POS, JComboBox>(POS.class);
+    this.posBoxes = new EnumMap<POS, PointerTypeComboBox>(POS.class);
     this.posBoxModels = new EnumMap<POS, PointerTypeComboBoxModel>(POS.class);
+
+    //XXX Box menuBar = new Box(BoxLayout.X_AXIS);
 
     for (final POS pos : POS.CATS) {
       final PointerTypeComboBoxModel posBoxModel = new PointerTypeComboBoxModel(pos);
       this.posBoxModels.put(pos, posBoxModel);
-      posBoxModel.addElement(capitalize(pos.getLabel())); // this will be a marker
+      //posBoxModel.addElement(capitalize(pos.getLabel())); // this will be a marker
       posBoxModel.addElement("Senses"); // this is special
 
-      final JComboBox comboBox = new JComboBox(posBoxModel);
+      final PointerTypeComboBox comboBox = new PointerTypeComboBox(pos, posBoxModel);
+      final Insets margins = comboBox.getMargin();
+      final Border border = comboBox.getBorder();
+      final Insets borderInsets = border.getBorderInsets(comboBox);
+      if(pos == POS.NOUN) {
+        //margins.left = 0;
+        //comboBox.setMargin(margins);
+      } else if(pos == POS.ADV) {
+        //margins.right = 0;
+        //comboBox.setMargin(margins);
+      }
+      System.err.println("  "+margins);
+      System.err.println("  "+border);
+      System.err.println("  "+borderInsets);
+      //XXX menuBar.add(comboBox);
       
       comboBox.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
       
       this.posBoxes.put(pos, comboBox);
       
-      final ActionListener listener = new ActionListener() {
-        public void actionPerformed(final ActionEvent event) {
-          //System.err.println("comboBox : "+event);
-          final int selection = comboBox.getSelectedIndex();
-          comboBox.setSelectedIndex(0);
-          //FIXME have to do morphstr logic here
-          final String inputString = searchField.getText().trim();
-          IndexWord word = dictionary.lookupIndexWord(pos, inputString);
-          if(word == null) {
-            final String[] forms = dictionary.lookupBaseForms(pos, inputString);
-            assert forms.length > 0;
-            word = dictionary.lookupIndexWord(pos, forms[0]);
-            assert forms.length > 0;
-          }
-          if (selection == 0 || selection == 1) {
-            System.err.println("word: "+word);
-            displaySenses(word);
-          } else {
-            final PointerType pointerType = posBoxModel.getPointerTypeForIndex(selection);
-            assert pointerType != null;
-            displaySenseChain(word, pointerType);
-          }
-        }
-      };
-      comboBox.addActionListener(listener);
+      //XXX final ActionListener listener = new ActionListener() {
+      //XXX   public void actionPerformed(final ActionEvent event) {
+      //XXX     //System.err.println("comboBox : "+event);
+      //XXX     final int selection = comboBox.getSelectedIndex();
+      //XXX     comboBox.setSelectedIndex(0);
+      //XXX     //FIXME have to do morphstr logic here
+      //XXX     final String inputString = searchField.getText().trim();
+      //XXX     IndexWord word = dictionary.lookupIndexWord(pos, inputString);
+      //XXX     if(word == null) {
+      //XXX       final String[] forms = dictionary.lookupBaseForms(pos, inputString);
+      //XXX       assert forms.length > 0;
+      //XXX       word = dictionary.lookupIndexWord(pos, forms[0]);
+      //XXX       assert forms.length > 0;
+      //XXX     }
+      //XXX     if (selection == 0 || selection == 1) {
+      //XXX       System.err.println("word: "+word);
+      //XXX       displaySenses(word);
+      //XXX     } else {
+      //XXX       final PointerType pointerType = posBoxModel.getPointerTypeForIndex(selection);
+      //XXX       assert pointerType != null;
+      //XXX       displaySenseChain(word, pointerType);
+      //XXX     }
+      //XXX   }
+      //XXX };
+      //XXX comboBox.addActionListener(listener);
 
-      comboBox.setMaximumRowCount(30);
+      //XXX comboBox.setMaximumRowCount(30);
+      
       comboBox.setEnabled(false);
     }
 
-    // Keep comboboxes as narrow as their main label
-    for (final JComboBox comboBox : this.posBoxes.values()) {
-      //final Dimension d = comboBox.getPreferredSize();
-      //comboBox.setPreferredSize(new Dimension(150, d.height));
-      comboBox.setPrototypeDisplayValue(comboBox.getItemAt(0));
-    }
+    //return menuBar;
   }
 
   // used by substring search panel
@@ -512,6 +658,9 @@ public class BrowserPanel extends JPanel {
           buffer.append(cnt);
           buffer.append(") ");
         }
+        buffer.append("&lt;");
+        buffer.append(sense.getLexCategory());
+        buffer.append("&gt; ");
         //XXX how do you get to/from the satellite
         buffer.append(sense.getLongDescription(verbose));
         if (verbose) {

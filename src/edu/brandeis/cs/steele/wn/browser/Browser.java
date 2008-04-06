@@ -115,6 +115,8 @@ public class Browser extends JFrame {
               options[0]);
         } else if (object == miSearch) {
           showSearchWindow();
+        } else if (object == miQuit) {
+          System.exit(0);
         } else {
           log.log(Level.SEVERE, "unhandled object: {0}", object);
         }
@@ -137,8 +139,15 @@ public class Browser extends JFrame {
   }
 
   public static void main(final String[] args) {
-    System.setProperty("apple.laf.useScreenMenuBar", "true");
-    System.setProperty("apple.awt.brushMetalRounded", "true");
+    //System.setProperty("apple.awt.brushMetalLook", "true");
+    //System.setProperty("apple.awt.brushMetalRounded", "true");
+    //System.setProperty("apple.laf.useScreenMenuBar", "true");
+    try {
+      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+    } catch(Exception e) {
+      System.err.println("Error setting native LAF: " + e);
+    }
 
     DictionaryDatabase dictionary;
     String searchDir = null;
