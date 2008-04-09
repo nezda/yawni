@@ -352,10 +352,10 @@ public class FileManager implements FileManagerInterface {
   } // end class ByteCharBuffer
 
   synchronized CharStream getFileStream(String filename) throws IOException {
-    if (IS_WINDOWS_OS) {
-      //TODO would be slow on Windows
-      filename = mapToWindowsFilename(filename);
-    }
+    //if (IS_WINDOWS_OS) {
+    //  //TODO would be slow on Windows
+    //  filename = mapToWindowsFilename(filename);
+    //}
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
       final String pathname = searchDirectory + File.separator + filename;
