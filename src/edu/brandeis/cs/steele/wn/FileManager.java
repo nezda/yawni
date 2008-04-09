@@ -467,6 +467,9 @@ public class FileManager implements FileManagerInterface {
   
   /** Binary search line implied by <param>filename</param> for <param>target</param>. */
   public int getIndexedLinePointer(final String filename, final String target) throws IOException {
+    if (target.length() == 0) {
+      return -1;
+    }
     if (log.isLoggable(Level.FINEST)) {
       log.finest("target:"+target);
       log.finest("filename:"+filename);
