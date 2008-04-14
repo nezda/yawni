@@ -75,6 +75,7 @@ public class Browser extends JFrame {
     this.miSearch = new JMenuItem("Substring Search");
     this.miSearch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, metaKey));
     this.fileMenu.add(miSearch);
+    this.browserPanel.addMenuItems(this.fileMenu);
     fileMenu.addSeparator();
     miQuit = new JMenuItem("Quit");
     miSearch.setMnemonic(KeyEvent.VK_Q);
@@ -144,7 +145,7 @@ public class Browser extends JFrame {
     //System.setProperty("apple.laf.useScreenMenuBar", "true");
     try {
       //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
     } catch(Exception e) {
       System.err.println("Error setting native LAF: " + e);
     }

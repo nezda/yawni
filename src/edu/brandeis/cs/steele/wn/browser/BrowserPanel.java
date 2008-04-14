@@ -8,8 +8,8 @@ package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.*;
 
-import java.awt.event.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
 import java.util.logging.*;
@@ -18,6 +18,7 @@ import javax.swing.event.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
+import javax.swing.undo.*;
 
 
 public class BrowserPanel extends JPanel {
@@ -28,17 +29,81 @@ public class BrowserPanel extends JPanel {
   final DictionaryDatabase dictionary;
 
   private JTextField searchField;
-  private JButton searchButton;
-  private JTextComponent resultEditorPane;
+  // when ever this is false, the content of search field has changed
+  private boolean searchFieldChanged;
+  private final JButton searchButton;
+  private final UndoManager undo;
+  private final UndoAction undoAction;
+  private final RedoAction redoAction;
+  private final JTextComponent resultEditorPane;
   private EnumMap<POS, PointerTypeComboBox> posBoxes;
-  private Action slashAction;
-  private JLabel statusLabel;
+  private final Action slashAction;
+  private final JLabel statusLabel;
 
   public BrowserPanel(final DictionaryDatabase dictionary) {
     this.dictionary = dictionary;
     super.setLayout(new BorderLayout());
 
     this.searchField = new JTextField();
+
+    //this.searchField.getDocument().addDocumentListener(new DocumentListener() {
+    //  public void changedUpdate(final DocumentEvent evt) {
+    //    assert searchField.getDocument() == evt.getDocument();
+    //    System.err.println("changedUpdate: "+evt);
+    //    searchFieldChanged = true;
+    //  }
+    //  public void insertUpdate(final DocumentEvent evt) { 
+    //    assert searchField.getDocument() == evt.getDocument();
+    //    System.err.println("insertUpdate: "+evt);
+    //    System.err.println(getModText(evt));
+    //    searchFieldChanged = true;
+    //  }
+    //  public void removeUpdate(final DocumentEvent evt) { 
+    //    assert searchField.getDocument() == evt.getDocument();
+    //    System.err.println("removeUpdate: "+evt);
+    //    searchFieldChanged = true;
+    //  }
+    //  String getModText(final DocumentEvent evt) {
+    //    try {
+    //      final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
+    //      return change;
+    //    } catch(BadLocationException ble) {
+    //      throw new RuntimeException(ble);
+    //    }
+    //  }
+    //});
+    
+    this.undo = new UndoManager() {
+      @Override public boolean addEdit(UndoableEdit ue) {
+        //System.err.println("ue: "+ue);
+        return super.addEdit(ue);
+      }
+    };
+    this.undoAction = new UndoAction();
+    this.redoAction = new RedoAction();
+
+    this.searchField.getDocument().addUndoableEditListener(new UndoableEditListener() {
+      public void undoableEditHappened(final UndoableEditEvent evt) {
+        //System.err.println("undoableEditHappened: "+evt);
+        //Remember the edit and update the menus.
+        undo.addEdit(evt.getEdit());
+        undoAction.updateUndoState();
+        redoAction.updateRedoState();
+      }
+    });
+
+    this.searchField.setInputVerifier(new InputVerifier() {
+      @Override public boolean verify(JComponent input) {
+        final JTextField searchField = (JTextField) input;
+        //return "pass".equals(tf.getText());
+        System.err.println("verifying input");
+        // TODO
+        // if the text in this field is different from the
+        // text which the menus are currently for, need to
+        // re-issue the search
+        return true;
+      }
+    });
 
     final Action searchAction = new AbstractAction("Search") {
       private static final long serialVersionUID = 1L;
@@ -165,6 +230,11 @@ public class BrowserPanel extends JPanel {
     for(final String extraKey : extraKeys) {
       this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
       this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+      //FIXME doesn't work
+      for(final PointerTypeComboBox comboBox : this.posBoxes.values()) {
+        comboBox.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+        comboBox.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+      }
     }
 
     jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
@@ -184,16 +254,30 @@ public class BrowserPanel extends JPanel {
     validate();
   }
 
-  void wireToFrame(final JFrame frame) {
+  void addMenuItems(final JMenu fileMenu) {
+    final int metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    JMenuItem item;
+    item = fileMenu.add(undoAction);
+    // Command+Z and Ctrl+Z undo on OS X, Windows
+    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, metaKey));
+    item = fileMenu.add(redoAction);
+    // http://sketchup.google.com/support/bin/answer.py?hl=en&answer=70151
+    // FIXME Shift+Command+Z on OS X, Ctrl+Y on Windows
+    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, metaKey));
+  }
+
+  void wireToFrame(final Browser frame) {
     assert frame.isFocusCycleRoot();
     final java.util.List<Component> components = new ArrayList<Component>();
     components.add(this.searchField);
     components.addAll(this.posBoxes.values());
+    //for(final PointerTypeComboBox box : this.posBoxes.values()) {
+    //  components.add(box.menu);
+    //}
     frame.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
     // a little too aggressive - handles ALL enter key presses
     //getRootPane().setDefaultButton(searchButton);
   }
-
 
   @Override public void setVisible(final boolean visible) {
     if(visible) {
@@ -204,7 +288,65 @@ public class BrowserPanel extends JPanel {
 
   static String capitalize(final String str) {
     return Character.toUpperCase(str.charAt(0))+str.substring(1);
-   }
+  }
+
+  class UndoAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
+    public UndoAction() {
+      super("Undo");
+      setEnabled(false);
+    }
+
+    public void actionPerformed(final ActionEvent evt) {
+      try {
+        undo.undo();
+      } catch (CannotUndoException ex) {
+        System.err.println("Unable to undo: " + ex);
+        ex.printStackTrace();
+      }
+      updateUndoState();
+      redoAction.updateRedoState();
+    }
+
+    protected void updateUndoState() {
+      if (undo.canUndo()) {
+        setEnabled(true);
+        putValue(Action.NAME, undo.getUndoPresentationName());
+      } else {
+        setEnabled(false);
+        putValue(Action.NAME, "Undo");
+      }
+    }
+  } // end class UndoAction
+
+  class RedoAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
+    public RedoAction() {
+      super("Redo");
+      setEnabled(false);
+    }
+
+    public void actionPerformed(final ActionEvent evt) {
+      try {
+        undo.redo();
+      } catch (CannotRedoException ex) {
+        System.err.println("Unable to redo: " + ex);
+        ex.printStackTrace();
+      }
+      updateRedoState();
+      undoAction.updateUndoState();
+    }
+
+    protected void updateRedoState() {
+      if (undo.canRedo()) {
+        setEnabled(true);
+        putValue(Action.NAME, undo.getRedoPresentationName());
+      } else {
+        setEnabled(false);
+        putValue(Action.NAME, "Redo");
+      }
+    }
+  } // end class RedoAction
 
   /** 
    * Simple FocusTraversalPolicy which cycles through provided components in sequential order
@@ -277,33 +419,37 @@ public class BrowserPanel extends JPanel {
    */
   private static class StyledTextPane extends JTextPane {
     private static final long serialVersionUID = 1L;
-    public StyledTextPane() {
+
+    @Override protected EditorKit createDefaultEditorKit() {
       final HTMLEditorKit kit = new HTMLEditorKit();
-      setEditorKit(kit);
       final StyleSheet styleSheet = kit.getStyleSheet();
       styleSheet.addRule("body {font-family:sans-serif;}");
       //styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
       styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
       //styleSheet.addRule("ul ul {list-style-type:circle };");
       styleSheet.addRule("ul {margin-left:12px; margin-bottom:0px;}");
-      setDocument(kit.createDefaultDocument());
+      //setDocument(kit.createDefaultDocument());
       //XXX getDocument().putProperty("multiByte", false);
+      return kit;
     }
   } // end class StyledTextPane
   
   /** 
    * Class which encapsulates a button (for a pos) which controls a
-   * JPopupMenu that is dynamically populated with a PointerTypeComboBoxModel.
+   * JPopupMenu that is dynamically populated with a PointerTypeActions.
    * Key feature is popup width is as wide as the contents across platforms which is
    * deceptively difficult using JComboBox on most platforms (except OS X).
    */
   private class PointerTypeComboBox extends JButton /* implements ActionListener */ {
-    // TODO Keyboard focus change doesn't hide menu
-    // FIXME if mouse inButton and menu keyboard activated, takes double click!
+    // FIXME if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
+    // FIXME if user changes text field contents and selects menu, bad things will happen
+    // FIXME tab doesnt work from popup menu
+    // FIXME slash doesn't work from popup menu
+    // FIXME text in HTML pane looks bold at line wraps
     // TODO add down arrow to indicate combo box-like behavior
     private static final long serialVersionUID = 1L;
     private final POS pos;
-    private final PointerTypeMenu menu;
+    final PointerTypeMenu menu;
     private boolean showing;
     private boolean inButton;
 
@@ -311,6 +457,7 @@ public class BrowserPanel extends JPanel {
       super(capitalize(pos.getLabel()));
       this.pos = pos;
       this.menu = new PointerTypeMenu(this);
+      this.setComponentPopupMenu(menu);
       this.showing = false;
       this.inButton = false;
       //final Insets margins = getMargin();
@@ -369,7 +516,7 @@ public class BrowserPanel extends JPanel {
         showing = true;
       } else {
         System.err.println("HIDE");
-        menu.setVisible(false);
+        //menu.setVisible(false);
         showing = false;
       }
       // keep focus to allow keyboard toggle
@@ -380,96 +527,40 @@ public class BrowserPanel extends JPanel {
     void updateFor(final POS pos, final IndexWord word) { 
       menu.removeAll();
       menu.add(new PointerTypeAction("Senses", pos, null));
-      for (final PointerType pointerType : word.getPointerTypes()) {
+      for (final PointerType pointerType : word.getPointerTypes(true /* correct */)) {
         // use word+pos custom labels for drop downs
         final String label = String.format(pointerType.getFormatLabel(word.getPOS()), word.getLemma());
+        //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
         menu.add(new PointerTypeAction(label, pos, pointerType));
       }
     }
     
-    private class PointerTypeMenu extends JPopupMenu implements ChangeListener {
+    private class PointerTypeMenu extends JPopupMenu {
       private static final long serialVersionUID = 1L;
       final PointerTypeComboBox comboBox;
       PointerTypeMenu(final PointerTypeComboBox comboBox) {
-        // DefaultComboBoxModel
         this.comboBox = comboBox;
-      }
-
-      public void stateChanged(final ChangeEvent evt) {
-        //System.err.println("stateChanged: "+evt);
-        //JMenuItem item = (JMenuItem)evt.getSource();
-        //System.err.println("isArmed: "+item.isArmed()+" isSelected: "+item.isSelected()+" labelText: "+item.getText());
+        setLightWeightPopupEnabled(true);
       }
 
       @Override protected  void firePopupMenuWillBecomeVisible() {
-        //System.err.println("firePopupMenuWillBecomeVisible()");
-        // if any differences between model and menu, clear menu and rebuild from model
-        //XXX boolean rebuild = true;
-        //XXX for(int i = 0, n = comboBox.posBoxModel.getSize(); i < n; i++) {
-        //XXX   final Component comp = getComponent(i);
-        //XXX   if(comp == null) {
-        //XXX     break;
-        //XXX   }
-        //XXX   System.err.println("comp: "+comp);
-        //XXX }
-        //removeAll();
-        //for(int i = 0, n = comboBox.posBoxModel.size(); i < n; i++) {
-        //  final JMenuItem item = comboBox.posBoxModel.getElementAt(i);
-        //  //item.setArmed(true);
-        //  this.add(item);
-        //  //item.addChangeListener(this);
-        //}
-        //pack();
+        System.err.println("firePopupMenuWillBecomeVisible() "+isLightweightComponent(this)+
+        " isLightWeightPopupEnabled(): "+isLightWeightPopupEnabled());
       }
 
       @Override protected  void firePopupMenuWillBecomeInvisible() {
-        //System.err.println("firePopupMenuWillBecomeInvisible()");
+        System.err.println("firePopupMenuWillBecomeInvisible()");
         if(false == comboBox.inButton) {
           comboBox.showing = false;
         }
       }
 
-      //@Override protected void firePopupMenuCanceled() {
-      //  System.err.println("firePopupMenuCanceled()");
-      //  //comboBox.show = false;
-      //}
-    }
-  } // end class PointerTypeMenu
-
-  /** 
-   * Model for PointerType+POS.
-   * FIXME change into List<PointerTypeJMenuItem> to prevent reinstantiating
-   * them over and over again - just update the labels (text) and
-   * enabled/disabled property - each should also remember its seletected/deselected state
-   */
-  private class PointerTypeComboBoxModel {
-    private static final long serialVersionUID = 1L;
-
-    private final POS pos;
-    private final Vector<JMenuItem> items;
-    PointerTypeComboBoxModel(final POS pos) {
-      this.pos = pos;
-      this.items = new Vector<JMenuItem>();
-    }
-    
-    /** populate with pointer types which apply to pos+word */
-    void updateFor(final POS pos, final IndexWord word) { 
-      assert this.pos == pos;
-      items.clear();
-      items.add(new JMenuItem(new PointerTypeAction("Senses", pos, null)));
-      for (final PointerType pointerType : word.getPointerTypes()) {
-        // use word+pos custom labels for drop downs
-        final String label = String.format(pointerType.getFormatLabel(word.getPOS()), word.getLemma());
-        items.add(new JMenuItem(new PointerTypeAction(label, pos, pointerType)));
+      @Override protected void firePopupMenuCanceled() {
+        System.err.println("firePopupMenuCanceled()");
+        //comboBox.showing = false;
       }
-    }
-    int size() {
-      return items.size();
-    }
-    JMenuItem getElementAt(int i) {
-      return items.get(i);
-    }
-  } // end class PointerTypeComboBoxModel
+    } // end class PointerTypeMenu
+  } // end class PointerTypeComboBox
 
   class PointerTypeAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
@@ -487,7 +578,7 @@ public class BrowserPanel extends JPanel {
       IndexWord word = dictionary.lookupIndexWord(pos, inputString);
       if(word == null) {
         final String[] forms = dictionary.lookupBaseForms(pos, inputString);
-        assert forms.length > 0;
+        assert forms.length > 0 : "searchField contents must have changed";
         word = dictionary.lookupIndexWord(pos, forms[0]);
         assert forms.length > 0;
       }
@@ -505,15 +596,18 @@ public class BrowserPanel extends JPanel {
 
     for (final POS pos : POS.CATS) {
       final PointerTypeComboBox comboBox = new PointerTypeComboBox(pos);
-      final Insets margins = comboBox.getMargin();
-      final Border border = comboBox.getBorder();
-      final Insets borderInsets = border.getBorderInsets(comboBox);
+      //final Insets margins = comboBox.getMargin();
+      //final Border border = comboBox.getBorder();
+      //final Insets borderInsets = border.getBorderInsets(comboBox);
       //System.err.println("  "+margins);
       //System.err.println("  "+border);
       //System.err.println("  "+borderInsets);
       
       comboBox.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
+      //FIXME doesn't work
+      comboBox.menu.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+      comboBox.menu.getActionMap().put("Slash", slashAction);
       
       this.posBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
