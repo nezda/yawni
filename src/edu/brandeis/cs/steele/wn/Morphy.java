@@ -4,7 +4,6 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 import edu.brandeis.cs.steele.util.*;
