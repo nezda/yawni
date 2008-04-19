@@ -7,7 +7,7 @@
 package edu.brandeis.cs.steele.wn;
 
 /** A Pointer encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
- * relationship holds between Words; a semantic relationship holds between Synsets.  Relationships
+ * relationship holds between {@link Word}s; a semantic relationship holds between {@link Synset}s.
  * are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
  * Relationships are <i>typed</i>: the type of a relationship is a {@link PointerType}, and can
  * be retrieved via {@link Pointer#getType getType}.
@@ -22,6 +22,7 @@ public class Pointer {
    * an external key; subsequent uses, in conjunction with {@link
    * FileBackedDictionary}'s caching mechanism, can be thought of as a {@link
    * java.lang.ref.WeakReference}.
+   * //FIXME or is it SoftReference?
    */
   private final int targetOffset;
   private final int targetIndex;
@@ -32,14 +33,14 @@ public class Pointer {
   //
 
   /** The index of this Pointer within the array of Pointer's in the source Synset.
-   * Used by <code>equals</code>.
+   * Used in <code>equals</code>.
    */
   private final int index;
   private final PointerTarget source;
   private final byte pointerTypeOrdinal;
 
   //
-  // Constructor and initialization
+  // Constructor
   //
   Pointer(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
     this.index = index;
@@ -90,6 +91,11 @@ public class Pointer {
 
   public boolean isLexical() {
     return source instanceof Word;
+    // else assert instanceof Synset;
+  }
+
+  public boolean isSemantic() {
+    return source instanceof Synset;
   }
 
   //
@@ -114,5 +120,4 @@ public class Pointer {
       return synset.getWord(index - 1);
     }
   }
-
 }
