@@ -29,9 +29,9 @@ public enum PointerType {
 
   // Nouns and Verbs 
   HYPERNYM("hypernym", "@", N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
-  INSTANCE_HYPERNYM("instance hypernym", "@i", N | V),
+  INSTANCE_HYPERNYM("instance hypernym", "@i", N | V, "Instance Hypernyms (%s is an instance of ...)"),
   HYPONYM("hyponym", "~", N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
-  INSTANCE_HYPONYM("instance hyponym", "~i", N | V),
+  INSTANCE_HYPONYM("instance hyponym", "~i", N | V, "Instance Hyponyms (... is an instance of %s)"),
   DERIVATIONALLY_RELATED("derivationally related", "+", N | V, "Derivationally related forms"),
 
   // Nouns and Adjectives
