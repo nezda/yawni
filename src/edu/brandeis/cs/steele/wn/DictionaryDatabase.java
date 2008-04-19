@@ -21,10 +21,10 @@ public interface DictionaryDatabase {
    * phrases are separated by spaces (e.g. "look up", not "look_up").
    * @param pos The part-of-speech.
    * @param lemma The orthographic representation of the word.
-   * @return An <code>IndexWord</code> representing the word, or
+   * @return An <code>Word</code> representing the word, or
    * <code>null</code> if no such entry exists.
    */
-  public IndexWord lookupIndexWord(final POS pos, final String lemma);
+  public Word lookupWord(final POS pos, final String lemma);
 
   /** 
    * Return the base form of an exceptional derivation, if an entry for it
@@ -46,7 +46,7 @@ public interface DictionaryDatabase {
   public String[] lookupBaseForms(final POS pos, final String someString);
 
   /** 
-   * Could be built from basic API methods lookupBaseForms() and lookupIndexWord() and IndexWord.getSynsets().
+   * Could be built from basic API methods lookupBaseForms() and lookupWord() and Word.getSynsets().
    * LN Added. 
    * @param pos The part-of-speech.
    * @param someString
@@ -55,28 +55,28 @@ public interface DictionaryDatabase {
   public Synset[] lookupSynsets(final POS pos, final String someString);
 
   /**
-   * Return an enumeration of <b>all</b> the IndexWords of in the database.
+   * Return an enumeration of <b>all</b> the Words of in the database.
    * @param pos The part-of-speech.
-   * @return An iterable of <code>IndexWord</code>s.
+   * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<IndexWord> indexWords(final POS pos);
+  public Iterable<Word> words(final POS pos);
 
   /** 
-   * Return an enumeration of all the IndexWords whose lemmas contain <var>substring</var>
+   * Return an enumeration of all the Words whose lemmas contain <var>substring</var>
    * as a <b>substring</b>.
    * @param pos The part-of-speech.
    * @param substring
-   * @return An iterable of <code>IndexWord</code>s.
+   * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<IndexWord> searchIndexWords(final POS pos, final String substring);
+  public Iterable<Word> searchWords(final POS pos, final String substring);
 
   /** 
-   * Return an enumeration of all the IndexWords whose lemmas <b>begin with</b> <var>prefix</var>.
+   * Return an enumeration of all the Words whose lemmas <b>begin with</b> <var>prefix</var>.
    * @param pos The part-of-speech.
    * @param substring
-   * @return An iterable of <code>IndexWord</code>s.
+   * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<IndexWord> searchIndexBeginning(final POS pos, final String substring);
+  public Iterable<Word> searchIndexBeginning(final POS pos, final String substring);
 
   /** Return an enumeration over <b>all</b> the Synsets in the database.
    * @param pos The part-of-speech.

@@ -191,13 +191,13 @@ class Morphy {
       }
       // use this knowledge and base forms to add all case variants
       // on morphs in tmp
-      final IndexWord indexWord = is_defined(tmp[0], pos);
-      addTrueCaseLemmas(indexWord, toReturn);
+      final Word word = is_defined(tmp[0], pos);
+      addTrueCaseLemmas(word, toReturn);
       
       phase1Done = true;
     }
     
-    IndexWord indexWord = null;
+    Word word = null;
 
     int prep;
     if (phase1Done == false && 
@@ -221,7 +221,7 @@ class Morphy {
             "\" str: \""+str+"\" wordCount: "+wordCount+" "+pos);
       }
       int st_idx = 0;
-      String word = null;
+      String wordStr = null;
       String searchstr = "";
       // LN loop over '-' and '_' chunked "tokens"
       while (--wordCount != 0) {
@@ -257,21 +257,21 @@ class Morphy {
           phase1Done = true;
           break;           
         }
-        word = str.substring(st_idx, end_idx);
+        wordStr = str.substring(st_idx, end_idx);
         if (log.isLoggable(Level.FINER)) {
-          log.finer("word: \""+word+"\" str: \""+str+"\" wordCount: "+wordCount);
+          log.finer("word: \""+wordStr+"\" str: \""+str+"\" wordCount: "+wordCount);
         }
 
-        tmp = morphword(word, pos);
+        tmp = morphword(wordStr, pos);
         if (tmp != null) {
           checkLosingVariants(tmp, "morphstr() losing colloc word variant?");
           searchstr += tmp[0];
         } else {
           if (log.isLoggable(Level.FINER)) {
-            log.log(Level.FINER, "word: \""+word+"\", "+pos+" returned null. searchstr: \""+searchstr+"\"");
+            log.log(Level.FINER, "word: \""+wordStr+"\", "+pos+" returned null. searchstr: \""+searchstr+"\"");
           }
-          assert word != null;
-          searchstr += word;
+          assert wordStr != null;
+          searchstr += wordStr;
         }
         assert append != null;
         searchstr += append;
@@ -279,21 +279,21 @@ class Morphy {
       } // end multi-word loop
 
       // if 'word' is null, there was only 1 word in origstr
-      if (word == null) {
+      if (wordStr == null) {
         // happens for all verbs ?
         //DEBUG System.err.println("word is null?: origstr: "+origstr);
-        word = "";
+        wordStr = "";
       }
 
       if (log.isLoggable(Level.FINER)) {
-        log.log(Level.FINER, "word: \""+word+"\" str.substring(st_idx): \""+
+        log.log(Level.FINER, "word: \""+wordStr+"\" str.substring(st_idx): \""+
             str.substring(st_idx)+"\" st_idx: "+st_idx+" "+pos);
       }
       
       // assertions: 
       // if single-word, st_idx == 0, queryStr == original string and word == original string and searchStr == ""
       // else st_idx = s.length() and queryStr == "" and queryStr =="" and searchstr == (possibly) stemmed items collocation
-      final String queryStr = word = str.substring(st_idx);
+      final String queryStr = wordStr = str.substring(st_idx);
 
       // this will trivially return null if queryStr == ""
       final String[] morphWords = morphword(queryStr, pos);
@@ -314,9 +314,9 @@ class Morphy {
       } else {
         // morphWords is null
         assert searchstr != null;
-        assert word != null;
+        assert wordStr != null;
         //LN is this adding the last word of the collocation ?
-        searchstr += word;
+        searchstr += wordStr;
       }
       //XXX System.err.println("searchstr: "+searchstr+" morphWords: "+(morphWords != null ? Arrays.toString(morphWords) : "null"));
 
@@ -324,10 +324,10 @@ class Morphy {
       //XXX     " is_defined(searchstr, pos): "+is_defined(searchstr, pos)+
       //XXX     " morphWords: "+(morphWords != null ? Arrays.toString(morphWords) : "null")+
       //XXX     " toReturn: "+toReturn);
-      indexWord = null;
-      if (searchstr.equals(str) == false && null != (indexWord = is_defined(searchstr, pos))) {
-        //debug(Level.FINER, "indexWord for (\""+searchstr+"\", "+pos+"): "+indexWord);
-        addTrueCaseLemmas(indexWord, toReturn);
+      word = null;
+      if (searchstr.equals(str) == false && null != (word = is_defined(searchstr, pos))) {
+        //debug(Level.FINER, "word for (\""+searchstr+"\", "+pos+"): "+word);
+        addTrueCaseLemmas(word, toReturn);
       }
       phase1Done = true;
     }
@@ -361,9 +361,9 @@ class Morphy {
       }
     }
     // always include full length exact matches
-    indexWord = is_defined(str, pos);
-    if (indexWord != null) {
-      addTrueCaseLemmas(indexWord, toReturn);
+    word = is_defined(str, pos);
+    if (word != null) {
+      addTrueCaseLemmas(word, toReturn);
     }
     final List<String> uniqed = uniq(toReturn);
     morphyCache.put(cacheKey, uniqed);
@@ -373,8 +373,8 @@ class Morphy {
     return uniqed;
   }
 
-  private void addTrueCaseLemmas(final IndexWord indexWord, final List<String> lemmas) {
-    for(final WordSense wordSense : indexWord.getSenses()) {
+  private void addTrueCaseLemmas(final Word word, final List<String> lemmas) {
+    for(final WordSense wordSense : word.getSenses()) {
       // lemma's are already "cleaned"
       lemmas.add(wordSense.getLemma());
     }
@@ -389,9 +389,9 @@ class Morphy {
    * Must be an exact match in the dictionary.
    * (C version in search.c only returns true/false)
    */
-  private IndexWord is_defined(final String lemma, final POS pos) {
+  private Word is_defined(final String lemma, final POS pos) {
     if (lemma.length() == 0) return null;
-    return dictionary.lookupIndexWord(pos, lemma);
+    return dictionary.lookupWord(pos, lemma);
   }
 
   private static final String[] NO_STRINGS = new String[0];
@@ -401,12 +401,12 @@ class Morphy {
    * in POS <param>pos</param>.
    * Port of morph.c morphword().
    */
-  private String[] morphword(final String word, final POS pos) {
-    if (word == null || word.length() == 0) {
+  private String[] morphword(final String wordStr, final POS pos) {
+    if (wordStr == null || wordStr.length() == 0) {
       return null;
     }
     // first look for word on exception list
-    final String[] tmp = dictionary.getExceptions(word, pos);
+    final String[] tmp = dictionary.getExceptions(wordStr, pos);
     if (tmp != null && tmp.length != 0) {
       // found it in exception list
       // LN skips first one because of modified getExceptions semantics
@@ -423,11 +423,11 @@ class Morphy {
     String tmpbuf = null;
     String end = "";
     if (pos == POS.NOUN) {
-      if (word.endsWith("ful")) {
-        tmpbuf = word.substring(0, word.length() - "ful".length());
+      if (wordStr.endsWith("ful")) {
+        tmpbuf = wordStr.substring(0, wordStr.length() - "ful".length());
         end = "ful";
         // special case for *ful "boxesful" -> "boxful"
-      } else if (word.length() <= 2 || word.endsWith("ss")) {
+      } else if (wordStr.length() <= 2 || wordStr.endsWith("ss")) {
         // check for noun ending with 'ss' or short words
         return null;
       }
@@ -436,7 +436,7 @@ class Morphy {
     // If not in exception list, try applying rules from tables
 
     if (tmpbuf == null) {
-      tmpbuf = word;
+      tmpbuf = wordStr;
     }
 
     final int offset = offsets[pos.getWordNetCode()];
@@ -453,8 +453,8 @@ class Morphy {
       } else {
         lastRetval = retval;
       }
-      IndexWord indexWord;
-      if (retval.equals(tmpbuf) == false && null != (indexWord = is_defined(retval, pos))) {
+      Word word;
+      if (retval.equals(tmpbuf) == false && null != (word = is_defined(retval, pos))) {
         if (toReturn == null) {
           toReturn = new String[]{ retval };
         } else {
@@ -575,18 +575,18 @@ class Morphy {
         }
       }
       retval = exc_words[1] + s.substring(rest);
-      IndexWord indexWord;
-      if (null != (indexWord = is_defined(retval, POS.VERB))) {
+      Word word;
+      if (null != (word = is_defined(retval, POS.VERB))) {
         if (log.isLoggable(Level.FINER)) {
-          log.finer("returning indexWord "+indexWord);
+          log.finer("returning "+word);
         }
         return retval;
       } else if (lastwd != null) {
         assert end != null;
         retval = exc_words[1] + end;
-        if (null != (indexWord = is_defined(retval, POS.VERB))) {
+        if (null != (word = is_defined(retval, POS.VERB))) {
           if (log.isLoggable(Level.FINER)) {
-            log.finer("returning indexWord "+indexWord);
+            log.finer("returning "+word);
           }
           return retval;
         }
@@ -603,17 +603,17 @@ class Morphy {
         if (log.isLoggable(Level.FINER)) {
           log.finer("test retval "+retval);
         }
-        IndexWord indexWord;
-        if (null != (indexWord = is_defined(retval, POS.VERB))) {
+        Word word;
+        if (null != (word = is_defined(retval, POS.VERB))) {
           if (log.isLoggable(Level.FINER)) {
-            log.finer("returning indexWord "+indexWord);
+            log.finer("returning "+word);
           }
           return retval;
         } else if (lastwd != null) {
           retval = exc_word + end;
-          if (null != (indexWord = is_defined(retval, POS.VERB))) {
+          if (null != (word = is_defined(retval, POS.VERB))) {
             if (log.isLoggable(Level.FINER)) {
-              log.finer("returning indexWord "+indexWord);
+              log.finer("returning "+word);
             }
             return retval;
           }
@@ -686,8 +686,8 @@ class Morphy {
   // * hyphens, strip hyphens and underscores, strip periods. 
   // * search.c's getindex() function
   // */
-  //private IndexWord[] getindex(String searchstr, POS pos) {
-  //  static IndexWord offsets[MAX_FORMS];
+  //private Word[] getindex(String searchstr, POS pos) {
+  //  static Word offsets[MAX_FORMS];
   //  static int offset;
   //  // FIXME if pos == POS.SAT_ADJ , pos = POS.ADJ
 

@@ -16,7 +16,7 @@ import java.util.logging.*;
  *
  * A <code>FileBackedDictionary</code> has an <i>entity cache</i>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
- * calls to <code>lookupIndexWord</code> with the same parameters would return the same value
+ * calls to <code>lookupWord</code> with the same parameters would return the same value
  * (<code>==</code> as well as <code>equals</code>), as would traversal of two <code>Pointer</code>s
  * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
  * two different objects to represent the same entity, if their retrieval is separated by other
@@ -245,10 +245,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int getIndexWordAtCacheHit = 0;
   static int weirdGetIndexWordAtCacheMiss = 0;
   
-  IndexWord getIndexWordAt(final POS pos, final int offset) {
+  Word getIndexWordAt(final POS pos, final int offset) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
-    IndexWord indexWord = (IndexWord) indexWordCache.get(cacheKey);
-    if (indexWord != null) {
+    Word word = (Word) indexWordCache.get(cacheKey);
+    if (word != null) {
       ++getIndexWordAtCacheHit;
       cacheDebug(indexWordCache);
     } else {
@@ -261,11 +261,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-      indexWord = new IndexWord(line, offset);
-      indexWordCache.put(cacheKey, indexWord);
+      word = new Word(line, offset);
+      indexWordCache.put(cacheKey, word);
     }
-    assert indexWord != null : "pos: "+pos+" offset: "+offset;
-    return indexWord;
+    assert word != null : "pos: "+pos+" offset: "+offset;
+    return word;
   }
   
   static int getSynsetAtCacheMiss = 0;
@@ -312,7 +312,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private static Object NULL_INDEX_WORD = new Object();
 
   /** {@inheritDoc} */
-  public IndexWord lookupIndexWord(final POS pos, final String lemma) {
+  public Word lookupWord(final POS pos, final String lemma) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
     if (indexWord != null && indexWord != NULL_INDEX_WORD) {
@@ -335,7 +335,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
       indexWordCache.put(cacheKey, indexWord);
     }
-    return indexWord != NULL_INDEX_WORD ? (IndexWord) indexWord : null;
+    return indexWord != NULL_INDEX_WORD ? (Word) indexWord : null;
   }
   
   /** LN Not used much - this might not even have a <i>unique</i> result ? */
@@ -381,12 +381,12 @@ public class FileBackedDictionary implements DictionaryDatabase {
       return NO_SYNSETS;
     }
     // 0. if we have morphs, we will have syns
-    // 1. get all the IndexWords (usually 1)
+    // 1. get all the Words (usually 1)
     // 2. merge all their Synsets
     final ArrayList<Synset> syns = new ArrayList<Synset>();
     for(final String lemma : morphs) {
-      final IndexWord indexWord = this.lookupIndexWord(pos, lemma);
-      if(indexWord == null) {
+      final Word word = this.lookupWord(pos, lemma);
+      if(word == null) {
         // LN little hacky - morphstr() bug that it returns a "lemma" for
         // an undefined word ?
         //assert morphs.size() == 1 : "morphs: "+morphs;
@@ -396,8 +396,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
         //break; // LN why did i break here ?
         continue;
       }
-      syns.ensureCapacity(syns.size() + indexWord.getSynsets().length);
-      for(final Synset syn : indexWord.getSynsets()) {
+      syns.ensureCapacity(syns.size() + word.getSynsets().length);
+      for(final Synset syn : word.getSynsets()) {
         syns.add(syn);
       }
     }
@@ -491,16 +491,16 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   
   /** 
-   * @see DictionaryDatabase#indexWords 
+   * @see DictionaryDatabase#words 
    */
   // TODO don't do this throw NoSuchElementException iterator stuff
-  private class IndexWordIterator implements Iterator<IndexWord> {
+  private class WordIterator implements Iterator<Word> {
     private final POS pos;
     private final String filename;
     private int nextOffset = 0;
     private int offset = -1;
 
-    IndexWordIterator(final POS pos) {
+    WordIterator(final POS pos) {
       this.pos = pos;
       this.filename = getIndexFilename(pos);
     }
@@ -508,7 +508,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       // meant to be used with LookaheadIterator
       return true;
     }
-    public IndexWord next() {
+    public Word next() {
       try {
         String line;
         do {
@@ -523,7 +523,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
           nextOffset = db.getNextLinePointer(filename, nextOffset);
         } while (line.startsWith("  ")); // first few lines start with "  "
         //FIXME something is wrong with this
-        return new IndexWord(line, offset);
+        return new Word(line, offset);
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
@@ -531,22 +531,22 @@ public class FileBackedDictionary implements DictionaryDatabase {
     public void remove() {
       throw new UnsupportedOperationException();
     }
-  } // end class IndexWordIterator
+  } // end class WordIterator
 
   /** {@inheritDoc} */
-  public Iterable<IndexWord> indexWords(final POS pos) {
-    return new Iterable<IndexWord>() {
-      public Iterator<IndexWord> iterator() {
-        return new LookaheadIterator<IndexWord>(new IndexWordIterator(pos));
+  public Iterable<Word> words(final POS pos) {
+    return new Iterable<Word>() {
+      public Iterator<Word> iterator() {
+        return new LookaheadIterator<Word>(new WordIterator(pos));
       }
     };
   }
   
   /** 
-   * @see DictionaryDatabase#searchIndexWords 
+   * @see DictionaryDatabase#searchWords 
    */
   // TODO don't do this throw NoSuchElementException iterator stuff
-  private class SearchIterator implements Iterator<IndexWord> {
+  private class SearchIterator implements Iterator<Word> {
     private final POS pos;
     private final String substring;
     private final String filename;
@@ -561,11 +561,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
       // meant to be used with LookaheadIterator
       return true;
     }
-    public IndexWord next() {
+    public Word next() {
       try {
         final int offset = db.getMatchingLinePointer(filename, nextOffset, substring);
         if (offset >= 0) {
-          final IndexWord value = getIndexWordAt(pos, offset);
+          final Word value = getIndexWordAt(pos, offset);
           nextOffset = db.getNextLinePointer(filename, offset);
           return value;
         } else {
@@ -581,10 +581,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
   } // end class SearchIterator
 
   /** {@inheritDoc} */
-  public Iterable<IndexWord> searchIndexWords(final POS pos, final String substring) {
-    return new Iterable<IndexWord>() {
-      public Iterator<IndexWord> iterator() {
-        return new LookaheadIterator<IndexWord>(new SearchIterator(pos, substring));
+  public Iterable<Word> searchWords(final POS pos, final String substring) {
+    return new Iterable<Word>() {
+      public Iterator<Word> iterator() {
+        return new LookaheadIterator<Word>(new SearchIterator(pos, substring));
       }
     };
   }
@@ -593,7 +593,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * @see DictionaryDatabase#searchIndexBeginning 
    */
   // TODO don't do this throw NoSuchElementException iterator stuff
-  private class StartsWithSearchIterator implements Iterator<IndexWord> {
+  private class StartsWithSearchIterator implements Iterator<Word> {
     private final POS pos;
     private final String prefix;
     private final String filename;
@@ -607,11 +607,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
       // meant to be used with LookaheadIterator
       return true;
     }
-    public IndexWord next() {
+    public Word next() {
       try {
         final int offset = db.getMatchingBeginningLinePointer(filename, nextOffset, prefix);
         if (offset >= 0) {
-          final IndexWord value = getIndexWordAt(pos, offset);
+          final Word value = getIndexWordAt(pos, offset);
           nextOffset = db.getNextLinePointer(filename, offset);
           return value;
         } else {
@@ -627,10 +627,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
   } // end class StartsWithSearchIterator
   
   /** {@inheritDoc} */
-  public Iterable<IndexWord> searchIndexBeginning(final POS pos, final String prefix) {
-    return new Iterable<IndexWord>() {
-      public Iterator<IndexWord> iterator() {
-        return new LookaheadIterator<IndexWord>(new StartsWithSearchIterator(pos, prefix));
+  public Iterable<Word> searchIndexBeginning(final POS pos, final String prefix) {
+    return new Iterable<Word>() {
+      public Iterator<Word> iterator() {
+        return new LookaheadIterator<Word>(new StartsWithSearchIterator(pos, prefix));
       }
     };
   }

@@ -545,7 +545,7 @@ public class BrowserPanel extends JPanel {
     }
 
     /** populate with pointer types which apply to pos+word */
-    void updateFor(final POS pos, final IndexWord word) { 
+    void updateFor(final POS pos, final Word word) { 
       menu.removeAll();
       menu.add(new PointerTypeAction("Senses", pos, null));
       for (final PointerType pointerType : word.getPointerTypes()) {
@@ -618,11 +618,11 @@ public class BrowserPanel extends JPanel {
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = searchField.getText().trim();
-      IndexWord word = dictionary.lookupIndexWord(pos, inputString);
+      Word word = dictionary.lookupWord(pos, inputString);
       if(word == null) {
         final String[] forms = dictionary.lookupBaseForms(pos, inputString);
         assert forms.length > 0 : "searchField contents must have changed";
-        word = dictionary.lookupIndexWord(pos, forms[0]);
+        word = dictionary.lookupWord(pos, forms[0]);
         assert forms.length > 0;
       }
       if (pointerType == null) {
@@ -659,7 +659,7 @@ public class BrowserPanel extends JPanel {
 
   // used by substring search panel
   // FIXME synchronization probably insufficient
-  synchronized void setWord(final IndexWord word) {
+  synchronized void setWord(final Word word) {
     searchField.setText(word.getLemma());
     displayOverview();
   }
@@ -700,8 +700,8 @@ public class BrowserPanel extends JPanel {
           continue;
         }
         noCaseForms.add(form);
-        final IndexWord word = dictionary.lookupIndexWord(pos, form);
-        //System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" IndexWord found?: "+(word != null));
+        final Word word = dictionary.lookupWord(pos, form);
+        //System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" Word found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer, false);
         //FIXME adds extra HR at the end
@@ -761,7 +761,7 @@ public class BrowserPanel extends JPanel {
   }
 
   // overview for single pos+word
-  private synchronized void displaySenses(final IndexWord word) {
+  private synchronized void displaySenses(final Word word) {
     updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
     appendSenses(word, buffer, true);
@@ -769,7 +769,7 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
-  private void appendSenses(final IndexWord word, final StringBuilder buffer, final boolean verbose) {
+  private void appendSenses(final Word word, final StringBuilder buffer, final boolean verbose) {
     if (word != null) {
       final Synset[] senses = word.getSynsets();
       final int taggedCount = word.getTaggedSenseCount();
@@ -785,7 +785,7 @@ public class BrowserPanel extends JPanel {
       buffer.append("<ol>\n");
       for (final Synset sense : senses) {
         buffer.append("<li>");
-        final int cnt = sense.getWord(word).getSensesTaggedFrequency();
+        final int cnt = sense.getWordSense(word).getSensesTaggedFrequency();
         if (cnt != 0) {
           buffer.append("(");
           buffer.append(cnt);
@@ -839,8 +839,8 @@ public class BrowserPanel extends JPanel {
     }
   }
 
-  // render single IndexWord + PointerType
-  private void displaySenseChain(final IndexWord word, final PointerType pointerType) {
+  // render single Word + PointerType
+  private void displaySenseChain(final Word word, final PointerType pointerType) {
     updateStatusBar(Status.POINTER, pointerType, word.getPOS(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
     final Synset[] senses = word.getSynsets();
@@ -862,7 +862,7 @@ public class BrowserPanel extends JPanel {
         }
         System.err.println("word: "+word+" inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
         buffer.append("<ul>\n");
-        appendSenseChain(buffer, senses[i].getWord(word), senses[i], inheritanceType, attributeType);
+        appendSenseChain(buffer, senses[i].getWordSense(word), senses[i], inheritanceType, attributeType);
         buffer.append("</ul>\n");
       }
     }

@@ -9,7 +9,7 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 
 
-/** A <code>WordSense</code> represents the lexical information related to a specific sense of an <code>IndexWord</code>.
+/** A <code>WordSense</code> represents the lexical information related to a specific sense of an <code>Word</code>.
  *
  * <code>WordSense</code>'s are linked by {@link Pointer}s into a network of lexically related Words.
  * {@link WordSense#getTargets} retrieves the targets of these links, and
@@ -129,17 +129,17 @@ public class WordSense implements PointerTarget {
   public int getSenseNumber() {
     if(senseNumber < 1) {
       final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
-      final IndexWord indexWord = dictionary.lookupIndexWord(getPOS(), lemma);
-      assert indexWord != null : "lookupIndexWord failed for \""+lemma+"\" "+getPOS();
+      final Word word = dictionary.lookupWord(getPOS(), lemma);
+      assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
       int senseNumber = 0;
-      for(final Synset syn : indexWord.getSynsets()) {
+      for(final Synset syn : word.getSynsets()) {
         --senseNumber;
         if(syn.equals(synset)) {
           senseNumber = -senseNumber;
           break;
         }
       }
-      assert senseNumber > 0 : "IndexWord lemma: "+lemma+" "+getPOS();
+      assert senseNumber > 0 : "Word lemma: "+lemma+" "+getPOS();
       assert senseNumber < Short.MAX_VALUE;
       this.senseNumber = (short)senseNumber;
     }
@@ -198,7 +198,7 @@ public class WordSense implements PointerTarget {
    */
   public int getSensesTaggedFrequency() {
     //TODO cache this value
-    //TODO we could use this IndexWord's getTaggedSenseCount() to determine if
+    //TODO we could use this Word's getTaggedSenseCount() to determine if
     //there were any tagged senses for *any* sense of it (including this one)
     //and really we wouldn't need to look at sense (numbers) exceeding that value
     //as an optimization

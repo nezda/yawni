@@ -11,15 +11,15 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * An <code>IndexWord</code> represents a line of the <code>index.<em>pos</em></code> file.
- * An <code>IndexWord</code> is created retrieved or retrieved via {@link DictionaryDatabase#lookupIndexWord},
+ * An <code>Word</code> represents a line of the <code>index.<em>pos</em></code> file.
+ * An <code>Word</code> is created retrieved or retrieved via {@link DictionaryDatabase#lookupWord},
  * and has a <i>lemma</i>, a <i>pos</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class IndexWord {
-  private static final Logger log = Logger.getLogger(IndexWord.class.getName());
+public class Word {
+  private static final Logger log = Logger.getLogger(Word.class.getName());
   
   /** offset in <var>pos</var><code>.index</code> file */
   private final int offset;
@@ -39,7 +39,7 @@ public class IndexWord {
   //
   // Constructor
   //
-  IndexWord(final CharSequence line, final int offset) {
+  Word(final CharSequence line, final int offset) {
     try {
       log.log(Level.FINEST, "parsing line: {0}", line);
       final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
@@ -55,7 +55,7 @@ public class IndexWord {
         //  try {
         //    ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
         //  } catch (final java.util.NoSuchElementException exc) {
-        //    log.log(Level.SEVERE, "IndexWord() got PointerType.parseKey() error:", exc);
+        //    log.log(Level.SEVERE, "Word() got PointerType.parseKey() error:", exc);
         //  }
       }
 
@@ -86,7 +86,7 @@ public class IndexWord {
       //  //log.log(Level.SEVERE, "extra: {0}", extra);
       //}
     } catch (final RuntimeException e) {
-      log.log(Level.SEVERE, "IndexWord parse error on offset: {0} line:\n\"{1}\"", 
+      log.log(Level.SEVERE, "Word parse error on offset: {0} line:\n\"{1}\"", 
           new Object[]{ offset, line });
       log.log(Level.SEVERE, "",  e);
       throw e;
@@ -97,9 +97,9 @@ public class IndexWord {
   // Object methods
   //
   @Override public boolean equals(final Object object) {
-    return (object instanceof IndexWord)
-      && ((IndexWord) object).posOrdinal == posOrdinal
-      && ((IndexWord) object).offset == offset;
+    return (object instanceof Word)
+      && ((Word) object).posOrdinal == posOrdinal
+      && ((Word) object).offset == offset;
   }
 
   @Override public int hashCode() {
@@ -108,7 +108,7 @@ public class IndexWord {
   }
 
   @Override public String toString() {
-    return new StringBuilder("[IndexWord ").
+    return new StringBuilder("[Word ").
       append(offset).
       append("@").
       append(getPOS().getLabel()).
@@ -177,7 +177,7 @@ public class IndexWord {
     final WordSense[] senses = new WordSense[getSynsets().length];
     int senseNumberMinusOne = 0;
     for(final Synset synset : getSynsets()) {
-      final WordSense wordSense = synset.getWord(this);
+      final WordSense wordSense = synset.getWordSense(this);
       senses[senseNumberMinusOne] = wordSense;
       assert senses[senseNumberMinusOne] != null : 
         this+" null WordSense at senseNumberMinusOne: "+senseNumberMinusOne;

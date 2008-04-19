@@ -194,9 +194,9 @@ public class Synset implements PointerTarget {
   }
 
   /** XXX DOCUMENT ME */
-  public WordSense getWord(final IndexWord indexWord) {
+  public WordSense getWordSense(final Word word) {
     for(final WordSense wordSense : wordSenses) {
-      if(wordSense.getLemma().equalsIgnoreCase(indexWord.getLemma())) {
+      if(wordSense.getLemma().equalsIgnoreCase(word.getLemma())) {
         return wordSense;
       }
     }

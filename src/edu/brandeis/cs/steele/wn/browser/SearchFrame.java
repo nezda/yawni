@@ -8,7 +8,7 @@ package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.DictionaryDatabase;
 import edu.brandeis.cs.steele.wn.POS;
-import edu.brandeis.cs.steele.wn.IndexWord;
+import edu.brandeis.cs.steele.wn.Word;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -141,7 +141,7 @@ class SearchFrame extends JFrame {
         }
         final int index = resultList.getSelectedIndex();
         final String lemma = resultListModel.getElementAt(index);
-        final IndexWord word = dictionary.lookupIndexWord(pos, lemma);
+        final Word word = dictionary.lookupWord(pos, lemma);
         if(word == null) {
           System.err.println("NULL WORD for lemma: "+lemma);
           return;
@@ -182,7 +182,7 @@ class SearchFrame extends JFrame {
     final String searchString = searchField.getText().trim();
     resultListModel.searchingFor(searchString);
     final List<String> lemmas = new ArrayList<String>();
-    for (final IndexWord word : dictionary.searchIndexWords(pos, searchString)) {
+    for (final Word word : dictionary.searchWords(pos, searchString)) {
       lemmas.add(word.getLemma());
     }
     resultListModel.showResults(searchString, lemmas);
