@@ -117,14 +117,14 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
-  private static String mapToWindowsFilename(String filename) {
-    if (filename.startsWith("data.")) {
-      filename = filename.substring("data.".length()) + ".dat";
-    } else if (filename.startsWith("index.")) {
-      filename = filename.substring("index.".length()) + ".idx";
-    }
-    return filename;
-  }
+  //private static String mapToWindowsFilename(String filename) {
+  //  if (filename.startsWith("data.")) {
+  //    filename = filename.substring("data.".length()) + ".dat";
+  //  } else if (filename.startsWith("index.")) {
+  //    filename = filename.substring("index.".length()) + ".idx";
+  //  }
+  //  return filename;
+  //}
 
   //
   // IO primitives
