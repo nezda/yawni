@@ -189,12 +189,12 @@ public class MorphyTest {
 
   @Test
   public void testWordSense() {
-    assertEquals(42, dictionary.lookupIndexWord(POS.NOUN, "dog").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(2, dictionary.lookupIndexWord(POS.VERB, "dog").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(3, dictionary.lookupIndexWord(POS.ADJ, "cardinal").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(0, dictionary.lookupIndexWord(POS.ADJ, "cardinal").getSenses()[1].getSensesTaggedFrequency());
-    assertEquals(9, dictionary.lookupIndexWord(POS.ADJ, "concrete").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(1, dictionary.lookupIndexWord(POS.ADJ, "dogmatic").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(42, dictionary.lookupWord(POS.NOUN, "dog").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(2, dictionary.lookupWord(POS.VERB, "dog").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(3, dictionary.lookupWord(POS.ADJ, "cardinal").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(0, dictionary.lookupWord(POS.ADJ, "cardinal").getSenses()[1].getSensesTaggedFrequency());
+    assertEquals(9, dictionary.lookupWord(POS.ADJ, "concrete").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(1, dictionary.lookupWord(POS.ADJ, "dogmatic").getSenses()[0].getSensesTaggedFrequency());
     System.err.println("testWordSense() passed");
   }
 
@@ -203,8 +203,8 @@ public class MorphyTest {
     int issues = 0;
     int nonCaseIssues = 0;
     for(final POS pos : POS.CATS) {
-      for(final IndexWord indexWord : dictionary.indexWords(pos)) {
-        for(final WordSense wordSense : indexWord.getSenses()) {
+      for(final Word word : dictionary.words(pos)) {
+        for(final WordSense wordSense : word.getSenses()) {
           final String lemma = wordSense.getLemma();
           final List<String> restems = stem(lemma, pos);
           String msg = "ok";
@@ -243,9 +243,9 @@ public class MorphyTest {
   //  int issues = 0;
   //  int nonCaseIssues = 0;
   //  for(final POS pos : POS.CATS) {
-  //    for(final IndexWord indexWord : dictionary.indexWords(pos)) {
-  //      for(final WordSense word : indexWord.getSenses()) {
-  //        final String lemma = word.getLemma();
+  //    for(final Word word : dictionary.words(pos)) {
+  //      for(final WordSense wordSense : word.getSenses()) {
+  //        final String lemma = wordSense.getLemma();
   //        for(final POS otherPOS : POS.CATS) {
   //          if(otherPOS == pos) {
   //            continue;

@@ -32,16 +32,16 @@ public class ThreadSafetyTest {
       int indexWordsVisited = 0;
       try {
         for(final POS pos : POS.CATS) {
-          for(final IndexWord indexWord : dictionary.indexWords(pos)) {
+          for(final Word word : dictionary.words(pos)) {
             ++indexWordsVisited;
-            for(final WordSense wordSense : indexWord.getSenses()) {
+            for(final WordSense wordSense : word.getSenses()) {
               final String lemma = wordSense.getLemma();
               final Synset synset = wordSense.getSynset();
               String msg = id+" "+wordSense;
               //System.err.println(msg);
               ++wordsVisited;
             }
-            for(final Synset synset : indexWord.getSynsets()) {
+            for(final Synset synset : word.getSynsets()) {
               for(final Pointer pointer : synset.getPointers()) {
                 pointer.getTarget();
                 // note these are not unique - they are visited from both sides

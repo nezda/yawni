@@ -16,23 +16,23 @@ public class IterationTest {
   //   searchIndexWords()
   /** <b>Parts of this test uses hard coded values for WordNet 3.0 </b> */
   @Test
-  public void indexWordIterationBoundaryTests() {
+  public void wordIterationBoundaryTests() {
     // check if iteration returns first AND last item (boundary cases) 
     // - look at data files manually ($WNHOME/dict/index.<pos>)
     // TODO check this for all POS
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
-    final Iterable<IndexWord> nounIndexWords = dictionary.indexWords(POS.NOUN);
-    final IndexWord first = nounIndexWords.iterator().next();
+    final Iterable<Word> nounIndexWords = dictionary.words(POS.NOUN);
+    final Word first = nounIndexWords.iterator().next();
     //System.err.println("first: "+first);
     // to get these offsets with gvim, open the data file, put the cursor on
     // the first char of the line you expect (e.g. first content line, last
     // line), and g CTRL-g will report "Byte n of m" -- n is a 1 based file
-    // offset - IndexWord offsets are zero based so you would expect n-1
+    // offset - Word offsets are zero based so you would expect n-1
     assertEquals(1740, first.getOffset());
     assertEquals("'hood", first.getLemma());
-    IndexWord last = null;
-    for(final IndexWord indexWord : nounIndexWords) {
-      last = indexWord;
+    Word last = null;
+    for(final Word word : nounIndexWords) {
+      last = word;
     }
     //System.err.println("last: "+last);
     assertEquals(4786625, last.getOffset());
@@ -58,13 +58,13 @@ public class IterationTest {
         int iterationGlossLetters = 0;
         int iteration_total_p_cnt = 0;
         for(final POS pos : POS.CATS) {
-          for(final IndexWord indexWord : dictionary.indexWords(pos)) {
-            for(final Synset synset : indexWord.getSynsets()) {
+          for(final Word word : dictionary.words(pos)) {
+            for(final Synset synset : word.getSynsets()) {
               iterationGlossLetters += synset.getGloss().length();
             }
             ++iterationIndexWordsVisited;
-            iteration_total_p_cnt += indexWord.getPointerTypes().size();
-            for(final WordSense wordSense : indexWord.getSenses()) {
+            iteration_total_p_cnt += word.getPointerTypes().size();
+            for(final WordSense wordSense : word.getSenses()) {
               //final String lemma = word.getLemma();
               final Synset synset = wordSense.getSynset();
               //String msg = i+" "+word;
