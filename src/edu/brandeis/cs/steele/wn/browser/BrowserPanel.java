@@ -35,7 +35,7 @@ public class BrowserPanel extends JPanel {
   private final UndoManager undo;
   private final UndoAction undoAction;
   private final RedoAction redoAction;
-  private final JTextComponent resultEditorPane;
+  private final StyledTextPane resultEditorPane;
   private EnumMap<POS, PointerTypeComboBox> posBoxes;
   private final Action slashAction;
   private final JLabel statusLabel;
@@ -216,6 +216,12 @@ public class BrowserPanel extends JPanel {
         }
       }
     };
+
+    final Map<Object, Action> actions = this.resultEditorPane.getActionTable();
+    final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
+    System.err.println("bigger: "+bigger);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke("meta pressed +"), bigger);
+    this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke("meta pressed +"), scrollDown); 
 
     final String[] extraKeys = new String[] {
       "pressed",
@@ -432,6 +438,19 @@ public class BrowserPanel extends JPanel {
       //XXX getDocument().putProperty("multiByte", false);
       return kit;
     }
+
+    //The following two methods allow us to find an
+    //action provided by the editor kit by its name.
+    Map<Object, Action> getActionTable() {
+      Map<Object, Action> actions = new HashMap<Object, Action>();
+      Action[] actionsArray = getStyledEditorKit().getActions();
+      for (int i = 0; i < actionsArray.length; i++) {
+        Action a = actionsArray[i];
+        System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
+        actions.put(a.getValue(Action.NAME), a);
+      }
+      return actions;
+    }
   } // end class StyledTextPane
   
   /** 
@@ -454,6 +473,7 @@ public class BrowserPanel extends JPanel {
     private boolean inButton;
 
     PointerTypeComboBox(final POS pos) {
+      //super(capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
       super(capitalize(pos.getLabel()));
       this.pos = pos;
       this.menu = new PointerTypeMenu(this);
@@ -464,6 +484,7 @@ public class BrowserPanel extends JPanel {
       //System.err.println("  "+margins);
       //setMargin(null);
       //System.err.println("  alt: "+getMargin());
+      //System.err.println("menu.getDefaultLightWeightPopupEnabled(): "+menu.getDefaultLightWeightPopupEnabled());
 
       this.addMouseListener(new MouseAdapter() {
         public void mouseEntered(final MouseEvent evt) {
@@ -527,11 +548,11 @@ public class BrowserPanel extends JPanel {
     void updateFor(final POS pos, final IndexWord word) { 
       menu.removeAll();
       menu.add(new PointerTypeAction("Senses", pos, null));
-      for (final PointerType pointerType : word.getPointerTypes(true /* correct */)) {
+      for (final PointerType pointerType : word.getPointerTypes()) {
         // use word+pos custom labels for drop downs
         final String label = String.format(pointerType.getFormatLabel(word.getPOS()), word.getLemma());
         //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
-        menu.add(new PointerTypeAction(label, pos, pointerType));
+        final JMenuItem item = menu.add(new PointerTypeAction(label, pos, pointerType));
       }
     }
     
@@ -541,22 +562,44 @@ public class BrowserPanel extends JPanel {
       PointerTypeMenu(final PointerTypeComboBox comboBox) {
         this.comboBox = comboBox;
         setLightWeightPopupEnabled(true);
+        //System.err.println("getFocusTraversalKeys(): "+getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+        //System.err.println("areFocusTraversalKeysSet(): "+areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+      }
+
+      @Override public void setVisible(final boolean show) {
+        super.setVisible(show);
+        if(show) {
+          //System.err.println("V requestFocus(): "+requestFocus(false));
+          //System.err.println("requestFocus(): "+requestFocus(true));
+          //System.err.println("requestDefaultFocus(): "+requestDefaultFocus());
+        }
+        //System.err.println("V setVisible: "+show);
+        //System.err.println("V isFocusable(): "+isFocusable());
+        //System.err.println("V isDisplayable(): "+isDisplayable());
       }
 
       @Override protected  void firePopupMenuWillBecomeVisible() {
-        System.err.println("firePopupMenuWillBecomeVisible() "+isLightweightComponent(this)+
-        " isLightWeightPopupEnabled(): "+isLightWeightPopupEnabled());
+        //System.err.println("firePopupMenuWillBecomeVisible() "+isLightweightComponent(this)+
+        //    " isLightWeightPopupEnabled(): "+isLightWeightPopupEnabled());
+        //System.err.println("isFocusable(): "+isFocusable());
+        //System.err.println("requestFocus(): "+requestFocus(false));
+        //System.err.println("requestFocus(): "+requestFocus(true));
+        //requestFocus();
+        //System.err.println("isDisplayable(): "+isDisplayable());
+        //System.err.println("vis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
       }
 
       @Override protected  void firePopupMenuWillBecomeInvisible() {
-        System.err.println("firePopupMenuWillBecomeInvisible()");
+        //System.err.println("firePopupMenuWillBecomeInvisible()");
+        //System.err.println("isFocusable(): "+isFocusable());
+        //System.err.println("invis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
         if(false == comboBox.inButton) {
           comboBox.showing = false;
         }
       }
 
       @Override protected void firePopupMenuCanceled() {
-        System.err.println("firePopupMenuCanceled()");
+        //System.err.println("firePopupMenuCanceled()");
         //comboBox.showing = false;
       }
     } // end class PointerTypeMenu
@@ -779,7 +822,7 @@ public class BrowserPanel extends JPanel {
             int seeAlsoNum = 0;
             for (final PointerTarget seeAlso : targets) {
               buffer.append(seeAlso.getDescription());
-              for (final Word wordSense : seeAlso) {
+              for (final WordSense wordSense : seeAlso) {
                 buffer.append("#");
                 buffer.append(wordSense.getSenseNumber());
               }
@@ -849,7 +892,7 @@ public class BrowserPanel extends JPanel {
   // add information from pointers
   void appendSenseChain(
     final StringBuilder buffer, 
-    final Word rootWordSense,
+    final WordSense rootWordSense,
     final PointerTarget sense, 
     final PointerType inheritanceType, 
     final PointerType attributeType) {
@@ -866,7 +909,7 @@ public class BrowserPanel extends JPanel {
   // add information from pointers (recursive)
   void appendSenseChain(
       final StringBuilder buffer, 
-      final Word rootWordSense,
+      final WordSense rootWordSense,
       final PointerTarget sense, 
       final PointerType inheritanceType, 
       final PointerType attributeType, 
@@ -892,9 +935,9 @@ public class BrowserPanel extends JPanel {
           continue;
         }
         buffer.append("<li>");
-        if(target instanceof Word) {
+        if(target instanceof WordSense) {
           assert pointer.isLexical();
-          final Word wordSense = (Word)target;
+          final WordSense wordSense = (WordSense)target;
           //FIXME RELATED TO label below only right for DERIVATIONALLY_RELATED
           buffer.append("RELATED TO → ("+wordSense.getPOS().getLabel()+") "+wordSense.getLemma()+"#"+wordSense.getSenseNumber());
           //ANTONYM example:

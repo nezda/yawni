@@ -9,18 +9,18 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 
 
-/** A <code>Word</code> represents the lexical information related to a specific sense of an <code>IndexWord</code>.
+/** A <code>WordSense</code> represents the lexical information related to a specific sense of an <code>IndexWord</code>.
  *
- * <code>Word</code>'s are linked by {@link Pointer}s into a network of lexically related Words.
- * {@link Word#getTargets} retrieves the targets of these links, and
- * {@link Word#getPointers} retrieves the pointers themselves.
+ * <code>WordSense</code>'s are linked by {@link Pointer}s into a network of lexically related Words.
+ * {@link WordSense#getTargets} retrieves the targets of these links, and
+ * {@link WordSense#getPointers} retrieves the pointers themselves.
  *
  * @see Pointer
  * @see Synset
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Word implements PointerTarget {
+public class WordSense implements PointerTarget {
   //
   // Adjective Position Flags
   //
@@ -42,7 +42,7 @@ public class Word implements PointerTarget {
   private long verbFrameFlags;
   private short senseNumber;
 
-  Word(final Synset synset, final String lemma, final int lexid, final int flags) {
+  WordSense(final Synset synset, final String lemma, final int lexid, final int flags) {
     this.synset = synset;
     this.lemma = lemma;
     this.lexid = lexid;
@@ -58,9 +58,9 @@ public class Word implements PointerTarget {
   // Object methods
   //
   @Override public boolean equals(Object object) {
-    return (object instanceof Word)
-      && ((Word) object).synset.equals(synset)
-      && ((Word) object).lemma.equals(lemma);
+    return (object instanceof WordSense)
+      && ((WordSense) object).synset.equals(synset)
+      && ((WordSense) object).lemma.equals(lemma);
   }
 
   @Override public int hashCode() {
@@ -68,7 +68,7 @@ public class Word implements PointerTarget {
   }
 
   @Override public String toString() {
-    return new StringBuilder("[Word ").
+    return new StringBuilder("[WordSense ").
       append(synset.getOffset()).
       append("@").
       append(synset.getPOS()).
@@ -95,7 +95,7 @@ public class Word implements PointerTarget {
     return lemma;
   }
 
-  public Iterator<Word> iterator() {
+  public Iterator<WordSense> iterator() {
     return Collections.singleton(this).iterator();
   }
 
@@ -222,7 +222,7 @@ public class Word implements PointerTarget {
       // sanity check } else {
       // sanity check   //System.err.println(this+" OK");
       // sanity check }
-      //[Word 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
+      //[WordSense 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
       //assert getSenseNumber() == 
       //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
     }
@@ -252,7 +252,7 @@ public class Word implements PointerTarget {
       // adj acidic has more than 1 antonym (alkaline and amphoteric)
       for (final PointerTarget target : targets) {
         description.append(" (vs. ");
-        final Word antonym = (Word)target;
+        final WordSense antonym = (WordSense)target;
         description.append(antonym.getLemma());
         description.append(")");
       }

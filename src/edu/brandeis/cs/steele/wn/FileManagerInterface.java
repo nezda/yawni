@@ -32,7 +32,7 @@ import java.rmi.RemoteException;
  * an entry.
  *
  * <p>Making <code>FileBackedDictionary</code> would violate the first of these properties
- * (it would require that Word, Synset, POS, etc. be supported as remote objects);
+ * (it would require that WordSense, Synset, POS, etc. be supported as remote objects);
  * a generic remote file system interface would violate the second.
  *
  * <p>A third design principle is that sessions are stateless -- this simplifies the

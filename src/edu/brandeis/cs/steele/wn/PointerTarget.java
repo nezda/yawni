@@ -8,20 +8,20 @@ package edu.brandeis.cs.steele.wn;
 
 /** A <code>PointerTarget</code> is the <i>source</i> or <i>target</i> of a <code>Pointer</code>.
  * The target of a semantic <code>PointerTarget</code> is a <code>Synset</code>;
- * the target of a lexical <code>PointerTarget</code> is a <code>Word</code>.
+ * the target of a lexical <code>PointerTarget</code> is a <code>WordSense</code>.
  *
  * @see Pointer
  * @see Synset
- * @see Word
+ * @see WordSense
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public interface PointerTarget extends Iterable<Word> {
+public interface PointerTarget extends Iterable<WordSense> {
   public POS getPOS();
 
-  /** Return a description of the target.  For a <code>Word</code>, this is
+  /** Return a description of the target.  For a <code>WordSense</code>, this is
    * it's lemma; for a <code>Synset</code>, it's the concatenated lemma's of
-   * its <code>Word</code>s.
+   * its <code>WordSense</code>s.
    */
   public String getDescription();
 

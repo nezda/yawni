@@ -10,15 +10,15 @@ import java.util.*;
 import java.util.logging.*;
 
 /** A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <var>pos</var><code>.data</code> file.
- * A <code>Synset</code> represents a concept, and contains a set of <code>Word</code>s, each of which has a sense
- * that names that concept (and each of which is therefore synonymous with the other words in the
+ * A <code>Synset</code> represents a concept, and contains a set of <code>WordSense</code>s, each of which has a sense
+ * that names that concept (and each of which is therefore synonymous with the other wordSenses in the
  * <code>Synset</code>).
  *
  * <code>Synset</code>'s are linked by {@link Pointer}s into a network of related concepts; this is the <i>Net</i>
  * in WordNet.  {@link Synset#getTargets} retrieves the targets of these links, and
  * {@link Synset#getPointers} retrieves the pointers themselves.
  *
- * @see Word
+ * @see WordSense
  * @see Pointer
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
@@ -30,7 +30,7 @@ public class Synset implements PointerTarget {
   // 
   /** offset in <code>data.</code><var>pos</var> file */
   private final int offset;
-  private final Word[] words;
+  private final WordSense[] wordSenses;
   private final Pointer[] pointers;
   //TODO make this a byte[]
   private final char[] gloss;
@@ -60,12 +60,12 @@ public class Synset implements PointerTarget {
     this.posOrdinal = (byte) POS.lookup(ss_type).ordinal();
 
     final int wordCount = tokenizer.nextHexInt();
-    this.words = new Word[wordCount];
+    this.wordSenses = new WordSense[wordCount];
     for (int i = 0; i < wordCount; i++) {
       String lemma = tokenizer.nextToken().toString();
       final String originalLemma = lemma;
       final int lexid = tokenizer.nextHexInt();
-      int flags = Word.NONE;
+      int flags = WordSense.NONE;
       // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
       if (lemma.charAt(lemma.length() - 1) == ')' && lemma.indexOf('(') > 0) {
         final int lparenIdx = lemma.indexOf('(');
@@ -74,16 +74,16 @@ public class Synset implements PointerTarget {
         final String marker = lemma.substring(lparenIdx + 1, rparenIdx);
         lemma = lemma.substring(0, lparenIdx);
         if (marker.equals("p")) {
-          flags |= Word.PREDICATIVE;
+          flags |= WordSense.PREDICATIVE;
         } else if (marker.equals("a")) {
-          flags |= Word.ATTRIBUTIVE;
+          flags |= WordSense.ATTRIBUTIVE;
         } else if (marker.equals("ip")) {
-          flags |= Word.IMMEDIATE_POSTNOMINAL;
+          flags |= WordSense.IMMEDIATE_POSTNOMINAL;
         } else {
           throw new RuntimeException("unknown syntactic marker " + marker);
         }
       }
-      words[i] = new Word(this, lemma.replace('_', ' '), lexid, flags);
+      wordSenses[i] = new WordSense(this, lemma.replace('_', ' '), lexid, flags);
     }
 
     final int pointerCount = tokenizer.nextInt();
@@ -103,10 +103,10 @@ public class Synset implements PointerTarget {
         //FIXME what is w_num?
         final int w_num = tokenizer.nextHexInt();
         if (w_num > 0) {
-          words[w_num - 1].setVerbFrameFlag(f_num);
+          wordSenses[w_num - 1].setVerbFrameFlag(f_num);
         } else {
-          for (int j = 0; j < words.length; j++) {
-            words[j].setVerbFrameFlag(f_num);
+          for (int j = 0; j < wordSenses.length; j++) {
+            wordSenses[j].setVerbFrameFlag(f_num);
           }
         }
       }
@@ -189,30 +189,30 @@ public class Synset implements PointerTarget {
     return new String(gloss);
   }
 
-  public Word[] getWords() {
-    return words;
+  public WordSense[] getWords() {
+    return wordSenses;
   }
 
   /** XXX DOCUMENT ME */
-  public Word getWord(final IndexWord indexWord) {
-    for(final Word word : words) {
-      if(word.getLemma().equalsIgnoreCase(indexWord.getLemma())) {
-        return word;
+  public WordSense getWord(final IndexWord indexWord) {
+    for(final WordSense wordSense : wordSenses) {
+      if(wordSense.getLemma().equalsIgnoreCase(indexWord.getLemma())) {
+        return wordSense;
       }
     }
     return null;
   }
 
-  public Iterator<Word> iterator() {
-    return Arrays.asList(words).iterator();
+  public Iterator<WordSense> iterator() {
+    return Arrays.asList(wordSenses).iterator();
   }
 
   int getOffset() {
     return offset;
   }
   
-  Word getWord(final int index) {
-    return words[index];
+  WordSense getWord(final int index) {
+    return wordSenses[index];
   }
 
   //
@@ -226,14 +226,14 @@ public class Synset implements PointerTarget {
   public String getDescription(final boolean verbose) {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("{");
-    for (int i = 0; i < words.length; i++) {
+    for (int i = 0; i < wordSenses.length; i++) {
       if (i > 0) {
         buffer.append(", ");
       }
       if(verbose) {
-        buffer.append(words[i].getDescription());
+        buffer.append(wordSenses[i].getDescription());
       } else {
-        buffer.append(words[i].getLemma());
+        buffer.append(wordSenses[i].getLemma());
       }
     }
     buffer.append("}");

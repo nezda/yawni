@@ -23,7 +23,7 @@ public class IndexWord {
   
   /** offset in <var>pos</var><code>.index</code> file */
   private final int offset;
-  /** No case "lemma". Each {@link Word} has at least 1 true case lemma
+  /** No case "lemma". Each {@link WordSense} has at least 1 true case lemma
    * (could vary by POS). 
    */
   private final String lemma; 
@@ -173,25 +173,25 @@ public class IndexWord {
     return synsets;
   }
   
-  public Word[] getSenses() {
-    final Word[] senses = new Word[getSynsets().length];
+  public WordSense[] getSenses() {
+    final WordSense[] senses = new WordSense[getSynsets().length];
     int senseNumberMinusOne = 0;
     for(final Synset synset : getSynsets()) {
-      final Word word = synset.getWord(this);
-      senses[senseNumberMinusOne] = word;
+      final WordSense wordSense = synset.getWord(this);
+      senses[senseNumberMinusOne] = wordSense;
       assert senses[senseNumberMinusOne] != null : 
-        this+" null Word at senseNumberMinusOne: "+senseNumberMinusOne;
+        this+" null WordSense at senseNumberMinusOne: "+senseNumberMinusOne;
       senseNumberMinusOne++;
     }
     return senses;
   }
 
   /** Note, <param>senseNumber</param> is a 1-indexed value. */
-  public Word getSense(int senseNumber) {
+  public WordSense getSense(int senseNumber) {
     if(senseNumber <= 0) {
       return null;
     }
-    final Word[] senses = getSenses();
+    final WordSense[] senses = getSenses();
     if(senseNumber > senses.length) {
       return null;
     }
