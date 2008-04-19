@@ -1,8 +1,10 @@
 package edu.brandeis.cs.steele.wn;
 
+/** 
+ * Contents of (WordNet 3.0) lexnames file as String
+ * arrays since it is "optional".
+ */
 class Lexnames {
-  // contents of WordNet 3.0 lexnames file as a String
-  // since it is "optional"
   static final String contents [][] = {
     { "00", "adj.all", "3" },
     { "01", "adj.pert", "3 " },
