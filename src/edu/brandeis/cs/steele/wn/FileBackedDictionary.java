@@ -462,6 +462,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   String lookupLexCategory(final int lexnum) {
+    assert lexnum >= 0;
     String line;
     try {
       line = db.readLineNumber(getLexnamesFilename(), lexnum);
@@ -473,7 +474,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
         assert start != 0;
         int end = line.lastIndexOf('\t');
         assert start != end;
-        line = line.substring(start+1, end);
+        line = line.substring(start + 1, end);
+      } else if(lexnum < Lexnames.contents.length) {
+        line = Lexnames.contents[lexnum][1];
       }
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
