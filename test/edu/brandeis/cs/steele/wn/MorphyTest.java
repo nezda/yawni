@@ -89,6 +89,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "handfuls", "handful" },
       { POS.NOUN.name(), "villas", "villa" }, // exposed true case bug
       { POS.NOUN.name(), "Villa", "Villa" }, // exposed true case bug
+      { POS.NOUN.name(), "br", "Br", "BR" }, // exposed true case bug
       { POS.NOUN.name(), "heiresses", "heiress" }, 
         //WN missing derivationally relation to neuter form "heir" - intentional?
       { POS.NOUN.name(), "heiress", "heiress" },
@@ -120,10 +121,18 @@ public class MorphyTest {
       { POS.NOUN.name(), "SS", "SS" },
       { POS.NOUN.name(), "mamma's boy", "mamma's boy" },
       { POS.NOUN.name(), "15_minutes", "15 minutes" },
+      { POS.NOUN.name(), "talks", "talk", "talks" },
+      { POS.NOUN.name(), "talk", "talk" }, // note asymmetric property: "talk" -> {"talk"}, "talks" -> {"talk", "talks"}
+      { POS.NOUN.name(), "wounded", "wounded" },
+      { POS.NOUN.name(), "wounding", "wounding" },
+      { POS.VERB.name(), "wounded", "wound" },
+      { POS.VERB.name(), "wound", "wind" },
+      { POS.ADJ.name(), "wounded", "wounded" },
       { POS.VERB.name(), "dogs", "dog" },
       { POS.VERB.name(), "abided by", "abide by" },
       { POS.VERB.name(), "gave a damn", "give a damn" },
       { POS.VERB.name(), "asking for it", "ask for it" },
+      { POS.VERB.name(), "asked for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
       { POS.VERB.name(), "was", "be", "was" },
       { POS.VERB.name(), "cannonball along", "cannonball along" },
@@ -141,6 +150,8 @@ public class MorphyTest {
       { POS.ADJ.name(), "redder" /* no idea */, "red" },
       { POS.ADJ.name(), "Middle Eastern", "Middle Eastern" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
       { POS.ADJ.name(), "Latin-American", "Latin-American" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
+      { POS.ADJ.name(), "low-pitched", "low-pitched" },
+      //{ POS.ADJ.name(), "low-pitch", "low-pitched" }, // wnb misses
     };
     for(final String[] testElements : unstemmedStemmedCases) {
       final POS pos = POS.valueOf(testElements[0]);
