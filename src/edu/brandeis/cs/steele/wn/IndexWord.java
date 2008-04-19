@@ -11,7 +11,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * An <code>IndexWord</code> represents a line of the <var>pos</var><code>.index</code> file.
+ * An <code>IndexWord</code> represents a line of the <code>index.<em>pos</em></code> file.
  * An <code>IndexWord</code> is created retrieved or retrieved via {@link DictionaryDatabase#lookupIndexWord},
  * and has a <i>lemma</i>, a <i>pos</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
  *
@@ -34,10 +34,10 @@ public class IndexWord {
   /** This is <code>null</code> until {@link #getSynsets()} has been called. */
   private Synset[] synsets;
 
-  private final EnumSet<PointerType> ptrTypes;
+  private EnumSet<PointerType> ptrTypes;
   private final byte posOrdinal;
   //
-  // Initialization
+  // Constructor
   //
   IndexWord(final CharSequence line, final int offset) {
     try {
@@ -49,13 +49,14 @@ public class IndexWord {
       tokenizer.skipNextToken(); // poly_cnt
       //final int poly_cnt = tokenizer.nextInt(); // poly_cnt
       final int pointerCount = tokenizer.nextInt();
-      this.ptrTypes = EnumSet.noneOf(PointerType.class);
-      for (int i = 0; i < pointerCount; ++i) {
-        try {
-          ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
-        } catch (final java.util.NoSuchElementException exc) {
-          log.log(Level.SEVERE, "IndexWord() got PointerType.parseKey() error:", exc);
-        }
+      //this.ptrTypes = EnumSet.noneOf(PointerType.class);
+      for (int i = 0; i < pointerCount; i++) {
+        tokenizer.skipNextToken(); // a pointertype (maybe incorrect - see getPointerTypes() comments
+        //  try {
+        //    ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
+        //  } catch (final java.util.NoSuchElementException exc) {
+        //    log.log(Level.SEVERE, "IndexWord() got PointerType.parseKey() error:", exc);
+        //  }
       }
 
       this.offset = offset;
@@ -64,9 +65,26 @@ public class IndexWord {
       //assert senseCount == poly_cnt;
       this.taggedSenseCount = tokenizer.nextInt();
       this.synsetOffsets = new int[senseCount];
-      for (int i = 0; i < senseCount; ++i) {
+      for (int i = 0; i < senseCount; i++) {
         synsetOffsets[i] = tokenizer.nextInt();
       }
+      //final EnumSet<PointerType> actualPtrTypes = EnumSet.noneOf(PointerType.class);
+      //for (final Synset synset : getSynsets()) {
+      //  for (final Pointer pointer : synset.getPointers()) {
+      //    final PointerType ptrType = pointer.getType();
+      //    actualPtrTypes.add(ptrType);
+      //  }
+      //}
+      //// in actualPtrTypes, NOT ptrTypes
+      //final EnumSet<PointerType> missing = EnumSet.copyOf(actualPtrTypes); missing.removeAll(ptrTypes);
+      //// in ptrTypes, NOT actualPtrTypes
+      //final EnumSet<PointerType> extra = EnumSet.copyOf(ptrTypes); extra.removeAll(actualPtrTypes);
+      //if(false == missing.isEmpty()) {
+      //  //log.log(Level.SEVERE, "missing: {0}", missing);
+      //}
+      //if(false == extra.isEmpty()) {
+      //  //log.log(Level.SEVERE, "extra: {0}", extra);
+      //}
     } catch (final RuntimeException e) {
       log.log(Level.SEVERE, "IndexWord parse error on offset: {0} line:\n\"{1}\"", 
           new Object[]{ offset, line });
@@ -111,6 +129,21 @@ public class IndexWord {
    * senses of the word.
    */
   public EnumSet<PointerType> getPointerTypes() {
+    if(ptrTypes == null) {
+      // these are not always correct
+      // PointerType.INSTANCE_HYPERNYM
+      // PointerType.HYPERNYM
+      // PointerType.INSTANCE_HYPONYM
+      // PointerType.HYPONYM
+      final EnumSet<PointerType> localPtrTypes = EnumSet.noneOf(PointerType.class);
+      for (final Synset synset : getSynsets()) {
+        for (final Pointer pointer : synset.getPointers()) {
+          final PointerType ptrType = pointer.getType();
+          localPtrTypes.add(ptrType);
+        }
+      }
+      this.ptrTypes = localPtrTypes;
+    }
     return ptrTypes;
   }
 
@@ -131,7 +164,7 @@ public class IndexWord {
       final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
       //XXX could synsets be a WeakReference ?
       final Synset[] syns = new Synset[synsetOffsets.length];
-      for (int i = 0; i < synsetOffsets.length; ++i) {
+      for (int i = 0; i < synsetOffsets.length; i++) {
         syns[i] = dictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
         assert syns[i] != null : "null Synset at index "+i+" of "+this;
       }
