@@ -64,12 +64,12 @@ public class IterationTest {
             }
             ++iterationIndexWordsVisited;
             iteration_total_p_cnt += indexWord.getPointerTypes().size();
-            for(final Word word : indexWord.getSenses()) {
+            for(final WordSense wordSense : indexWord.getSenses()) {
               //final String lemma = word.getLemma();
-              final Synset synset = word.getSynset();
+              final Synset synset = wordSense.getSynset();
               //String msg = i+" "+word;
               //System.err.println(msg);
-              String longMsg = word.getLongDescription();
+              String longMsg = wordSense.getLongDescription();
               //System.err.println(longMsg);
               ++totalWordsVisited;
               ++iterationWordsVisited;

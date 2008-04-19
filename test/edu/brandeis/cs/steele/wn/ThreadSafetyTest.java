@@ -34,10 +34,10 @@ public class ThreadSafetyTest {
         for(final POS pos : POS.CATS) {
           for(final IndexWord indexWord : dictionary.indexWords(pos)) {
             ++indexWordsVisited;
-            for(final Word word : indexWord.getSenses()) {
-              final String lemma = word.getLemma();
-              final Synset synset = word.getSynset();
-              String msg = id+" "+word;
+            for(final WordSense wordSense : indexWord.getSenses()) {
+              final String lemma = wordSense.getLemma();
+              final Synset synset = wordSense.getSynset();
+              String msg = id+" "+wordSense;
               //System.err.println(msg);
               ++wordsVisited;
             }

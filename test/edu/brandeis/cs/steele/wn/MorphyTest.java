@@ -17,7 +17,7 @@ import java.util.*;
 //     - could use lemmma, pos, and (sense number OR gloss)
 //   - other relations including derivationally related
 //   - add speed tests
-//     - task-based: count unique Word's in all DBs
+//     - task-based: count unique WordSense's in all DBs
 //     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
 //     - compare speed with various CharStream impls (add some package private methods)
 //   - sense numbers
@@ -204,8 +204,8 @@ public class MorphyTest {
     int nonCaseIssues = 0;
     for(final POS pos : POS.CATS) {
       for(final IndexWord indexWord : dictionary.indexWords(pos)) {
-        for(final Word word : indexWord.getSenses()) {
-          final String lemma = word.getLemma();
+        for(final WordSense wordSense : indexWord.getSenses()) {
+          final String lemma = wordSense.getLemma();
           final List<String> restems = stem(lemma, pos);
           String msg = "ok";
           if(false == restems.contains(lemma)) {
@@ -244,7 +244,7 @@ public class MorphyTest {
   //  int nonCaseIssues = 0;
   //  for(final POS pos : POS.CATS) {
   //    for(final IndexWord indexWord : dictionary.indexWords(pos)) {
-  //      for(final Word word : indexWord.getSenses()) {
+  //      for(final WordSense word : indexWord.getSenses()) {
   //        final String lemma = word.getLemma();
   //        for(final POS otherPOS : POS.CATS) {
   //          if(otherPOS == pos) {
