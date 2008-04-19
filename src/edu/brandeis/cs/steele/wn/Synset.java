@@ -39,14 +39,14 @@ public class Synset implements PointerTarget {
   private final byte lexfilenum;
 
   //
-  // Object initialization
+  // Constructor
   //
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   Synset(final String line) {
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextInt();
     final int lexfilenumInt = tokenizer.nextInt(); 
-    // there are only 45 lexfiles
+    // there are currently only 45 lexfiles
     // http://wordnet.princeton.edu/man/lexnames.5WN
     assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
     this.lexfilenum = (byte)lexfilenumInt;
@@ -61,7 +61,7 @@ public class Synset implements PointerTarget {
 
     final int wordCount = tokenizer.nextHexInt();
     this.words = new Word[wordCount];
-    for (int i = 0; i < wordCount; ++i) {
+    for (int i = 0; i < wordCount; i++) {
       String lemma = tokenizer.nextToken().toString();
       final String originalLemma = lemma;
       final int lexid = tokenizer.nextHexInt();
@@ -105,7 +105,7 @@ public class Synset implements PointerTarget {
         if (w_num > 0) {
           words[w_num - 1].setVerbFrameFlag(f_num);
         } else {
-          for (int j = 0; j < words.length; ++j) {
+          for (int j = 0; j < words.length; j++) {
             words[j].setVerbFrameFlag(f_num);
           }
         }
@@ -117,7 +117,7 @@ public class Synset implements PointerTarget {
       // jump '|' and immediately following ' '
       assert line.charAt(index + 1) == ' ';
       int incEnd = line.length() - 1;
-      for(int i = incEnd; i >= 0; --i) {
+      for(int i = incEnd; i >= 0; i--) {
         if(Character.isSpace(line.charAt(i)) == false) {
           incEnd = i;
           break;
@@ -179,6 +179,7 @@ public class Synset implements PointerTarget {
     return lexfilenum;
   }
 
+  /** XXX DOCUMENT ME */
   public String getLexCategory() {
     final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
     return dictionary.lookupLexCategory(lexfilenum());
@@ -192,6 +193,7 @@ public class Synset implements PointerTarget {
     return words;
   }
 
+  /** XXX DOCUMENT ME */
   public Word getWord(final IndexWord indexWord) {
     for(final Word word : words) {
       if(word.getLemma().equalsIgnoreCase(indexWord.getLemma())) {
@@ -224,7 +226,7 @@ public class Synset implements PointerTarget {
   public String getDescription(final boolean verbose) {
     final StringBuilder buffer = new StringBuilder();
     buffer.append("{");
-    for (int i = 0; i < words.length; ++i) {
+    for (int i = 0; i < words.length; i++) {
       if (i > 0) {
         buffer.append(", ");
       }
@@ -293,7 +295,7 @@ public class Synset implements PointerTarget {
   }
 
   public PointerTarget[] getTargets(final PointerType type) {
-    //TODO could be a little more efficient (no need for intermediate Pointer[]
+    //TODO could be a little more efficient (no need for intermediate Pointer[])
     return collectTargets(getPointers(type));
   }
 
