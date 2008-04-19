@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <jnlp spec="1.0+" codebase="http://www.fatbread.com/">
+  <information>
+    <title>JWordNet Browser</title>
+    <vendor>Luke Nezda</vendor>
+    <homepage href="http://www.fatbread.com/" />
+    <description>Java Swing browser for WordNet</description>
+  </information>
+  <offline-allowed/>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
+    <jar href="jwordnet-core-1.5.6-dev.jar"/>
+  </resources>
+  <resources os="Mac OS X">
+    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
+    <property name="apple.awt.textantialiasing" value="on"/>
+    <property name="apple.laf.useScreenMenuBar" value="true"/>
+    <property name="apple.awt.brushMetalLook" value="true"/>
+    <property name="apple.awt.brushMetalRounded" value="true"/>
+    <property name="apple.awt.showGrowBox" value="false"/>
+  </resources>
+  <!-- TODO list some platform specific WNHOME defaults and try them in order -->
+  <resources os="Linux">
+    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
+  </resources>
+  <resources os="Windows">
+    <property name="WNHOME" value="c:\Program Files\WordNet\2.1\"/>
+  </resources>
+  <application-desc main-class="edu.brandeis.cs.steele.wn.browser.Browser">
+  </application-desc>
+</jnlp>
