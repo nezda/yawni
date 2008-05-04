@@ -16,7 +16,8 @@ import edu.brandeis.cs.steele.wn.RemoteFileManager;
 
 
 public class BrowserApplet extends JApplet {
-  private static final Logger log = Logger.getLogger(BrowserApplet.class.getName());
+private static final long serialVersionUID = 1L;
+private static final Logger log = Logger.getLogger(BrowserApplet.class.getName());
 
   public void init() {
     final URL url = getCodeBase();
