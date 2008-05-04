@@ -1,6 +1,4 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -225,6 +223,17 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return "lexnames";
   }
 
+  private static String getVerbSentencesIndexFilename() {
+    return "sentidx.vrb";
+  }
+
+  private static String getVerbSentencesFilename() {
+    return "sents.vrb";
+  }
+
+  private static String getGenericVerbFramesFilename() {
+    return "frames.vrb";
+  }
 
   //
   // Entity retrieval
@@ -410,7 +419,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   
   /** 
    * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given <param>pos</param>.
-   * <b>NOTE: Skip the first entry (the exceptional word itself!)</b>
+   * The exception list files, <tt>pos</tt>.<i>exc</i> , are used to help the morphological
+   * processor find base forms from irregular inflections.  <b>NOTE: Skip the
+   * first entry (the exceptional word itself!)</b>
    * morph.c exc_lookup()
    */
   String[] getExceptions(final String someString, final POS pos) {
@@ -441,8 +452,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** 
-   * <i>looks up</i> <a href="">senskey</a> in the <code>cntlist.rev</code> file
-   * and returns the matching line (or <code>null</code>).
+   * <i>looks up</i> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a> 
+   * in the <code>cntlist.rev</code> file and returns the matching line (or
+   * <code>null</code>).
    */
   String lookupCntlistDotRevLine(final String senseKey) {
     //TODO add caching
@@ -461,6 +473,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return line;
   }
 
+  /** XXX DOCUMENT ME */
   String lookupLexCategory(final int lexnum) {
     assert lexnum >= 0;
     String line;
@@ -470,13 +483,111 @@ public class FileBackedDictionary implements DictionaryDatabase {
         // parse line. format example:
         //00	adj.all	3
         //<lexnum>\tlexname\t<pos ordinal>
-        int start = line.indexOf('\t');
+        final int start = line.indexOf('\t');
         assert start != 0;
         int end = line.lastIndexOf('\t');
         assert start != end;
         line = line.substring(start + 1, end);
       } else if(lexnum < Lexnames.contents.length) {
         line = Lexnames.contents[lexnum][1];
+      }
+    } catch(IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
+  }
+
+  /** XXX DOCUMENT ME */
+  String lookupGenericFrame(final int framenum) {
+    assert framenum >= 1;
+    String line = null;
+    try {
+      line = db.readLineNumber(getGenericVerbFramesFilename(), framenum - 1);
+      assert line != null : "framenum: "+framenum;
+      // parse line. format example:
+      //<number>
+      //<framenum>[ ]+<frame string>
+
+      // skip leading digits, skip spaces, rest is frame text
+      int idx = line.indexOf(" ");
+      assert idx >= 0;
+      for(int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
+        idx++;
+      }
+      assert line.charAt(idx) == ' ';
+      assert line.charAt(idx + 1) != ' ';
+      idx++;
+      line = line.substring(idx);
+    } catch(IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
+  }
+
+  /**
+   * @return verb sentence numbers as a comma separated list with no spaces
+   *         (e.g. "15,16")
+   */
+  String lookupVerbSentencesNumbers(final String verbSenseKey) {
+    String line = null;
+    try {
+      final int offset = db.getIndexedLinePointer(getVerbSentencesIndexFilename(), verbSenseKey);
+      if(offset >= 0) {
+        line = db.readLineAt(getVerbSentencesIndexFilename(), offset);
+        assert line != null;
+        // parse line. format example:
+        //<number>
+        //<framenum>[ ]+<frame string>
+        
+        // skip leading digits, skip spaces, rest is frame text
+        int idx = line.indexOf(" ");
+        assert idx >= 0;
+        for(int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
+          idx++;
+        }
+        assert line.charAt(idx) == ' ';
+        if(idx + 1 < line.length()) {
+          assert line.charAt(idx + 1) != ' ' : "verbSenseKey: "+verbSenseKey;
+          idx++;
+          line = line.substring(idx);
+        } else {
+          // bug in sents.vrb (WordNet version 3.0)
+          // which contains single invalid line:
+          // "pet%2:35:00:: "
+          line = null;
+        }
+      }
+    } catch(IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
+  }
+
+  /**
+   * @return illustrative verb sentence for given number. Always contains "%s".
+   */
+  String lookupVerbSentence(final String verbSentenceNumber) {
+    String line = null;
+    try {
+      final int offset = db.getIndexedLinePointer(getVerbSentencesFilename(), verbSentenceNumber);
+      if(offset >= 0) {
+        line = db.readLineAt(getVerbSentencesFilename(), offset);
+        assert line != null;
+        // parse line. format example:
+        //<number>
+        //<sentenceNumber>[ ]+<sentence string>
+        
+        // skip leading digits, skip spaces, rest is sentence text
+        int idx = line.indexOf(" ");
+        assert idx >= 0;
+        for(int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
+          idx++;
+        }
+        assert line.charAt(idx) == ' ';
+        assert line.charAt(idx + 1) != ' ';
+        idx++;
+        line = line.substring(idx);
+        assert line.indexOf("%s") >= 0;
       }
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
