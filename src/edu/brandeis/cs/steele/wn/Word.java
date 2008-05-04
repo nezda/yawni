@@ -1,6 +1,4 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -11,10 +9,15 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * An <code>Word</code> represents a line of the <code>index.<em>pos</em></code> file.
- * An <code>Word</code> is created retrieved or retrieved via {@link DictionaryDatabase#lookupWord},
- * and has a <i>lemma</i>, a <i>pos</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
+ * A <code>Word</code> represents a line of a WordNet <code>index.<em>pos</em></code> file.
+ * A <code>Word</code> is retrieved via {@link DictionaryDatabase#lookupWord},
+ * and has a <i>lemma</i>, a <i>part of speech (POS)</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
+ * 
+ * XXX debatable what the type of each sense is - Steele said Synset, i'd say WordSense
  *
+ * @see Synset
+ * @see WordSense
+ * @see Pointer
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
@@ -29,10 +32,10 @@ public class Word {
   private final String lemma; 
   // number of senses with counts in sense tagged corpora
   private final int taggedSenseCount;
-  // senses are initially stored as offsets, and paged in on demand.
-  private int[] synsetOffsets;
-  /** This is <code>null</code> until {@link #getSynsets()} has been called. */
-  private Synset[] synsets;
+  /** Synsets are initially stored as offsets, and paged in on demand
+   * of the first call of {@link #getSynsets()}. 
+   */
+  private Object synsets;
 
   private EnumSet<PointerType> ptrTypes;
   private final byte posOrdinal;
@@ -51,7 +54,9 @@ public class Word {
       final int pointerCount = tokenizer.nextInt();
       //this.ptrTypes = EnumSet.noneOf(PointerType.class);
       for (int i = 0; i < pointerCount; i++) {
-        tokenizer.skipNextToken(); // a pointertype (maybe incorrect - see getPointerTypes() comments
+        //XXX each of these tokens is a pointertype, although it may be may be
+        //incorrect - see getPointerTypes() comments)
+        tokenizer.skipNextToken(); 
         //  try {
         //    ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
         //  } catch (final java.util.NoSuchElementException exc) {
@@ -64,10 +69,11 @@ public class Word {
       // this is redundant information
       //assert senseCount == poly_cnt;
       this.taggedSenseCount = tokenizer.nextInt();
-      this.synsetOffsets = new int[senseCount];
+      final int[] synsetOffsets = new int[senseCount];
       for (int i = 0; i < senseCount; i++) {
         synsetOffsets[i] = tokenizer.nextInt();
       }
+      this.synsets = synsetOffsets;
       //final EnumSet<PointerType> actualPtrTypes = EnumSet.noneOf(PointerType.class);
       //for (final Synset synset : getSynsets()) {
       //  for (final Pointer pointer : synset.getPointers()) {
@@ -129,7 +135,7 @@ public class Word {
    * senses of the word.
    */
   public EnumSet<PointerType> getPointerTypes() {
-    if(ptrTypes == null) {
+    if (ptrTypes == null) {
       // these are not always correct
       // PointerType.INSTANCE_HYPERNYM
       // PointerType.HYPERNYM
@@ -160,23 +166,30 @@ public class Word {
   }
 
   public Synset[] getSynsets() {
-    if (synsets == null) {
-      final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
-      //XXX could synsets be a WeakReference ?
-      final Synset[] syns = new Synset[synsetOffsets.length];
-      for (int i = 0; i < synsetOffsets.length; i++) {
-        syns[i] = dictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
-        assert syns[i] != null : "null Synset at index "+i+" of "+this;
+    // careful with this.synsets
+    synchronized(this) {
+      if (synsets instanceof int[]) {
+        final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+        final int[] synsetOffsets = (int[])synsets;
+        // This memory optimization allows this.synsets is an int[] until this
+        // method is called to avoid needing to store both the offset and synset
+        // arrays 
+        final Synset[] syns = new Synset[synsetOffsets.length];
+        for (int i = 0; i < synsetOffsets.length; i++) {
+          syns[i] = dictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
+          assert syns[i] != null : "null Synset at index "+i+" of "+this;
+        }
+        synsets = syns;
       }
-      synsets = syns;
+      // else assert this.synsets instanceof Synset[] already
     }
-    return synsets;
+    return (Synset[])synsets;
   }
   
   public WordSense[] getSenses() {
     final WordSense[] senses = new WordSense[getSynsets().length];
     int senseNumberMinusOne = 0;
-    for(final Synset synset : getSynsets()) {
+    for (final Synset synset : getSynsets()) {
       final WordSense wordSense = synset.getWordSense(this);
       senses[senseNumberMinusOne] = wordSense;
       assert senses[senseNumberMinusOne] != null : 
@@ -187,15 +200,15 @@ public class Word {
   }
 
   /** Note, <param>senseNumber</param> is a 1-indexed value. */
-  public WordSense getSense(int senseNumber) {
-    if(senseNumber <= 0) {
+  public WordSense getSense(final int senseNumber) {
+    if (senseNumber <= 0) {
       return null;
     }
-    final WordSense[] senses = getSenses();
-    if(senseNumber > senses.length) {
-      return null;
+    final Synset[] synsets = getSynsets();
+    if (senseNumber >= synsets.length) {
+      throw new IllegalArgumentException(this+" only has "+synsets.length+" senses");
     }
-    return senses[senseNumber - 1];
+    return synsets[senseNumber - 1].getWordSense(this);
   }
 
   int getOffset() {
