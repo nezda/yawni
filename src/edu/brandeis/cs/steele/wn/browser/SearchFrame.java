@@ -21,46 +21,15 @@ import java.util.List;
 class SearchFrame extends JFrame {
   private static final long serialVersionUID = 1L;
 
+  private final Dimension minSize;
   private final BrowserPanel browser;
-  private final DictionaryDatabase dictionary;
+  final JPanel searchPanel;
   private final JTextField searchField;
   private final JList resultList;
-  private final SearchResultsModel resultListModel;
-  private POS pos;
 
-  private class SearchResultsModel extends AbstractListModel {
-    private static final long serialVersionUID = 1L;
-    private List<String> lemmas = new ArrayList<String>();
-    public String getElementAt(int i) {
-      return lemmas.get(i);
-    }
-    public int getSize() {
-      return lemmas.size();
-    }
-    void searchingFor(final String searchString) {
-      //System.err.println("isEventDispatchThread: "+SwingUtilities.isEventDispatchThread());
-      final int size = this.getSize();
-      this.lemmas = Collections.emptyList();
-      if(size > 0) {
-        this.fireIntervalRemoved(this, 0, size - 1);
-      }
-      this.lemmas = Collections.singletonList("Searching for " + searchString + "...");
-      this.fireIntervalAdded(this, 0, 0);
-    }
-    void showResults(final String searchString, final List<String> lemmas) {
-      final int size = this.getSize();
-      this.lemmas = Collections.emptyList();
-      if(size > 0) {
-        this.fireIntervalRemoved(this, 0, size - 1);
-      }
-      this.lemmas = lemmas;
-      final int newSize = this.getSize();
-      if(newSize > 0) {
-        resultList.setFocusable(true);
-        this.fireIntervalAdded(this, 0, newSize - 1);
-      }
-    }
-  } // end class SearchResultsModel
+  private final SearchResultsModel resultListModel;
+  private final DictionaryDatabase dictionary;
+  private POS pos;
 
   SearchFrame(final BrowserPanel browser) {
     super("Substring Search");
@@ -81,11 +50,10 @@ class SearchFrame extends JFrame {
     };
     this.addKeyListener(windowHider);
 
-    this.setSize(400, 300);
     this.setLocation(browser.getLocation().x + 20, browser.getLocation().y + 20);
     this.setLayout(new BorderLayout());
 
-    final JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    this.searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     final JLabel searchLabel = new JLabel("Substring");
     searchPanel.add(searchLabel);
     this.searchField = new JTextField("", 12);
@@ -172,6 +140,31 @@ class SearchFrame extends JFrame {
     });
 
     validate();
+    this.setSize(getPreferredSize().width, 300);
+    this.minSize = new Dimension(getPreferredSize().width, getMinimumSize().height);
+    setMinimumSize(minSize);
+    addComponentListener(new ComponentAdapter() {
+      public void componentResized(final ComponentEvent evt) {        
+        int width = getWidth();
+        int height = getHeight();
+        // we check if either the width
+        // or the height are below minimum
+        boolean resize = false;
+        if (width < minSize.width) {
+          resize = true;
+          width = minSize.width;
+        }
+        //if (height < minSize.height) {
+        //  resize = true;
+        //  height = minSize.height;
+        //}
+        if (resize) {
+          setSize(width, height);
+        }
+      }
+    });
+
+
     //setSize(getPreferredSize().width, getPreferredSize().height);
     this.setVisible(true);
     this.searchField.requestFocusInWindow();
@@ -187,4 +180,38 @@ class SearchFrame extends JFrame {
     }
     resultListModel.showResults(searchString, lemmas);
   }
+
+  private class SearchResultsModel extends AbstractListModel {
+    private static final long serialVersionUID = 1L;
+    private List<String> lemmas = new ArrayList<String>();
+    public String getElementAt(int i) {
+      return lemmas.get(i);
+    }
+    public int getSize() {
+      return lemmas.size();
+    }
+    void searchingFor(final String searchString) {
+      //System.err.println("isEventDispatchThread: "+SwingUtilities.isEventDispatchThread());
+      final int size = this.getSize();
+      this.lemmas = Collections.emptyList();
+      if(size > 0) {
+        this.fireIntervalRemoved(this, 0, size - 1);
+      }
+      this.lemmas = Collections.singletonList("Searching for " + searchString + "...");
+      this.fireIntervalAdded(this, 0, 0);
+    }
+    void showResults(final String searchString, final List<String> lemmas) {
+      final int size = this.getSize();
+      this.lemmas = Collections.emptyList();
+      if(size > 0) {
+        this.fireIntervalRemoved(this, 0, size - 1);
+      }
+      this.lemmas = lemmas;
+      final int newSize = this.getSize();
+      if(newSize > 0) {
+        resultList.setFocusable(true);
+        this.fireIntervalAdded(this, 0, newSize - 1);
+      }
+    }
+  } // end class SearchResultsModel
 }
