@@ -10,7 +10,6 @@ import edu.brandeis.cs.steele.wn.*;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.*;
 import java.util.*;
 import java.util.logging.*;
 import javax.swing.*;
@@ -28,11 +27,12 @@ public class BrowserPanel extends JPanel {
 
   final DictionaryDatabase dictionary;
 
+  private final int metaKey;
   private JTextField searchField;
   // when ever this is false, the content of search field has changed
   private boolean searchFieldChanged;
   private final JButton searchButton;
-  private final UndoManager undo;
+  private final UndoManager undoManager;
   private final UndoAction undoAction;
   private final RedoAction redoAction;
   private final StyledTextPane resultEditorPane;
@@ -44,7 +44,11 @@ public class BrowserPanel extends JPanel {
     this.dictionary = dictionary;
     super.setLayout(new BorderLayout());
 
+    this.metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    //TODO assert metaKey is-a power of 2
+    //java.awt.event.InputEvent.SHIFT_MASK, CTRL_MASK, META_MASK, ALT_MASK
     this.searchField = new JTextField();
+    this.searchField.setBackground(Color.WHITE);
 
     //this.searchField.getDocument().addDocumentListener(new DocumentListener() {
     //  public void changedUpdate(final DocumentEvent evt) {
@@ -73,7 +77,8 @@ public class BrowserPanel extends JPanel {
     //  }
     //});
     
-    this.undo = new UndoManager() {
+    this.undoManager = new UndoManager() {
+      private static final long serialVersionUID = 1L;
       @Override public boolean addEdit(UndoableEdit ue) {
         //System.err.println("ue: "+ue);
         return super.addEdit(ue);
@@ -85,8 +90,8 @@ public class BrowserPanel extends JPanel {
     this.searchField.getDocument().addUndoableEditListener(new UndoableEditListener() {
       public void undoableEditHappened(final UndoableEditEvent evt) {
         //System.err.println("undoableEditHappened: "+evt);
-        //Remember the edit and update the menus.
-        undo.addEdit(evt.getEdit());
+        // Remember the edit and update the menus.
+        undoManager.addEdit(evt.getEdit());
         undoAction.updateUndoState();
         redoAction.updateRedoState();
       }
@@ -128,7 +133,6 @@ public class BrowserPanel extends JPanel {
       }
     };
     
-    //final JLabel searchLabel = new JLabel("Search Word:", SwingUtilities.LEFT);
     makePOSComboBoxes();
     
     final JPanel searchAndPointersPanel = new JPanel(new GridBagLayout());
@@ -136,61 +140,45 @@ public class BrowserPanel extends JPanel {
 
     c.gridy = 0;
     c.gridx = 0;
-    c.insets = new Insets(3, 0, 0, 0);
+    c.insets = new Insets(3, 3, 0, 3);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.WEST;
-    //c.gridwidth = GridBagConstraints.RELATIVE;
-    //c.gridx = GridBagConstraints.RELATIVE;
-    //c.gridx = GridBagConstraints.REMAINDER;
     c.gridwidth = 4;
-    //searchAndPointersPanel.add(searchField, c);
-    //JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     final Box searchPanel = new Box(BoxLayout.X_AXIS);
 
     searchPanel.add(searchField);
     searchPanel.add(Box.createHorizontalStrut(3));
     searchPanel.add(searchButton);
     searchAndPointersPanel.add(searchPanel, c);
-    //XXX searchAndPointersPanel.add(searchField, c);
-    //XXX c.gridx = GridBagConstraints.REMAINDER;
-    //XXX searchAndPointersPanel.add(searchButton, c);
 
-
-    //c.gridx = 1;
-    //c.gridx = GridBagConstraints.RELATIVE;
-    //c.gridx = GridBagConstraints.REMAINDER;
     c.fill = GridBagConstraints.NONE;
     c.gridwidth = 1;
-    //searchAndPointersPanel.add(searchButton, c);
 
     c.gridy = 1;
     c.gridx = 0;
-    c.insets = new Insets(3, 0, 3, 3);
+    c.insets = new Insets(3, 3, 3, 3);
     searchAndPointersPanel.add(this.posBoxes.get(POS.NOUN), c);
     c.gridx = 1;
     searchAndPointersPanel.add(this.posBoxes.get(POS.VERB), c);
     c.gridx = 2;
     searchAndPointersPanel.add(this.posBoxes.get(POS.ADJ), c);
     c.gridx = 3;
-    c.insets = new Insets(3, 0, 3, 0);
+    c.insets = new Insets(3, 0, 3, 3);
     searchAndPointersPanel.add(this.posBoxes.get(POS.ADV), c);
 
     // set width(pointerPanel) = width(searchPanel)
 
-    //final Box left = new Box(BoxLayout.X_AXIS);
-    //left.add(searchAndPointersPanel);
-    //this.add(Box.createHorizontalGlue());
-    //this.add(left, BorderLayout.NORTH);
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
     
-    resultEditorPane = new StyledTextPane();
-    //resultEditorPane.setContentType("text/html");
+    this.resultEditorPane = new StyledTextPane();
+    this.resultEditorPane.setBackground(Color.WHITE);
     // http://www.groupsrv.com/computers/about179434.html
     // enables scrolling with arrow keys
-    resultEditorPane.setEditable(false);
+    this.resultEditorPane.setEditable(false);
     final JScrollPane jsp = new  JScrollPane(resultEditorPane);
     final JScrollBar jsb = jsp.getVerticalScrollBar();
     
+    //TODO move to StyledTextPane (already an action for this?)
     final Action scrollDown = new AbstractAction() {
       private static final long serialVersionUID = 1L;
       public void actionPerformed(final ActionEvent event) {
@@ -204,6 +192,7 @@ public class BrowserPanel extends JPanel {
       }
     };
 
+    //TODO move to StyledTextPane (already an action for this?)
     final Action scrollUp = new AbstractAction() {
       private static final long serialVersionUID = 1L;
       public void actionPerformed(final ActionEvent event) {
@@ -218,10 +207,64 @@ public class BrowserPanel extends JPanel {
     };
 
     final Map<Object, Action> actions = this.resultEditorPane.getActionTable();
-    final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
-    System.err.println("bigger: "+bigger);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke("meta pressed +"), bigger);
-    this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke("meta pressed +"), scrollDown); 
+    //XXX final Map<Object, Action> actions = new HashMap<Object, Action>();
+    //XXX final Integer[] fontSizes = new Integer[]{ 10, 12, 14, 18, 20 };
+    //XXX for(final Integer fontSize : fontSizes) {
+    //XXX   actions.put(fontSize, new StyledEditorKit.FontSizeAction(String.valueOf(fontSize), fontSize));
+    //XXX }
+
+    //XXX final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
+    //TODO move to StyledTextPane
+    //TODO add Ctrl++ / Ctrl+- to Menu shortcuts (View?)
+    // 1. define styles for various sizes (there are already Actions for this?)
+    //
+    // font-size-48
+    // font-size-36
+    // font-size-24
+    // font-size-18
+    // font-size-16
+    // font-size-14
+    // font-size-12
+    // font-size-10
+    // font-size-8
+    //
+    //TODO steps
+    // bigger
+    //   if size != max
+    //     get next larger size and set its style
+    //   else
+    //     beep
+    //
+    // smaller
+    //   if size != min
+    //     get next smaller size and set its style
+    //   else
+    //     beep
+    
+    //TODO move to StyledTextPane
+    final Action bigger = new StyledEditorKit.StyledTextAction("18pts") {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent evt) {
+        System.err.println("bigger");//: "+evt);
+        resultEditorPane.selectAll();
+        actions.get("font-size-18").actionPerformed(new ActionEvent(resultEditorPane, 0, ""));
+        resultEditorPane.setCaretPosition(0); // scroll to top
+      }
+    };
+    //TODO move to StyledTextPane
+    final Action smaller = new StyledEditorKit.StyledTextAction("14pts") {
+      private static final long serialVersionUID = 1L;
+      public void actionPerformed(final ActionEvent evt) {
+        System.err.println("smaller");//: "+evt);
+        resultEditorPane.selectAll();
+        actions.get("font-size-14").actionPerformed(new ActionEvent(resultEditorPane, 0, ""));
+        resultEditorPane.setCaretPosition(0); // scroll to top
+      }
+    };
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey), bigger);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey | InputEvent.SHIFT_MASK), bigger);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey), smaller);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey | InputEvent.SHIFT_MASK), smaller);
 
     final String[] extraKeys = new String[] {
       "pressed",
@@ -232,21 +275,31 @@ public class BrowserPanel extends JPanel {
     for(final String extraKey : extraKeys) {
       this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
       this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
-    }
-    for(final String extraKey : extraKeys) {
+      
       this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
       this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
-      //FIXME doesn't work
+
       for(final PointerTypeComboBox comboBox : this.posBoxes.values()) {
-        comboBox.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
-        comboBox.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" UP"), "scrollUp");
+        comboBox.getActionMap().put("scrollUp", scrollUp);
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" DOWN"), "scrollDown");
+        comboBox.getActionMap().put("scrollDown", scrollDown);
+
+        // yea these don't use extraKey
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey), "bigger");
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey | InputEvent.SHIFT_MASK), "bigger");
+        comboBox.getActionMap().put("bigger", bigger);
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey), "smaller");
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey | InputEvent.SHIFT_MASK), "smaller");
+        comboBox.getActionMap().put("smaller", smaller);
       }
     }
 
-    jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+    jsp.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
     jsp.getVerticalScrollBar().setFocusable(false); 
     jsp.getHorizontalScrollBar().setFocusable(false); 
+    // OS X usability guidelines recommend this
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     this.add(jsp, BorderLayout.CENTER);
@@ -260,15 +313,16 @@ public class BrowserPanel extends JPanel {
     validate();
   }
 
+  // Callback used by Browser so BrowserPanel can add menu items to File menu
   void addMenuItems(final JMenu fileMenu) {
-    final int metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    fileMenu.addSeparator();
     JMenuItem item;
     item = fileMenu.add(undoAction);
     // Command+Z and Ctrl+Z undo on OS X, Windows
     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, metaKey));
     item = fileMenu.add(redoAction);
     // http://sketchup.google.com/support/bin/answer.py?hl=en&answer=70151
-    // FIXME Shift+Command+Z on OS X, Ctrl+Y on Windows
+    // TODO Shift+Command+Z on OS X, Ctrl+Y on Windows
     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, metaKey));
   }
 
@@ -281,8 +335,6 @@ public class BrowserPanel extends JPanel {
     //  components.add(box.menu);
     //}
     frame.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
-    // a little too aggressive - handles ALL enter key presses
-    //getRootPane().setDefaultButton(searchButton);
   }
 
   @Override public void setVisible(final boolean visible) {
@@ -298,26 +350,27 @@ public class BrowserPanel extends JPanel {
 
   class UndoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
-    public UndoAction() {
+    UndoAction() {
       super("Undo");
       setEnabled(false);
     }
 
     public void actionPerformed(final ActionEvent evt) {
       try {
-        undo.undo();
-      } catch (CannotUndoException ex) {
+        BrowserPanel.this.undoManager.undo();
+      } catch (final CannotUndoException ex) {
         System.err.println("Unable to undo: " + ex);
         ex.printStackTrace();
       }
       updateUndoState();
-      redoAction.updateRedoState();
+      BrowserPanel.this.redoAction.updateRedoState();
     }
 
     protected void updateUndoState() {
-      if (undo.canUndo()) {
+      if (BrowserPanel.this.undoManager.canUndo()) {
         setEnabled(true);
-        putValue(Action.NAME, undo.getUndoPresentationName());
+        //putValue(Action.NAME, BrowserPanel.this.undoManager.getUndoPresentationName());
+        putValue(Action.NAME, "Undo");
       } else {
         setEnabled(false);
         putValue(Action.NAME, "Undo");
@@ -327,97 +380,33 @@ public class BrowserPanel extends JPanel {
 
   class RedoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
-    public RedoAction() {
+    RedoAction() {
       super("Redo");
       setEnabled(false);
     }
 
     public void actionPerformed(final ActionEvent evt) {
       try {
-        undo.redo();
-      } catch (CannotRedoException ex) {
+        BrowserPanel.this.undoManager.redo();
+      } catch (final CannotRedoException ex) {
         System.err.println("Unable to redo: " + ex);
         ex.printStackTrace();
       }
       updateRedoState();
-      undoAction.updateUndoState();
+      BrowserPanel.this.undoAction.updateUndoState();
     }
 
     protected void updateRedoState() {
-      if (undo.canRedo()) {
+      if (BrowserPanel.this.undoManager.canRedo()) {
         setEnabled(true);
-        putValue(Action.NAME, undo.getRedoPresentationName());
+        //putValue(Action.NAME, BrowserPanel.this.undoManager.getRedoPresentationName());
+        putValue(Action.NAME, "Redo");
       } else {
         setEnabled(false);
         putValue(Action.NAME, "Redo");
       }
     }
   } // end class RedoAction
-
-  /** 
-   * Simple FocusTraversalPolicy which cycles through provided components in sequential order
-   * and defauls to the first component
-   */
-  private static class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
-    private final Vector<Component> order;
-
-    public SimpleFocusTraversalPolicy(final java.util.List<Component> order) {
-      this.order = new Vector<Component>(order.size());
-      this.order.addAll(order);
-    }
-
-    public Component getComponentAfter(final Container focusCycleRoot, final Component aComponent) {
-      return getNextComponent(focusCycleRoot, aComponent, true);
-    }
-
-    public Component getComponentBefore(final Container focusCycleRoot, final Component aComponent) {
-      return getNextComponent(focusCycleRoot, aComponent, false);
-    }
-
-    public Component getDefaultComponent(Container focusCycleRoot) {
-      return order.get(0);
-    }
-
-    public Component getLastComponent(Container focusCycleRoot) {
-      return order.lastElement();
-    }
-
-    public Component getFirstComponent(Container focusCycleRoot) {
-      return order.get(0);
-    }
-
-    private Component getNextComponent(final Container focusCycleRoot, final Component aComponent, final boolean after) {
-      final int idx = order.indexOf(aComponent);
-      if(idx < 0) {
-        return getDefaultComponent(focusCycleRoot);
-      }
-      for(int 
-        n = order.size(), i = next(idx, n, after), cnt = 0;
-        cnt < n;  
-        i = next(i, n, after), cnt++) {
-        final Component comp = order.get(i);
-        if(comp.isEnabled() && comp.isFocusable()) {
-          return order.get(i);
-        }
-      }
-      return getDefaultComponent(focusCycleRoot);
-    }
-
-    private int next(final int i, final int n, final boolean after) {
-      if(after) {
-        // 0 1 2 0 1 2
-        return (i + 1) % n;
-      } else {
-        assert i >= 0;
-        // 0 2 1 0 2 1
-        if(i - 1 == 0) {
-          return n - 1;
-        } else {
-          return i - 1;
-        }
-      }
-    }
-  } // end class SimpleFocusTraversalPolicy
 
   /** 
    * Nice looking SansSerif HTML rendering JTextPane.
@@ -431,22 +420,22 @@ public class BrowserPanel extends JPanel {
       final StyleSheet styleSheet = kit.getStyleSheet();
       styleSheet.addRule("body {font-family:sans-serif;}");
       //styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
+      //FIXME text-indent:-10pt; causes the odd bolding bug
       styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
       //styleSheet.addRule("ul ul {list-style-type:circle };");
-      styleSheet.addRule("ul {margin-left:12px; margin-bottom:0px;}");
-      //setDocument(kit.createDefaultDocument());
-      //XXX getDocument().putProperty("multiByte", false);
+      styleSheet.addRule("ul {margin-left:12pt; margin-bottom:0pt;}");
+      //getDocument().putProperty("multiByte", false);
       return kit;
     }
 
-    //The following two methods allow us to find an
-    //action provided by the editor kit by its name.
+    // The following two methods allow us to find an
+    // action provided by the editor kit by its name.
     Map<Object, Action> getActionTable() {
-      Map<Object, Action> actions = new HashMap<Object, Action>();
-      Action[] actionsArray = getStyledEditorKit().getActions();
+      final Map<Object, Action> actions = new HashMap<Object, Action>();
+      final Action[] actionsArray = getStyledEditorKit().getActions();
       for (int i = 0; i < actionsArray.length; i++) {
-        Action a = actionsArray[i];
-        System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
+        final Action a = actionsArray[i];
+        //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
         actions.put(a.getValue(Action.NAME), a);
       }
       return actions;
@@ -462,9 +451,10 @@ public class BrowserPanel extends JPanel {
   private class PointerTypeComboBox extends JButton /* implements ActionListener */ {
     // FIXME if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
     // FIXME if user changes text field contents and selects menu, bad things will happen
-    // FIXME tab doesnt work from popup menu
-    // FIXME slash doesn't work from popup menu
+    // FIXME tab doesn't work from popup menu
     // FIXME text in HTML pane looks bold at line wraps
+    // + arrows, Ctrl++/Ctrl+-, slash doesn't work from popup menu
+    // TODO type-to-navigate popup menu (like JComboBox - code can be copied from there)
     // TODO add down arrow to indicate combo box-like behavior
     private static final long serialVersionUID = 1L;
     private final POS pos;
@@ -480,11 +470,6 @@ public class BrowserPanel extends JPanel {
       this.setComponentPopupMenu(menu);
       this.showing = false;
       this.inButton = false;
-      //final Insets margins = getMargin();
-      //System.err.println("  "+margins);
-      //setMargin(null);
-      //System.err.println("  alt: "+getMargin());
-      //System.err.println("menu.getDefaultLightWeightPopupEnabled(): "+menu.getDefaultLightWeightPopupEnabled());
 
       this.addMouseListener(new MouseAdapter() {
         public void mouseEntered(final MouseEvent evt) {
@@ -512,12 +497,15 @@ public class BrowserPanel extends JPanel {
 
       this.addKeyListener(new KeyAdapter() {
         public void keyTyped(final KeyEvent evt) {
-          //System.err.println("evt: "+evt+" char: "+((int)evt.getKeyChar()));
-          //System.err.println("evt.isActionKey(): "+evt.isActionKey());
           switch(evt.getKeyChar()) {
             case '\n': 
             case ' ':
+              // doClick() just to show the button press
               doClick();
+              // the button will only get key strokes if the popup 
+              // is NOT showing (though the variable could be
+              // out of sync due to app focus loss popup hide)
+              showing = false;
               togglePopup();
               break;
             default:
@@ -527,6 +515,7 @@ public class BrowserPanel extends JPanel {
       });
     }
 
+    /** if popup is showing, hide it, else show it */
     private void togglePopup() {
       if(false == showing) {
         System.err.println("SHOW");
@@ -554,16 +543,40 @@ public class BrowserPanel extends JPanel {
         //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
         final JMenuItem item = menu.add(new PointerTypeAction(label, pos, pointerType));
       }
+      if(pos == POS.VERB) {
+        // use word+pos custom labels for drop downs
+        final String label = String.format("Sentence frames for verb %s", word.getLemma());
+        //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
+        final JMenuItem item = menu.add(new VerbFramesAction(label));
+      }
     }
     
-    private class PointerTypeMenu extends JPopupMenu {
+    // ultimately, a minimal subclass of JPopupMenu
+    private class PointerTypeMenu extends JPopupMenu implements MenuKeyListener {
       private static final long serialVersionUID = 1L;
       final PointerTypeComboBox comboBox;
       PointerTypeMenu(final PointerTypeComboBox comboBox) {
         this.comboBox = comboBox;
-        setLightWeightPopupEnabled(true);
-        //System.err.println("getFocusTraversalKeys(): "+getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
-        //System.err.println("areFocusTraversalKeysSet(): "+areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+        //XXX setLightWeightPopupEnabled(true);
+        addMenuKeyListener(this);
+        //XXX System.err.println("getFocusTraversalKeys(): "+getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+        //XXX System.err.println("areFocusTraversalKeysSet(): "+areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+      }
+
+      public void menuKeyPressed(final MenuKeyEvent evt) {
+      }
+      public void menuKeyReleased(final MenuKeyEvent evt) {
+      }
+      public void menuKeyTyped(final MenuKeyEvent evt) {
+        System.err.println("menu evt: "+evt+" char: \""+evt.getKeyChar()+"\"");
+        switch(evt.getKeyChar()) {
+          case '/': 
+            // if slash, go-back to searchField
+            setVisible(false);
+            slashAction.actionPerformed(null); 
+            break;
+        }
+        // if tab, move focus to next thing
       }
 
       @Override public void setVisible(final boolean show) {
@@ -572,6 +585,9 @@ public class BrowserPanel extends JPanel {
           //System.err.println("V requestFocus(): "+requestFocus(false));
           //System.err.println("requestFocus(): "+requestFocus(true));
           //System.err.println("requestDefaultFocus(): "+requestDefaultFocus());
+          //showing = true;
+        } else {
+          //showing = false;
         }
         //System.err.println("V setVisible: "+show);
         //System.err.println("V isFocusable(): "+isFocusable());
@@ -605,6 +621,9 @@ public class BrowserPanel extends JPanel {
     } // end class PointerTypeMenu
   } // end class PointerTypeComboBox
 
+  /** 
+   * Displays information related to a given POS + PointerType 
+   */
   class PointerTypeAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     private final POS pos;
@@ -617,15 +636,16 @@ public class BrowserPanel extends JPanel {
     }
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
-      final String inputString = searchField.getText().trim();
-      Word word = dictionary.lookupWord(pos, inputString);
+      final String inputString = BrowserPanel.this.searchField.getText().trim();
+      Word word = BrowserPanel.this.dictionary.lookupWord(pos, inputString);
       if(word == null) {
         final String[] forms = dictionary.lookupBaseForms(pos, inputString);
         assert forms.length > 0 : "searchField contents must have changed";
-        word = dictionary.lookupWord(pos, forms[0]);
+        word = BrowserPanel.this.dictionary.lookupWord(pos, forms[0]);
         assert forms.length > 0;
       }
       if (pointerType == null) {
+        //FIXME bad form to use stderr
         System.err.println("word: "+word);
         displaySenses(word);
       } else {
@@ -634,23 +654,37 @@ public class BrowserPanel extends JPanel {
     }
   } // end class PointerTypeAction
 
+  /** 
+   * Displays information related to a given POS + PointerType 
+   */
+  class VerbFramesAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
+
+    VerbFramesAction(final String label) {
+      super(label);
+    }
+    public void actionPerformed(final ActionEvent evt) {
+      //FIXME have to do morphstr logic here
+      final String inputString = BrowserPanel.this.searchField.getText().trim();
+      Word word = BrowserPanel.this.dictionary.lookupWord(POS.VERB, inputString);
+      if(word == null) {
+        final String[] forms = dictionary.lookupBaseForms(POS.VERB, inputString);
+        assert forms.length > 0 : "searchField contents must have changed";
+        word = BrowserPanel.this.dictionary.lookupWord(POS.VERB, forms[0]);
+        assert forms.length > 0;
+      }
+      displayVerbFrames(word);
+    }
+  } // end class VerbFramesAction
+
   private void makePOSComboBoxes() {
     this.posBoxes = new EnumMap<POS, PointerTypeComboBox>(POS.class);
 
     for (final POS pos : POS.CATS) {
       final PointerTypeComboBox comboBox = new PointerTypeComboBox(pos);
-      //final Insets margins = comboBox.getMargin();
-      //final Border border = comboBox.getBorder();
-      //final Insets borderInsets = border.getBorderInsets(comboBox);
-      //System.err.println("  "+margins);
-      //System.err.println("  "+border);
-      //System.err.println("  "+borderInsets);
       
-      comboBox.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+      comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
-      //FIXME doesn't work
-      comboBox.menu.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
-      comboBox.menu.getActionMap().put("Slash", slashAction);
       
       this.posBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
@@ -663,6 +697,10 @@ public class BrowserPanel extends JPanel {
     searchField.setText(word.getLemma());
     displayOverview();
   }
+
+  /**
+   * Generic search and output generation code
+   **/
 
   private synchronized void displayOverview() {
     // TODO normalize internal space
@@ -724,13 +762,18 @@ public class BrowserPanel extends JPanel {
     searchField.selectAll();
   }
   
-  private enum Status {
+  /** 
+   * Function object used to show status of user interaction as text at the bottom 
+   * of the main window.
+   */
+  private static enum Status {
     INTRO("Enter search word and press return"),
     OVERVIEW("Overview of %s"),
     SEARCHING("Searching..."),
     SYNONYMS("Synonyms search for %s \"%s\""),
     NO_MATCHES("No matches found."),
     POINTER("\"%s\" search for %s \"%s\""),
+    VERB_FRAMES("Verb Frames search for verb \"%s\"")
     ;
 
     private final String formatString;
@@ -769,6 +812,14 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
+  /** 
+   * Core search routine which renders its results as HTML. 
+   * TODO 
+   * Factor out this logic into a result data structure like findtheinfo_ds() does
+   * to separate logic from presentation.
+   * Nice XML format would open up some nice possibilities for web services, commandline,
+   * and this traditional GUI application.
+   */
   private void appendSenses(final Word word, final StringBuilder buffer, final boolean verbose) {
     if (word != null) {
       final Synset[] senses = word.getSynsets();
@@ -791,9 +842,16 @@ public class BrowserPanel extends JPanel {
           buffer.append(cnt);
           buffer.append(") ");
         }
-        buffer.append("&lt;");
-        buffer.append(sense.getLexCategory());
-        buffer.append("&gt; ");
+        if(word.getPOS() != POS.ADJ) {
+          buffer.append("&lt;");
+          // strip POS off of lex cat (up to first period)
+          String posFreeLexCat = sense.getLexCategory();
+          final int periodIdx = posFreeLexCat.indexOf(".");
+          assert periodIdx > 0;
+          posFreeLexCat = posFreeLexCat.substring(periodIdx + 1);
+          buffer.append(posFreeLexCat);
+          buffer.append("&gt; ");
+        }
         //XXX how do you get to/from the satellite
         buffer.append(sense.getLongDescription(verbose));
         if (verbose) {
@@ -844,10 +902,15 @@ public class BrowserPanel extends JPanel {
     updateStatusBar(Status.POINTER, pointerType, word.getPOS(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
     final Synset[] senses = word.getSynsets();
-    //TODO if pointerType doesn't apply to all senses, change to say
-    //<number it applies to> of <senses.length> senses of <word>
-    buffer.append(senses.length + " sense" +
-        (senses.length > 1 ? "s" : "")+
+    // count number of senses pointerType applies to
+    int numApplicableSenses = 0;
+    for (int i = 0; i < senses.length; ++i) {
+      if (senses[i].getTargets(pointerType).length > 0) {
+        numApplicableSenses++;
+      }
+    }
+    buffer.append("Applies to " + numApplicableSenses + " of the " + senses.length + " senses" +
+        //(senses.length > 1 ? "s" : "")+
         " of <b>" + word.getLemma() + "</b>\n");
     for (int i = 0; i < senses.length; ++i) {
       if (senses[i].getTargets(pointerType).length > 0) {
@@ -870,6 +933,31 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
+  private void displayVerbFrames(final Word word) {
+    updateStatusBar(Status.VERB_FRAMES, word.getLemma());
+    final StringBuilder buffer = new StringBuilder();
+    final Synset[] senses = word.getSynsets();
+    buffer.append(senses.length + " sense" +
+        (senses.length > 1 ? "s" : "")+
+        " of <b>" + word.getLemma() + "</b>\n");
+    for (int i = 0; i < senses.length; ++i) {
+      if (senses[i].getWordSense(word).getVerbFrames().isEmpty() == false) {
+        buffer.append("<br><br>Sense " + (i + 1) + "\n");
+        //TODO show the synset ?
+        buffer.append("<ul>\n");
+        for(final String frame : senses[i].getWordSense(word).getVerbFrames()) {
+          buffer.append(listOpen());
+          buffer.append(frame);
+          buffer.append("</li>\n");
+        }
+        buffer.append("</ul>\n");
+      }
+    }
+    resultEditorPane.setText(buffer.toString());
+    resultEditorPane.setCaretPosition(0); // scroll to top
+  }
+
+  //FIXME this seems pretty damn old-fashioned.  List ? LinkedList ?
   private static class Link {
     private final Object object;
     private final Link link;
@@ -929,9 +1017,9 @@ public class BrowserPanel extends JPanel {
           srcMatch = pointer.getSource().getSynset().equals(rootWordSense.getSynset());
         }
         if (srcMatch == false) {
-        //  System.err.println("rootWordSense: "+rootWordSense+
-        //      " inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
-        //  System.err.println("pointer: "+pointer);
+          //System.err.println("rootWordSense: "+rootWordSense+
+          //    " inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
+          //System.err.println("pointer: "+pointer);
           continue;
         }
         buffer.append("<li>");
