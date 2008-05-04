@@ -1,15 +1,13 @@
 /*
- * Lookahead utility classe
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.util;
 import java.util.*;
 
-/** A wrapper for objects that declared <code>Iterator</code>s that don't fully implement
+/** A wrapper for objects that are declared as <code>Iterator</code>s but don't fully implement
  * <code>hasNext</code>, to bring them into conformance with the specification of that
- * function.
+ * method.
  *
  * It's sometimes difficult to determine whether a next element exists without trying to generate
  * it.  (This is particularly true when reading elements from a stream.)  Unfortunately, the
@@ -17,11 +15,11 @@ import java.util.*;
  * element exists, and supplying it, across two methods.  A call that implements an enumerator that terminates on
  * failure to generate must therefore cache the next result.  This class can be used as a
  * wrapper, to cache the result independently of the generator logic.  <code>LookaheadIterator.hasNext</code>
- * returns false when <code>hasNext</code> of the wrapped object returns false,
+ * returns <code>false</code> when <code>hasNext</code> of the wrapped object returns <code>false</code>,
  * <i>or</i> when <code>next</code> of the wrapped class throws a {@link NoSuchElementException}.
  *
  * <p>An <code>Iterator&lt;String&gt;</code> that supplies the lines of a file until the file ends
- * can be written thus:
+ * can be written thusly:
  * <pre>
  * new LookaheadIterator&lt;String&gt;(new Iterator&lt;String&gt;() {
  *   BuffereredReader input = ...;
@@ -37,7 +35,7 @@ import java.util.*;
  * </pre>
  *
  * <p>An <code>Iterator</code> that generates the natural numbers below the first with
- * that satisfy predicate <var>p</var> can be written thus:
+ * that satisfy predicate <var>p</var> can be written thusly:
  * <pre>
  * new LookaheadIterator&lt;Integer&gt;(new Iterator&lt;Integer&gt;() {
  *   int n = 0;
