@@ -5,12 +5,11 @@
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.wn;
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 /** A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <var>pos</var><code>.data</code> file.
- * A <code>Synset</code> represents a concept, and contains a set of <code>WordSense</code>s, each of which has a sense
+ * A <code>Synset</code> represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
  * that names that concept (and each of which is therefore synonymous with the other wordSenses in the
  * <code>Synset</code>).
  *
@@ -117,8 +116,8 @@ public class Synset implements PointerTarget {
       // jump '|' and immediately following ' '
       assert line.charAt(index + 1) == ' ';
       int incEnd = line.length() - 1;
-      for(int i = incEnd; i >= 0; i--) {
-        if(Character.isSpace(line.charAt(i)) == false) {
+      for (int i = incEnd; i >= 0; i--) {
+        if (Character.isSpace(line.charAt(i)) == false) {
           incEnd = i;
           break;
         }
@@ -132,37 +131,6 @@ public class Synset implements PointerTarget {
       this.gloss = null;
     }
   }
-
-  //
-  // Object methods
-  //
-  @Override public boolean equals(Object object) {
-    return (object instanceof Synset)
-      && ((Synset) object).posOrdinal == posOrdinal
-      && ((Synset) object).offset == offset;
-  }
-
-  @Override public int hashCode() {
-    // times 10 shifts right by 1 decimal place
-    return ((int) offset * 10) + getPOS().hashCode();
-  }
-
-  @Override public String toString() {
-    return new StringBuilder("[Synset ").
-      append(offset).
-      append("@").
-      append(getPOS()).
-      append("<").
-      append("#").
-      append(lexfilenum()).
-      append("::").
-      append(getLexCategory()).
-      append(">").
-      append(": \"").
-      append(getDescription()).
-      append("\"]").toString();
-  }
-
 
   //
   // Accessors
@@ -179,7 +147,10 @@ public class Synset implements PointerTarget {
     return lexfilenum;
   }
 
-  /** XXX DOCUMENT ME */
+  /** 
+   * @return the lexname this <code>Synset</code> is a member of, e.g. "noun.quantity" 
+   * @see <a href="http://wordnet.princeton.edu/man/lexnames.5WN">http://wordnet.princeton.edu/man/lexnames.5WN</a>
+   */
   public String getLexCategory() {
     final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
     return dictionary.lookupLexCategory(lexfilenum());
@@ -193,10 +164,13 @@ public class Synset implements PointerTarget {
     return wordSenses;
   }
 
-  /** XXX DOCUMENT ME */
+  /** 
+   * If <code>word</code> is a member of this <code>Synset</code>, return the 
+   *  <code>WordSense</code> it implies, else return <code>null</code>.
+   */
   public WordSense getWordSense(final Word word) {
-    for(final WordSense wordSense : wordSenses) {
-      if(wordSense.getLemma().equalsIgnoreCase(word.getLemma())) {
+    for (final WordSense wordSense : wordSenses) {
+      if (wordSense.getLemma().equalsIgnoreCase(word.getLemma())) {
         return wordSense;
       }
     }
@@ -230,7 +204,7 @@ public class Synset implements PointerTarget {
       if (i > 0) {
         buffer.append(", ");
       }
-      if(verbose) {
+      if (verbose) {
         buffer.append(wordSenses[i].getDescription());
       } else {
         buffer.append(wordSenses[i].getLemma());
@@ -276,15 +250,18 @@ public class Synset implements PointerTarget {
   
   public Pointer[] getPointers(final PointerType type) {
     List<Pointer> vector = null;
+    // TODO 
+    // if superTypes exist, search them, then current type
+    // if current type exists, search it, then if subTypes exist, search them
     for (final Pointer pointer : pointers) {
       if (pointer.getType() == type) {
-        if(vector == null) {
+        if (vector == null) {
           vector = new ArrayList<Pointer>();
         }
         vector.add(pointer);
       }
     }
-    if(vector == null) {
+    if (vector == null) {
       return NO_POINTERS;
     }
     return vector.toArray(new Pointer[vector.size()]);
@@ -302,5 +279,35 @@ public class Synset implements PointerTarget {
   /** @see PointerTarget */
   public Synset getSynset() { 
     return this; 
+  }
+
+  //
+  // Object methods
+  //
+  @Override public boolean equals(Object object) {
+    return (object instanceof Synset)
+      && ((Synset) object).posOrdinal == posOrdinal
+      && ((Synset) object).offset == offset;
+  }
+
+  @Override public int hashCode() {
+    // times 10 shifts right by 1 decimal place
+    return ((int) offset * 10) + getPOS().hashCode();
+  }
+
+  @Override public String toString() {
+    return new StringBuilder("[Synset ").
+      append(offset).
+      append("@").
+      append(getPOS()).
+      append("<").
+      append("#").
+      append(lexfilenum()).
+      append("::").
+      append(getLexCategory()).
+      append(">").
+      append(": \"").
+      append(getDescription()).
+      append("\"]").toString();
   }
 }
