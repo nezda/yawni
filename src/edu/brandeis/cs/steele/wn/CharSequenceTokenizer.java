@@ -22,9 +22,9 @@ import java.util.NoSuchElementException;
 /**
  * XXX borrowed from Apache Harmony java.util.StringTokenizer<br><br>
  *
- * CharSequenceTokenizer is used to break a string apart into tokens.  Lighter
- * than a Scanner, more features than java.util.StringTokenizer, with full
- * support for CharSequences.
+ * <code>CharSequenceTokenizer</code> is used to break a string apart into tokens.  Lighter
+ * than a {@link java.util.Scanner}, more features than {@link java.util.StringTokenizer}, with full
+ * support for {@link CharSequence}s.
  */
 public class CharSequenceTokenizer implements Iterator<CharSequence> {
   private final CharSequence string;
@@ -32,7 +32,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   private int position;
 
   /**
-   * Constructs a new CharSequenceTokenizer for string using whitespace as
+   * Constructs a new <code>CharSequenceTokenizer</code> for <code>string</code> using whitespace as
    * the delimiter.
    * 
    * @param string the CharSequence to be tokenized
@@ -42,8 +42,8 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   }
 
   /**
-   * Constructs a new CharSequenceTokenizer for string using the specified
-   * delimiters and returning delimiters as tokens when specified.
+   * Constructs a new <code>CharSequenceTokenizer</code> for <code>string</code> using the specified
+   * <code>delimiters</code> and returning delimiters as tokens when specified.
    * 
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
