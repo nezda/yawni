@@ -10,25 +10,43 @@
   <security>
     <all-permissions/>
   </security>
+
+  <!-- <jnlp spec="1.0+" codebase="file:///home/luke/code/java/jwordnet/build/"> -->
+  <!-- <jnlp spec="1.0+" codebase="http://www.fatbread.com/"> -->
+
   <resources>
     <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
     <jar href="jwordnet-core-1.5.6-dev.jar"/>
-  </resources>
-  <resources os="Mac OS X">
-    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
-    <property name="apple.awt.textantialiasing" value="on"/>
-    <property name="apple.laf.useScreenMenuBar" value="true"/>
+    <!-- attempt to work around minor javaws bug
+      http://lists.apple.com/archives/java-dev/2005/Mar/msg00426.html -->
     <property name="apple.awt.brushMetalLook" value="true"/>
     <property name="apple.awt.brushMetalRounded" value="true"/>
+    <property name="apple.awt.textantialiasing" value="on"/>
+    <property name="apple.laf.useScreenMenuBar" value="true"/>
     <property name="apple.awt.showGrowBox" value="false"/>
   </resources>
+
   <!-- TODO list some platform specific WNHOME defaults and try them in order -->
-  <resources os="Linux">
+  <resources os="Mac OS X">
     <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
   </resources>
+
+  <resources os="Linux">
+    <!-- default install location of Ubuntu install -->
+    <property name="WNSEARCHDIR" value="/usr/share/wordnet/"/>
+    <!-- default location of a Princeton install -->
+    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
+  </resources>
+
   <resources os="Windows">
     <property name="WNHOME" value="c:\Program Files\WordNet\2.1\"/>
   </resources>
+
+  <resources>
+    <property name="swing.aatext" value="true"/>
+    <property name="file.encoding" value="US-ASCII"/>
+  </resources>
+
   <application-desc main-class="edu.brandeis.cs.steele.wn.browser.Browser">
   </application-desc>
 </jnlp>
