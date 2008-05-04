@@ -1,6 +1,4 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -8,10 +6,12 @@ package edu.brandeis.cs.steele.wn;
 
 /** A Pointer encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
- * are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
+ * Relationships are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
  * Relationships are <i>typed</i>: the type of a relationship is a {@link PointerType}, and can
  * be retrieved via {@link Pointer#getType getType}.
  *
+ * @see Synset
+ * @see WordSense
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
@@ -57,32 +57,6 @@ public class Pointer {
   }
 
   //
-  // Object methods
-  //
-  @Override public boolean equals(final Object object) {
-    return (object instanceof Pointer)
-      && ((Pointer) object).source.equals(this.source)
-      && ((Pointer) object).index == this.index;
-  }
-
-  @Override public int hashCode() {
-    return source.hashCode() + index;
-  }
-
-  @Override public String toString() {
-    return new StringBuilder("[Pointer").
-      //append("#").
-      //append(index).
-      append(" from ").
-      //append(source).
-      append(source).
-      //append(" → ").
-      append(" to ").
-      append(getTarget()).
-      append("]").toString();
-  }
-
-  //
   // Accessors
   //
   public PointerType getType() {
@@ -119,5 +93,31 @@ public class Pointer {
     } else {
       return synset.getWord(index - 1);
     }
+  }
+
+  //
+  // Object methods
+  //
+  @Override public boolean equals(final Object object) {
+    return (object instanceof Pointer)
+      && ((Pointer) object).source.equals(this.source)
+      && ((Pointer) object).index == this.index;
+  }
+
+  @Override public int hashCode() {
+    return source.hashCode() + index;
+  }
+
+  @Override public String toString() {
+    return new StringBuilder("[Pointer").
+      //append("#").
+      //append(index).
+      append(" from ").
+      //append(source).
+      append(source).
+      //append(" → ").
+      append(" to ").
+      append(getTarget()).
+      append("]").toString();
   }
 }
