@@ -1,6 +1,4 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -13,7 +11,7 @@ import java.nio.charset.*;
 import java.nio.channels.*;
 import java.io.*;
 
-/** An implementation of FileManagerInterface that reads files from the local file system.
+/** An implementation of <code>FileManagerInterface</code> that reads files from the local file system.
  * A file  <code>FileManager</code> caches the file position before and after
  * <code>readLineAt</code> in order to eliminate the redundant IO activity that a naive implementation
  * of these methods would necessitate.
@@ -33,16 +31,10 @@ public class FileManager implements FileManagerInterface {
   public static String VERSION = "1.5.0";
 
   //
-  // Filename caching
-  //
-  protected static final boolean IS_WINDOWS_OS = System.getProperty("os.name").startsWith("Windows");
-  protected static final boolean IS_MAC_OS = false; //System.getProperty("os.name").startsWith("Mac");
-
-  //
   // Instance variables
   //
-  protected String searchDirectory;
-  protected Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
+  private String searchDirectory;
+  private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
   static class NextLineCache {
     private String filename;
@@ -72,7 +64,8 @@ public class FileManager implements FileManagerInterface {
   //
   // Constructors
   //
-  /** Construct a file manager backed by a set of files contained in the default WordNet search directory.
+  /** FIXME
+   * Construct a file manager backed by a set of files contained in the default WordNet search directory.
    * The default search directory is the location named by the system property WNSEARCHDIR; or, if this
    * is undefined, by the directory named WNHOME/Database (under MacOS) or WNHOME/dict (otherwise);
    * or, if the WNHOME is undefined, the current directory (under MacOS), "C:\wn16" (Windows),
@@ -87,7 +80,7 @@ public class FileManager implements FileManagerInterface {
     this.searchDirectory = searchDirectory;
   }
 
-  protected static String getWNHome() {
+  static String getWNHome() {
     // FIXME see notes in getWNSearchDir()
     String home = System.getProperty("WNHOME");
     if (home != null && new File(home).exists()) {
@@ -104,27 +97,19 @@ public class FileManager implements FileManagerInterface {
         System.getenv()+" \n\nsystem properties: "+System.getProperties());
   }
 
-  protected static String getWNSearchDir() {
+  static String getWNSearchDir() {
     //FIXME unify logic for this and getWNSearchDir() to try both
     //system property AND environment variables and check readable
-    final String searchDir = System.getProperty("WNSEARCHDIR");
-    if (searchDir != null) {
+    String searchDir = System.getProperty("WNSEARCHDIR");
+    if (searchDir != null && new File(searchDir).exists()) {
       return searchDir;
-    } else if (IS_MAC_OS && getWNHome().equals(".")) {
-      return "Database";
-    } else {
-      return getWNHome() + File.separator + (IS_MAC_OS ? "Database" : "dict");
+    } 
+    searchDir = System.getenv("WNSEARCHDIR");
+    if (searchDir != null && new File(searchDir).exists()) {
+      return searchDir;
     }
+    return getWNHome() + File.separator + "dict";
   }
-
-  //private static String mapToWindowsFilename(String filename) {
-  //  if (filename.startsWith("data.")) {
-  //    filename = filename.substring("data.".length()) + ".dat";
-  //  } else if (filename.startsWith("index.")) {
-  //    filename = filename.substring("index.".length()) + ".idx";
-  //  }
-  //  return filename;
-  //}
 
   //
   // IO primitives
@@ -352,10 +337,6 @@ public class FileManager implements FileManagerInterface {
   } // end class ByteCharBuffer
 
   synchronized CharStream getFileStream(String filename) throws IOException {
-    //if (IS_WINDOWS_OS) {
-    //  //TODO would be slow on Windows
-    //  filename = mapToWindowsFilename(filename);
-    //}
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
       final String pathname = searchDirectory + File.separator + filename;
@@ -465,14 +446,17 @@ public class FileManager implements FileManagerInterface {
     }
   }
   
-  /** Binary search line implied by <param>filename</param> for <param>target</param>. */
+  /** Binary search for line from file implied by <param>filename</param> which starts with 
+   * a word equal to <param>target</param>.  Assumes this file is sorted by its first
+   * textual column of lowercased words.  This condtion can be verified with UNIX sort
+   * with the command <tt>sort -k1,1 -c</tt>
+   */
   public int getIndexedLinePointer(final String filename, final String target) throws IOException {
     if (target.length() == 0) {
       return -1;
     }
     if (log.isLoggable(Level.FINEST)) {
-      log.finest("target:"+target);
-      log.finest("filename:"+filename);
+      log.finest("target: "+target+" filename: "+filename);
     }
     final CharStream stream = getFileStream(filename);
     if(stream == null) {
@@ -487,33 +471,40 @@ public class FileManager implements FileManagerInterface {
         stream.skipLine();
         final int offset = stream.position();
         if (log.isLoggable(Level.FINEST)) {
-          log.finest("  "+start+", "+((start+stop)/2)+", "+stop+" -> "+offset);
+          log.finest("  "+start+", "+midpoint+", "+stop+" -> "+offset);
         }
         if (offset == start) {
+          // cannot be a match here - would be zero width
           return -1;
         } else if (offset == stop) {
-          stream.seek(start + 1);
-          stream.skipLine();
+          if(start != 0) {
+            stream.seek(start + 1);
+            stream.skipLine();
+          } else {
+            stream.seek(start /* 0 */);
+          }
           if (log.isLoggable(Level.FINEST)) {
             log.finest(". "+stream.position());
           }
+          //FIXME why is this a while() loop and not an if??
+          //the stream position is not being updated in this loop
           while (stream.position() < stop) {
             final int result = stream.position();
-            final CharSequence line = stream.readLineWord();
+            final CharSequence firstWord = stream.readLineWord();
             if (log.isLoggable(Level.FINEST)) {
-              log.finest(". "+line+" -> "+target.contentEquals(line));
+              log.finest("  . \""+firstWord+"\" -> "+target.contentEquals(firstWord));
             }
-            if (target.contentEquals(line)) {
+            if (target.contentEquals(firstWord)) {
               return result;
             }
           }
           return -1;
-        }
+        } // end offset == stop branch
         final int result = stream.position();
-        final CharSequence line = stream.readLineWord();
-        final int compare = CharSequenceComparator.INSTANCE.compare(target, line);
+        final CharSequence firstWord = stream.readLineWord();
+        final int compare = CharSequenceComparator.INSTANCE.compare(target, firstWord);
         if (log.isLoggable(Level.FINEST)) {
-          log.finest(line + ": " + compare);
+          log.finest(firstWord + ": " + compare);
         }
         if (compare == 0) return result;
         if (compare > 0) {
@@ -553,5 +544,5 @@ public class FileManager implements FileManagerInterface {
       return obj instanceof CharSequenceComparator;
     }
     public static final CharSequenceComparator INSTANCE = new CharSequenceComparator();
-  }
+  } // end class CharSequenceComparator
 }
