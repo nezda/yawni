@@ -1,14 +1,13 @@
 /*
- * LRUCache utility class
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.util;
+
 import java.util.*;
 
-/** A fixed-capacity <code>Cache</code> that stores the <var>n</var> most recently used
- * keys.
+/** A fixed-capacity <code>Cache</code> that stores the <var>n</var> values associate
+ * with the <var>n</var> most recently accessed keys.
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
