@@ -43,7 +43,7 @@ public class IterationTest {
     assertTrue("not distinct objects?", first != nounIndexWords.iterator().next()); 
   }
 
-  @Ignore // this test is kinda slow
+  //@Ignore // this test is kinda slow
   @Test
   public void sequentialIterationTest() {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
@@ -71,6 +71,12 @@ public class IterationTest {
               //System.err.println(msg);
               String longMsg = wordSense.getLongDescription();
               //System.err.println(longMsg);
+              if(pos == POS.VERB) {
+                for(final String frame : wordSense.getVerbFrames()) {
+                  String vframe = "  VFRAME: "+frame;
+                  //System.err.println(vframe);
+                }
+              }
               ++totalWordsVisited;
               ++iterationWordsVisited;
             }
