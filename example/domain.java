@@ -42,7 +42,7 @@ public class domain {
     //   FileBackedDictionary.getInstance(RemoteFileManager.lookup(hostname));
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     // For this example, we use POS.NOUN. However, POS.VERB, POS.ADJ, POS.ADV are also valid.
-    IndexWord word = dictionary.lookupIndexWord(POS.NOUN, args[0]);
+    Word word = dictionary.lookupWord(POS.NOUN, args[0]);
     Synset[] senses = word.getSynsets();
     int taggedCount = word.getTaggedSenseCount();
     System.out.print("The " + word.getPOS().getLabel() + " " + word.getLemma() + " has " +

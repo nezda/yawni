@@ -12,7 +12,6 @@ import edu.brandeis.cs.steele.wn.*;
  */
 public class Example {
   private static int iIndent = 0;
-  private static boolean bExtended = true;
 
   private static void traverse(PointerTarget sense, PointerType pointerType)  {
     String sIndent = "";
@@ -46,7 +45,7 @@ public class Example {
     //   FileBackedDictionary.getInstance(RemoteFileManager.lookup(hostname));
     DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     // For this example, we use POS.NOUN. However, POS.VERB, POS.ADJ, POS.ADV are also valid.
-    IndexWord word = dictionary.lookupIndexWord(POS.NOUN, args[0]);
+    Word word = dictionary.lookupWord(POS.NOUN, args[0]);
     Synset[] senses = word.getSynsets();
     int taggedCount = word.getTaggedSenseCount();
     System.err.print("The " + word.getPOS().getLabel() + " " + word.getLemma() + 
@@ -78,8 +77,8 @@ public class Example {
     // VERB
     // ADJ
     // ADV
-    for(final Iterator<Synset> e = dictionary.synsets(POS.valueOf(args[0])); e.hasNext() ;) {
-      System.err.println(e.next());
+    for(final Synset synset : dictionary.synsets(POS.valueOf(args[0]))) {
+      System.err.println(synset);
       //e.next();
     }
     System.err.println("finished "+args[0]);
@@ -100,22 +99,21 @@ public class Example {
     static void iterate(final String[] args)  throws Exception {
       final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
       for(final POS pos : POS.CATS) {
-        for(final Iterator<IndexWord> e = dictionary.indexWords(pos); e.hasNext() ;) {
-          final IndexWord indexWord = e.next();
+        for(final Word word : dictionary.words(pos)) {
           //System.err.println(indexWord);
           //for(final Synset synset : indexWord.getSynsets()) {
-          //  for(final Word wordSense : synset.getWords()) {
+          //  for(final WordSense wordSense : synset.getWords()) {
           //    System.err.println("  "+wordSense);
           //  }
           //}
-          final String[] stems = dictionary.lookupBaseForms(pos, indexWord.getLemma());
-          final boolean hasLemma = 0 <= indexOf(indexWord.getLemma(), stems);
+          final String[] stems = dictionary.lookupBaseForms(pos, word.getLemma());
+          final boolean hasLemma = 0 <= indexOf(word.getLemma(), stems);
           //System.err.println(indexWord+" stems.length: "+stems.length+" hasLemma: "+hasLemma+" stems: "+Arrays.toString(stems));
           if(hasLemma == false) {
-            System.err.println(indexWord+" stems.length: "+stems.length+" hasLemma: "+hasLemma+" stems: "+Arrays.toString(stems));
+            System.err.println(word+" stems.length: "+stems.length+" hasLemma: "+hasLemma+" stems: "+Arrays.toString(stems));
           }
           if(stems.length != 1) {
-            System.err.println(stems.length+" "+indexWord+" "+Arrays.toString(stems)+" lemma: \""+indexWord.getLemma()+"\"");
+            System.err.println(stems.length+" "+word+" "+Arrays.toString(stems)+" lemma: \""+word.getLemma()+"\"");
           }
         }
       }
@@ -133,16 +131,15 @@ public class Example {
   }
 
   static class ShowDerivations {
-    // starting with a given IndexWord, find all derivationally related Words (if any)
+    // starting with a given Word, find all derivationally related Words (if any)
     // some are in the same POS, others are not
     static void iterate(final String[] args)  throws Exception {
       final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
       for(final POS pos : POS.CATS) {
-        for(final Iterator<IndexWord> e = dictionary.indexWords(pos); e.hasNext() ;) {
-          final IndexWord indexWord = e.next();
+        for(final Word word : dictionary.words(pos)) {
           //System.err.println(indexWord);
           //for(final Synset synset : indexWord.getSynsets()) {
-          //  for(final Word wordSense : synset.getWords()) {
+          //  for(final WordSense wordSense : synset.getWords()) {
           //    System.err.println("  "+wordSense);
           //  }
           //}

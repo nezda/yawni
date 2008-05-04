@@ -12,8 +12,6 @@ import edu.brandeis.cs.steele.wn.*;
 public class hyponym {
 
 	private static int iIndent = 0;
-        private static boolean bExtended = true;
-
         private static void traverse(PointerTarget sense, PointerType pointerType)  {
 
 		String sIndent = "";
@@ -51,7 +49,7 @@ public class hyponym {
 		//   new FileBackedDictionary(RemoteFileManager.lookup(hostname));
 		DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
 		// For this example, we use POS.NOUN. However, POS.VERB, POS.ADJ, POS.ADV are also valid.
-		IndexWord word = dictionary.lookupIndexWord(POS.NOUN, args[0]);
+		Word word = dictionary.lookupWord(POS.NOUN, args[0]);
 		Synset[] senses = word.getSynsets();
 		int taggedCount = word.getTaggedSenseCount();
 		System.out.print("The " + word.getPOS().getLabel() + " " + word.getLemma() + " has " + senses.length + " sense" + (senses.length == 1 ? "" : "s") + " ");
