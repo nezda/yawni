@@ -1,6 +1,4 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -46,7 +44,8 @@ public class Browser extends JFrame {
   private static final Logger log = Logger.getLogger(Browser.class.getName());
 
   private static final long serialVersionUID = 1L;
-
+  
+  private final Dimension minSize;
   private final JMenuBar mainMenuBar;
   private final JMenu fileMenu;
   private final JMenuItem miSearch;
@@ -54,18 +53,27 @@ public class Browser extends JFrame {
   private final JMenu helpMenu;
   private final JMenuItem miAbout;
   private final BrowserPanel browserPanel;
+  private final MoveMouseListener browserFrameMouseListener;
+  private MoveMouseListener searchWindowMouseListener;
 
-  private JFrame searchWindow;
+  private SearchFrame searchWindow;
 
   public Browser(final DictionaryDatabase dictionary) {
     super("JWordNet Browser");
+    // ⌾ \u233e APL FUNCTIONAL SYMBOL CIRCLE JOT
+    // ⊚ \u229a CIRCLED RING OPERATOR
+    // ◎ \u25ce BULLSEYE
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setVisible(false);
-    this.setLocation(50, 50);
     this.setSize(640, 480);
+    //XXX Toolkit.getDefaultToolkit().setDynamicLayout(true);
+    //XXX System.err.println("dynLayout: "+Toolkit.getDefaultToolkit().isDynamicLayoutActive());
 
     this.browserPanel = new BrowserPanel(dictionary);
     this.add(browserPanel);
+    this.browserFrameMouseListener = new MoveMouseListener(browserPanel);
+    this.browserPanel.addMouseListener(browserFrameMouseListener);
+    this.browserPanel.addMouseMotionListener(browserFrameMouseListener);
     this.browserPanel.wireToFrame(this);
 
     final int metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -127,22 +135,49 @@ public class Browser extends JFrame {
     miAbout.addActionListener(listener);
     miQuit.addActionListener(listener);
     
+    validate();
+    this.minSize = new Dimension(getPreferredSize().width, getMinimumSize().height);
+    setMinimumSize(minSize);
+    addComponentListener(new ComponentAdapter() {
+      public void componentResized(final ComponentEvent evt) {        
+        int width = getWidth();
+        int height = getHeight();
+        // we check if either the width
+        // or the height are below minimum
+        boolean resize = false;
+        if (width < minSize.width) {
+          resize = true;
+          width = minSize.width;
+        }
+        //if (height < minSize.height) {
+        //  resize = true;
+        //  height = minSize.height;
+        //}
+        if (resize) {
+          setSize(width, height);
+        }
+      }
+    });
     //pack();
+    //TODO remember the window position across boots (see Swing Hacks Hack #37)
+    //which file would this information be written to?
+    // centers the window
+    setLocationRelativeTo(null);
     setVisible(true);
   }
 
   private void showSearchWindow() {
     if (searchWindow == null) {
       searchWindow = new SearchFrame(browserPanel);
+      searchWindowMouseListener = new MoveMouseListener(searchWindow.searchPanel);
+      searchWindow.addMouseListener(searchWindowMouseListener);
+      searchWindow.addMouseMotionListener(searchWindowMouseListener);
     }
     searchWindow.toFront();
     searchWindow.setVisible(true);
   }
 
   public static void main(final String[] args) {
-    //System.setProperty("apple.awt.brushMetalLook", "true");
-    //System.setProperty("apple.awt.brushMetalRounded", "true");
-    //System.setProperty("apple.laf.useScreenMenuBar", "true");
     try {
       //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
