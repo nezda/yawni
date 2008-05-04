@@ -1,6 +1,4 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -9,14 +7,16 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 
 
-/** A <code>WordSense</code> represents the lexical information related to a specific sense of an <code>Word</code>.
+/** A <code>WordSense</code> represents the lexical information related to a specific sense of a {@link Word}.
  *
- * <code>WordSense</code>'s are linked by {@link Pointer}s into a network of lexically related Words.
+ * <code>WordSense</code>'s are linked by {@link Pointer}s into a network of lexically related <code>Synset</code>s
+ * and <code>WordSense</code>s.
  * {@link WordSense#getTargets} retrieves the targets of these links, and
  * {@link WordSense#getPointers} retrieves the pointers themselves.
  *
  * @see Pointer
  * @see Synset
+ * @see Word
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
@@ -38,7 +38,7 @@ public class WordSense implements PointerTarget {
   private final int lexid;
   //FIXME only needs to be a byte since there are only 3 bits of flag values
   private final int flags;
-  //TODO what are these ? and can this be an int or byte?
+  // represents up to 64 different verb frames are possible (as of now, 35 exist)
   private long verbFrameFlags;
   private short senseNumber;
 
@@ -51,7 +51,7 @@ public class WordSense implements PointerTarget {
   }
 
   void setVerbFrameFlag(final int fnum) {
-    verbFrameFlags |= 1 << fnum;
+    verbFrameFlags |= 1L << (fnum - 1);
   }
 
   //
@@ -147,7 +147,7 @@ public class WordSense implements PointerTarget {
   }
 
   /**
-   * Build 'sensekey'.  Used for searching cntlist.rev<br>
+   * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt><br>
    * <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
    */
   String getSenseKey() {
@@ -194,7 +194,7 @@ public class WordSense implements PointerTarget {
   }
 
   /** 
-   * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html">cntlist</a>
+   * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html"><tt>cntlist</tt></a>
    */
   public int getSensesTaggedFrequency() {
     //TODO cache this value
@@ -229,12 +229,85 @@ public class WordSense implements PointerTarget {
     return count;
   }
 
-  public long getFlags() {
+  //FIXME publish as EnumSet (though store set as a byte for max efficiency
+  long getFlags() {
     return flags;
   }
 
-  public long getVerbFrameFlags() {
+  //TODO expert only. maybe publish as EnumSet
+  long getVerbFrameFlags() {
     return verbFrameFlags;
+  }
+
+  /** 
+   * <p>Returns illustrative sentences and generic verb frames.  This <b>only</b> has values
+   * for {@link POS#VERB} <code>WordSense</code>s.
+   *
+   * <p>For illustrative sentences (<tt>sents.vrb</tt>), "%s" is replaced with the verb lemma
+   * which seems unnecessarily ineeficient since you have the WordSense anyway.
+   *
+   * <p>Official WordNet 3.0 documentation indicates "specific" and generic frames
+   * are mutually exclusive which is not the case.
+   *
+   * @see <a href="http://wordnet.princeton.edu/man/wndb.5WN#sect6">http://wordnet.princeton.edu/man/wndb.5WN#sect6</a>
+   */
+  public List<String> getVerbFrames() {
+    if(getPOS() != POS.VERB) {
+      return Collections.emptyList();
+    }
+    final String senseKey = getSenseKey();
+    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
+    List<String> frames = Collections.emptyList();
+    if(sentenceNumbers != null) {
+      frames = new ArrayList<String>();
+      // fetch the illustrative sentences indicated in sentenceNumbers
+      //TODO consider substibuting in lemma for "%s" in each
+      //FIXME this logic is a bit too complex/duplicated!!
+      int s = 0;
+      int e = sentenceNumbers.indexOf(",");
+      final int n = sentenceNumbers.length();
+      e = e > 0 ? e : n;
+      for( ; s < n;
+        // e = next comma OR if no more commas, e = n
+        s = e + 1, e = sentenceNumbers.indexOf(",", s), e = e > 0 ? e : n) {
+        final String sentNum = sentenceNumbers.substring(s, e);
+        final String sentence = dictionary.lookupVerbSentence(sentNum);
+        assert sentence != null;
+        frames.add(sentence);
+      }
+    } else {
+      //assert verbFrameFlags == 0L : "not mutually exclusive for "+this;
+    }
+    if(verbFrameFlags != 0L) {
+      final int numGenericFrames = Long.bitCount(verbFrameFlags);
+      if(frames.isEmpty()) {
+        frames = new ArrayList<String>();
+      } else {
+        ((ArrayList)frames).ensureCapacity(frames.size() + numGenericFrames);
+      }
+
+      // fetch any generic verb frames indicated by verbFrameFlags
+      // numberOfLeadingZeros (leftmost), numberOfTrailingZeros (rightmost)
+      // 001111111111100
+      //  ^-lead      ^-trail
+      // simple scan between these (inclusive) should cover rest
+      for(int fn = Long.numberOfTrailingZeros(verbFrameFlags),
+          lfn = Long.SIZE - Long.numberOfLeadingZeros(verbFrameFlags);
+          fn < lfn;
+          fn++) {
+        if((verbFrameFlags & (1L << fn)) != 0L) {
+          final String frame = dictionary.lookupGenericFrame(fn + 1);
+          assert frame != null : 
+            "this: "+this+" fn: "+fn+
+            " shift: "+((1L << fn)+
+            " verbFrameFlags: "+Long.toBinaryString(verbFrameFlags))+
+            " verbFrameFlags: "+verbFrameFlags;
+          frames.add(frame);
+        }
+      }
+    }
+    return frames;
   }
 
   public String getDescription() {
@@ -313,7 +386,7 @@ public class WordSense implements PointerTarget {
   }
 
   public Pointer[] getPointers(final PointerType type) {
-    //TODO could be a little more efficient (no need for intermediate Pointer[]
+    //TODO could be a little more efficient (no need for intermediate Pointer[])
     return restrictPointers(synset.getPointers(type));
   }
 
@@ -322,7 +395,7 @@ public class WordSense implements PointerTarget {
   }
 
   public PointerTarget[] getTargets(final PointerType type) {
-    //TODO could be a little more efficient (no need for intermediate Pointer[]
+    //TODO could be a little more efficient (no need for intermediate Pointer[])
     return Synset.collectTargets(getPointers(type));
   }
 }
