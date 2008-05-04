@@ -1,12 +1,9 @@
-/*
- * Unbounded cache utility class
- *
- */
 package edu.brandeis.cs.steele.util;
+
 import java.util.*;
 
 /** 
- * A {@link Cache} of unbounded capacity.  Use this at your own risk.
+ * A {@link Cache} of unbounded capacity.  Use this at your own risk ({@link OutOfMemoryError}).
  */
 public class UnboundedCache<K, V> extends HashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
