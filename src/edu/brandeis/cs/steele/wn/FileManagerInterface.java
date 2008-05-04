@@ -1,29 +1,25 @@
 /*
- * WordNet-Java
- *
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.wn;
+
 import java.io.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-/** FileManagerInterface defines the interface between the <code>FileBackedDictionary</code> and the file system.
+/** <code>FileManagerInterface</code> defines the interface between the <code>FileBackedDictionary</code> and the file system.
  * <code>FileBackedDictionary</code> invokes methods from this interface to retrieve lines of text from the
  * WordNet data files.
  * 
  * <p>Methods in this interface take filenames as arguments.  The filename is the name of
- * a WordNet file, and is relative to the database directory (e.g. "data.noun", not
- * "Dictionary/data.noun"), and uses the UNIX/MacOS naming conventions for WordNet files
- * (e.g. "data.noun", not "noun.dat"), regardless of the platform the FileManagerInterface
- * server is running on.  (The reason for this is that the client doesn't generally know
- * what platform the server is running on.)
+ * a WordNet file, and is relative to the database directory (e.g. <code>data.noun</code>, not
+ * <code>dict/data.noun</code>).
  * 
  * <p>Methods in this interface operate on and return pointers, which are indices into the
  * file named by filename.
  * 
- * <p>FileManagerInterface is designed to work efficiently across a network.  To this end, it obeys
+ * <p><code>FileManagerInterface</code> is designed to work efficiently across a network.  To this end, it obeys
  * two design principles:  it uses only primitive types (including <code>String</code>) as argument and return types,
  * and operations that search a file for a line with a specific property are provided by the
  * server.  The first principle ensures that scanning a database won't create a large number of remote objects that
@@ -31,8 +27,8 @@ import java.rmi.RemoteException;
  * principle avoids paging an entire database file across the network in order to search for
  * an entry.
  *
- * <p>Making <code>FileBackedDictionary</code> would violate the first of these properties
- * (it would require that WordSense, Synset, POS, etc. be supported as remote objects);
+ * <p>Making <code>FileBackedDictionary</code> XXX MISSING WORD XXX would violate the first of these properties
+ * (it would require that {@link WordSense}, {@link Synset}, {@link POS}, etc. be supported as remote objects);
  * a generic remote file system interface would violate the second.
  *
  * <p>A third design principle is that sessions are stateless -- this simplifies the
@@ -76,6 +72,9 @@ public interface FileManagerInterface extends Remote {
    */
   public int getMatchingBeginningLinePointer(String filename, int offset, String substring) throws IOException, RemoteException;
 
-  /** Treat file contents like an array of lines and return the zero-based, inclusive line corresponding to <var>linenum</var> */
-  public String readLineNumber(String filename, int linenum) throws IOException;
+  /** Treat file contents like an array of lines and return the zero-based,
+   * inclusive line corresponding to <var>linenum</var> 
+   */
+  public String readLineNumber(String filename, int linenum) throws
+  IOException;
 }
