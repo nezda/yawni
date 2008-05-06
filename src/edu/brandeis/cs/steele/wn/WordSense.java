@@ -21,14 +21,25 @@ import java.util.*;
  * @version 1.0
  */
 public class WordSense implements PointerTarget {
-  //
-  // Adjective Position Flags
-  //
-  public static final int NONE = 0;
-  public static final int PREDICATIVE = 1;
-  public static final int ATTRIBUTIVE = 2; // synonymous with PRENOMINAL
-  public static final int PRENOMINAL = 2; // synonymous with ATTRIBUTIVE
-  public static final int IMMEDIATE_POSTNOMINAL = 4;
+  /** 
+   * <b>Optional</b> restrictions for the position of an adjective relative to the
+   * noun it modififies.
+   */
+  public enum AdjPosition {
+    NONE(0),
+    PREDICATIVE(1),
+    ATTRIBUTIVE(2), // synonymous with PRENOMINAL
+    //PRENOMINAL(2), // synonymous with ATTRIBUTIVE
+    IMMEDIATE_POSTNOMINAL(4),
+    ;
+    final int flag;
+    AdjPosition(final int flag) {
+      this.flag = flag;
+    }
+    static boolean isActive(final AdjPosition adjPosFlag, final int flags) {
+      return 0 != (adjPosFlag.flag & flags);
+    }
+  } // end enum AdjPosition
 
   //
   // Instance implementation
@@ -36,8 +47,8 @@ public class WordSense implements PointerTarget {
   private final Synset synset;
   private final String lemma;
   private final int lexid;
-  //FIXME only needs to be a byte since there are only 3 bits of flag values
-  private final int flags;
+  // only needs to be a byte since there are only 3 bits of flag values
+  private final byte flags;
   // represents up to 64 different verb frames are possible (as of now, 35 exist)
   private long verbFrameFlags;
   private short senseNumber;
@@ -46,7 +57,8 @@ public class WordSense implements PointerTarget {
     this.synset = synset;
     this.lemma = lemma;
     this.lexid = lexid;
-    this.flags = flags;
+    assert flags < Byte.MAX_VALUE;
+    this.flags = (byte)flags;
     this.senseNumber = -1;
   }
 
@@ -100,20 +112,22 @@ public class WordSense implements PointerTarget {
   }
 
   String flagsToString() {
-    if(flags == NONE) {
+    if(flags == 0) {
       return "NONE";
     }
     final StringBuilder flagString = new StringBuilder();
-    if(0 != (PREDICATIVE & flags)) {
+    if(AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
       flagString.append("predicative");
     }
-    if(0 != (PRENOMINAL & flags)) {
+    if(AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
       if(flagString.length() != 0) {
         flagString.append(",");
       }
+      // synonymous with attributive - WordNet browser seems to use this
+      // while the database files seem to indicate it as attributive
       flagString.append("prenominal");
     }
-    if(0 != (IMMEDIATE_POSTNOMINAL & flags)) {
+    if(AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
       if(flagString.length() != 0) {
         flagString.append(",");
       }
@@ -227,6 +241,28 @@ public class WordSense implements PointerTarget {
       //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
     }
     return count;
+  }
+
+  /**
+   * FIXME this should only have 1 value (ie not be a Set)!
+   */
+  public Set<AdjPosition> getAdjPositions() {
+    if(flags == 0) {
+      return Collections.emptySet();
+    }
+    assert getPOS() == POS.ADJ;
+    final EnumSet<AdjPosition> adjPosFlagSet = EnumSet.noneOf(AdjPosition.class);
+    //FIXME check and add the apropos flags
+    if(AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
+      adjPosFlagSet.add(AdjPosition.PREDICATIVE);
+    }
+    if(AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
+      adjPosFlagSet.add(AdjPosition.ATTRIBUTIVE);
+    }
+    if(AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
+      adjPosFlagSet.add(AdjPosition.IMMEDIATE_POSTNOMINAL);
+    }
+    return adjPosFlagSet;
   }
 
   //FIXME publish as EnumSet (though store set as a byte for max efficiency
