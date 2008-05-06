@@ -13,7 +13,7 @@ public class SynsetTest {
   }
 
   @Test
-  public void test1() {
+  public void testDescriptions() {
     for(final POS pos : POS.CATS) {
       int count = 0;
       for(final Synset synset : dictionary.synsets(pos)) {
