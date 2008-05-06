@@ -77,6 +77,11 @@ public class IterationTest {
                   //System.err.println(vframe);
                 }
               }
+              final Set<WordSense.AdjPosition> adjPosFlags = wordSense.getAdjPositions();
+              if(adjPosFlags.isEmpty() == false) {
+                System.err.println(longMsg);
+                System.err.println("AdjPositionFlags: "+adjPosFlags);
+              }
               ++totalWordsVisited;
               ++iterationWordsVisited;
             }
