@@ -64,7 +64,7 @@ public class Synset implements PointerTarget {
       String lemma = tokenizer.nextToken().toString();
       final String originalLemma = lemma;
       final int lexid = tokenizer.nextHexInt();
-      int flags = WordSense.NONE;
+      int flags = 0;
       // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
       if (lemma.charAt(lemma.length() - 1) == ')' && lemma.indexOf('(') > 0) {
         final int lparenIdx = lemma.indexOf('(');
@@ -73,11 +73,11 @@ public class Synset implements PointerTarget {
         final String marker = lemma.substring(lparenIdx + 1, rparenIdx);
         lemma = lemma.substring(0, lparenIdx);
         if (marker.equals("p")) {
-          flags |= WordSense.PREDICATIVE;
+          flags |= WordSense.AdjPosition.PREDICATIVE.flag;
         } else if (marker.equals("a")) {
-          flags |= WordSense.ATTRIBUTIVE;
+          flags |= WordSense.AdjPosition.ATTRIBUTIVE.flag;
         } else if (marker.equals("ip")) {
-          flags |= WordSense.IMMEDIATE_POSTNOMINAL;
+          flags |= WordSense.AdjPosition.IMMEDIATE_POSTNOMINAL.flag;
         } else {
           throw new RuntimeException("unknown syntactic marker " + marker);
         }
@@ -96,10 +96,7 @@ public class Synset implements PointerTarget {
       for (int i = 0; i < f_cnt; i++) {
         final CharSequence skip = tokenizer.nextToken(); // "+"
         assert "+".contentEquals(skip) : "skip: "+skip;
-        //FIXME what is f_num?
         final int f_num = tokenizer.nextInt();
-        //LN guess int f_num = tokenizer.nextHexInt();
-        //FIXME what is w_num?
         final int w_num = tokenizer.nextHexInt();
         if (w_num > 0) {
           wordSenses[w_num - 1].setVerbFrameFlag(f_num);
