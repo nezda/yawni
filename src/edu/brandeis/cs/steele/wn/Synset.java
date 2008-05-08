@@ -14,8 +14,8 @@ import java.util.logging.*;
  * <code>Synset</code>).
  *
  * <code>Synset</code>'s are linked by {@link Pointer}s into a network of related concepts; this is the <i>Net</i>
- * in WordNet.  {@link Synset#getTargets} retrieves the targets of these links, and
- * {@link Synset#getPointers} retrieves the pointers themselves.
+ * in WordNet.  {@link Synset#getTargets Synset.getTargets()} retrieves the targets of these links, and
+ * {@link Synset#getPointers Synset.getPointers()} retrieves the pointers themselves.
  *
  * @see WordSense
  * @see Pointer
