@@ -11,8 +11,8 @@ import java.util.*;
  *
  * <code>WordSense</code>'s are linked by {@link Pointer}s into a network of lexically related <code>Synset</code>s
  * and <code>WordSense</code>s.
- * {@link WordSense#getTargets} retrieves the targets of these links, and
- * {@link WordSense#getPointers} retrieves the pointers themselves.
+ * {@link WordSense#getTargets WordSense.getTargets()} retrieves the targets of these links, and
+ * {@link WordSense#getPointers WordSense.getPointers()} retrieves the pointers themselves.
  *
  * @see Pointer
  * @see Synset
@@ -22,12 +22,18 @@ import java.util.*;
  */
 public class WordSense implements PointerTarget {
   /** 
-   * <b>Optional</b> restrictions for the position of an adjective relative to the
+   * <i>Optional</i> restrictions for the position of an adjective relative to the
    * noun it modififies.
    */
   public enum AdjPosition {
     NONE(0),
+    /**
+     * of adjectives; relating to or occurring within the predicate of a sentence
+     */
     PREDICATIVE(1),
+    /**
+     * of adjectives; placed before the nouns they modify
+     */
     ATTRIBUTIVE(2), // synonymous with PRENOMINAL
     //PRENOMINAL(2), // synonymous with ATTRIBUTIVE
     IMMEDIATE_POSTNOMINAL(4),
