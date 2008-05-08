@@ -18,6 +18,7 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
+import javax.swing.plaf.metal.*;
 
 
 public class BrowserPanel extends JPanel {
@@ -29,8 +30,10 @@ public class BrowserPanel extends JPanel {
 
   private final int metaKey;
   private JTextField searchField;
-  // when ever this is false, the content of search field has changed
+  // when ever this is true, the content of search field has changed
+  // and is not synced with the display
   private boolean searchFieldChanged;
+  private String displayedValue;
   private final JButton searchButton;
   private final UndoManager undoManager;
   private final UndoAction undoAction;
@@ -47,35 +50,40 @@ public class BrowserPanel extends JPanel {
     this.metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     //TODO assert metaKey is-a power of 2
     //java.awt.event.InputEvent.SHIFT_MASK, CTRL_MASK, META_MASK, ALT_MASK
-    this.searchField = new JTextField();
+
+    this.searchField = new JTextField() {
+      private static final long serialVersionUID = 1L;
+      protected Document createDefaultModel() {
+        String word = "['a-z.0-9]+";
+        // regex has to support partial matches (as they're typed)
+        String regex = "(?i)("+word+"[ /_-]?)+";
+        return new RegexConstrainedDocument(regex);
+      }
+    };
     this.searchField.setBackground(Color.WHITE);
 
-    //this.searchField.getDocument().addDocumentListener(new DocumentListener() {
-    //  public void changedUpdate(final DocumentEvent evt) {
-    //    assert searchField.getDocument() == evt.getDocument();
-    //    System.err.println("changedUpdate: "+evt);
-    //    searchFieldChanged = true;
-    //  }
-    //  public void insertUpdate(final DocumentEvent evt) { 
-    //    assert searchField.getDocument() == evt.getDocument();
-    //    System.err.println("insertUpdate: "+evt);
-    //    System.err.println(getModText(evt));
-    //    searchFieldChanged = true;
-    //  }
-    //  public void removeUpdate(final DocumentEvent evt) { 
-    //    assert searchField.getDocument() == evt.getDocument();
-    //    System.err.println("removeUpdate: "+evt);
-    //    searchFieldChanged = true;
-    //  }
-    //  String getModText(final DocumentEvent evt) {
-    //    try {
-    //      final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
-    //      return change;
-    //    } catch(BadLocationException ble) {
-    //      throw new RuntimeException(ble);
-    //    }
-    //  }
-    //});
+    this.searchField.getDocument().addDocumentListener(new DocumentListener() {
+      public void changedUpdate(final DocumentEvent evt) {
+        assert searchField.getDocument() == evt.getDocument();
+        searchFieldChanged = true;
+      }
+      public void insertUpdate(final DocumentEvent evt) { 
+        assert searchField.getDocument() == evt.getDocument();
+        searchFieldChanged = true;
+      }
+      public void removeUpdate(final DocumentEvent evt) { 
+        assert searchField.getDocument() == evt.getDocument();
+        searchFieldChanged = true;
+      }
+      String getModText(final DocumentEvent evt) {
+        try {
+          final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
+          return change;
+        } catch(BadLocationException ble) {
+          throw new RuntimeException(ble);
+        }
+      }
+    });
     
     this.undoManager = new UndoManager() {
       private static final long serialVersionUID = 1L;
@@ -100,13 +108,18 @@ public class BrowserPanel extends JPanel {
     this.searchField.setInputVerifier(new InputVerifier() {
       @Override public boolean verify(JComponent input) {
         final JTextField searchField = (JTextField) input;
-        //return "pass".equals(tf.getText());
-        System.err.println("verifying input");
-        // TODO
         // if the text in this field is different from the
         // text which the menus are currently for, need to
         // re-issue the search
-        return true;
+        final String inputString = searchField.getText().trim();
+        if(false == inputString.equals(displayedValue)) {
+          // issue fresh search
+          searchButton.doClick();
+          // don't yield focus
+          return false;
+        } else {
+          return true;
+        }
       }
     });
 
@@ -312,7 +325,7 @@ public class BrowserPanel extends JPanel {
 
     validate();
   }
-
+  
   // Callback used by Browser so BrowserPanel can add menu items to File menu
   void addMenuItems(final JMenu fileMenu) {
     fileMenu.addSeparator();
@@ -357,6 +370,7 @@ public class BrowserPanel extends JPanel {
 
     public void actionPerformed(final ActionEvent evt) {
       try {
+        searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.undo();
       } catch (final CannotUndoException ex) {
         System.err.println("Unable to undo: " + ex);
@@ -387,6 +401,7 @@ public class BrowserPanel extends JPanel {
 
     public void actionPerformed(final ActionEvent evt) {
       try {
+        searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.redo();
       } catch (final CannotRedoException ex) {
         System.err.println("Unable to redo: " + ex);
@@ -421,7 +436,8 @@ public class BrowserPanel extends JPanel {
       styleSheet.addRule("body {font-family:sans-serif;}");
       //styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
       //FIXME text-indent:-10pt; causes the odd bolding bug
-      styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
+      //XXX styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
+      styleSheet.addRule("ul {list-style-type:none; display:block;}");
       //styleSheet.addRule("ul ul {list-style-type:circle };");
       styleSheet.addRule("ul {margin-left:12pt; margin-bottom:0pt;}");
       //getDocument().putProperty("multiByte", false);
@@ -464,7 +480,11 @@ public class BrowserPanel extends JPanel {
 
     PointerTypeComboBox(final POS pos) {
       //super(capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
-      super(capitalize(pos.getLabel()));
+      //super(capitalize(pos.getLabel()), new MetalComboBoxIcon());
+      super(capitalize(pos.getLabel())/*, new MetalComboBoxIcon()*/);
+      this.setDisabledIcon(getIcon());
+      this.setHorizontalTextPosition(SwingConstants.LEFT);
+      this.setVerticalTextPosition(SwingConstants.CENTER);
       this.pos = pos;
       this.menu = new PointerTypeMenu(this);
       this.setComponentPopupMenu(menu);
@@ -705,6 +725,7 @@ public class BrowserPanel extends JPanel {
   private synchronized void displayOverview() {
     // TODO normalize internal space
     final String inputString = searchField.getText().trim(); 
+    this.displayedValue = inputString;
     if (inputString.length() == 0) {
       updateStatusBar(Status.INTRO);
       resultEditorPane.setText("");
@@ -853,6 +874,8 @@ public class BrowserPanel extends JPanel {
           buffer.append("&gt; ");
         }
         //XXX how do you get to/from the satellite
+        //from http://wordnet.princeton.edu/man/wn.1WN:
+        //  "if searchstr is in a head synset, all of the head synset's satellites"
         buffer.append(sense.getLongDescription(verbose));
         if (verbose) {
           final PointerTarget[] similar = sense.getTargets(PointerType.SIMILAR_TO);
