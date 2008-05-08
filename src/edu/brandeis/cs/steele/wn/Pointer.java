@@ -4,11 +4,11 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-/** A Pointer encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
+/** A <code>Pointer</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
  * Relationships are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
  * Relationships are <i>typed</i>: the type of a relationship is a {@link PointerType}, and can
- * be retrieved via {@link Pointer#getType getType}.
+ * be retrieved via {@link Pointer#getType PointerType.getType()}.
  *
  * @see Synset
  * @see WordSense
@@ -63,11 +63,13 @@ public class Pointer {
     return PointerType.fromOrdinal(pointerTypeOrdinal);
   }
 
+  /** A lexical relationship holds between {@link WordSense}s */
   public boolean isLexical() {
     return source instanceof WordSense;
     // else assert instanceof Synset;
   }
-
+  
+  /** A semantic relationship holds between {@link Synset}s */
   public boolean isSemantic() {
     return source instanceof Synset;
   }
