@@ -5,6 +5,14 @@
     <vendor>Luke Nezda</vendor>
     <homepage href="http://www.fatbread.com/" />
     <description>Java Swing browser for WordNet</description>
+    <!-- not a 64x64 icon - rejected ? -->
+    <icon href="http://www.fatbread.com/american-flag.png"/>
+    <!--
+    <shortcut>
+       <desktop/>
+       <menu/>
+    </shortcut>
+    -->
   </information>
   <offline-allowed/>
   <security>
@@ -44,6 +52,7 @@
 
   <resources>
     <property name="swing.aatext" value="true"/>
+    <property name="awt.useSystemAAFontSettings" value="on"/>
     <property name="file.encoding" value="US-ASCII"/>
   </resources>
 
