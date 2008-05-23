@@ -7,6 +7,8 @@ package edu.brandeis.cs.steele.wn;
 import java.util.logging.*;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * A <code>Word</code> represents a line of a WordNet <code>index.<em>pos</em></code> file.
@@ -21,7 +23,7 @@ import java.util.Set;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Word {
+public class Word implements Iterable<Synset> {
   private static final Logger log = Logger.getLogger(Word.class.getName());
   
   /** offset in <var>pos</var><code>.index</code> file */
@@ -161,8 +163,29 @@ public class Word {
     return lemma; 
   }
 
+  /**
+   * Number of "words" (aka "tokens") in this <tt>Word</tt>'s lemma.
+   */
+  public int getWordCount() {
+    // Morphy.counts() default implementation already counts 
+    // space (' ') and underscore ('_') separated words -
+    // the given argument is just a formality
+    return Morphy.countWords(lemma, ' ');
+  }
+
+  /**
+   * @return true if this <tt>Word</tt>'s <code>{@link #getWordCount()} &lt; 1</code>.
+   */
+  public boolean isCollocation() {
+    return getWordCount() > 1;
+  }
+
   public int getTaggedSenseCount() {
     return taggedSenseCount;
+  }
+
+  public Iterator<Synset> iterator() {
+    return Arrays.asList(getSynsets()).iterator();
   }
 
   public Synset[] getSynsets() {
