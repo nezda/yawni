@@ -164,6 +164,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class StringPOSDatabaseKey
 
+
   //
   // File name computation
   //
@@ -234,6 +235,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private static String getGenericVerbFramesFilename() {
     return "frames.vrb";
   }
+
 
   //
   // Entity retrieval
