@@ -41,7 +41,7 @@ public class FileManager implements FileManagerInterface {
     private int previous;
     private int next;
 
-    synchronized void setNextLineOffset(String filename, int previous, int next) {
+    synchronized void setNextLineOffset(final String filename, final int previous, final int next) {
       this.filename = filename;
       this.previous = previous;
       this.next = next;
@@ -58,7 +58,7 @@ public class FileManager implements FileManagerInterface {
         return next;
       }
     }
-  }
+  } // end class NextLineCache
   private NextLineCache nextLineCache = new NextLineCache();
 
   //
