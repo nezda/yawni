@@ -654,23 +654,25 @@ class Morphy {
   }
 
   /** 
-   * Count the number of words in a string delimited by space, underscore or
-   * the passed in separator.
+   * Count the number of words in a string delimited by space (' '), underscore
+   * ('_') or the passed in separator.
    * Port of wnutil.c cntwords().
    */
-  static int countWords(final String s, final char separator) {
+  static int countWords(final CharSequence s, final char separator) {
     int wdcnt = 0;
     int i = 0;
     final int len = s.length();
     while (i < len) {
-      if (s.charAt(i) == separator || s.charAt(i) == ' ' || s.charAt(i) == '_') {
+      char ci = s.charAt(i);
+      if (ci == separator || ci == ' ' || ci == '_') {
         wdcnt++;
         while (i < len && 
-          (s.charAt(i) == separator || s.charAt(i) == ' ' || s.charAt(i) == '_')) {
-          ++i;
+          (ci == separator || ci == ' ' || ci == '_')) {
+          i++;
+          ci = s.charAt(i);
         }
       } else {
-        ++i;
+        i++;
       }
     }
     return ++wdcnt;
