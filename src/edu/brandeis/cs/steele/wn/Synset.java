@@ -22,7 +22,7 @@ import java.util.logging.*;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Synset implements PointerTarget {
+public class Synset implements PointerTarget, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Synset.class.getName());
   // 
   // Instance implementation
