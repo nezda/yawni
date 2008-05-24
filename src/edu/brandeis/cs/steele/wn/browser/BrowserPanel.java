@@ -10,6 +10,9 @@ import edu.brandeis.cs.steele.wn.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+import java.awt.geom.*;
+import java.awt.font.*;
 import java.util.*;
 import java.util.logging.*;
 import javax.swing.*;
@@ -19,16 +22,21 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 import javax.swing.plaf.metal.*;
-
+import java.util.prefs.*;
 
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
+  private static Preferences prefs = Preferences.systemRoot().node(BrowserPanel.class.getPackage().getName());
 
   private static final long serialVersionUID = 1L;
 
-  final DictionaryDatabase dictionary;
+  private DictionaryDatabase dictionary;
+  DictionaryDatabase dictionary() {
+    return FileBackedDictionary.getInstance();
+  }
+  final Browser browser;
 
-  private final int metaKey;
+  private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
   private JTextField searchField;
   // when ever this is true, the content of search field has changed
   // and is not synced with the display
@@ -42,25 +50,31 @@ public class BrowserPanel extends JPanel {
   private EnumMap<POS, PointerTypeComboBox> posBoxes;
   private final Action slashAction;
   private final JLabel statusLabel;
+  private final int pad = 5;
 
-  public BrowserPanel(final DictionaryDatabase dictionary) {
-    this.dictionary = dictionary;
+  public BrowserPanel(final Browser browser) {
+    this.browser = browser;
     super.setLayout(new BorderLayout());
 
-    this.metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    //TODO assert metaKey is-a power of 2
+    //TODO assert MENU_MASK is-a power of 2
     //java.awt.event.InputEvent.SHIFT_MASK, CTRL_MASK, META_MASK, ALT_MASK
 
-    this.searchField = new JTextField() {
-      private static final long serialVersionUID = 1L;
-      protected Document createDefaultModel() {
-        String word = "['a-z.0-9]+";
-        // regex has to support partial matches (as they're typed)
-        String regex = "(?i)("+word+"[ /_-]?)+";
-        return new RegexConstrainedDocument(regex);
-      }
-    };
+    //this.searchField = new JTextField() {
+    //  private static final long serialVersionUID = 1L;
+    //  protected Document createDefaultModel() {
+    //    //String word = "['a-z.0-9]+";
+    //    // regex has to support partial matches (as they're typed)
+    //    //String regex = "(?i)("+word+"[ /_-]?)+";
+    //    //return new RegexConstrainedDocument(regex);
+    //    
+    //    //return new SearchFieldDocument();
+    //  }
+    //};
+    //XXX doesn't seem to work!? ((AbstractDocument)searchField.getDocument()).setDocumentFilter(new SearchFieldDocumentFilter());
+    this.searchField = new JTextField();
+    this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
+    this.searchField.putClientProperty("JTextField.variant", "search");
 
     this.searchField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(final DocumentEvent evt) {
@@ -153,9 +167,10 @@ public class BrowserPanel extends JPanel {
 
     c.gridy = 0;
     c.gridx = 0;
+    // T,L,B,R
     c.insets = new Insets(3, 3, 0, 3);
     c.fill = GridBagConstraints.HORIZONTAL;
-    c.anchor = GridBagConstraints.WEST;
+    //c.anchor = GridBagConstraints.WEST;
     c.gridwidth = 4;
     final Box searchPanel = new Box(BoxLayout.X_AXIS);
 
@@ -184,6 +199,7 @@ public class BrowserPanel extends JPanel {
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
     
     this.resultEditorPane = new StyledTextPane();
+    this.resultEditorPane.setBorder(browser.textAreaBorder);
     this.resultEditorPane.setBackground(Color.WHITE);
     // http://www.groupsrv.com/computers/about179434.html
     // enables scrolling with arrow keys
@@ -219,65 +235,10 @@ public class BrowserPanel extends JPanel {
       }
     };
 
-    final Map<Object, Action> actions = this.resultEditorPane.getActionTable();
-    //XXX final Map<Object, Action> actions = new HashMap<Object, Action>();
-    //XXX final Integer[] fontSizes = new Integer[]{ 10, 12, 14, 18, 20 };
-    //XXX for(final Integer fontSize : fontSizes) {
-    //XXX   actions.put(fontSize, new StyledEditorKit.FontSizeAction(String.valueOf(fontSize), fontSize));
-    //XXX }
-
-    //XXX final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
-    //TODO move to StyledTextPane
-    //TODO add Ctrl++ / Ctrl+- to Menu shortcuts (View?)
-    // 1. define styles for various sizes (there are already Actions for this?)
-    //
-    // font-size-48
-    // font-size-36
-    // font-size-24
-    // font-size-18
-    // font-size-16
-    // font-size-14
-    // font-size-12
-    // font-size-10
-    // font-size-8
-    //
-    //TODO steps
-    // bigger
-    //   if size != max
-    //     get next larger size and set its style
-    //   else
-    //     beep
-    //
-    // smaller
-    //   if size != min
-    //     get next smaller size and set its style
-    //   else
-    //     beep
-    
-    //TODO move to StyledTextPane
-    final Action bigger = new StyledEditorKit.StyledTextAction("18pts") {
-      private static final long serialVersionUID = 1L;
-      public void actionPerformed(final ActionEvent evt) {
-        System.err.println("bigger");//: "+evt);
-        resultEditorPane.selectAll();
-        actions.get("font-size-18").actionPerformed(new ActionEvent(resultEditorPane, 0, ""));
-        resultEditorPane.setCaretPosition(0); // scroll to top
-      }
-    };
-    //TODO move to StyledTextPane
-    final Action smaller = new StyledEditorKit.StyledTextAction("14pts") {
-      private static final long serialVersionUID = 1L;
-      public void actionPerformed(final ActionEvent evt) {
-        System.err.println("smaller");//: "+evt);
-        resultEditorPane.selectAll();
-        actions.get("font-size-14").actionPerformed(new ActionEvent(resultEditorPane, 0, ""));
-        resultEditorPane.setCaretPosition(0); // scroll to top
-      }
-    };
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey), bigger);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey | InputEvent.SHIFT_MASK), bigger);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey), smaller);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey | InputEvent.SHIFT_MASK), smaller);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), resultEditorPane.biggerFont);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.biggerFont);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), resultEditorPane.smallerFont);
+    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.smallerFont);
 
     final String[] extraKeys = new String[] {
       "pressed",
@@ -285,26 +246,26 @@ public class BrowserPanel extends JPanel {
         "meta pressed",
         "shift meta",
         };
-    for(final String extraKey : extraKeys) {
+    for (final String extraKey : extraKeys) {
       this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
       this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
       
       this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
       this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
 
-      for(final PointerTypeComboBox comboBox : this.posBoxes.values()) {
+      for (final PointerTypeComboBox comboBox : this.posBoxes.values()) {
         comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" UP"), "scrollUp");
         comboBox.getActionMap().put("scrollUp", scrollUp);
         comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" DOWN"), "scrollDown");
         comboBox.getActionMap().put("scrollDown", scrollDown);
 
         // yea these don't use extraKey
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey), "bigger");
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, metaKey | InputEvent.SHIFT_MASK), "bigger");
-        comboBox.getActionMap().put("bigger", bigger);
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey), "smaller");
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, metaKey | InputEvent.SHIFT_MASK), "smaller");
-        comboBox.getActionMap().put("smaller", smaller);
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), "bigger");
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), "bigger");
+        comboBox.getActionMap().put("bigger", resultEditorPane.biggerFont);
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), "smaller");
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), "smaller");
+        comboBox.getActionMap().put("smaller", resultEditorPane.smallerFont);
       }
     }
 
@@ -325,36 +286,177 @@ public class BrowserPanel extends JPanel {
 
     validate();
   }
+
+  static Icon createUndoIcon() {
+    return new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
+  }
+  static Icon createRedoIcon() {
+    return new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
+  }
+
+  static Icon createFontScaleIcon(final int dimension, final boolean bold) {
+    return new ImageIcon(createFontScaleImage(dimension, bold));
+  }
+
+  static BufferedImage createFontScaleImage(final int dimension, final boolean bold) {
+    // new RGB image with transparency channel
+    final BufferedImage image = new BufferedImage(dimension, dimension,
+        BufferedImage.TYPE_INT_ARGB);
+    // create new graphics and set anti-aliasing hints
+    final Graphics2D graphics = (Graphics2D) image.getGraphics().create();
+    // set completely transparent
+    for (int col = 0; col < dimension; col++) {
+      for (int row = 0; row < dimension; row++) {
+        image.setRGB(col, row, 0x0);
+      }
+    }
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+    final char letter = 'A';
+    // Lucida Sans Regular 12pt Plain
+    graphics.setFont(new Font(
+          "Arial", //"Lucida Sans Regular", //"Serif",//"Arial", 
+          bold ? Font.BOLD : Font.PLAIN,
+          dimension - 
+          (bold ? 1 : 3)));
+    graphics.setPaint(Color.BLACK);
+    final FontRenderContext frc = graphics.getFontRenderContext();
+    final TextLayout mLayout = new TextLayout("" + letter, graphics.getFont(), frc);
+    final float x = (float) (-.5 + (dimension - mLayout.getBounds()
+          .getWidth()) / 2);
+    final float y = dimension
+      - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
+    graphics.drawString("" + letter, x, y);
+    if (bold) {
+      // overspray a little
+      graphics.drawString("" + letter, x + 0.5f, y + 0.5f);
+    }
+    graphics.dispose();
+    return image;
+  }
+
+  static ImageIcon createFindIcon(final int dimension, final boolean bold) {
+    return new ImageIcon(createFindImage(dimension, bold));
+  }
+
+  static BufferedImage createFindImage(final int dimension, final boolean bold) {
+    // new RGB image with transparency channel
+    final BufferedImage image = new BufferedImage(dimension, dimension,
+        BufferedImage.TYPE_INT_ARGB);
+    // create new graphics and set anti-aliasing hints
+    final Graphics2D graphics = (Graphics2D) image.getGraphics().create();
+    // set completely transparent
+    for (int col = 0; col < dimension; col++) {
+      for (int row = 0; row < dimension; row++) {
+        image.setRGB(col, row, 0x0);
+      }
+    }
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+    graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+    //XXX make magnifying glass
+    // circle (upper left)
+    // handle lower right @ 135% CW from TDC
+    // drawOval(x,y,w,h)
+    System.err.println("stroke: "+((BasicStroke)graphics.getStroke()).getEndCap());
+    System.err.printf("  caps: %s %d %s %d %s %d\n", 
+        "CAP_BUTT", BasicStroke.CAP_BUTT,
+        "CAP_ROUND", BasicStroke.CAP_ROUND,
+        "CAP_SQUARE", BasicStroke.CAP_SQUARE
+        );
+    graphics.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    int x = 1;
+    int y = 1;
+    int w = (int)((dimension - (x * 2)) * .75);
+    int h = w;
+    System.err.println("w: "+w);
+    // handle
+    //int x1 = ;
+    //int y1 = ;
+    //int x2 = ;
+    //int y2 = ;
+
+    //XXX graphics.setPaint(new Color(0, 0, 196));
+    graphics.setPaint(Color.BLACK);
+    //graphics.drawOval(x, y, w, h);
+    graphics.draw(new Ellipse2D.Double(1, 1, w, h));
+    
+    //final char letter = 'A';
+    //graphics.setPaint(Color.BLACK);
+    //final FontRenderContext frc = graphics.getFontRenderContext();
+    //final TextLayout mLayout = new TextLayout("" + letter, graphics.getFont(), frc);
+    //final float x = (float) (-.5 + (dimension - mLayout.getBounds()
+    //      .getWidth()) / 2);
+    //final float y = dimension
+    //  - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
+
+    
+    //graphics.drawString("" + letter, x, y);
+    //if(bold) {
+    //  // overspray a little
+    //  graphics.drawString("" + letter, x + 0.5f, y + 0.5f);
+    //}
+    graphics.dispose();
+    return image;
+  }
+
+  void debug() {
+    //System.err.println("searchField: "+searchField);
+    //System.err.println();
+    //System.err.println("searchButton: "+searchButton);
+  }
   
   // Callback used by Browser so BrowserPanel can add menu items to File menu
-  void addMenuItems(final JMenu fileMenu) {
+  void addMenuItems(final Browser browser, final JMenu fileMenu) {
     fileMenu.addSeparator();
     JMenuItem item;
     item = fileMenu.add(undoAction);
+    //XXX move this stuff UndoAction / RedoAction
+    //XXX item.setIcon(browser.BLANK_ICON);
     // Command+Z and Ctrl+Z undo on OS X, Windows
-    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, metaKey));
+    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, MENU_MASK));
     item = fileMenu.add(redoAction);
+    //XXX item.setIcon(browser.BLANK_ICON);
     // http://sketchup.google.com/support/bin/answer.py?hl=en&answer=70151
-    // TODO Shift+Command+Z on OS X, Ctrl+Y on Windows
-    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, metaKey));
+    // redo is Shift+Command+Z on OS X, Ctrl+Y on Windows (and everything else)
+    if (MENU_MASK != java.awt.event.InputEvent.META_MASK) {
+      item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, MENU_MASK));
+    } else {
+      item.setAccelerator(KeyStroke.getKeyStroke(
+            KeyEvent.VK_Z, 
+            MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+    }
+    
+    fileMenu.addSeparator();
+    item = fileMenu.add(resultEditorPane.biggerFont);
+    item = fileMenu.add(resultEditorPane.smallerFont);
   }
 
-  void wireToFrame(final Browser frame) {
-    assert frame.isFocusCycleRoot();
+  void wireToFrame(final Browser browser) {
+    assert browser.isFocusCycleRoot();
     final java.util.List<Component> components = new ArrayList<Component>();
     components.add(this.searchField);
     components.addAll(this.posBoxes.values());
     //for(final PointerTypeComboBox box : this.posBoxes.values()) {
     //  components.add(box.menu);
     //}
-    frame.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
+    browser.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
   }
 
   @Override public void setVisible(final boolean visible) {
+    super.setVisible(visible);
     if(visible) {
       searchField.requestFocusInWindow();
     }
-    super.setVisible(visible);
+  }
+
+  synchronized String getSearchText() {
+    return searchField.getText();
   }
 
   static String capitalize(final String str) {
@@ -366,13 +468,14 @@ public class BrowserPanel extends JPanel {
     UndoAction() {
       super("Undo");
       setEnabled(false);
+      putValue(Action.SMALL_ICON, createUndoIcon());
     }
 
     public void actionPerformed(final ActionEvent evt) {
       try {
         searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.undo();
-      } catch (final CannotUndoException ex) {
+      } catch(final CannotUndoException ex) {
         System.err.println("Unable to undo: " + ex);
         ex.printStackTrace();
       }
@@ -397,13 +500,14 @@ public class BrowserPanel extends JPanel {
     RedoAction() {
       super("Redo");
       setEnabled(false);
+      putValue(Action.SMALL_ICON, createRedoIcon());
     }
 
     public void actionPerformed(final ActionEvent evt) {
       try {
         searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.redo();
-      } catch (final CannotRedoException ex) {
+      } catch(final CannotRedoException ex) {
         System.err.println("Unable to redo: " + ex);
         ex.printStackTrace();
       }
@@ -430,6 +534,83 @@ public class BrowserPanel extends JPanel {
   private static class StyledTextPane extends JTextPane {
     private static final long serialVersionUID = 1L;
 
+    Map<Object, Action> actions;
+    final Action biggerFont;
+    final Action smallerFont;
+    
+    StyledTextPane() {
+      //XXX final Map<Object, Action> actions = new HashMap<Object, Action>();
+      //XXX final Integer[] fontSizes = new Integer[]{ 10, 12, 14, 18, 20 };
+      //XXX for(final Integer fontSize : fontSizes) {
+      //XXX   actions.put(fontSize, new StyledEditorKit.FontSizeAction(String.valueOf(fontSize), fontSize));
+      //XXX }
+
+      //XXX final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
+      //TODO move to StyledTextPane
+      //TODO add Ctrl++ / Ctrl+- to Menu shortcuts (View?)
+      // 1. define styles for various sizes (there are already Actions for this?)
+      //
+      // font-size-48
+      // font-size-36
+      // font-size-24
+      // font-size-18
+      // font-size-16
+      // font-size-14
+      // font-size-12
+      // font-size-10
+      // font-size-8
+      //
+      //TODO steps
+      // bigger
+      //   if size != max
+      //     get next larger size and set its style
+      //   else
+      //     beep
+      //
+      // smaller
+      //   if size != min
+      //     get next smaller size and set its style
+      //   else
+      //     beep
+    
+      this.biggerFont = new StyledEditorKit.StyledTextAction("Bigger Font") {
+        private static final long serialVersionUID = 1L;
+        final int fake = init();
+        private int init() {
+          putValue(Action.SMALL_ICON, createFontScaleIcon(16, true));
+          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK));
+          return 0;
+        }
+        public void actionPerformed(final ActionEvent evt) {
+          //System.err.println("bigger");//: "+evt);
+          selectAll();
+          getActionTable().get("font-size-18").actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
+          setCaretPosition(0); // scroll to top
+          smallerFont.setEnabled(true);
+          this.setEnabled(false);
+        }
+      };
+      this.smallerFont = new StyledEditorKit.StyledTextAction("Smaller Font") {
+        private static final long serialVersionUID = 1L;
+        final int fake = init();
+        private int init() {
+          putValue(Action.SMALL_ICON, createFontScaleIcon(16, false));
+          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK));
+          return 0;
+        }
+        public void actionPerformed(final ActionEvent evt) {
+          //System.err.println("smaller");//: "+evt);
+          selectAll();
+          getActionTable().get("font-size-14").actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
+          setCaretPosition(0); // scroll to top
+          biggerFont.setEnabled(true);
+          this.setEnabled(false);
+        }
+      };
+      // this is the starting font size
+      this.smallerFont.setEnabled(false);
+    }
+
     @Override protected EditorKit createDefaultEditorKit() {
       final HTMLEditorKit kit = new HTMLEditorKit();
       final StyleSheet styleSheet = kit.getStyleSheet();
@@ -447,12 +628,14 @@ public class BrowserPanel extends JPanel {
     // The following two methods allow us to find an
     // action provided by the editor kit by its name.
     Map<Object, Action> getActionTable() {
-      final Map<Object, Action> actions = new HashMap<Object, Action>();
-      final Action[] actionsArray = getStyledEditorKit().getActions();
-      for (int i = 0; i < actionsArray.length; i++) {
-        final Action a = actionsArray[i];
-        //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
-        actions.put(a.getValue(Action.NAME), a);
+      if (actions == null) {
+        actions = new HashMap<Object, Action>();
+        final Action[] actionsArray = getStyledEditorKit().getActions();
+        for (int i = 0; i < actionsArray.length; i++) {
+          final Action a = actionsArray[i];
+          //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
+          actions.put(a.getValue(Action.NAME), a);
+        }
       }
       return actions;
     }
@@ -504,7 +687,7 @@ public class BrowserPanel extends JPanel {
         //  System.err.println("mouseReleased");
         //}
         public void mousePressed(final MouseEvent evt) {
-          if(false == isEnabled()) {
+          if (false == isEnabled()) {
             return;
           }
           assert inButton;
@@ -537,7 +720,7 @@ public class BrowserPanel extends JPanel {
 
     /** if popup is showing, hide it, else show it */
     private void togglePopup() {
-      if(false == showing) {
+      if (false == showing) {
         System.err.println("SHOW");
         final Insets margins = getMargin();
         final int px = 5;
@@ -563,7 +746,7 @@ public class BrowserPanel extends JPanel {
         //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
         final JMenuItem item = menu.add(new PointerTypeAction(label, pos, pointerType));
       }
-      if(pos == POS.VERB) {
+      if (pos == POS.VERB) {
         // use word+pos custom labels for drop downs
         final String label = String.format("Sentence frames for verb %s", word.getLemma());
         //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
@@ -601,7 +784,7 @@ public class BrowserPanel extends JPanel {
 
       @Override public void setVisible(final boolean show) {
         super.setVisible(show);
-        if(show) {
+        if (show) {
           //System.err.println("V requestFocus(): "+requestFocus(false));
           //System.err.println("requestFocus(): "+requestFocus(true));
           //System.err.println("requestDefaultFocus(): "+requestDefaultFocus());
@@ -629,7 +812,7 @@ public class BrowserPanel extends JPanel {
         //System.err.println("firePopupMenuWillBecomeInvisible()");
         //System.err.println("isFocusable(): "+isFocusable());
         //System.err.println("invis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
-        if(false == comboBox.inButton) {
+        if (false == comboBox.inButton) {
           comboBox.showing = false;
         }
       }
@@ -657,11 +840,11 @@ public class BrowserPanel extends JPanel {
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
-      Word word = BrowserPanel.this.dictionary.lookupWord(pos, inputString);
-      if(word == null) {
-        final String[] forms = dictionary.lookupBaseForms(pos, inputString);
+      Word word = BrowserPanel.this.dictionary().lookupWord(pos, inputString);
+      if (word == null) {
+        final String[] forms = dictionary().lookupBaseForms(pos, inputString);
         assert forms.length > 0 : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary.lookupWord(pos, forms[0]);
+        word = BrowserPanel.this.dictionary().lookupWord(pos, forms[0]);
         assert forms.length > 0;
       }
       if (pointerType == null) {
@@ -686,11 +869,11 @@ public class BrowserPanel extends JPanel {
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
-      Word word = BrowserPanel.this.dictionary.lookupWord(POS.VERB, inputString);
-      if(word == null) {
-        final String[] forms = dictionary.lookupBaseForms(POS.VERB, inputString);
+      Word word = BrowserPanel.this.dictionary().lookupWord(POS.VERB, inputString);
+      if (word == null) {
+        final String[] forms = dictionary().lookupBaseForms(POS.VERB, inputString);
         assert forms.length > 0 : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary.lookupWord(POS.VERB, forms[0]);
+        word = BrowserPanel.this.dictionary().lookupWord(POS.VERB, forms[0]);
         assert forms.length > 0;
       }
       displayVerbFrames(word);
@@ -727,14 +910,19 @@ public class BrowserPanel extends JPanel {
     final String inputString = searchField.getText().trim(); 
     this.displayedValue = inputString;
     if (inputString.length() == 0) {
+      resultEditorPane.setFocusable(false);
       updateStatusBar(Status.INTRO);
+      for (final PointerTypeComboBox comboBox : this.posBoxes.values()) {
+        comboBox.setEnabled(false);
+      }
       resultEditorPane.setText("");
       return;
     }
+    resultEditorPane.setFocusable(true);
     final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
-      String[] forms = dictionary.lookupBaseForms(pos, inputString);
+      String[] forms = dictionary().lookupBaseForms(pos, inputString);
       if (forms == null) {
         forms = new String[]{ inputString };
       } else {
@@ -754,17 +942,18 @@ public class BrowserPanel extends JPanel {
       //System.err.println("  BrowserPanel forms: \""+Arrays.asList(forms)+"\" pos: "+pos);
       final SortedSet<String> noCaseForms = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       for (final String form : forms) {
-        if(noCaseForms.contains(form)) {
+        if (noCaseForms.contains(form)) {
           // block no case dups ("hell"/"Hell", "villa"/"Villa")
           continue;
         }
         noCaseForms.add(form);
-        final Word word = dictionary.lookupWord(pos, form);
+        final Word word = dictionary().lookupWord(pos, form);
         //System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" Word found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer, false);
-        //FIXME adds extra HR at the end
-        buffer.append("<hr>");
+        if (word != null) {
+          buffer.append("<hr>");
+        }
         if (word != null) {
           posBoxes.get(pos).updateFor(pos, word);
         }
@@ -819,12 +1008,13 @@ public class BrowserPanel extends JPanel {
     }
   } // end enum Status
   
-  // TODO For PointerType searches, show Same text as combo box (e.g. 
+  // TODO For PointerType searches, show Same text as combo box (e.g. "running"
+  // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
     this.statusLabel.setText(status.get(args));
   }
 
-  // overview for single pos+word
+  /** Overview for single pos+word */
   private synchronized void displaySenses(final Word word) {
     updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
@@ -863,7 +1053,7 @@ public class BrowserPanel extends JPanel {
           buffer.append(cnt);
           buffer.append(") ");
         }
-        if(word.getPOS() != POS.ADJ) {
+        if (word.getPOS() != POS.ADJ) {
           buffer.append("&lt;");
           // strip POS off of lex cat (up to first period)
           String posFreeLexCat = sense.getLexCategory();
@@ -920,7 +1110,9 @@ public class BrowserPanel extends JPanel {
     }
   }
 
-  // render single Word + PointerType
+  /** Render single Word + PointerType.  Calls recursive appendSenseChain() method for
+   * each applicable sense.
+   */
   private void displaySenseChain(final Word word, final PointerType pointerType) {
     updateStatusBar(Status.POINTER, pointerType, word.getPOS(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
@@ -956,6 +1148,94 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
+  /** Add information from pointers.  Base method signature of recursive method
+   * appendSenseChain().
+   */
+  void appendSenseChain(
+    final StringBuilder buffer, 
+    final WordSense rootWordSense,
+    final PointerTarget sense, 
+    final PointerType inheritanceType, 
+    final PointerType attributeType) {
+    appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
+  }
+
+  private String listOpen() {
+    //return "<li>";
+    //return "<li>• ";
+    //return "<li>\u2022 ";
+    return "<li>* ";
+  }
+
+  /** Add information from pointers (recursive) 
+   */
+  void appendSenseChain(
+      final StringBuilder buffer, 
+      final WordSense rootWordSense,
+      final PointerTarget sense, 
+      final PointerType inheritanceType, 
+      final PointerType attributeType, 
+      final int tab, 
+      Link ancestors) {
+    buffer.append(listOpen());
+    buffer.append(sense.getLongDescription());
+    buffer.append("</li>\n");
+
+    if (attributeType != null) {
+      for (final Pointer pointer : sense.getPointers(attributeType)) {
+        final PointerTarget target = pointer.getTarget();
+        final boolean srcMatch;
+        if (pointer.isLexical()) {
+          srcMatch = pointer.getSource().equals(rootWordSense);
+        } else {
+          srcMatch = pointer.getSource().getSynset().equals(rootWordSense.getSynset());
+        }
+        if (srcMatch == false) {
+          //System.err.println("rootWordSense: "+rootWordSense+
+          //    " inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
+          //System.err.println("pointer: "+pointer);
+          continue;
+        }
+        buffer.append("<li>");
+        if (target instanceof WordSense) {
+          assert pointer.isLexical();
+          final WordSense wordSense = (WordSense)target;
+          //FIXME RELATED TO label below only right for DERIVATIONALLY_RELATED
+          buffer.append("RELATED TO → ("+wordSense.getPOS().getLabel()+") "+wordSense.getLemma()+"#"+wordSense.getSenseNumber());
+          //ANTONYM example:
+          //Antonym of dissociate (Sense 2)
+          buffer.append("<br>\n");
+        } else {
+          buffer.append("POINTER TARGET ");
+        }
+        buffer.append(target.getSynset().getLongDescription());
+        buffer.append("</li>\n");
+      }
+    }
+    if (attributeType != null) {
+      // Don't get ancestors for these relationships.
+      if (NON_RECURSIVE_POINTER_TYPES.contains(attributeType)) {
+        return;
+      }
+    }
+    if (ancestors == null || ancestors.contains(sense) == false) {
+      ancestors = new Link(sense, ancestors);
+      for (final PointerTarget parent : sense.getTargets(inheritanceType)) {
+        buffer.append("<ul>\n");
+        appendSenseChain(buffer, rootWordSense, parent, inheritanceType, attributeType, tab + 1, ancestors);
+        buffer.append("</ul>\n");
+      }
+    }
+  }
+  //FIXME red DERIVATIONALLY_RELATED shows Sense 2 which has no links!?
+
+  private static final EnumSet<PointerType> NON_RECURSIVE_POINTER_TYPES = EnumSet.of(
+      PointerType.DERIVATIONALLY_RELATED,
+      PointerType.MEMBER_OF_TOPIC_DOMAIN, PointerType.MEMBER_OF_USAGE_DOMAIN, PointerType.MEMBER_OF_REGION_DOMAIN,
+      PointerType.DOMAIN_OF_TOPIC, PointerType.DOMAIN_OF_USAGE, PointerType.DOMAIN_OF_REGION,
+      PointerType.ANTONYM
+  );
+
   private void displayVerbFrames(final Word word) {
     updateStatusBar(Status.VERB_FRAMES, word.getLemma());
     final StringBuilder buffer = new StringBuilder();
@@ -968,7 +1248,7 @@ public class BrowserPanel extends JPanel {
         buffer.append("<br><br>Sense " + (i + 1) + "\n");
         //TODO show the synset ?
         buffer.append("<ul>\n");
-        for(final String frame : senses[i].getWordSense(word).getVerbFrames()) {
+        for (final String frame : senses[i].getWordSense(word).getVerbFrames()) {
           buffer.append(listOpen());
           buffer.append(frame);
           buffer.append("</li>\n");
@@ -999,87 +1279,4 @@ public class BrowserPanel extends JPanel {
       return false;
     }
   } // end class Link
-
-  // add information from pointers
-  void appendSenseChain(
-    final StringBuilder buffer, 
-    final WordSense rootWordSense,
-    final PointerTarget sense, 
-    final PointerType inheritanceType, 
-    final PointerType attributeType) {
-    appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
-  }
-
-  private String listOpen() {
-    //return "<li>";
-    //return "<li>• ";
-    //return "<li>\u2022 ";
-    return "<li>* ";
-  }
-
-  // add information from pointers (recursive)
-  void appendSenseChain(
-      final StringBuilder buffer, 
-      final WordSense rootWordSense,
-      final PointerTarget sense, 
-      final PointerType inheritanceType, 
-      final PointerType attributeType, 
-      final int tab, 
-      Link ancestors) {
-    buffer.append(listOpen());
-    buffer.append(sense.getLongDescription());
-    buffer.append("</li>\n");
-
-    if (attributeType != null) {
-      for (final Pointer pointer : sense.getPointers(attributeType)) {
-        final PointerTarget target = pointer.getTarget();
-        final boolean srcMatch;
-        if (pointer.isLexical()) {
-          srcMatch = pointer.getSource().equals(rootWordSense);
-        } else {
-          srcMatch = pointer.getSource().getSynset().equals(rootWordSense.getSynset());
-        }
-        if (srcMatch == false) {
-          //System.err.println("rootWordSense: "+rootWordSense+
-          //    " inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
-          //System.err.println("pointer: "+pointer);
-          continue;
-        }
-        buffer.append("<li>");
-        if(target instanceof WordSense) {
-          assert pointer.isLexical();
-          final WordSense wordSense = (WordSense)target;
-          //FIXME RELATED TO label below only right for DERIVATIONALLY_RELATED
-          buffer.append("RELATED TO → ("+wordSense.getPOS().getLabel()+") "+wordSense.getLemma()+"#"+wordSense.getSenseNumber());
-          //ANTONYM example:
-          //Antonym of dissociate (Sense 2)
-          buffer.append("<br>\n");
-        } else {
-          buffer.append("POINTER TARGET ");
-        }
-        buffer.append(target.getSynset().getLongDescription());
-        buffer.append("</li>\n");
-      }
-    }
-    if (attributeType != null) {
-      String key = attributeType.getKey();
-      assert key != null : "attributeType: "+attributeType;
-      if (key == null) {
-        key = "";
-      }
-      // Don't get ancestors for derived or category relationships.
-      // FIXME or Antonym ?
-      if (key.startsWith("+") || key.startsWith("-") || key.startsWith(";")) {
-        return;
-      }
-    }
-    if (ancestors == null || ancestors.contains(sense) == false) {
-      ancestors = new Link(sense, ancestors);
-      for (final PointerTarget parent : sense.getTargets(inheritanceType)) {
-        buffer.append("<ul>\n");
-        appendSenseChain(buffer, rootWordSense, parent, inheritanceType, attributeType, tab + 4, ancestors);
-        buffer.append("</ul>\n");
-      }
-    }
-  }
 }
