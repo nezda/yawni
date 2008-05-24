@@ -11,11 +11,13 @@ import javax.swing.*;
  */
 class MoveMouseListener implements MouseListener, MouseMotionListener {
   private final JComponent target;
-  private Point start_drag;
-  private Point start_loc;
+  private Point startDrag;
+  private Point startLoc;
 
   public MoveMouseListener(final JComponent target) {
     this.target = target;
+    this.startDrag = null;
+    this.startLoc = null;
   }
 
   Point getScreenLocation(final MouseEvent evt) {
@@ -30,19 +32,19 @@ class MoveMouseListener implements MouseListener, MouseMotionListener {
   public void mouseEntered(final MouseEvent evt) {}
   public void mouseExited(final MouseEvent evt) {}
   public void mousePressed(final MouseEvent evt) {
-    this.start_drag = this.getScreenLocation(evt);
-    this.start_loc = this.getFrame(this.target).getLocation();
+    this.startDrag = this.getScreenLocation(evt);
+    this.startLoc = this.getFrame(this.target).getLocation();
   }
   public void mouseReleased(final MouseEvent evt) {}
   public void mouseDragged(final MouseEvent evt) {
     final Point current = this.getScreenLocation(evt);
     final Point offset = new Point(
-        (int)current.getX() - (int)start_drag.getX(),
+        (int)current.getX() - (int)startDrag.getX(),
         (int)current.getY() - (int)start_drag.getY());
     final JFrame frame = this.getFrame(target);
     final Point new_location = new Point(
-        (int)(this.start_loc.getX() + offset.getX()),
-        (int)(this.start_loc.getY() + offset.getY()));
+        (int)(this.startLoc.getX() + offset.getX()),
+        (int)(this.startLoc.getY() + offset.getY()));
     frame.setLocation(new_location);
   }
   public void mouseMoved(final MouseEvent evt) {}
