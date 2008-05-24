@@ -63,7 +63,11 @@ public class IterationTest {
               iterationGlossLetters += synset.getGloss().length();
             }
             ++iterationIndexWordsVisited;
-            iteration_total_p_cnt += word.getPointerTypes().size();
+            final EnumSet<PointerType> pointerTypes = word.getPointerTypes();
+            if(pointerTypes.contains(PointerType.ATTRIBUTE)) {
+              //System.err.println("found ATTRIBUTE for word: "+word);
+            }
+            iteration_total_p_cnt += pointerTypes.size();
             for(final WordSense wordSense : word.getSenses()) {
               //final String lemma = word.getLemma();
               final Synset synset = wordSense.getSynset();
@@ -79,8 +83,8 @@ public class IterationTest {
               }
               final Set<WordSense.AdjPosition> adjPosFlags = wordSense.getAdjPositions();
               if(adjPosFlags.isEmpty() == false) {
-                System.err.println(longMsg);
-                System.err.println("AdjPositionFlags: "+adjPosFlags);
+                //System.err.println(longMsg);
+                //System.err.println("AdjPositionFlags: "+adjPosFlags);
               }
               ++totalWordsVisited;
               ++iterationWordsVisited;
