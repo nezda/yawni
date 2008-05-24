@@ -2,7 +2,6 @@ package edu.brandeis.cs.steele.wn.browser;
 
 import java.io.*;
 import javax.swing.*;
-import java.util.Properties;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;

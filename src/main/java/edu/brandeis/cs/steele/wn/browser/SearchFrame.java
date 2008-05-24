@@ -6,7 +6,6 @@
  */
 package edu.brandeis.cs.steele.wn.browser;
 
-import edu.brandeis.cs.steele.wn.DictionaryDatabase;
 import edu.brandeis.cs.steele.wn.POS;
 import edu.brandeis.cs.steele.wn.Word;
 

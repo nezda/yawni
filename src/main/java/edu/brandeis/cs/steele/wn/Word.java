@@ -6,7 +6,6 @@ package edu.brandeis.cs.steele.wn;
 
 import java.util.logging.*;
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.Arrays;
 import java.util.Iterator;
 

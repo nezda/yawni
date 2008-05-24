@@ -62,7 +62,7 @@ public class Synset implements PointerTarget, Iterable<WordSense> {
     this.wordSenses = new WordSense[wordCount];
     for (int i = 0; i < wordCount; i++) {
       String lemma = tokenizer.nextToken().toString();
-      final String originalLemma = lemma;
+      //final String originalLemma = lemma;
       final int lexid = tokenizer.nextHexInt();
       int flags = 0;
       // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
