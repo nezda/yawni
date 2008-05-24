@@ -188,7 +188,7 @@ public class WordSense implements PointerTarget {
     }
     int synsetIndex;
     for (synsetIndex = 0; synsetIndex < getSynset().getWords().length; synsetIndex++) {
-      if(getSynset().getWords()[synsetIndex].getLemma() == getLemma()) {
+      if(getSynset().getWords()[synsetIndex].getLemma().equals(getLemma())) {
         break;
       }
     }
