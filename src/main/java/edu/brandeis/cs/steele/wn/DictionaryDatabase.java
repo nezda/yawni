@@ -46,7 +46,8 @@ public interface DictionaryDatabase {
   public String[] lookupBaseForms(final POS pos, final String someString);
 
   /** 
-   * Could be built from basic API methods lookupBaseForms() and lookupWord() and Word.getSynsets().
+   * Could be built from basic API methods <code>lookupBaseForms()</code> and <code>lookupWord()</code>
+   * and <code>Word.getSynsets()</code>.
    * @param pos The part-of-speech.
    * @param someString
    * @return <code>Synset</code>(s) of <var>someString</var> in <var>pos</var>
@@ -54,7 +55,7 @@ public interface DictionaryDatabase {
   public Synset[] lookupSynsets(final POS pos, final String someString);
 
   /**
-   * Return an enumeration of <b>all</b> the Words of in the database.
+   * Return an enumeration of <b>all</b> the <code>Word</code>s of in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>Word</code>s.
    */
@@ -77,7 +78,7 @@ public interface DictionaryDatabase {
    */
   public Iterable<Word> searchIndexBeginning(final POS pos, final String substring);
 
-  /** Return an enumeration of <b>all</b> the Synsets in the database.
+  /** Return an enumeration of <b>all</b> the <code>Synset</code>s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>Synset</code>s.
    */
