@@ -217,7 +217,6 @@
     <fail if="tests.failed">Tests failed!</fail>
     <!-- life would be easier if echo had an 'if' attribute like fail -->
     <delete file="${build.dir}/test/junitfailed.flag" />
-    
   </target>
 
   <target name="generate-test-reports" description="Generates test reports">
