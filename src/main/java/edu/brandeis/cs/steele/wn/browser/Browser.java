@@ -235,7 +235,7 @@ public class Browser extends JFrame {
    * Used to make JMenuItems with and without icons lineup horizontally.
    * @author http://forum.java.sun.com/thread.jspa?threadID=303795&forumID=57
    */
-  class BlankIcon extends Object implements Icon {
+  static class BlankIcon extends Object implements Icon {
     private final int h;
     private final int w;
     BlankIcon(final int h, final int w) {
