@@ -185,6 +185,8 @@ public class MorphyTest {
     assertEquals(2, Morphy.countWords("dog_gone", ' '));
     assertEquals(1, Morphy.countWords("dog-gone", ' '));
     assertEquals(2, Morphy.countWords("dog-gone", '-'));
+    assertEquals(3, Morphy.countWords("internal-combustion engine", '-'));
+    assertEquals(2, Morphy.countWords("internal-combustion engine", '_'));
   }
 
   @Test
