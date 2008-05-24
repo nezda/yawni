@@ -1,0 +1,193 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.brandeis.cs.steele.wn</groupId>
+  <artifactId>jwordnet</artifactId>
+  <name>JWordNet</name>
+  <version>2.0.0-SNAPSHOT</version>
+  <description>
+    JWordNet is a pure Java standalone object-oriented interface to the WordNet
+    database of lexical and semantic relationships.
+  </description>
+  <url>http://sourceforge.net/projects/jwn/</url>
+  <inceptionYear>2001</inceptionYear>
+  <developers>
+    <developer>
+      <id>nezda</id>
+      <name>Luke Nezda</name>
+      <email>nezda -at- yahoo.com</email>
+      <url>http://www.fatbread.com/</url>
+      <organization></organization>
+      <roles>
+        <role>2.0 Architect</role>
+        <role>2.0 Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mihai</id>
+      <name>Dr. Mihai Surdeanu</name>
+      <email>mihai -at- surdeanu.name</email>
+      <url>http://www.surdeanu.name/mihai</url>
+      <organization></organization>
+      <roles>
+        <role>2.0 Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>osteele</id>
+      <name>Oliver Steele</name>
+      <email>osteele -at- sourceforget.net</email>
+      <organization></organization>
+      <url>http://www.osteele.com/</url>
+      <roles>
+        <role>1.0 Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>kurthayes</id>
+      <name>Kurt Hayes</name>
+      <email>kurthayes -at- sourceforget.net</email>
+      <organization></organization>
+      <roles>
+        <role>1.0 Maintainer</role>
+      </roles>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Apache License</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:file:///Users/nezda/code/svn/jwordnet</connection>
+    <url>file:///Users/nezda/code/svn/jwordnet</url>
+    <!--
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</connection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</url>
+    -->
+  </scm>
+  -->
+  <organization>
+    <name>Apache Software Foundation</name>
+    <url>http://jakarta.apache.org/</url>
+  </organization>
+  <packaging>jar</packaging>
+  <!-- Oliver Steele, Kurt Hayes, Luke Nezda -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <!-- <fork>true</fork> -->
+          <encoding>UTF-8</encoding>
+          <debug>true</debug>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+          <compilerArgument>-Xlint</compilerArgument>
+          <compilerArguments> 
+            <Xmaxerrs>10000000</Xmaxerrs>
+            <Xmaxwarns>10000000</Xmaxwarns>
+          </compilerArguments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <enableAssertions>true</enableAssertions>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <compress/>
+            <index/>
+            <manifest>
+              <mainClass>edu.brandeis.cs.steele.wn.browser.Browser</mainClass>
+            </manifest>
+          </archive>
+          <alias>Luke Nezda</alias>
+          <storepass>secret</storepass>
+          <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>
+          <verify>true</verify>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <show>protected</show>
+          <!-- TODO add `svnversion` output -->
+          <links>
+            <url>http://java.sun.com/j2se/1.5.0/docs/api/</url>
+          </links>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <configuration>
+          <inputEncoding>UTF-8</inputEncoding>
+          <outputEncoding>UTF-8</outputEncoding>
+          <linkJavadoc>true</linkJavadoc>
+          <!-- <javadocDir>/path/to/javadocs</javadocDir> -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <targetJdk>1.5</targetJdk>
+          <sourceEncoding>UTF-8</sourceEncoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <configuration>
+          <jvmargs>-Xmx768M</jvmargs>
+          <!--
+          <threshold>High|Normal|Low|Exp|Ignore</threshold>
+          <effort>Min|Default|Max</effort>
+          <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+          <includeFilterFile>findbugs-include.xml</includeFilterFile>
+          <visitors>FindDeadLocalStores,UnreadFields</visitors>
+          <omitVisitors>FindDeadLocalStores,UnreadFields</omitVisitors>
+          <onlyAnalyze>org.codehaus.mojo.findbugs.*</onlyAnalyze>
+          <pluginList>/libs/fb-contrib/fb-contrib-2.8.0.jar</pluginList>
+          <debug>true|false</debug>
+          <relaxed>true|false</relaxed>
+          <findbugsXmlOutput>true|false</findbugsXmlOutput>
+          <findbugsXmlOutputDirectory>directory location of findbugs legact xml format report</findbugsXmlOutputDirectory>
+          -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.4</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
