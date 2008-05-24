@@ -61,19 +61,17 @@
   </licenses>
   <scm>
     <connection>scm:svn:file:///Users/nezda/code/svn/jwordnet</connection>
-    <url>file:///Users/nezda/code/svn/jwordnet</url>
+    <developerConnection>scm:svn:file:///Users/nezda/code/svn/jwordnet</developerConnection>
     <!--
     <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</connection>
     <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</url>
     -->
   </scm>
-  -->
   <organization>
     <name>Apache Software Foundation</name>
     <url>http://jakarta.apache.org/</url>
   </organization>
   <packaging>jar</packaging>
-  <!-- Oliver Steele, Kurt Hayes, Luke Nezda -->
   <build>
     <plugins>
       <plugin>
@@ -103,6 +101,22 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
@@ -119,6 +133,9 @@
             <manifest>
               <mainClass>edu.brandeis.cs.steele.wn.browser.Browser</mainClass>
             </manifest>
+            <manifestEntries>
+              <svnversion>${buildNumber}</svnversion>
+            </manifestEntries>
           </archive>
           <alias>Luke Nezda</alias>
           <storepass>secret</storepass>
@@ -135,7 +152,6 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <show>protected</show>
-          <!-- TODO add `svnversion` output -->
           <links>
             <url>http://java.sun.com/j2se/1.5.0/docs/api/</url>
           </links>
@@ -148,7 +164,14 @@
           <inputEncoding>UTF-8</inputEncoding>
           <outputEncoding>UTF-8</outputEncoding>
           <linkJavadoc>true</linkJavadoc>
-          <!-- <javadocDir>/path/to/javadocs</javadocDir> -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changelog-plugin</artifactId>
+        <configuration>
+          <type>range</type>
+          <range>30</range>
         </configuration>
       </plugin>
       <plugin>
@@ -163,21 +186,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <configuration>
-          <jvmargs>-Xmx768M</jvmargs>
-          <!--
-          <threshold>High|Normal|Low|Exp|Ignore</threshold>
-          <effort>Min|Default|Max</effort>
-          <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-          <includeFilterFile>findbugs-include.xml</includeFilterFile>
-          <visitors>FindDeadLocalStores,UnreadFields</visitors>
-          <omitVisitors>FindDeadLocalStores,UnreadFields</omitVisitors>
-          <onlyAnalyze>org.codehaus.mojo.findbugs.*</onlyAnalyze>
-          <pluginList>/libs/fb-contrib/fb-contrib-2.8.0.jar</pluginList>
-          <debug>true|false</debug>
-          <relaxed>true|false</relaxed>
-          <findbugsXmlOutput>true|false</findbugsXmlOutput>
-          <findbugsXmlOutputDirectory>directory location of findbugs legact xml format report</findbugsXmlOutputDirectory>
-          -->
+          <jvmargs>-Xmx256M</jvmargs>
         </configuration>
       </plugin>
     </plugins>
