@@ -50,20 +50,27 @@ class RegexConstrainedDocument extends PlainDocument {
 
   @Override
   public void insertString(final int offs, final String s, final AttributeSet a) throws BadLocationException {
-    // consider whether this insert will match
-    final String proposedInsert =
-      getText(0, offs) +
-      s +
-      getText(offs, getLength() - offs);
-    //System.out.println("proposing to change to: " + proposedInsert);
-    if (matcher != null) {
-      matcher.reset(proposedInsert);
-      //System.out.println("matcher reset");
-      if (false == matcher.matches()) {
-        //System.out.println("insert doesn't match");
-        return;
-      }
-    }
+    //// consider whether this insert will match
+    //final String proposedInsert =
+    //  getText(0, offs) +
+    //  s +
+    //  getText(offs, getLength() - offs);
+    ////System.out.println("proposing to change to: " + proposedInsert);
+    //if (matcher != null) {
+    //  matcher.reset(proposedInsert);
+    //  //System.out.println("matcher reset");
+    //  if (false == matcher.matches()) {
+    //    //System.out.println("insert doesn't match");
+    //    return;
+    //  }
+    //}
+
+    // TODO scrub s and then insert it
+    // - shortcut common case: is short and contains nothing but letters
+    // - normalize any internal whitespace
+    // - allow it to end with up to 1 space or hyphen
+    // - bound its total length to MAX_LEN
+    // - allow all inerts to run, just some wth empty strings ?
     super.insertString(offs, s, a);
   } 
 }
