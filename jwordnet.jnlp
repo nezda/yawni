@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-  <!-- <jnlp spec="1.0+" codebase="file:/home/luke/code/java/jwordnet/target/signed/"> -->
+  <!-- <jnlp spec="1.0+" codebase="file:///home/luke/code/java/jwordnet/target/signed/"> -->
   <jnlp spec="1.0+" codebase="http://www.fatbread.com/">
   <information>
     <title>JWordNet Browser</title>
@@ -20,7 +20,6 @@
     <all-permissions/>
   </security>
 
-
   <resources>
     <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
     <jar href="jwordnet-2.0.0-SNAPSHOT.jar"/>
@@ -33,7 +32,7 @@
     <property name="apple.awt.showGrowBox" value="false"/>
   </resources>
 
-  <!-- TODO list some platform specific WNHOME defaults and try them in order -->
+  <!-- some platform specific WNHOME defaults -->
   <resources os="Mac OS X">
     <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
   </resources>
