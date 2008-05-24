@@ -28,7 +28,7 @@ public class FileManager implements FileManagerInterface {
   private static final Logger log = Logger.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
   
   /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
-  public static String VERSION = "1.5.0";
+  public static final String VERSION = "2.0.0";
 
   //
   // Instance variables
@@ -51,7 +51,7 @@ public class FileManager implements FileManagerInterface {
       if (this.filename == null || 
           previous != offset || 
           //false == this.filename.equals(filename)
-          this.filename != filename
+          false == this.filename.equals(filename)
           ) {
         return -1;
       } else {
@@ -518,7 +518,9 @@ public class FileManager implements FileManagerInterface {
   }
   
   // generic comparator for CharSequence / String pairs
-  static class CharSequenceComparator implements Comparator {
+  static class CharSequenceComparator implements Comparator, Serializable {
+    private static final long serialVersionUID = 1L;
+    
     public int compare(final Object o1, final Object o2) {
       if(o1 instanceof String && o2 instanceof String) {
         return ((String)o1).compareTo((String)o2);
