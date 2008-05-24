@@ -31,6 +31,7 @@
   <property file="${user.home}/build.properties"/>
   <property file="${basedir}/build.properties"/>
   <property file="${common.dir}/build.properties"/>
+  <property environment="env"/>
 
   <tstamp>
     <format property="current.year" pattern="yyyy"/>
@@ -118,23 +119,26 @@
   </target>
 
   <macrodef name="jarify" description="Builds a JAR file">
-        <attribute name="basedir" default="${build.dir}/classes/java"/>
-        <attribute name="destfile" default="${build.dir}/${final.name}.jar"/>
-        <element name="manifest-attributes" optional="yes"/>
-        <element name="metainf-includes" optional="yes"/>
+    <attribute name="basedir" default="${build.dir}/classes/java"/>
+    <attribute name="destfile" default="${build.dir}/${final.name}.jar"/>
+    <element name="manifest-attributes" optional="yes"/>
+    <element name="metainf-includes" optional="yes"/>
     <sequential>
       <!-- If possible, include the svnversion -->
       <exec dir="." executable="svnversion"
             outputproperty="svnversion" failifexecutionfails="false">
         <arg line="."/>
       </exec>
-      
       <jar
         destfile="@{destfile}"
         basedir="@{basedir}"
+        index="Yes"
         >
+        <fileset dir="${common.dir}/data"/>
         <manifest>
+          <attribute name="Built-By" value="${user.name}"/>
           <manifest-attributes/>
+          <attribute name="Main-Class" value="edu.brandeis.cs.steele.wn.browser.Browser"/>
         </manifest>
         <metainf dir="${common.dir}">
           <include name="LICENSE.txt"/>
@@ -142,6 +146,11 @@
         </metainf>
         <metainf-includes/>
       </jar>
+      <signjar jar="@{destfile}"
+          alias="Luke Nezda"
+          storepass="secret"
+          preservelastmodified="true">
+      </signjar>
     </sequential>
   </macrodef>
 
@@ -164,7 +173,7 @@
     <mkdir dir="${junit.output.dir}"/>
     <junit 
       fork="yes"
-      maxmemory="64m"
+      maxmemory="96m"
       printsummary="false"
       showoutput="yes"
       haltonfailure="yes"
@@ -179,6 +188,11 @@
       <assertions>
         <enable package="edu.brandeis.cs.steele.wn"/>
       </assertions>
+      
+      <!-- propagate system property WNHOME to junit test JVM -->
+      <sysproperty key="WNHOME" value="${WNHOME}"/>
+      
+      <!-- TODO if env.WNHOME, pass this to junit test JVM -->
 
       <!-- allow tests to control debug prints -->
       <sysproperty key="tests.verbose" value="${tests.verbose}"/>
@@ -248,6 +262,7 @@
         source="${javac.source}"
         target="${javac.target}">
         <nested/>
+        <compilerarg line="-Xlint"/>
         <compilerarg line="-Xmaxwarns 10000000"/>
         <compilerarg line="-Xmaxerrs 10000000"/>
       </javac>
