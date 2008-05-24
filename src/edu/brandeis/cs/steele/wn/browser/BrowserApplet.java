@@ -40,6 +40,7 @@ private static final Logger log = Logger.getLogger(BrowserApplet.class.getName()
     if (log.isLoggable(Level.FINEST)) {
       log.finest("dictionary = "+dictionary);
     }
-    add(new BrowserPanel(dictionary));
+    throw new UnsupportedOperationException("FIXME");
+    //FIXME add(new BrowserPanel(dictionary));
   }
 }
