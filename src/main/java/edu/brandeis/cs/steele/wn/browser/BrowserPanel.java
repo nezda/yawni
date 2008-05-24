@@ -933,7 +933,7 @@ public class BrowserPanel extends JPanel {
             break;
           }
         }
-        if (forms != null && forms.length > 0 && found == false) {
+        if (forms.length > 0 && found == false) {
           System.err.println("    BrowserPanel inputString: \"" + inputString +
               "\" not found in forms: "+Arrays.toString(forms));
         }
