@@ -81,7 +81,7 @@ public class FileManager implements FileManagerInterface {
   }
 
   static String getWNHome() {
-    // FIXME see notes in getWNSearchDir()
+    //FIXME see notes in getWNSearchDir()
     String home = System.getProperty("WNHOME");
     if (home != null && new File(home).exists()) {
       return home;
