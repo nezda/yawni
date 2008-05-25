@@ -167,9 +167,8 @@ public class Word implements Iterable<Synset> {
    */
   public int getWordCount() {
     // Morphy.counts() default implementation already counts 
-    // space (' ') and underscore ('_') separated words -
-    // the given argument is just a formality
-    return Morphy.countWords(lemma, ' ');
+    // space (' ') and underscore ('_') separated words
+    return Morphy.countWords(lemma, '-');
   }
 
   /**
