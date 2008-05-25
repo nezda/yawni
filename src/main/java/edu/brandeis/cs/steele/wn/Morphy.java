@@ -1,13 +1,13 @@
-/**
- * Java port of morph.c - WordNet search code morphological
- * processing functions
- */
 package edu.brandeis.cs.steele.wn;
 
 import java.util.*;
 import java.util.logging.*;
 import edu.brandeis.cs.steele.util.*;
 
+/**
+ * Java port of morph.c - WordNet search code morphological
+ * processing functions
+ */
 class Morphy {
   private static final Logger log = Logger.getLogger(Morphy.class.getName());
   static {
@@ -90,25 +90,52 @@ class Morphy {
 
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
-    //morphyCache = new LRUCache(dictionary.DEFAULT_CACHE_CAPACITY);
-    morphyCache = new LRUCache(0);
+    //this.morphyCache = new LRUCache(dictionary.DEFAULT_CACHE_CAPACITY);
+    // for debug
+    this.morphyCache = new LRUCache(0);
   }
 
+  /**
+   * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
+   * Changes ' ''s to '_' to allows searches to pass.
+   *
+   * Also used in FileBackedDictionary.SearchIterator and 
+   * FileBackedDictionary.StartsWithSearchIterator.
+   */
   static String searchNormalize(String origstr) {
     if (log.isLoggable(Level.FINEST)) {
       log.log(Level.FINEST, "origstr: "+origstr);
     }
-
-    //TODO optimize this
     final int underscore = origstr.indexOf('_');
     final int dash = origstr.indexOf('-');
     final int space = origstr.indexOf(' ');
     if (underscore >= 0 || dash >= 0 || space >= 0) {
-      // fix edge underscores (e.g. "_slovaks_")
+      // allow query consisting of all ' ''s or a single '-'
+      // for use with substring searching
+      if("-".equals(origstr)) {
+        return origstr;
+      }
+      if(isOnlySpaces(origstr)) {
+        return "_";
+      }
+      // strip edge underscores (e.g. "_slovaks_" -> "slovaks")
+      //TODO consider compiling this regex
       origstr = origstr.replaceAll("^[_ -]+", "");
       origstr = origstr.replaceAll("[_ -]+$", "");
     }
+    // lowercase and flatten all runs of white space to a single '_'
+    //TODO consider compiling this regex
     return origstr.toLowerCase().replaceAll("\\s+", "_");
+  }
+
+  private static boolean isOnlySpaces(final CharSequence origstr) {
+    final int n = origstr.length();
+    for(int i = n - 1; i >= 0; i--) {
+      if(origstr.charAt(i) != ' ') {
+        return false;
+      }
+    }
+    return n > 0;
   }
   
   /** 
@@ -252,7 +279,7 @@ class Morphy {
         assert append != null;
         if (end_idx < 0) { 
           // XXX shouldn't do this
-          assert str.equals("_");
+          assert str.equals("_") || str.equals("-") : "str: "+str;
           //assert false : "word: \""+word+"\" str: \""+str+"\" wordCount: "+wordCount+" end_idx: "+end_idx;
           phase1Done = true;
           break;           
@@ -653,29 +680,23 @@ class Morphy {
     return true;
   }
 
+  private static final String SPACE_UNDERSCORE = " _";
+  private static final String SPACE_UNDERSCORE_DASH = " _-";
+
   /** 
    * Count the number of words in a string delimited by space (' '), underscore
    * ('_') or the passed in separator.
-   * Port of wnutil.c cntwords().
    */
   static int countWords(final CharSequence s, final char separator) {
-    int wdcnt = 0;
-    int i = 0;
-    final int len = s.length();
-    while (i < len) {
-      char ci = s.charAt(i);
-      if (ci == separator || ci == ' ' || ci == '_') {
-        wdcnt++;
-        while (i < len && 
-          (ci == separator || ci == ' ' || ci == '_')) {
-          i++;
-          ci = s.charAt(i);
-        }
-      } else {
-        i++;
-      }
+    switch(separator) {
+      case ' ':
+      case '_':
+        return CharSequenceTokenizer.countTokens(s, 0, SPACE_UNDERSCORE);
+      case '-':
+        return CharSequenceTokenizer.countTokens(s, 0, SPACE_UNDERSCORE_DASH);
+      default:
+        return CharSequenceTokenizer.countTokens(s, 0, SPACE_UNDERSCORE + separator);
     }
-    return ++wdcnt;
   }
 
   // LN getindex() is only 1 form of sloppy search (periods, hyphens, underscores
