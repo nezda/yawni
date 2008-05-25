@@ -82,6 +82,32 @@ public class MorphyTest {
   }
 
   @Test
+  public void testMorphyUtils() {
+    assertEquals(1, Morphy.countWords("dog", ' '));
+    // odd that countWords uses passed in separator AND ' ' and '_'
+    assertEquals(2, Morphy.countWords("dog_gone", ' '));
+    assertEquals(2, Morphy.countWords("dog _ gone", ' '));
+    assertEquals(2, Morphy.countWords("dog__gone", ' '));
+    assertEquals(2, Morphy.countWords("dog_ gone", ' '));
+    assertEquals(1, Morphy.countWords("dog-gone", ' '));
+    assertEquals(2, Morphy.countWords("dog-gone", '-'));
+    assertEquals(3, Morphy.countWords("internal-combustion engine", '-'));
+    assertEquals(2, Morphy.countWords("internal-combustion engine", '_'));
+    assertEquals(3, Morphy.countWords("a-b-c", '-'));
+    assertEquals(3, Morphy.countWords("a-b-c-", '-'));
+    assertEquals(3, Morphy.countWords("-a-b-c", '-'));
+    
+    // odd empty string is considered 1 word (not 0)
+    assertEquals(0, Morphy.countWords("", ' '));
+    assertEquals(0, Morphy.countWords(" ", ' '));
+    assertEquals(1, Morphy.countWords("-", ' '));
+    assertEquals(1, Morphy.countWords("--", ' '));
+    assertEquals(0, Morphy.countWords("__", ' '));
+    assertEquals(0, Morphy.countWords("  ", ' '));
+    assertEquals(1, Morphy.countWords("- ", ' '));
+  }
+
+  @Test
   public void test1() {
     String[][] unstemmedStemmedCases = new String[][] {
       { POS.NOUN.name(), "dogs", "dog" },
@@ -111,6 +137,15 @@ public class MorphyTest {
       { POS.NOUN.name(), "superheroes", "superhero" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
       { POS.NOUN.name(), "businessmen", "businessmen", "businessman" },
       { POS.NOUN.name(), "_", null },
+      { POS.NOUN.name(), "-", null },
+      { POS.NOUN.name(), "--", null },
+      { POS.NOUN.name(), "__", null },
+      { POS.NOUN.name(), "  ", null },
+      { POS.NOUN.name(), " ", null },
+      { POS.NOUN.name(), "-_", null },
+      { POS.NOUN.name(), "_-", null },
+      { POS.NOUN.name(), " -", null },
+      { POS.NOUN.name(), "- ", null },
       { POS.NOUN.name(), "armful", "armful" },
       { POS.NOUN.name(), "attorneys general", "attorney general" },
       { POS.NOUN.name(), "axes", "ax", "axis", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
@@ -177,19 +212,6 @@ public class MorphyTest {
   }
 
   @Test
-  public void testMorphyUtils() {
-    // odd empty string is considered 1 word (not 0)
-    assertEquals(1, Morphy.countWords("", ' '));
-    assertEquals(1, Morphy.countWords("dog", ' '));
-    // odd that countWords uses passed in separator AND ' ' and '_'
-    assertEquals(2, Morphy.countWords("dog_gone", ' '));
-    assertEquals(1, Morphy.countWords("dog-gone", ' '));
-    assertEquals(2, Morphy.countWords("dog-gone", '-'));
-    assertEquals(3, Morphy.countWords("internal-combustion engine", '-'));
-    assertEquals(2, Morphy.countWords("internal-combustion engine", '_'));
-  }
-
-  @Test
   public void testWordSense() {
     assertEquals(42, dictionary.lookupWord(POS.NOUN, "dog").getSenses()[0].getSensesTaggedFrequency());
     assertEquals(2, dictionary.lookupWord(POS.VERB, "dog").getSenses()[0].getSensesTaggedFrequency());
@@ -197,7 +219,6 @@ public class MorphyTest {
     assertEquals(0, dictionary.lookupWord(POS.ADJ, "cardinal").getSenses()[1].getSensesTaggedFrequency());
     assertEquals(9, dictionary.lookupWord(POS.ADJ, "concrete").getSenses()[0].getSensesTaggedFrequency());
     assertEquals(1, dictionary.lookupWord(POS.ADJ, "dogmatic").getSenses()[0].getSensesTaggedFrequency());
-    System.err.println("testWordSense() passed");
   }
 
   @Test
