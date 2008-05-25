@@ -32,7 +32,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   private int position;
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for <code>string</code> using whitespace as
+   * Constructs a new <code>CharSequenceTokenizer</code> for <var>string</var> using whitespace as
    * the delimiter.
    * 
    * @param string the CharSequence to be tokenized
@@ -42,8 +42,8 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   }
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for <code>string</code> using the specified
-   * <code>delimiters</code> and returning delimiters as tokens when specified.
+   * Constructs a new <code>CharSequenceTokenizer</code> for <var>string</var> using the specified
+   * <var>delimiters</var> and returning delimiters as tokens when specified.
    * 
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
@@ -65,10 +65,25 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    *         result
    */
   public int countTokens() {
+    return countTokens(string, position, delimiters);
+  }
+
+  /**
+   * Returns the number of tokens in <var>string</var> separated by
+   * <var>delimiters</var> starting at <var>position</var>.
+   * 
+   * @param string the string to be tokenized
+   * @param delimiters the delimiters to use
+   * @return number of tokens that can be retreived before an exception will
+   *         result
+   */
+  public static int countTokens(final CharSequence string, final int position, 
+      final String delimiters) {
     int count = 0;
     boolean inToken = false;
     for (int i = position, length = string.length(); i < length; i++) {
-      if (delimiters.indexOf(string.charAt(i), 0) >= 0) {
+      final char ci = string.charAt(i);
+      if (delimiters.indexOf(ci, 0) >= 0) {
         if (inToken) {
           count++;
           inToken = false;
