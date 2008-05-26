@@ -9,30 +9,25 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * Make JList built to be backed by a large Iterator/Iterable
- * which fires update events every n adds (n can be picked
- * to fill the visible screen asap).  This implies a threaded
- * iterator traversal which updates the model and periodically
- * signals the view on the event thread (SwingUtilities.invokeAndWait).
- * 
- * Reports the current number of matches for use in status bar.
- *
- * Additionally, supports filtering:
- * - with and without case
- * - substring
- * - prefix
- *
- * Built for extension:
- * - includes DocumentListener (the search field Document object)
- *   - gets query from search field from DocumentEvent via the Document
- * - filter is configurable 
- *   - boolean keep(final Object listItem, final String query)
- *   XXX drop this part and filter results via an IterableFilter predicate functor
- * - 2 things can change in parallel here
- *   - query (new Iterable)
- *   - content to filter (e.g. new content iterable)
+ * Built for easy extension:
+ * - implements ListModel built to display large Iterable
  * - results to display / filter are updated via an Iterable which
  *   is traversed in its own thread
+ * - implements DocumentListener for search field which will interactively issue
+ *   queries via method
+ *     abstract public Iterable search(final String query) 
+ *   * this method will be called in a separate thread and should ideally
+ *     support thread interruption
+ *   - gets query from search field from DocumentEvent via the Document
+ * - use JList reference to optimize display responsiveness
+ *
+ * Supports interactive display of a large Iterator/Iterable which fires update
+ * events every n adds (n can be picked to fill the visible screen asap).
+ * Traverses Iterable in a separate (single) thread and updates the model and
+ * periodically signals the view on the event thread
+ * (SwingUtilities.invokeAndWait).
+ * 
+ * Reports the current number of matches for use in status bar.
  *
  * <b>fireXxx() methods must only be called from the event thread
  * (JCiP, pp. 195) (e.g. via SwingUtilities.invokeAndWait() or
@@ -71,6 +66,9 @@ public class FilteredJList extends JList {
    */
   void addItem(final Object o) {
     getFilterModel().addElement(o);
+  }
+  void resetAllItems(final Iterable iterable) {
+    getFilterModel().resetAllItems(iterable);
   }
 
   /** non-static inner class to provide filtered model */
@@ -113,8 +111,16 @@ public class FilteredJList extends JList {
      */
     public void addElement(final Object o) {
       allItems.add(o);
-      //FIXME refilter();
+      refilter(null);
     }
+    void resetAllItems(final Iterable iterable) {
+      allItems.clear();
+      for(final Object o : iterable) {
+        allItems.add(o);
+      }
+      refilter(null);
+    }
+
     private void refilter(final String query) {
       // refilter() should be called in a non-event dispatch thread - it will need a little API
       // Easiest to use a single-threaded ExecutorService
@@ -176,6 +182,9 @@ public class FilteredJList extends JList {
       });
     }
     boolean keep(final Object item, final String query) {
+      if(query == null) {
+        return true;
+      }
       //return allItems.get(i).toString().indexOf(query, 0) != -1;
       return item.toString().regionMatches(true, 0, query, 0, query.length());
     }
@@ -219,10 +228,10 @@ public class FilteredJList extends JList {
     frame.getContentPane().setLayout(new BorderLayout());
     // populate list
     final FilteredJList fjl = new FilteredJList();
-    for(final String item : listItems) {
-      fjl.addItem(item);
-    }
-    //list.setAllItems(list);
+    //for(final String item : listItems) {
+    //  fjl.addItem(item);
+    //}
+    fjl.resetAllItems(listItems);
 
     // add to gui
     final JScrollPane pane = new JScrollPane(fjl,
