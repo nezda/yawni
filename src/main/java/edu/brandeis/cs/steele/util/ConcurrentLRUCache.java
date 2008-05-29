@@ -9,13 +9,13 @@ import java.util.concurrent.*;
  */
 public class ConcurrentLRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
-  private final ConcurrentHashMap<K, V> backingMap;
 
+  private final ConcurrentHashMap<K, V> backingMap;
   protected final int capacity;
 
   public ConcurrentLRUCache(final int capacity) {
     this.capacity = capacity;
-    this.backingMap = new ConcurrentHashMap();
+    this.backingMap = new ConcurrentHashMap<K, V>();
   }
 
   public V put(K key, V value) {
