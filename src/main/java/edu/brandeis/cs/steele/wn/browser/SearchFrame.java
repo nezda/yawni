@@ -27,9 +27,9 @@ class SearchFrame extends JFrame {
   private final BrowserPanel browserPanel;
   final JComponent searchPanel;
   private final JTextField searchField;
+  private final ConcurrentSearchListModel searchListModel;
   private final JList resultList;
-
-  private final SearchResultsModel resultListModel;
+  //XXX private final SearchResultsModel resultListModel;
   private POS pos;
   private SearchType searchType;
 
@@ -77,12 +77,12 @@ class SearchFrame extends JFrame {
     c.weightx = 1.0;
     this.searchPanel.add(searchField, c);
 
-    this.searchField.addActionListener(new ActionListener() {
-      public void actionPerformed(final ActionEvent event) {
-        searchField.selectAll();
-        recomputeResults();
-      }
-    });
+    //XXX this.searchField.addActionListener(new ActionListener() {
+    //XXX   public void actionPerformed(final ActionEvent event) {
+    //XXX     searchField.selectAll();
+    //XXX     recomputeResults();
+    //XXX   }
+    //XXX });
 
     final Action slashAction = new AbstractAction("Slash") {
       private static final long serialVersionUID = 1L;
@@ -102,7 +102,7 @@ class SearchFrame extends JFrame {
       public void itemStateChanged(final ItemEvent event) {
         final JComboBox posChoice = (JComboBox) event.getSource();
         pos = POS.CATS[posChoice.getSelectedIndex()];
-        recomputeResults();
+        //XXX recomputeResults();
       }
     });
     posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
@@ -118,9 +118,27 @@ class SearchFrame extends JFrame {
 
     this.add(this.searchPanel, BorderLayout.NORTH);
 
-    this.resultListModel = new SearchResultsModel();
-    this.resultList = new JList(resultListModel);
-    this.resultList.setFocusable(false);
+    this.searchListModel = new ConcurrentSearchListModel() {
+      private static final long serialVersionUID = 1L;
+      @Override 
+      public Iterable search(final String query) {
+        // performs the actual search
+        switch(searchType) {
+          case SUBSTRING:
+            return new WordToLemma(browserPanel.dictionary().searchWords(pos, query));
+          case PREFIX:
+            return new WordToLemma(browserPanel.dictionary().searchIndexBeginning(pos, query));
+          default:
+            throw new IllegalArgumentException();
+        }
+      }
+    };
+    this.searchField.getDocument().addDocumentListener(this.searchListModel);
+
+    //XXX this.resultListModel = new SearchResultsModel();
+    //XXX this.resultList = new JList(resultListModel);
+    this.resultList = new JList(searchListModel);
+    //XXX this.resultList.setFocusable(false);
     this.resultList.addKeyListener(windowHider);
     this.resultList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     this.resultList.setLayoutOrientation(JList.VERTICAL);
@@ -131,7 +149,8 @@ class SearchFrame extends JFrame {
           return;
         }
         final int index = resultList.getSelectedIndex();
-        final String lemma = resultListModel.getElementAt(index);
+        //XXX final String lemma = resultListModel.getElementAt(index);
+        final String lemma = searchListModel.getElementAt(index).toString(); //XXX toString is long!
         final Word word = browserPanel.dictionary().lookupWord(pos, lemma);
         if (word == null) {
           System.err.println("NULL WORD for lemma: "+lemma);
@@ -143,7 +162,7 @@ class SearchFrame extends JFrame {
 
     this.resultList.addFocusListener(new FocusAdapter() {
       public void focusGained(final FocusEvent e) {
-        if (resultList.isSelectionEmpty() && resultListModel.getSize() > 0) {
+        if (resultList.isSelectionEmpty() && searchListModel.getSize() > 0) {
           resultList.setSelectedIndex(0);
         }
       }
@@ -203,12 +222,23 @@ class SearchFrame extends JFrame {
     //this.setGlassPane(glass);
     //glass.setVisible(true);
   }
+  
+  static class WordToLemma extends MutatedIterable<Word, String> {
+    WordToLemma(final Iterable<Word> iterable) {
+      super(iterable, String.class);
+    }
+    @Override
+    public String apply(final Word word) { 
+      return word.getLemma(); 
+    }
+  } // end class WordToLemma
 
   void reposition() {
-    //FIXME align top of SearchFrame with top of Browser along its left edge
+    //TODO align top of SearchFrame with top of Browser along its left edge
     final Point browserLocation = browserPanel.getLocationOnScreen();
     final Point adjacent = new Point();
     adjacent.x = browserLocation.x - this.getWidth();
+    //TODO if adjacent.x < 0, consider aligning with the left edge instead
     adjacent.x = Math.max(0, adjacent.x);
     adjacent.y = browserLocation.y;
     this.setLocation(adjacent);
@@ -216,6 +246,7 @@ class SearchFrame extends JFrame {
     //this.setLocation(browserPanel.getLocation().x + 20, browserPanel.getLocation().y + 20);
   }
 
+  /** Used by BrowserPanel to pre-populate the search field */
   synchronized void setSearchText(final String searchText) {
     searchField.setText(searchText);
   }
@@ -275,7 +306,8 @@ class SearchFrame extends JFrame {
     }
   }
 
-  @Override public void setVisible(final boolean visible) {
+  @Override 
+  public void setVisible(final boolean visible) {
     super.setVisible(visible);
     if(visible) {
       searchField.requestFocusInWindow();
@@ -284,16 +316,18 @@ class SearchFrame extends JFrame {
 
   String cleanSearchField() {
     // " " is OK
-    // " a" is NOT OK
+    // " a" is NOT OK (translate to "a")
     //return searchField.getText().trim();
-    return searchField.getText().replaceAll("\\s+", " ");
+    //FIXME return searchField.getText().replaceAll("\\s+", " ");
+    return searchField.getText();
   }
 
   protected void recomputeResults() {
     this.resultList.setFocusable(false);
     final String searchString = cleanSearchField();
-    resultListModel.searchingFor(searchString);
+    //XXX resultListModel.searchingFor(searchString);
     final List<String> lemmas = new ArrayList<String>();
+    // performs the actual search
     switch(searchType) {
       case SUBSTRING:
         for (final Word word : browserPanel.dictionary().searchWords(pos, searchString)) {
@@ -308,18 +342,22 @@ class SearchFrame extends JFrame {
       default:
         assert false;
     }
-    resultListModel.showResults(searchString, lemmas);
+    //XXX resultListModel.showResults(searchString, lemmas);
   }
 
+  //XXX this ListModel doesn't do much of anything
   private class SearchResultsModel extends AbstractListModel {
     private static final long serialVersionUID = 1L;
     private List<String> lemmas = new ArrayList<String>();
+    /** {@inheritDoc */
     public String getElementAt(int i) {
       return lemmas.get(i);
     }
+    /** {@inheritDoc */
     public int getSize() {
       return lemmas.size();
     }
+    //FIXME this does not seem to work
     void searchingFor(final String searchString) {
       //System.err.println("isEventDispatchThread: "+SwingUtilities.isEventDispatchThread());
       final int size = this.getSize();
@@ -328,7 +366,8 @@ class SearchFrame extends JFrame {
         this.fireIntervalRemoved(this, 0, size - 1);
       }
       //FIXME this doesn't work - needs some threads
-      this.lemmas = Collections.singletonList("Searching for " + searchString + "...");
+      final String searchingPrompt = "Searching for \"" + searchString + "\"...";
+      this.lemmas = Collections.singletonList(searchingPrompt);
       this.fireIntervalAdded(this, 0, 0);
     }
     void showResults(final String searchString, final List<String> lemmas) {
