@@ -160,9 +160,9 @@ public class Browser extends JFrame {
             "A graphical interface to the<br>"+
             "WordNet online lexical database.<br>"+
             "<br>"+
-            "This Java version by Oliver Steele.<br>"+
-            "The GUI is loosely based on the interface<br>"+
-            "to the Tcl/Tk version by David Slomin and Randee Tengi.",
+            "This Java version is by Luke Nezda and Oliver Steele.<br>"+
+            "The GUI is loosely based on Tcl/Tk interface<br>"+
+            "by David Slomin and Randee Tengi.",
             "About JWordNet Browser",
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.PLAIN_MESSAGE,
