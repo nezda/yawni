@@ -8,6 +8,7 @@ package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.POS;
 import edu.brandeis.cs.steele.wn.Word;
+import edu.brandeis.cs.steele.util.MutatedIterable;
 
 import java.awt.*;
 import java.awt.event.*;
