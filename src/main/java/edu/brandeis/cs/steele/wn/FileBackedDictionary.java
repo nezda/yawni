@@ -606,7 +606,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** 
    * @see DictionaryDatabase#words 
    */
-  // TODO don't do this throw NoSuchElementException iterator stuff
+  //TODO don't do this throw NoSuchElementException iterator stuff
   private class WordIterator implements Iterator<Word> {
     private final POS pos;
     private final String filename;
@@ -658,7 +658,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** 
    * @see DictionaryDatabase#searchWords 
    */
-  // TODO don't do this throw NoSuchElementException iterator stuff
+  //TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchIterator implements Iterator<Word> {
     private final POS pos;
     private final String substring;
@@ -705,7 +705,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** 
    * @see DictionaryDatabase#searchIndexBeginning 
    */
-  // TODO don't do this throw NoSuchElementException iterator stuff
+  //TODO don't do this throw NoSuchElementException iterator stuff
   private class StartsWithSearchIterator implements Iterator<Word> {
     private final POS pos;
     private final String prefix;
@@ -713,7 +713,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     private int nextOffset = 0;
     StartsWithSearchIterator(final POS pos, final String prefix) {
       this.pos = pos;
-      this.prefix = prefix;
+      //TODO really could trim this result too since no
+      //word will begin with a space or dash
+      this.prefix = Morphy.searchNormalize(prefix);
       this.filename = getIndexFilename(pos);
     }
     public boolean hasNext() {
@@ -751,7 +753,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** 
    * @see DictionaryDatabase#synsets 
    */
-  // TODO don't do this throw NoSuchElementException iterator stuff
+  //TODO don't do this throw NoSuchElementException iterator stuff
   private class POSSynsetsIterator implements Iterator<Synset> {
     private final POS pos;
     private final String filename;
