@@ -19,6 +19,8 @@
           <entry key="antiAliased" value="true"/> 
           <!-- "0" will be interpretted as use system default -->
           <entry key="fontSize" value="0"/> 
+          <entry key="saveWindowsSizes" vaue="true"/>
+          <entry key="saveWindowsPositions" vaue="true"/>
         </map>
         <node name="/edu/brandeis/cs/steele/wn/browser/Browser"> 
           <map>

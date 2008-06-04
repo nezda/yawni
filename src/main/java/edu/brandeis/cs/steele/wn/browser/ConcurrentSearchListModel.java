@@ -11,24 +11,25 @@ import edu.brandeis.cs.steele.util.*;
 
 /**
  * Built for easy extension:
- * - implements ListModel built to display large Iterable
- * - results to display / filter are updated via an Iterable which
- *   is traversed in its own thread
- * - implements DocumentListener for search field which will interactively issue
- *   queries via method
+ * - implements ListModel -- built to display large <code>Iterable</code>s
+ * - results to display / filter are updated via an <code>Iterable</code> which
+ *   is traversed in its own thread -- keeps filtering logic decoupled
+ * - implements <code>DocumentListener</code> for search field which will interactively issue
+ *   queries via method:
  *     abstract public Iterable search(final String query) 
  *   * this method will be called in a separate thread and should ideally
  *     support thread interruption
- *   - gets query from search field from DocumentEvent via the Document
- * - use JList reference to optimize display responsiveness
- *
- * Supports interactive display of a large Iterator/Iterable which fires update
- * events every n adds (n can be picked to fill the visible screen asap).
+ *   - gets query from search field from <code>DocumentEvent</code> via the <code>Document</code>
+ * - uses <code>JList</code> reference to maintain display correctness and optimize responsiveness
+ * 
+ * XXX (older prose design notes) XXX
+ * Supports interactive display of a large Iterator/Iterable which (TODO start) fires update
+ * events every n adds (n can be picked to fill the visible screen asap) (TODO end).
  * Traverses Iterable in a separate (single) thread and updates the model and
  * periodically signals the view on the event thread
- * (SwingUtilities.invokeAndWait).
+ * (<code>SwingUtilities.invokeAndWait</code>).
  * 
- * Reports the current number of matches for use in status bar.
+ * TODO Reports the current number of matches for use in a status bar.
  *
  * <b>fireXxx() methods must only be called from the event thread
  * (JCiP, pp. 195) (e.g. via SwingUtilities.invokeAndWait() or
@@ -38,28 +39,44 @@ import edu.brandeis.cs.steele.util.*;
 public abstract class ConcurrentSearchListModel extends AbstractListModel implements DocumentListener {
   private static final long serialVersionUID = 1L;
 
-  private List allItems;
   private List filterItems;
   private final ExecutorService service;
   private int rowUpdateInterval;
 
+  /** <code>jlist</code> should be focusable <i>if</i> it has contents (ie not empty)
+   * <b>and</b> its values are <u>not changing</u>
+   */
+  private void setUpdating(final boolean updating) {
+    jlist.setFocusable(! updating);
+  }
+  private JList jlist;
+  private Future lastTask;
+
   public ConcurrentSearchListModel() {
-    this.allItems = new Vector();
-    //FIXME consider CopyOnWriteArrayList
+    //TODO consider CopyOnWriteArrayList
     this.filterItems = new Vector();
-    this.service = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
-    //XXX setRowUpdateInterval(Integer.MAX_VALUE);
-    setRowUpdateInterval(1);
+    //this.service = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
+    this.service = Executors.newFixedThreadPool(2, new DaemonThreadFactory());
+    //setRowUpdateInterval(Integer.MAX_VALUE);
+    //setRowUpdateInterval(1);
   }
 
   abstract public Iterable search(final String query);
 
   public void setRowUpdateInterval(final int rowUpdateInterval) {
     //TODO ideally just compute this based on visible row range on-the-fly
-    if(rowUpdateInterval < 0) {
+    //XXX simple, but superior method is to make sure range [0, lastVisibleRow]
+    //is updated ASAP, rest don't matter (at expense of complexity, could
+    //even optimize further to range [firstVisibleRow, lastVisibleRow]
+    if (rowUpdateInterval < 0) {
       throw new IllegalArgumentException("negative rowUpdateInterval "+rowUpdateInterval);
     }
     this.rowUpdateInterval = rowUpdateInterval;
+  }
+  public void setJList(final JList jlist) {
+    assert jlist != null;
+    this.jlist = jlist;
+    setUpdating(false);
   }
   /** {@inheritDoc */
   public Object getElementAt(final int index) {
@@ -73,7 +90,6 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   public int getSize() {
     return filterItems.size();
   }
-  Future lastTask = null;
   private void redisplay(final Iterable toDisplay) {
     //XXX System.err.println("doRedisplay submitted "+new Date());
     final Future submittedTask = 
@@ -83,10 +99,10 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
         //XXX System.err.println("doRedisplay done      "+new Date());
       }
     });
-    if(lastTask != null) {
+    if (lastTask != null) {
       final boolean lastTaskCancelled = lastTask.cancel(true);
-      if(lastTaskCancelled) {
-        System.err.println("lastTaskCancelled: "+lastTaskCancelled);
+      if (lastTaskCancelled) {
+        System.err.println("lastTaskCancelled: "+lastTaskCancelled+String.format(" %,d", System.currentTimeMillis()));
       }
     }
     lastTask = submittedTask;
@@ -129,59 +145,64 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     //   - could refine initially filtered set
     // - series of keypresses (deletes) which expands a search
 
+    // make sure the search field is always responsive
+
     final int oldSize = filterItems.size();
-    //XXX filterItems.clear();
-    //XXX SwingUtilities.invokeLater(new Runnable() {
-      //XXX public void run() {
-        //XXX fireIntervalRemoved(this, 0, oldSize);
-    //XXX   }
-    //XXX });
-    // simple optimization for prefix search
-    //  - don't immediately clear, initiate clear the first time toDisplay differs
-    //    from numComputed
-    //  - make sure the search field is always responsive
-    //  FIXME this search should NOT run in the event dispatch thread as it is 
-    //  when this code is a single Runnable
     final List newItems = new Vector();
     for (final Object obj : toDisplay) {
-      if(Thread.interrupted()) {
-        //System.err.println("interrupted!");
-        //break;
+      if (Thread.interrupted()) {
+        System.err.println("interrupted! newItems.size(): "+newItems.size()+String.format(" %,d", System.currentTimeMillis()));
+        break;
       }
-      //XXX filterItems.add(obj);
       newItems.add(obj);
       //TODO periodically fire interval added (using SwingUtilities.invokeLater()!)
       //FIXME check interrupted() to support cancellation !!!
       //  probably best to do this in search iterators
     }
     try {
-    SwingUtilities.invokeAndWait(new Runnable() {
-      public void run() {
-    final int s = Utils.mismatch(filterItems, 0, filterItems.size(), newItems, 0);
-    System.err.println("s: "+s);
-    for(int i = s; i < newItems.size(); i++) {
-      if(i < filterItems.size()) {
-        filterItems.set(i, newItems.get(i));
-      } else {
-        filterItems.add(newItems.get(i));
-      }
-    }
-    if(filterItems.size() > newItems.size()) {
-      for(int i=filterItems.size() - 1; i >= newItems.size(); i--) {
-        filterItems.remove(i);
-      }
-    }
-    //XXX //System.err.println("SwingUtilities.isEventDispatchThread(): "+SwingUtilities.isEventDispatchThread());
-    //XXX SwingUtilities.invokeLater(new Runnable() {
-    //XXX   public void run() {
-        fireContentsChanged(this, 0, Math.max(getSize(), oldSize));
-        //XXX fireContentsChanged(this, 0, 20);
-        //XXX fireContentsChanged(this, s, allItems.size());
-      }
-    });
-    } catch(InterruptedException ie) {
+      SwingUtilities.invokeAndWait(new Runnable() {
+        public void run() {
+          // mismatch strategy optimizes common prefixes
+          final int s = Utils.mismatch(filterItems, 0, filterItems.size(), newItems, 0);
+          if (s != 0) {
+            System.err.println("s: "+s);
+          }
+          setUpdating(true);
+          // final int ns = newItems.size();
+          // final int os = filterItems.size();
+          //
+          // fireContentsChanged(this, ...) [0, os) // if ns > os
+          // fireIntervalAdded(this, ...) [ns - os, ns) // always
+          // fireIntervalRemoved(this, ...) [ns - os, os) if os > ns
+          //
+          // Note: the fireXxx methods take inclusive ranges, so we need to substract 1
+          // from the end points to make these correct
+          for (int i = s; i < newItems.size(); i++) {
+            if (Thread.interrupted()) {
+              System.err.println("alt interrupted!");
+            }
+            if (i < filterItems.size()) {
+              filterItems.set(i, newItems.get(i));
+            } else {
+              filterItems.add(newItems.get(i));
+            }
+          }
+          if (filterItems.size() > newItems.size()) {
+            for (int i = filterItems.size() - 1; i >= newItems.size(); i--) {
+              if (Thread.interrupted()) {
+                System.err.println("falt interrupted!");
+              }
+              filterItems.remove(i);
+            }
+          }
+          fireContentsChanged(this, 0, Math.max(getSize(), oldSize));
+          setUpdating(false);
+          //XXX fireContentsChanged(this, 0, 20);
+        }
+      });
+    } catch(final InterruptedException ie) {
       throw new RuntimeException(ie);
-    } catch(java.lang.reflect.InvocationTargetException ite) {
+    } catch(final java.lang.reflect.InvocationTargetException ite) {
       throw new RuntimeException(ite);
     }
   }
@@ -192,7 +213,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   public void insertUpdate(final DocumentEvent evt) { redisplay(search(query(evt))); }
   /** {@inheritDoc */
   public void removeUpdate(final DocumentEvent evt) { redisplay(search(query(evt))); }
-
+  
   private String query(final DocumentEvent evt) {
     final Document doc = evt.getDocument();
     try {

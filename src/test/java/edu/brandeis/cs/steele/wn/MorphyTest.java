@@ -37,6 +37,7 @@ public class MorphyTest {
     return Arrays.asList(dictionary.lookupBaseForms(pos, someString));
   }
 
+  //TODO consider moving to Utils
   private static boolean containsIgnoreCase(final String needle, final List<String> haystack) {
     for(final String item : haystack) {
       if(item.equalsIgnoreCase(needle)) {
@@ -255,6 +256,7 @@ public class MorphyTest {
     IterationTest.printMemoryUsage();
   }
 
+  //TODO consider moving to Utils
   private static boolean isUnique(final List<String> items) {
     return items.size() == new HashSet<String>(items).size();
   }
