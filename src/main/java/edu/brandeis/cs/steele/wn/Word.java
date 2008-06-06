@@ -22,7 +22,7 @@ import java.util.Iterator;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Word implements Iterable<Synset> {
+public class Word implements Comparable<Word>, Iterable<Synset> {
   private static final Logger log = Logger.getLogger(Word.class.getName());
   
   /** offset in <var>pos</var><code>.index</code> file */
@@ -98,30 +98,6 @@ public class Word implements Iterable<Synset> {
       log.log(Level.SEVERE, "",  e);
       throw e;
     }
-  }
-
-  //
-  // Object methods
-  //
-  @Override public boolean equals(final Object object) {
-    return (object instanceof Word)
-      && ((Word) object).posOrdinal == posOrdinal
-      && ((Word) object).offset == offset;
-  }
-
-  @Override public int hashCode() {
-    // times 10 shifts left by 1 decimal place
-    return ((int) offset * 10) + getPOS().hashCode();
-  }
-
-  @Override public String toString() {
-    return new StringBuilder("[Word ").
-      append(offset).
-      append("@").
-      append(getPOS().getLabel()).
-      append(": \"").
-      append(getLemma()).
-      append("\"]").toString();
   }
 
   //
@@ -235,4 +211,45 @@ public class Word implements Iterable<Synset> {
   int getOffset() {
     return offset;
   }
+
+  //
+  // Object methods
+  //
+  @Override public boolean equals(final Object object) {
+    return (object instanceof Word)
+      && ((Word) object).posOrdinal == posOrdinal
+      && ((Word) object).offset == offset;
+  }
+
+  @Override public int hashCode() {
+    // times 10 shifts left by 1 decimal place
+    return ((int) offset * 10) + getPOS().hashCode();
+  }
+
+  @Override public String toString() {
+    return new StringBuilder("[Word ").
+      append(offset).
+      append("@").
+      append(getPOS().getLabel()).
+      append(": \"").
+      append(getLemma()).
+      append("\"]").toString();
+  }
+  
+  /** 
+   * {@inheritDoc} 
+   */
+  public int compareTo(final Word that) {
+    int result;
+    // if these ' ' -> '_' replaces aren't done resulting sort will not match
+    // index files.  Alternate implementations include using a Comparator<CharSequence>
+    // which does this substitution on the fly or using a Collator (which is probably
+    // less efficient)
+    result = this.getLemma().replace(' ', '_').compareTo(that.getLemma().replace(' ', '_'));
+    if(result == 0) {
+      result = this.getPOS().compareTo(that.getPOS());
+    }
+    return result;
+  }
+
 }
