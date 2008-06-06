@@ -7,6 +7,10 @@ import java.util.List;
 public class Utils {
   private Utils() { }
 
+  public static String capitalize(final String str) {
+    return Character.toUpperCase(str.charAt(0))+str.substring(1);
+  }
+
   /**
    * Returns the absolute offset <i>into <var>l1</var></i> where the elements
    * of sequences <var>l1</var> and <var>l2</var> (with <var>l1</var> starting
