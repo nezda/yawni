@@ -4,8 +4,8 @@ import java.util.*;
 
 /**
  * Derive a new <code>Iterable</code> by calling a method on each of the base
- * <code>Iterable</code>s <code>Iterator</code>s items selecte by
- * implementing the {@link #apply()} method.
+ * <code>Iterable</code>'s <code>Iterator</code>'s items as computed by
+ * implementations of the {@link #apply()} method.
  */
 public abstract class MutatedIterable<T, R> implements Iterable<R> {
   private static final long serialVersionUID = 1L;
