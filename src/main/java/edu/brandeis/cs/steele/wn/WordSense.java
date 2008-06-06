@@ -20,7 +20,7 @@ import java.util.*;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class WordSense implements PointerTarget {
+public class WordSense implements PointerTarget, Comparable<WordSense> {
   /** 
    * <i>Optional</i> restrictions for the position of an adjective relative to the
    * noun it modififies.
@@ -71,32 +71,6 @@ public class WordSense implements PointerTarget {
   void setVerbFrameFlag(final int fnum) {
     verbFrameFlags |= 1L << (fnum - 1);
   }
-
-  //
-  // Object methods
-  //
-  @Override public boolean equals(Object object) {
-    return (object instanceof WordSense)
-      && ((WordSense) object).synset.equals(synset)
-      && ((WordSense) object).lemma.equals(lemma);
-  }
-
-  @Override public int hashCode() {
-    return synset.hashCode() ^ lemma.hashCode();
-  }
-
-  @Override public String toString() {
-    return new StringBuilder("[WordSense ").
-      append(synset.getOffset()).
-      append("@").
-      append(synset.getPOS()).
-      append(":\"").
-      append(getLemma()).
-      append("\"#").
-      append(getSenseNumber()).
-      append("]").toString();
-  }
-
 
   //
   // Accessors
@@ -439,5 +413,42 @@ public class WordSense implements PointerTarget {
   public PointerTarget[] getTargets(final PointerType type) {
     //TODO could be a little more efficient (no need for intermediate Pointer[])
     return Synset.collectTargets(getPointers(type));
+  }
+
+  //
+  // Object methods
+  //
+  @Override public boolean equals(Object object) {
+    return (object instanceof WordSense)
+      && ((WordSense) object).synset.equals(synset)
+      && ((WordSense) object).lemma.equals(lemma);
+  }
+
+  @Override public int hashCode() {
+    return synset.hashCode() ^ lemma.hashCode();
+  }
+
+  @Override public String toString() {
+    return new StringBuilder("[WordSense ").
+      append(synset.getOffset()).
+      append("@").
+      append(synset.getPOS()).
+      append(":\"").
+      append(getLemma()).
+      append("\"#").
+      append(getSenseNumber()).
+      append("]").toString();
+  }
+
+  /** 
+   * {@inheritDoc} 
+   */
+  public int compareTo(final WordSense that) {
+    int result;
+    result = this.getSynset().compareTo(that.getSynset());
+    if(result == 0) {
+      result = this.getLemma().compareTo(that.getLemma());
+    }
+    return result;
   }
 }
