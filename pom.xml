@@ -90,6 +90,7 @@
             <Xmaxerrs>10000000</Xmaxerrs>
             <Xmaxwarns>10000000</Xmaxwarns>
           </compilerArguments>
+          <verbose/>
         </configuration>
       </plugin>
       <plugin>
