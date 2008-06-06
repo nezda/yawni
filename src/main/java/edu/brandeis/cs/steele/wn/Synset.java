@@ -22,7 +22,7 @@ import java.util.logging.*;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Synset implements PointerTarget, Iterable<WordSense> {
+public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Synset.class.getName());
   // 
   // Instance implementation
@@ -306,5 +306,17 @@ public class Synset implements PointerTarget, Iterable<WordSense> {
       append(": \"").
       append(getDescription()).
       append("\"]").toString();
+  }
+
+  /** 
+   * {@inheritDoc} 
+   */
+  public int compareTo(final Synset that) {
+    int result;
+    result = this.getPOS().compareTo(that.getPOS());
+    if(result == 0) {
+      result = this.offset - that.offset;
+    }
+    return result;
   }
 }
