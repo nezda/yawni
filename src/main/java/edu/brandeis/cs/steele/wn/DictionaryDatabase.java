@@ -55,14 +55,14 @@ public interface DictionaryDatabase {
   public Synset[] lookupSynsets(final POS pos, final String someString);
 
   /**
-   * Return an enumeration of <b>all</b> the <code>Word</code>s of in the database.
+   * Return an iterator of <b>all</b> the <code>Word</code>s of in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>Word</code>s.
    */
   public Iterable<Word> words(final POS pos);
 
   /** 
-   * Return an enumeration of all the Words whose lemmas contain <var>substring</var>
+   * Return an iterator of all the <code>Word</code>s whose lemmas contain <var>substring</var>
    * as a <b>substring</b>.
    * @param pos The part-of-speech.
    * @param substring
@@ -71,16 +71,22 @@ public interface DictionaryDatabase {
   public Iterable<Word> searchWords(final POS pos, final String substring);
 
   /** 
-   * Return an enumeration of all the Words whose lemmas <b>begin with</b> <var>prefix</var>.
+   * Return an iterator of all the <code>Word</code>s whose lemmas <b>begin with</b> <var>prefix</var>.
    * @param pos The part-of-speech.
    * @param substring
    * @return An iterable of <code>Word</code>s.
    */
   public Iterable<Word> searchIndexBeginning(final POS pos, final String substring);
 
-  /** Return an enumeration of <b>all</b> the <code>Synset</code>s in the database.
+  /** Return an iterator of <b>all</b> the <code>Synset</code>s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>Synset</code>s.
    */
   public Iterable<Synset> synsets(final POS pos);
+  
+  /** Return an iterator of <b>all</b> the <code>WordSense</code>s in the database.
+   * @param pos The part-of-speech.
+   * @return An iterable of <code>WordSense</code>s.
+   */
+  public Iterable<WordSense> wordSenses(final POS pos);
 }
