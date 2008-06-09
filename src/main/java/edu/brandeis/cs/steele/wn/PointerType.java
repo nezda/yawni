@@ -21,6 +21,7 @@ import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
  * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
  * @see Pointer
  * @see POS
+ * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN.html#sect4">WordNet Searches</a>
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
@@ -28,20 +29,27 @@ public enum PointerType {
   // consider Unicde ellipsis: "…" instead of "..."
 
   // Nouns and Verbs 
-  HYPERNYM("hypernym", "@", N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
-  INSTANCE_HYPERNYM("instance hypernym", "@i", N | V, "Instance Hypernyms (%s is an instance of ...)"),
-  HYPONYM("hyponym", "~", N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
-  INSTANCE_HYPONYM("instance hyponym", "~i", N | V, "Instance Hyponyms (... is an instance of %s)"),
-  DERIVATIONALLY_RELATED("derivationally related", "+", N | V, "Derivationally related forms"),
+  HYPERNYM("hypernym", "@", 2, N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
+  /** aka "instance of" */
+  INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N | V, "Instance Hypernyms (%s is an instance of ...)"),
+  HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
+  /** aka "instances" */
+  INSTANCE_HYPONYM("instance hyponym", "~i", 39, N | V, "Instance Hyponyms (... is an instance of %s)"),
+  /** aka "derivation" */
+  DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V, "Derivationally related forms"),
 
   // Nouns and Adjectives
-  ATTRIBUTE("attribute", "=", N | ADJ, "Attribute (%s is a value of ...)"),
-  SEE_ALSO("also see", "^", N | ADJ | LEXICAL),
+  
+  //FIXME "=" or "\=" ?
+  ATTRIBUTE("attribute", "=", 18, N | ADJ, "Attribute (%s is a value of ...)"),
+  /** aka "also see" */
+  SEE_ALSO("also see", "^", 16, N | ADJ | LEXICAL),
 
   // Verbs
-  ENTAILMENT("entailment", "*", V, "%s entails doing ..."),
-  CAUSE("cause", ">", V, null, "%s causes ..."),
-  VERB_GROUP("verb group", "$", V),
+  ENTAILMENT("entailment", "*", 4, V, "%s entails doing ..."),
+  /** aka "cause to" */
+  CAUSE("cause", ">", 14, V, null, "%s causes ..."),
+  VERB_GROUP("verb group", "$", 19, V),
 
   // Nouns
   /** 
@@ -51,10 +59,13 @@ public enum PointerType {
    * @see PointerType#SUBSTANCE_MERONYM
    * @see PointerType#PART_MERONYM
    */
-  MERONYM("meronym", "%" /* non-existent */, N),
-  MEMBER_MERONYM("member meronym", "%m", N, "Member Meronyms (... are members of %s)"),
-  PART_MERONYM("part meronym", "%p", N, "Part Meronyms (... are parts of %s)"),
-  SUBSTANCE_MERONYM("substance meronym", "%s", N, "Substance Meronyms (... are substances of %s)"),
+  MERONYM("meronym", "%" /* non-existent */, 12, N),
+  /** aka "is member". */
+  MEMBER_MERONYM("member meronym", "#m", 6, N, "Member Meronyms (... are members of %s)"),
+  /** aka "is stuff". */
+  SUBSTANCE_MERONYM("substance meronym", "#s", 7, N, "Substance Meronyms (... are substances of %s)"),
+  /** aka "is part". */
+  PART_MERONYM("part meronym", "#p", 8, N, "Part Meronyms (... are parts of %s)"),
 
   /** 
    * A word that names the whole of which a given word is a part.
@@ -63,45 +74,57 @@ public enum PointerType {
    * @see PointerType#SUBSTANCE_HOLONYM
    * @see PointerType#PART_HOLONYM
    */
-  HOLONYM("holonym", "#" /* non-existent up */, N),
-  MEMBER_HOLONYM("member holonym", "#m", N, "Member Holonyms (%s is a member of ...)"),
-  SUBSTANCE_HOLONYM("substance holonym", "#s", N, "Substance Holonyms (%s is a substance of ...)"),
-  PART_HOLONYM("part holonym", "#p", N, "Part Holonyms (%s is a part of ...)"),
+  HOLONYM("holonym", "#" /* non-existent */, 13, N),
+  /** aka "has member". */
+  MEMBER_HOLONYM("member holonym", "%m", 9, N, "Member Holonyms (%s is a member of ...)"),
+  /** aka "has stuff". */
+  SUBSTANCE_HOLONYM("substance holonym", "%s", 10, N, "Substance Holonyms (%s is a substance of ...)"),
+  /** aka "has part". */
+  PART_HOLONYM("part holonym", "%p", 11, N, "Part Holonyms (%s is a part of ...)"),
   
-  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", N), // topic term
-  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", N), // regional term
-  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", N), // ?
+  /** aka "topic term" */
+  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N), 
+  /** aka "usage term" */
+  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N),
+  /** aka "regiona term" */
+  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N),
 
   // Adjectives
-  SIMILAR_TO("similar to", "&", ADJ),
-  PARTICIPLE_OF("participle of", "<", ADJ | LEXICAL),
-  PERTAINYM("pertainym", "\\", ADJ | LEXICAL, "... are nouns related to %s"),
+  SIMILAR_TO("similar to", "&", 5, ADJ),
+  PARTICIPLE_OF("participle of", "<", 15, ADJ | LEXICAL),
+  /** aka "pertains to noun" */
+  PERTAINYM("pertainym", "\\", 17, ADJ | LEXICAL, "... are nouns related to %s"),
 
   // Adverbs
-  DERIVED("derived from", "\\", ADV), // from adjective
+  /** aka "derived from adjective" */
+  DERIVED("derived from", "\\", 17, ADV), // from adjective
 
   // All parts of speech
-  ANTONYM("antonym", "!", N | V | ADJ | ADV | LEXICAL, "Antonyms (... is the opposite of %s)"),
-
-  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", N | V | ADJ | ADV), // a domain
-  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", N | V | ADJ | ADV), // a region
-  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", N | V | ADJ | ADV), // ?
+  ANTONYM("antonym", "!", 1, N | V | ADJ | ADV | LEXICAL, "Antonyms (... is the opposite of %s)"),
+  /** aka "a topic/domain" */
+  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV),
+  /** aka "a usage type" */
+  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV),
+  /** aka "a region" */
+  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", 34, N | V | ADJ | ADV),
   
   /** 
+   * aka "class"<br>
    * Pure-virtual PointerType. 
    * @see PointerType#MEMBER_OF_TOPIC_DOMAIN
    * @see PointerType#MEMBER_OF_REGION_DOMAIN
    * @see PointerType#MEMBER_OF_USAGE_DOMAIN
    */
-  DOMAIN_MEMBER("Domain Member", "-", N | V | ADJ | ADV),
+  DOMAIN_MEMBER("Domain Member", "-", 22, N | V | ADJ | ADV),
 
   /** 
+   * aka "classification"<br>
    * Pure-virtual PointerType.
    * @see PointerType#DOMAIN_OF_TOPIC
    * @see PointerType#DOMAIN_OF_REGION
    * @see PointerType#DOMAIN_OF_USAGE
    */
-  DOMAIN("Domain", ";", N | V | ADJ | ADV);
+  DOMAIN("Domain", ";", 21, N | V | ADJ | ADV);
 
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
 
@@ -119,6 +142,7 @@ public enum PointerType {
   );
 
   //XXX this seems to indicate DOMAIN implies DOMAIN_PART
+  //XXX SAT_ADJ seems to be an index-only POS
   public static final Set<PointerType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
 
   static {
@@ -256,23 +280,25 @@ public enum PointerType {
   private final String longNounLabel;
   private final String longVerbLabel;
   private final String key;
+  private final int value;
   private final int flags;
   private final String toString;
   private PointerType symmetricType;
   private List<PointerType> subTypes;
   private List<PointerType> superTypes;
 
-  PointerType(final String label, final String key, final int flags) {
-    this(label, key, flags, null, null);
+  PointerType(final String label, final String key, final int value, final int flags) {
+    this(label, key, value, flags, null, null);
   }
   
-  PointerType(final String label, final String key, final int flags, final String longNounLabel) {
-    this(label, key, flags, longNounLabel, null);
+  PointerType(final String label, final String key, final int value, final int flags, final String longNounLabel) {
+    this(label, key, value, flags, longNounLabel, null);
   }
 
-  PointerType(final String label, final String key, final int flags, final String longNounLabel, final String longVerbLabel) {
+  PointerType(final String label, final String key, final int value, final int flags, final String longNounLabel, final String longVerbLabel) {
     this.label = label;
     this.key = key;
+    this.value = value;
     this.flags = flags;
     this.toString = getLabel()+" "+getKey();
     if (longNounLabel != null) {
