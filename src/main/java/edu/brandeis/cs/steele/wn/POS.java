@@ -18,7 +18,8 @@ public enum POS {
   //
   // Class variables
   //
-  // NOTE: do not reorder - PointerTypes relies on this
+  ALL("all POS", null, 0),
+  /** <b>NOTE: do not reorder - PointerTypes relies on this</b> */
   /**
    * <ol> 
    *   <li> a content word that can be used to refer to a person, place, thing, quality, or action </li>
@@ -48,9 +49,10 @@ public enum POS {
    */
   ADV("adverb", "r", 4),
   /**
-   *
+   * Basically a sub-<code>POS</code> of <code>ADJ</code>.
+   * aka "adjective satellite", "ADJSAT"
    */
-  SAT_ADJ("satellite adjective", "s", 5); // ADJECTIVE_SATELLITE
+  SAT_ADJ("satellite adjective", "s", 5);
 
   private static final POS[] VALUES = values();
 
