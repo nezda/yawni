@@ -13,7 +13,7 @@ import java.util.logging.*;
  * that names that concept (and each of which is therefore synonymous with the other wordSenses in the
  * <code>Synset</code>).
  *
- * <code>Synset</code>'s are linked by {@link Pointer}s into a network of related concepts; this is the <i>Net</i>
+ * <p><code>Synset</code>'s are linked by {@link Pointer}s into a network of related concepts; this is the <i>Net</i>
  * in WordNet.  {@link Synset#getTargets Synset.getTargets()} retrieves the targets of these links, and
  * {@link Synset#getPointers Synset.getPointers()} retrieves the pointers themselves.
  *
@@ -33,9 +33,9 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   private final Pointer[] pointers;
   //TODO make this a byte[]
   private final char[] gloss;
-  private final boolean isAdjectiveCluster;
   private final byte posOrdinal;
   private final byte lexfilenum;
+  private final boolean isAdjectiveCluster;
 
   //
   // Constructor
@@ -62,7 +62,6 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
     this.wordSenses = new WordSense[wordCount];
     for (int i = 0; i < wordCount; i++) {
       String lemma = tokenizer.nextToken().toString();
-      //final String originalLemma = lemma;
       final int lexid = tokenizer.nextHexInt();
       int flags = 0;
       // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
@@ -70,6 +69,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
         final int lparenIdx = lemma.indexOf('(');
         final int rparenIdx = lemma.length() - 1;
         assert ')' == lemma.charAt(rparenIdx);
+        //TODO use String.regionMatches() instead of creating 'marker'
         final String marker = lemma.substring(lparenIdx + 1, rparenIdx);
         lemma = lemma.substring(0, lparenIdx);
         if (marker.equals("p")) {
@@ -108,6 +108,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
       }
     }
 
+    // parse gloss
     final int index = line.indexOf('|');
     if (index > 0) {
       // jump '|' and immediately following ' '
@@ -174,6 +175,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
     return null;
   }
 
+  /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
     return Arrays.asList(wordSenses).iterator();
   }
@@ -247,7 +249,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   
   public Pointer[] getPointers(final PointerType type) {
     List<Pointer> vector = null;
-    // TODO 
+    //TODO 
     // if superTypes exist, search them, then current type
     // if current type exists, search it, then if subTypes exist, search them
     for (final Pointer pointer : pointers) {
