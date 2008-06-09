@@ -248,6 +248,7 @@ public class Browser extends JFrame {
   } // end class BlankIcon
 
   private static void setSystemProperties() {
+    //TODO move to preferences ?
     // these won't hurt anything on non OS X platforms
     System.setProperty("swing.aatext", "true");
     System.setProperty("awt.useSystemAAFontSettings", "on");
@@ -260,12 +261,7 @@ public class Browser extends JFrame {
 
   public static void main(final String[] args) {
     final long start = System.currentTimeMillis();
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-    } catch(Exception e) {
-      System.err.println("Error setting native LAF: " + e);
-    }
+    WindowSaver.setLookAndFeel();
 
     //final DictionaryDatabase dictionary;
     //String searchDir = null;
