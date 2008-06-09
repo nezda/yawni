@@ -392,7 +392,7 @@ class Morphy {
     if (word != null) {
       addTrueCaseLemmas(word, toReturn);
     }
-    final List<String> uniqed = uniq(toReturn);
+    final List<String> uniqed = Utils.uniq(toReturn);
     morphyCache.put(cacheKey, uniqed);
     if (log.isLoggable(Level.FINER)) {
       log.finer("returning "+toReturn+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
@@ -769,36 +769,4 @@ class Morphy {
 
   //  return null;
   //}
-
-  /**
-   * Remove duplicates from <param>list</param>.
-   * Assumes <param>list</param> contains no null elements and is short (brute
-   * force algorithm).
-   */
-  private static <T> List<T> uniq(List<T> list) {
-    //log.warning("input list: "+list+" list.size(): "+list.size());
-    if (list == null || list.size() <= 1) {
-      return list;
-    }
-    int n = list.size();
-    for(int i=0; i<n; ++i) {
-      final T ith = list.get(i);
-      for(int j=i+1; j<n; ++j) {
-        final T jth = list.get(j);
-        if (ith.equals(jth)) {
-          // overwrite jth with n-1th and decrement n and j
-          list.set(j, list.get(n-1));
-          --n;
-          --j;
-        }
-      }
-    }
-    if (n < list.size()) {
-      // TODO new list would plug small memory leak here
-      list = list.subList(0, n);
-    }
-    //final Set<T> set = new HashSet<T>(list);
-    //log.warning("output list: "+list+" list.size(): "+list.size());
-    return list;
-  }
 }
