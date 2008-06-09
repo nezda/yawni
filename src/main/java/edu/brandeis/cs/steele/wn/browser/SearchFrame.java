@@ -9,6 +9,8 @@ package edu.brandeis.cs.steele.wn.browser;
 import edu.brandeis.cs.steele.wn.POS;
 import edu.brandeis.cs.steele.wn.Word;
 import edu.brandeis.cs.steele.util.MutatedIterable;
+import edu.brandeis.cs.steele.util.MergedIterable;
+import edu.brandeis.cs.steele.util.Utils;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,9 +32,13 @@ class SearchFrame extends JFrame {
   private final JTextField searchField;
   private final ConcurrentSearchListModel searchListModel;
   private final JList resultList;
+  private final JLabel statusLabel;
+  private final JComboBox posChoice;
   private POS pos;
   private SearchType searchType;
   private static final String LONGEST_WORD = "blood-oxygenation level dependent functional magnetic resonance imaging";
+
+  private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.ALL};
 
   enum SearchType {
     SUBSTRING,
@@ -42,16 +48,14 @@ class SearchFrame extends JFrame {
   SearchFrame(final BrowserPanel browserPanel) {
     super("Substring Search");
     this.browserPanel = browserPanel;
-    this.pos = POS.CATS[0];
     this.setVisible(false);
+    this.pos = POS.valueOf(prefs.get("SearchFrame.searchPOS", POS.NOUN.name()));
     this.searchType = SearchType.valueOf(prefs.get("SearchFrame.searchType", SearchType.SUBSTRING.name()));
-
-    final int metaKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     final KeyListener windowHider = new KeyAdapter() {
       public void keyTyped(final KeyEvent event) {
         if (event.getKeyChar() == 'w' &&
-          (event.getModifiers() & metaKey) != 0) {
+          (event.getModifiers() & Browser.MENU_MASK) != 0) {
           setVisible(false);
         }
       }
@@ -84,29 +88,35 @@ class SearchFrame extends JFrame {
       }
     };
 
-    final JComboBox posChoice = new JComboBox();
-    posChoice.setFont(posChoice.getFont().deriveFont(posChoice.getFont().getSize() - 1f));
-    posChoice.setRequestFocusEnabled(false);
-    posChoice.addKeyListener(windowHider);
-    for (final POS pos : POS.CATS) {
-      posChoice.addItem(BrowserPanel.capitalize(pos.getLabel()));
+    this.posChoice = new JComboBox();
+    this.posChoice.setFont(this.posChoice.getFont().deriveFont(this.posChoice.getFont().getSize() - 1f));
+    this.posChoice.setRequestFocusEnabled(false);
+    this.posChoice.addKeyListener(windowHider);
+    int idx = -1;
+    for (final POS pos : CATS) {
+      idx++;
+      this.posChoice.addItem(Utils.capitalize(pos.getLabel()));
+      if (pos == this.pos) {
+        this.posChoice.setSelectedIndex(idx);
+      }
     }
-    posChoice.addItemListener(new ItemListener() {
+    this.posChoice.addItemListener(new ItemListener() {
       public void itemStateChanged(final ItemEvent evt) {
-        final JComboBox posChoice = (JComboBox) evt.getSource();
-        pos = POS.CATS[posChoice.getSelectedIndex()];
+        assert posChoice == evt.getSource();
+        final POS pos = getSelectedPOS();
+        prefs.put("SearchFrame.searchPOS", pos.name());
         reissueSearch();
       }
     });
-    posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
-    posChoice.getActionMap().put("Slash", slashAction);
+    this.posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+    this.posChoice.getActionMap().put("Slash", slashAction);
     
     c = new GridBagConstraints();
     c.gridx = 1;
     c.gridy = 0;
     c.gridy = 0;
     c.gridwidth = GridBagConstraints.REMAINDER;
-    this.searchPanel.add(posChoice, c);
+    this.searchPanel.add(this.posChoice, c);
     this.addConstraintButtons(this.searchPanel);
 
     this.add(this.searchPanel, BorderLayout.NORTH);
@@ -116,19 +126,60 @@ class SearchFrame extends JFrame {
       @Override 
       public Iterable search(final String query) {
         // performs the actual search
+        final Iterable<Word> searchResults; 
         switch(searchType) {
           case SUBSTRING:
-            return new WordToLemma(browserPanel.dictionary().searchWords(pos, query));
+            //return new WordToLemma(browserPanel.dictionary().searchWords(pos, query));
+            if (pos != POS.ALL) {
+              searchResults = browserPanel.dictionary().searchWords(pos, query); 
+            } else {
+              searchResults = MergedIterable.merge(
+                  browserPanel.dictionary().searchWords(POS.NOUN, query),
+                  browserPanel.dictionary().searchWords(POS.VERB, query),
+                  browserPanel.dictionary().searchWords(POS.ADJ, query),
+                  browserPanel.dictionary().searchWords(POS.ADV, query));
+            }
+            break;
           case PREFIX:
-            return new WordToLemma(browserPanel.dictionary().searchIndexBeginning(pos, query));
+            //return new WordToLemma(browserPanel.dictionary().searchIndexBeginning(pos, query));
+            if (pos != POS.ALL) {
+              searchResults = browserPanel.dictionary().searchIndexBeginning(pos, query); 
+            } else {
+              searchResults = MergedIterable.merge(
+                  browserPanel.dictionary().searchIndexBeginning(POS.NOUN, query),
+                  browserPanel.dictionary().searchIndexBeginning(POS.VERB, query),
+                  browserPanel.dictionary().searchIndexBeginning(POS.ADJ, query),
+                  browserPanel.dictionary().searchIndexBeginning(POS.ADV, query));
+            }
+            break;
           default:
             throw new IllegalArgumentException();
+        }
+        return new WordToLemma(searchResults);
+      }
+      @Override
+      public void searchDone(final String query, final int numHits) {
+        if (numHits != 0) {
+          if(numHits != 1) {
+            //updateStatusBar(Status.SUMMARY, numHits, searchType, pos);
+            updateStatusBar(Status.SUMMARY, numHits);
+          } else {
+            updateStatusBar(Status.ONE_HIT);
+          }
+        } else {
+          if (query.length() != 0) {
+            updateStatusBar(Status.NO_MATCHES);
+          } else {
+            updateStatusBar(Status.NO_SEARCH);
+          }
         }
       }
     };
     this.searchField.getDocument().addDocumentListener(this.searchListModel);
     this.resultList = new JList(searchListModel);
-    this.resultList.setPrototypeCellValue(LONGEST_WORD);
+    // causes JList cell prototype, horizontal scrollbar is always
+    // showing which is confusing
+    //this.resultList.setPrototypeCellValue(LONGEST_WORD);
     this.searchListModel.setJList(this.resultList);
     this.resultList.addKeyListener(windowHider);
     this.resultList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -140,11 +191,25 @@ class SearchFrame extends JFrame {
           return;
         }
         final int index = resultList.getSelectedIndex();
-        //XXX final String lemma = resultListModel.getElementAt(index);
         final String lemma = searchListModel.getElementAt(index).toString();
-        final Word word = browserPanel.dictionary().lookupWord(pos, lemma);
+        Word word = null;
+        if (pos != POS.ALL) {
+          word = browserPanel.dictionary().lookupWord(pos, lemma);
+        } else {
+          // do lookup for all POS and return first hit
+          word = browserPanel.dictionary().lookupWord(POS.NOUN, lemma);
+          if (word == null) {
+            word = browserPanel.dictionary().lookupWord(POS.VERB, lemma);
+          }
+          if (word == null) {
+            word = browserPanel.dictionary().lookupWord(POS.ADJ, lemma);
+          }
+          if (word == null) {
+            word = browserPanel.dictionary().lookupWord(POS.ADV, lemma);
+          }
+        }
         if (word == null) {
-          System.err.println("NULL WORD for lemma: "+lemma);
+          System.err.println("null Word for lemma: "+lemma);
           return;
         }
         SearchFrame.this.browserPanel.setWord(word);
@@ -164,8 +229,16 @@ class SearchFrame extends JFrame {
     jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+    //XXX considering violating the OS X HIG policy of always or never showing the 
+    // horizontal scrollbar
+    //XXX jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+    jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     this.add(jsp, BorderLayout.CENTER);
+
+    this.statusLabel = new JLabel();
+    this.statusLabel.setBorder(BorderFactory.createEmptyBorder(0 /*top*/, 3 /*left*/, 3 /*bottom*/, 0 /*right*/));
+    this.add(this.statusLabel, BorderLayout.SOUTH);
+    updateStatusBar(Status.NO_SEARCH);
 
     this.addWindowListener(new WindowAdapter() {
       public void windowClosing(final WindowEvent evt) {
@@ -205,25 +278,22 @@ class SearchFrame extends JFrame {
     this.setVisible(true);
     this.searchField.requestFocusInWindow();
     this.searchField.setRequestFocusEnabled(true);
-
-    //System.err.println("searchField: "+searchField);
-    //System.err.println("  border: "+searchField.getBorder());
-    //System.err.println("  insets: "+searchField.getInsets());
-
-    //final ComponentGlassPane glass = new ComponentGlassPane(this);
-    //this.setGlassPane(glass);
-    //glass.setVisible(true);
   }
   
   static class WordToLemma extends MutatedIterable<Word, String> {
     WordToLemma(final Iterable<Word> iterable) {
-      super(iterable, String.class);
+      super(iterable);
     }
     @Override
     public String apply(final Word word) { 
       return word.getLemma(); 
     }
   } // end class WordToLemma
+
+  private POS getSelectedPOS() {
+    pos = CATS[posChoice.getSelectedIndex()];
+    return pos;
+  }
 
   void reposition() {
     //TODO align top of SearchFrame with top of Browser along its left edge
@@ -236,6 +306,33 @@ class SearchFrame extends JFrame {
     this.setLocation(adjacent);
     //XXX this.setLocationRelativeTo(browserPanel);
     //this.setLocation(browserPanel.getLocation().x + 20, browserPanel.getLocation().y + 20);
+  }
+
+  /** 
+   * Function object used to show status of user interaction as text at the bottom 
+   * of the main window.
+   */
+  private static enum Status {
+    NO_SEARCH("\u00A0"),
+    ONE_HIT("1 result"),
+    //SUMMARY("%,d results for %s as %s"),
+    SUMMARY("%,d results"),
+    NO_MATCHES("No matches found."),
+    ;
+
+    private final String formatString;
+    
+    private Status(final String formatString) {
+      this.formatString = formatString;
+    }
+    
+    String get(Object... args) {
+      return String.format(formatString, args);
+    }
+  } // end enum Status
+
+  private void updateStatusBar(final Status status, final Object... args) {
+    this.statusLabel.setText(status.get(args));
   }
 
   /** Used by BrowserPanel to pre-populate the search field */
