@@ -15,7 +15,7 @@ package edu.brandeis.cs.steele.wn;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Pointer {
+public class Pointer implements Comparable<Pointer> {
   /** These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
    * once the target has been queried.  The first time they are used, they acts as
@@ -112,6 +112,8 @@ public class Pointer {
 
   @Override public String toString() {
     return new StringBuilder("[Pointer").
+      append(" ").
+      append(getType().name()).
       //append("#").
       //append(index).
       append(" from ").
@@ -121,5 +123,17 @@ public class Pointer {
       append(" to ").
       append(getTarget()).
       append("]").toString();
+  }
+
+  /** {@inheritDoc} */
+  public int compareTo(final Pointer that) {
+    // order by src Synset
+    // then by 'index' field
+    int result;
+    result = this.getSource().getSynset().compareTo(that.getSource().getSynset());
+    if (result == 0) {
+      result = this.index - that.index;
+    }
+    return result;
   }
 }
