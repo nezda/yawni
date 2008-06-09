@@ -45,6 +45,7 @@
             <entry key="x" value="-1"/> 
             <entry key="y" value="-1"/> 
             <entry key="searchType" value="SUBSTRING"/>
+            <entry key="searchPOS" value="ALL"/>
             <!-- TODO how to represent search history ? -->
           </map> 
         </node>
