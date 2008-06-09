@@ -5,6 +5,7 @@
 package edu.brandeis.cs.steele.wn;
 
 import java.util.*;
+import edu.brandeis.cs.steele.util.Utils;
 
 
 /** A <code>WordSense</code> represents the lexical information related to a specific sense of a {@link Word}.
@@ -23,7 +24,7 @@ import java.util.*;
 public class WordSense implements PointerTarget, Comparable<WordSense> {
   /** 
    * <i>Optional</i> restrictions for the position of an adjective relative to the
-   * noun it modififies.
+   * noun it modifies. aka "adjclass".
    */
   public enum AdjPosition {
     NONE(0),
@@ -87,6 +88,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     return lemma;
   }
 
+  /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
     return Collections.singleton(this).iterator();
   }
@@ -126,7 +128,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       final Word word = dictionary.lookupWord(getPOS(), lemma);
       assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
       int senseNumber = 0;
-      for(final Synset syn : word.getSynsets()) {
+      for (final Synset syn : word.getSynsets()) {
         --senseNumber;
         if(syn.equals(synset)) {
           senseNumber = -senseNumber;
@@ -147,7 +149,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   String getSenseKey() {
     final String searchWord;
     final int headSense;
-    if(synset.isAdjectiveCluster()) {
+    if (synset.isAdjectiveCluster()) {
       final PointerTarget[] adjsses = synset.getTargets(PointerType.SIMILAR_TO);
       assert adjsses.length == 1;
       final Synset adjss = (Synset)adjsses[0];
@@ -162,7 +164,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     }
     int synsetIndex;
     for (synsetIndex = 0; synsetIndex < getSynset().getWords().length; synsetIndex++) {
-      if(getSynset().getWords()[synsetIndex].getLemma().equals(getLemma())) {
+      if (getSynset().getWords()[synsetIndex].getLemma().equals(getLemma())) {
         break;
       }
     }
@@ -200,7 +202,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
     final String line = dictionary.lookupCntlistDotRevLine(senseKey);
     int count = 0;
-    if(line != null) {
+    if (line != null) {
       // cntlist.rev line format:
       // <sense_key>  <sense_number>  tag_cnt
       final int lastSpace = line.lastIndexOf(" ");
@@ -211,7 +213,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       // sanity check final int mySenseNumber = getSenseNumber();
       // sanity check final int foundSenseNumber =
       // sanity check   CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
-      // sanity check if(mySenseNumber != foundSenseNumber) {
+      // sanity check if (mySenseNumber != foundSenseNumber) {
       // sanity check   System.err.println(this+" foundSenseNumber: "+foundSenseNumber+" count: "+count);
       // sanity check } else {
       // sanity check   //System.err.println(this+" OK");
@@ -227,19 +229,19 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
    * FIXME this should only have 1 value (ie not be a Set)!
    */
   public Set<AdjPosition> getAdjPositions() {
-    if(flags == 0) {
+    if (flags == 0) {
       return Collections.emptySet();
     }
     assert getPOS() == POS.ADJ;
     final EnumSet<AdjPosition> adjPosFlagSet = EnumSet.noneOf(AdjPosition.class);
     //FIXME check and add the apropos flags
-    if(AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
+    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
       adjPosFlagSet.add(AdjPosition.PREDICATIVE);
     }
-    if(AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
+    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
       adjPosFlagSet.add(AdjPosition.ATTRIBUTIVE);
     }
-    if(AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
+    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
       adjPosFlagSet.add(AdjPosition.IMMEDIATE_POSTNOMINAL);
     }
     return adjPosFlagSet;
@@ -268,14 +270,14 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
    * @see <a href="http://wordnet.princeton.edu/man/wndb.5WN#sect6">http://wordnet.princeton.edu/man/wndb.5WN#sect6</a>
    */
   public List<String> getVerbFrames() {
-    if(getPOS() != POS.VERB) {
+    if (getPOS() != POS.VERB) {
       return Collections.emptyList();
     }
     final String senseKey = getSenseKey();
     final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
     final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
     List<String> frames = Collections.emptyList();
-    if(sentenceNumbers != null) {
+    if (sentenceNumbers != null) {
       frames = new ArrayList<String>();
       // fetch the illustrative sentences indicated in sentenceNumbers
       //TODO consider substibuting in lemma for "%s" in each
@@ -284,7 +286,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       int e = sentenceNumbers.indexOf(",");
       final int n = sentenceNumbers.length();
       e = e > 0 ? e : n;
-      for( ; s < n;
+      for ( ; s < n;
         // e = next comma OR if no more commas, e = n
         s = e + 1, e = sentenceNumbers.indexOf(",", s), e = e > 0 ? e : n) {
         final String sentNum = sentenceNumbers.substring(s, e);
@@ -295,9 +297,9 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     } else {
       //assert verbFrameFlags == 0L : "not mutually exclusive for "+this;
     }
-    if(verbFrameFlags != 0L) {
+    if (verbFrameFlags != 0L) {
       final int numGenericFrames = Long.bitCount(verbFrameFlags);
-      if(frames.isEmpty()) {
+      if (frames.isEmpty()) {
         frames = new ArrayList<String>();
       } else {
         ((ArrayList)frames).ensureCapacity(frames.size() + numGenericFrames);
@@ -308,11 +310,11 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       // 001111111111100
       //  ^-lead      ^-trail
       // simple scan between these (inclusive) should cover rest
-      for(int fn = Long.numberOfTrailingZeros(verbFrameFlags),
+      for (int fn = Long.numberOfTrailingZeros(verbFrameFlags),
           lfn = Long.SIZE - Long.numberOfLeadingZeros(verbFrameFlags);
           fn < lfn;
           fn++) {
-        if((verbFrameFlags & (1L << fn)) != 0L) {
+        if ((verbFrameFlags & (1L << fn)) != 0L) {
           final String frame = dictionary.lookupGenericFrame(fn + 1);
           assert frame != null : 
             "this: "+this+" fn: "+fn+
@@ -354,13 +356,13 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     //buffer.append(getSenseNumber());
     //buffer.append(". ");
     //final int sensesTaggedFrequency = getSensesTaggedFrequency();
-    //if(sensesTaggedFrequency != 0) {
+    //if (sensesTaggedFrequency != 0) {
     //  buffer.append("(");
     //  buffer.append(sensesTaggedFrequency);
     //  buffer.append(") ");
     //}
     buffer.append(getLemma());
-    if(flags != 0) {
+    if (flags != 0) {
       buffer.append("(");
       buffer.append(flagsToString());
       buffer.append(")");
@@ -383,13 +385,13 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       final Pointer pointer = source[i];
       if (pointer.getSource().equals(this)) {
         assert pointer.getSource() == this;
-        if(vector == null) {
+        if (vector == null) {
           vector = new ArrayList<Pointer>();
         }
         vector.add(pointer);
       }
     }
-    if(vector == null) {
+    if (vector == null) {
       return NO_POINTERS;
     }
     return vector.toArray(new Pointer[vector.size()]);
@@ -445,9 +447,12 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
    */
   public int compareTo(final WordSense that) {
     int result;
-    result = this.getSynset().compareTo(that.getSynset());
-    if(result == 0) {
-      result = this.getLemma().compareTo(that.getLemma());
+    result = Utils.WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(this.getLemma(), that.getLemma());
+    if (result == 0) {
+      result = this.getSenseNumber() - that.getSenseNumber();
+      if (result == 0) {
+        result = this.getSynset().compareTo(that.getSynset());
+      }
     }
     return result;
   }
