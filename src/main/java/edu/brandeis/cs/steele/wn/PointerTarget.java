@@ -6,9 +6,9 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-/** A <code>PointerTarget</code> is the <i>source</i> or <i>target</i> of a <code>Pointer</code>.
- * The target of a semantic <code>PointerTarget</code> is a <code>Synset</code>;
- * the target of a lexical <code>PointerTarget</code> is a <code>WordSense</code>.
+/** A <code>PointerTarget</code> is the <i>source</i> or <i>target</i> of a {@link Pointer}.
+ * The target of a <b>semantic</b> <code>PointerTarget</code> is a {@link Synset};
+ * the target of a <b>lexical</b> <code>PointerTarget</code> is a {@link WordSense}.
  *
  * @see Pointer
  * @see Synset
