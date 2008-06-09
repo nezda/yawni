@@ -38,6 +38,18 @@ public class UtilsTest {
     assertEquals(0, Utils.mismatch(ints1, 0, ints1.size(), empty, 0));
   }
 
+  @Test
+  public void testIsSorted() {
+    final List<Integer> empty = Collections.emptyList();
+    assertEquals(true, Utils.isSorted(empty));
+    final List<Integer> ints1 = Arrays.asList(1,2,3);
+    assertEquals(true, Utils.isSorted(ints1));
+    assertEquals(true, Utils.isSorted(ints1.iterator()));
+    final List<Integer> ints2 = Arrays.asList(3,2,1);
+    assertEquals(false, Utils.isSorted(ints2));
+    assertEquals(false, Utils.isSorted(ints2.iterator()));
+  }
+
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(UtilsTest.class);
   }
