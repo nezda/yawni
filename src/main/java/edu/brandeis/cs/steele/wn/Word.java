@@ -4,6 +4,8 @@
  */
 package edu.brandeis.cs.steele.wn;
 
+import edu.brandeis.cs.steele.util.Utils;
+
 import java.util.logging.*;
 import java.util.EnumSet;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ import java.util.Iterator;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Word implements Comparable<Word>, Iterable<Synset> {
+public class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Word.class.getName());
   
   /** offset in <var>pos</var><code>.index</code> file */
@@ -158,8 +160,9 @@ public class Word implements Comparable<Word>, Iterable<Synset> {
     return taggedSenseCount;
   }
 
-  public Iterator<Synset> iterator() {
-    return Arrays.asList(getSynsets()).iterator();
+  /** {@inheritDoc} */
+  public Iterator<WordSense> iterator() {
+    return Arrays.asList(getSenses()).iterator();
   }
 
   public Synset[] getSynsets() {
@@ -242,10 +245,8 @@ public class Word implements Comparable<Word>, Iterable<Synset> {
   public int compareTo(final Word that) {
     int result;
     // if these ' ' -> '_' replaces aren't done resulting sort will not match
-    // index files.  Alternate implementations include using a Comparator<CharSequence>
-    // which does this substitution on the fly or using a Collator (which is probably
-    // less efficient)
-    result = this.getLemma().replace(' ', '_').compareTo(that.getLemma().replace(' ', '_'));
+    // index files.
+    result = Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLemma(), that.getLemma());
     if(result == 0) {
       result = this.getPOS().compareTo(that.getPOS());
     }
