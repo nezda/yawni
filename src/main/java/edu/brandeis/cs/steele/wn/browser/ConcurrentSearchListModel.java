@@ -11,30 +11,34 @@ import edu.brandeis.cs.steele.util.*;
 
 /**
  * Built for easy extension:
- * - implements ListModel -- built to display large <code>Iterable</code>s
- * - results to display / filter are updated via an <code>Iterable</code> which
- *   is traversed in its own thread -- keeps filtering logic decoupled
- * - implements <code>DocumentListener</code> for search field which will interactively issue
+ * <ul>
+ * <li> implements ListModel -- built to display large <code>Iterable</code>s</li>
+ * <li> results to display / filter are updated via an <code>Iterable</code> which
+ *   is traversed in its own thread -- keeps filtering logic decoupled</li>
+ * <li> implements <code>DocumentListener</code> for search field which will interactively issue
  *   queries via method:
- *     abstract public Iterable search(final String query) 
- *   * this method will be called in a separate thread and should ideally
- *     support thread interruption
- *   - gets query from search field from <code>DocumentEvent</code> via the <code>Document</code>
- * - uses <code>JList</code> reference to maintain display correctness and optimize responsiveness
+ *     <blockquote><code>abstract public Iterable search(final String query)</code></blockquote>
+ *   </li>
+ *   <ul>
+ *   <li> this method will be called in a separate thread and should ideally
+ *     support thread interruption</li>
+ *   <li> gets query from search field from <code>DocumentEvent</code> via the <code>Document</code></li>
+ *   </ul>
+ * <li> uses <code>JList</code> reference to maintain display correctness and optimize responsiveness</li>
+ * </ul>
  * 
- * XXX (older prose design notes) XXX
+ * <h4>XXX (older prose design notes) XXX</h4>
  * Supports interactive display of a large Iterator/Iterable which (TODO start) fires update
  * events every n adds (n can be picked to fill the visible screen asap) (TODO end).
  * Traverses Iterable in a separate (single) thread and updates the model and
  * periodically signals the view on the event thread
- * (<code>SwingUtilities.invokeAndWait</code>).
+ * (<code>SwingUtilities.invokeLater</code>).
  * 
- * TODO Reports the current number of matches for use in a status bar.
- *
- * <b>fireXxx() methods must only be called from the event thread
+ * <p><b>fireXxx() methods must only be called from the event thread
  * (JCiP, pp. 195) (e.g. via SwingUtilities.invokeAndWait() or
  * SwingUtilities.invokeLater().</b>
- * Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
+ * 
+ * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
  */
 public abstract class ConcurrentSearchListModel extends AbstractListModel implements DocumentListener {
   private static final long serialVersionUID = 1L;
@@ -46,22 +50,25 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   /** <code>jlist</code> should be focusable <i>if</i> it has contents (ie not empty)
    * <b>and</b> its values are <u>not changing</u>
    */
-  private void setUpdating(final boolean updating) {
-    jlist.setFocusable(! updating);
+  private void setFocusable(final boolean focusable) {
+    jlist.setFocusable(focusable);
   }
   private JList jlist;
   private Future lastTask;
+  private String lastQuery;
 
   public ConcurrentSearchListModel() {
     //TODO consider CopyOnWriteArrayList
     this.filterItems = new Vector();
-    //this.service = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
-    this.service = Executors.newFixedThreadPool(2, new DaemonThreadFactory());
+    this.service = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
+    //this.service = Executors.newFixedThreadPool(2, new DaemonThreadFactory());
     //setRowUpdateInterval(Integer.MAX_VALUE);
     //setRowUpdateInterval(1);
   }
 
   abstract public Iterable search(final String query);
+
+  public void searchDone(final String query, final int numHits) { }
 
   public void setRowUpdateInterval(final int rowUpdateInterval) {
     //TODO ideally just compute this based on visible row range on-the-fly
@@ -76,9 +83,9 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   public void setJList(final JList jlist) {
     assert jlist != null;
     this.jlist = jlist;
-    setUpdating(false);
+    setFocusable(false);
   }
-  /** {@inheritDoc */
+  /** {@inheritDoc} */
   public Object getElementAt(final int index) {
     if (index < filterItems.size()) {
       return filterItems.get(index);
@@ -86,28 +93,31 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       return null;
     }
   }
-  /** {@inheritDoc */
+  /** {@inheritDoc} */
   public int getSize() {
     return filterItems.size();
   }
-  private void redisplay(final Iterable toDisplay) {
+  private void redisplay(final Iterable toDisplay, final String query) {
     //XXX System.err.println("doRedisplay submitted "+new Date());
     final Future submittedTask = 
       service.submit(new Runnable() {
       public void run() {
-        doRedisplay(toDisplay);
+        doRedisplay(toDisplay, query);
         //XXX System.err.println("doRedisplay done      "+new Date());
       }
     });
     if (lastTask != null) {
       final boolean lastTaskCancelled = lastTask.cancel(true);
-      if (lastTaskCancelled) {
-        System.err.println("lastTaskCancelled: "+lastTaskCancelled+String.format(" %,d", System.currentTimeMillis()));
+      if (lastTaskCancelled && lastTask.isCancelled()) {
+        System.err.println("lastTaskCancelled: "+lastTaskCancelled+
+            " lastQuery: \""+lastQuery+"\" query: \""+query+"\""+
+            String.format(" %,d", System.currentTimeMillis()));
       }
     }
     lastTask = submittedTask;
+    lastQuery = query;
   }
-  private void doRedisplay(final Iterable toDisplay) {
+  private void doRedisplay(final Iterable toDisplay, final String query) {
     // redisplay() should be called in a non-event dispatch thread - it will need a little API
     // Easiest to use a single-threaded ExecutorService
     // - "waiting for work" is trivial
@@ -151,7 +161,8 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     final List newItems = new Vector();
     for (final Object obj : toDisplay) {
       if (Thread.interrupted()) {
-        System.err.println("interrupted! newItems.size(): "+newItems.size()+String.format(" %,d", System.currentTimeMillis()));
+        System.err.println("interrupted! query: \""+query+"\""+
+            " newItems.size(): "+newItems.size()+String.format(" %,d", System.currentTimeMillis()));
         break;
       }
       newItems.add(obj);
@@ -159,15 +170,17 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       //FIXME check interrupted() to support cancellation !!!
       //  probably best to do this in search iterators
     }
-    try {
-      SwingUtilities.invokeAndWait(new Runnable() {
+    searchDone(query, newItems.size()); 
+    //XXX try {
+      //XXX SwingUtilities.invokeAndWait(new Runnable() {
+      SwingUtilities.invokeLater(new Runnable() {
         public void run() {
           // mismatch strategy optimizes common prefixes
           final int s = Utils.mismatch(filterItems, 0, filterItems.size(), newItems, 0);
           if (s != 0) {
             System.err.println("s: "+s);
           }
-          setUpdating(true);
+          setFocusable(false);
           // final int ns = newItems.size();
           // final int os = filterItems.size();
           //
@@ -195,24 +208,34 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
               filterItems.remove(i);
             }
           }
+          assert filterItems.size() == newItems.size();
           fireContentsChanged(this, 0, Math.max(getSize(), oldSize));
-          setUpdating(false);
+          setFocusable(getSize() != 0);
           //XXX fireContentsChanged(this, 0, 20);
         }
       });
-    } catch(final InterruptedException ie) {
-      throw new RuntimeException(ie);
-    } catch(final java.lang.reflect.InvocationTargetException ite) {
-      throw new RuntimeException(ite);
-    }
+    //XXX } catch(final InterruptedException ie) {
+    //XXX   throw new RuntimeException(ie);
+    //XXX } catch(final java.lang.reflect.InvocationTargetException ite) {
+    //XXX   throw new RuntimeException(ite);
+    //XXX }
   }
 
-  /** {@inheritDoc */
-  public void changedUpdate(final DocumentEvent evt) { redisplay(search(query(evt))); }
-  /** {@inheritDoc */
-  public void insertUpdate(final DocumentEvent evt) { redisplay(search(query(evt))); }
-  /** {@inheritDoc */
-  public void removeUpdate(final DocumentEvent evt) { redisplay(search(query(evt))); }
+  /** {@inheritDoc} */
+  public void changedUpdate(final DocumentEvent evt) { 
+    final String query = query(evt); 
+    redisplay(search(query), query); 
+  }
+  /** {@inheritDoc} */
+  public void insertUpdate(final DocumentEvent evt) { 
+    final String query = query(evt); 
+    redisplay(search(query), query); 
+  }
+  /** {@inheritDoc} */
+  public void removeUpdate(final DocumentEvent evt) { 
+    final String query = query(evt); 
+    redisplay(search(query), query); 
+  }
   
   private String query(final DocumentEvent evt) {
     final Document doc = evt.getDocument();
