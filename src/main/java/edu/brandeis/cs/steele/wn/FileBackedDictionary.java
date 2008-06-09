@@ -10,9 +10,9 @@ import java.util.*;
 import java.util.logging.*;
 
 /** A <code>DictionaryDatabase</code> that retrieves objects from the text files in the WordNet distribution
- * directory.
+ * directory (typically <tt><i>$WNHOME</i>/dict/</tt>).
  *
- * A <code>FileBackedDictionary</code> has an <i>entity cache</i>.  The entity cache is used to resolve multiple
+ * <p>A <code>FileBackedDictionary</code> has an <i>entity cache</i>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
  * calls to <code>lookupWord</code> with the same parameters would return the same value
  * (<code>==</code> as well as <code>equals</code>), as would traversal of two <code>Pointer</code>s
@@ -174,12 +174,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
     POS_TO_FILENAME_ROOT.put(POS.NOUN, "noun");
     POS_TO_FILENAME_ROOT.put(POS.VERB, "verb");
     POS_TO_FILENAME_ROOT.put(POS.ADJ, "adj");
+    POS_TO_FILENAME_ROOT.put(POS.SAT_ADJ, "adj");
     POS_TO_FILENAME_ROOT.put(POS.ADV, "adv");
   }
 
   /** NOTE: Called at most once per POS */
   private static String getDatabaseSuffixName(final POS pos) {
-    assert POS_TO_FILENAME_ROOT.containsKey(pos);
+    assert POS_TO_FILENAME_ROOT.containsKey(pos) : "no filename for pos "+pos;
     return POS_TO_FILENAME_ROOT.get(pos);
   }
 
@@ -635,7 +636,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
           }
           nextOffset = db.getNextLinePointer(filename, nextOffset);
         } while (line.startsWith("  ")); // first few lines start with "  "
-        //FIXME something is wrong with this
+        //FIXME something seems wrong with this
         return new Word(line, offset);
       } catch (final IOException e) {
         throw new RuntimeException(e);
@@ -702,7 +703,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     };
   }
   
-  /** 
+  /**
    * @see DictionaryDatabase#searchIndexBeginning 
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
@@ -791,6 +792,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class POSSynsetsIterator
 
+  /** {@inheritDoc} */
   public Iterable<Synset> synsets(final POS pos) {
     return new Iterable<Synset> () {
       public Iterator<Synset> iterator() {
@@ -798,5 +800,87 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
     };
   }
-}
 
+  /** 
+   * @see DictionaryDatabase#wordSenses 
+   */
+  //TODO don't do this throw NoSuchElementException iterator stuff
+  private class POSWordSensesIterator implements Iterator<WordSense> {
+    private final Iterator<WordSense> wordSenses;
+    POSWordSensesIterator(final POS pos) {
+      this.wordSenses = MultiLevelIterable.of(words(pos)).iterator();
+    }
+    public boolean hasNext() {
+      return wordSenses.hasNext();
+    }
+    public WordSense next() {
+      // uses 2 level Iterator - first is Synsets,
+      // second is their WordSenses
+      // Both levels have a variable number of members
+      // Only second level's elements are emitted.
+      return wordSenses.next();
+    }
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  } // end class POSSynsetsIterator
+
+  /** {@inheritDoc} */
+  public Iterable<WordSense> wordSenses(final POS pos) {
+    return new Iterable<WordSense> () {
+      public Iterator<WordSense> iterator() {
+        return new POSWordSensesIterator(pos);
+      }
+    };
+  }
+
+  /** 
+   * @see DictionaryDatabase#pointers 
+   */
+  //TODO don't do this throw NoSuchElementException iterator stuff
+  private class POSPointersIterator implements Iterator<Pointer> {
+    private final Iterator<Pointer> pointers;
+    POSPointersIterator(final POS pos, final PointerType pointerType) {
+      this.pointers = MultiLevelIterable.of(new SynsetsToPointers(synsets(pos), pointerType)).iterator();
+    }
+    public boolean hasNext() {
+      return pointers.hasNext();
+    }
+    public Pointer next() {
+      return pointers.next();
+    }
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  } // end class POSPointersIterator
+
+  private static class SynsetsToPointers extends MutatedIterable<Synset, List<Pointer>> {
+    private final PointerType pointerType;
+    SynsetsToPointers(final Iterable<Synset> iterable, final PointerType pointerType) {
+      super(iterable);
+      this.pointerType = pointerType;
+    }
+    @Override
+    public List<Pointer> apply(final Synset synset) { 
+      if (pointerType == null) {
+        return Arrays.asList(synset.getPointers());
+      } else {
+        return Arrays.asList(synset.getPointers(pointerType));
+      }
+    }
+  } // end class SynsetsToPointers
+
+  /** {@inheritDoc} */
+  public Iterable<Pointer> pointers(final POS pos) {
+    return pointers(pos, null);
+  }
+
+  /** {@inheritDoc} */
+  public Iterable<Pointer> pointers(final POS pos, final PointerType pointerType) {
+    return new Iterable<Pointer> () {
+      public Iterator<Pointer> iterator() {
+        return new POSPointersIterator(pos, pointerType);
+      }
+    };
+  }
+}
