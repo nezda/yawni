@@ -152,7 +152,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <show>protected</show>
+          <quiet/>
           <links>
             <url>http://java.sun.com/j2se/1.5.0/docs/api/</url>
           </links>
