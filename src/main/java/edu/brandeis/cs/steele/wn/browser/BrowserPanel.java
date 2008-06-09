@@ -7,6 +7,7 @@
 package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.*;
+import edu.brandeis.cs.steele.util.Utils;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -38,7 +39,7 @@ public class BrowserPanel extends JPanel {
 
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
   private JTextField searchField;
-  // when ever this is true, the content of search field has changed
+  // whenever this is true, the content of search field has changed
   // and is not synced with the display
   private boolean searchFieldChanged;
   private String displayedValue;
@@ -55,9 +56,6 @@ public class BrowserPanel extends JPanel {
   public BrowserPanel(final Browser browser) {
     this.browser = browser;
     super.setLayout(new BorderLayout());
-
-    //TODO assert MENU_MASK is-a power of 2
-    //java.awt.event.InputEvent.SHIFT_MASK, CTRL_MASK, META_MASK, ALT_MASK
 
     //this.searchField = new JTextField() {
     //  private static final long serialVersionUID = 1L;
@@ -416,7 +414,7 @@ public class BrowserPanel extends JPanel {
     fileMenu.addSeparator();
     JMenuItem item;
     item = fileMenu.add(undoAction);
-    //XXX move this stuff UndoAction / RedoAction
+    //TODO move this stuff UndoAction / RedoAction
     //XXX item.setIcon(browser.BLANK_ICON);
     // Command+Z and Ctrl+Z undo on OS X, Windows
     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, MENU_MASK));
@@ -459,10 +457,8 @@ public class BrowserPanel extends JPanel {
     return searchField.getText();
   }
 
-  static String capitalize(final String str) {
-    return Character.toUpperCase(str.charAt(0))+str.substring(1);
-  }
-
+  // non-static class UndoAction cross references RedoAction and
+  // other non-static fields
   class UndoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     UndoAction() {
@@ -495,6 +491,8 @@ public class BrowserPanel extends JPanel {
     }
   } // end class UndoAction
 
+  // non-static class RedoAction cross references UndoAction and
+  // other non-static fields
   class RedoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     RedoAction() {
@@ -662,9 +660,9 @@ public class BrowserPanel extends JPanel {
     private boolean inButton;
 
     PointerTypeComboBox(final POS pos) {
-      //super(capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
-      //super(capitalize(pos.getLabel()), new MetalComboBoxIcon());
-      super(capitalize(pos.getLabel())/*, new MetalComboBoxIcon()*/);
+      //super(Utils.capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
+      //super(Utils.capitalize(pos.getLabel()), new MetalComboBoxIcon());
+      super(Utils.capitalize(pos.getLabel())/*, new MetalComboBoxIcon()*/);
       this.setDisabledIcon(getIcon());
       this.setHorizontalTextPosition(SwingConstants.LEFT);
       this.setVerticalTextPosition(SwingConstants.CENTER);
@@ -736,7 +734,7 @@ public class BrowserPanel extends JPanel {
       //XXX requestFocusInWindow();
     }
 
-    /** populate with pointer types which apply to pos+word */
+    /** populate with <code>PointerType</code>s which apply to pos+word */
     void updateFor(final POS pos, final Word word) { 
       menu.removeAll();
       menu.add(new PointerTypeAction("Senses", pos, null));
@@ -1008,7 +1006,7 @@ public class BrowserPanel extends JPanel {
     }
   } // end enum Status
   
-  // TODO For PointerType searches, show Same text as combo box (e.g. "running"
+  // TODO For PointerType searches, show same text as combo box (e.g. "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
     this.statusLabel.setText(status.get(args));
