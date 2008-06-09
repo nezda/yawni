@@ -8,8 +8,9 @@ import java.util.*;
 import java.util.prefs.*;
 
 /**
- * Save window positions in user preferences.
+ * Save window positions and all other persistent user preferences.
  * Doesn't use Properties (files), uses Preferences - no files or maps to manage.
+ * TODO rename this class
  * @author http://www.oreilly.com/catalog/swinghks/
  */
 class WindowSaver implements AWTEventListener {
@@ -59,8 +60,18 @@ class WindowSaver implements AWTEventListener {
     }
   }
 
+  static void setLookAndFeel() {
+    //TODO loadDefaults();
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+    } catch(Exception e) {
+      System.err.println("Error setting native LAF: " + e);
+    }
+  }
+
   public static WindowSaver getInstance() {
-    if(saver == null) {
+    if (saver == null) {
       saver = new WindowSaver();
     }
     return saver;
@@ -90,7 +101,7 @@ class WindowSaver implements AWTEventListener {
         //System.err.println("closing event: " + evt);
         final JFrame frame = (JFrame)cev.getComponent();
         final String name = frame.getName();
-        if(name.startsWith("edu.brandeis.cs.steele.wn.browser") == false) {
+        if (name.startsWith("edu.brandeis.cs.steele.wn.browser") == false) {
           return;
         }
         //XXX saveSettings(frame);
@@ -103,7 +114,7 @@ class WindowSaver implements AWTEventListener {
         //System.err.println("closing event: " + evt);
         final JFrame frame = (JFrame)cev.getComponent();
         final String name = frame.getName();
-        if(name.startsWith("edu.brandeis.cs.steele.wn.browser") == false) {
+        if (name.startsWith("edu.brandeis.cs.steele.wn.browser") == false) {
           return;
         }
         loadSettings(frame);
