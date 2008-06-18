@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /** 
- * Flattens an Iterable of an Iterable of T into
- * an Iterable of T.
+ * Flattens an <code>Iterable</code> of an <code>Iterable</code> of <code>T</code> into
+ * an <code>Iterable</code> of <code>T</code>.
  */
 public class MultiLevelIterable<T> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
