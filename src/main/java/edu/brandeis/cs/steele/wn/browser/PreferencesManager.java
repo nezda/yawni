@@ -16,18 +16,18 @@ import java.util.prefs.*;
  *      and reflect them into system properties 
  * @author http://www.oreilly.com/catalog/swinghks/
  */
-class WindowSaver implements AWTEventListener {
+class PreferencesManager implements AWTEventListener {
   // import/export preferences
   // good article
   // http://blogs.sun.com/CoreJavaTechTips/entry/the_preferences_api
 
-  private static Preferences prefs = Preferences.userNodeForPackage(WindowSaver.class);
-  private static WindowSaver saver;
+  private static Preferences prefs = Preferences.userNodeForPackage(PreferencesManager.class);
+  private static PreferencesManager saver;
 
   static {
     // on class load, register self as saver
     //XXX Toolkit.getDefaultToolkit().addAWTEventListener(
-    //XXX    WindowSaver.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
+    //XXX    PreferencesManager.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
 
     //XXX for debugging
     //try {
@@ -53,7 +53,7 @@ class WindowSaver implements AWTEventListener {
     // Note: when encoding values, there is a maximum size: 
     // Preferences.MAX_VALUE_LENGTH characters
 
-    final InputStream is = WindowSaver.class.getResourceAsStream("defaults.xml");
+    final InputStream is = PreferencesManager.class.getResourceAsStream("defaults.xml");
     try {
       Preferences.importPreferences(is); 
       is.close();
@@ -93,15 +93,15 @@ class WindowSaver implements AWTEventListener {
     //LookAndFeel.CrossPlatform.set();
   }
 
-  public static WindowSaver getInstance() {
+  public static PreferencesManager getInstance() {
     if (saver == null) {
-      saver = new WindowSaver();
+      saver = new PreferencesManager();
     }
     return saver;
   }
 
-  private WindowSaver() {
-    //final InputStream is = WindowSaver.class.getResourceAsStream("defaults.xml");
+  private PreferencesManager() {
+    //final InputStream is = PreferencesManager.class.getResourceAsStream("defaults.xml");
     //try {
     //  final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
     //  String line;
