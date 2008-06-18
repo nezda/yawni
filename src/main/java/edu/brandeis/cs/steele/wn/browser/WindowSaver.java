@@ -4,13 +4,16 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
-import java.util.*;
 import java.util.prefs.*;
 
 /**
  * Save window positions and all other persistent user preferences.
  * Doesn't use Properties (files), uses Preferences - no files or maps to manage.
- * TODO rename this class
+ * TODO rename this class PreferencesManager
+ * TODO remove static methods -- go through getInstance()
+ * TODO check if importPreferences() clobbers saved preferences
+ * TODO put WNHOME/WNSEARCHDIR per-OS defaults (same as those from .jnlp file) into preferences
+ *      and reflect them into system properties 
  * @author http://www.oreilly.com/catalog/swinghks/
  */
 class WindowSaver implements AWTEventListener {
@@ -26,6 +29,7 @@ class WindowSaver implements AWTEventListener {
     //XXX Toolkit.getDefaultToolkit().addAWTEventListener(
     //XXX    WindowSaver.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
 
+    //XXX for debugging
     //try {
     //  prefs.clear();
     //} catch(BackingStoreException bse) {
@@ -60,14 +64,33 @@ class WindowSaver implements AWTEventListener {
     }
   }
 
+  enum LookAndFeel {
+    System {
+      public void set() {
+        try {
+          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch(Exception e) {
+          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+        }
+      }
+    },
+    CrossPlatform {
+      public void set() {
+        try {
+          UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch(Exception e) {
+          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+        }
+      }
+    };
+
+    public abstract void set();
+  } // end enum LookAndFeel
+
   static void setLookAndFeel() {
     //TODO loadDefaults();
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-    } catch(Exception e) {
-      System.err.println("Error setting native LAF: " + e);
-    }
+    LookAndFeel.System.set();
+    //LookAndFeel.CrossPlatform.set();
   }
 
   public static WindowSaver getInstance() {
@@ -78,7 +101,7 @@ class WindowSaver implements AWTEventListener {
   }
 
   private WindowSaver() {
-    final InputStream is = WindowSaver.class.getResourceAsStream("defaults.xml");
+    //final InputStream is = WindowSaver.class.getResourceAsStream("defaults.xml");
     //try {
     //  final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
     //  String line;
