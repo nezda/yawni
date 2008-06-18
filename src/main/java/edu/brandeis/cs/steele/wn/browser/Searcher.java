@@ -83,7 +83,7 @@ class WordWriter {
   public Appendable write() {
     // lexicalForm
     // pos
-    for(final Synset synset : word) {
+    for(final Synset synset : word.getSynsets()) {
       new SynsetWriter(synset, output).write();
     }
     return output;
