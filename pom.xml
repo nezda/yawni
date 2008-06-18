@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -40,6 +41,7 @@
       <organization></organization>
       <url>http://www.osteele.com/</url>
       <roles>
+        <role>1.0 Architect</role>
         <role>1.0 Developer</role>
       </roles>
     </developer>
@@ -72,6 +74,10 @@
     <url>http://jakarta.apache.org/</url>
   </organization>
   <packaging>jar</packaging>
+  <properties>
+    <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -81,7 +87,7 @@
           <source>1.5</source>
           <target>1.5</target>
           <!-- <fork>true</fork> -->
-          <encoding>UTF-8</encoding>
+          <!-- <encoding>UTF-8</encoding> -->
           <debug>true</debug>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
@@ -93,6 +99,15 @@
           <verbose/>
         </configuration>
       </plugin>
+      <!-- not even sure what this is !?
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+        <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -162,8 +177,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
         <configuration>
-          <inputEncoding>UTF-8</inputEncoding>
-          <outputEncoding>UTF-8</outputEncoding>
+          <!-- <inputEncoding>UTF-8</inputEncoding> -->
+          <!-- <outputEncoding>UTF-8</outputEncoding> -->
           <linkJavadoc>true</linkJavadoc>
         </configuration>
       </plugin>
@@ -180,7 +195,7 @@
         <artifactId>maven-pmd-plugin</artifactId>
         <configuration>
           <targetJdk>1.5</targetJdk>
-          <sourceEncoding>UTF-8</sourceEncoding>
+          <!-- <sourceEncoding>UTF-8</sourceEncoding> -->
         </configuration>
       </plugin>
       <plugin>
@@ -199,6 +214,18 @@
           <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
           <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
           -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <configuration>
+          <tags>
+            <tag>TODO</tag>
+            <tag>FIXME</tag>
+            <tag>@todo</tag>
+            <tag>@deprecated</tag>
+          </tags>
         </configuration>
       </plugin>
     </plugins>
