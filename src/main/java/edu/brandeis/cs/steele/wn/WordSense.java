@@ -302,7 +302,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       if (frames.isEmpty()) {
         frames = new ArrayList<String>();
       } else {
-        ((ArrayList)frames).ensureCapacity(frames.size() + numGenericFrames);
+        ((ArrayList<String>)frames).ensureCapacity(frames.size() + numGenericFrames);
       }
 
       // fetch any generic verb frames indicated by verbFrameFlags
