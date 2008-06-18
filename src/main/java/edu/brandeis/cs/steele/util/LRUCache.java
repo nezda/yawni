@@ -17,7 +17,7 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   
   private static final float DEFAULT_LOAD_FACTOR = 0.75f;
   private static final boolean accessOrder = true;
-  private static final boolean insertionOrder = false;
+  //private static final boolean insertionOrder = false;
 
   protected final int capacity;
 
