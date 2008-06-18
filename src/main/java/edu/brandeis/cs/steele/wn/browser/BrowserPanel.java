@@ -223,7 +223,7 @@ public class BrowserPanel extends JPanel {
     final Action scrollUp = new AbstractAction() {
       private static final long serialVersionUID = 1L;
       public void actionPerformed(final ActionEvent event) {
-        final int max = jsb.getMaximum();
+        //final int max = jsb.getMaximum();
         final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, -1);
         final int vpos = jsb.getValue();
         final int newPos = Math.max(0, vpos - inc);
