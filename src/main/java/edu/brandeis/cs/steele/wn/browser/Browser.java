@@ -132,7 +132,7 @@ public class Browser extends JFrame {
         return 0;
       }
       public void actionPerformed(final ActionEvent evt) {
-        WindowSaver.saveSettings(Browser.this);
+        PreferencesManager.saveSettings(Browser.this);
         System.exit(0);
       }
     };
@@ -212,7 +212,7 @@ public class Browser extends JFrame {
     //pack();
     // centers the window
     //setLocationRelativeTo(null);
-    WindowSaver.loadSettings(this);
+    PreferencesManager.loadSettings(this);
     //setVisible(true);
 
     browserPanel.debug();
@@ -261,7 +261,7 @@ public class Browser extends JFrame {
 
   public static void main(final String[] args) {
     final long start = System.currentTimeMillis();
-    WindowSaver.setLookAndFeel();
+    PreferencesManager.setLookAndFeel();
 
     //final DictionaryDatabase dictionary;
     //String searchDir = null;
