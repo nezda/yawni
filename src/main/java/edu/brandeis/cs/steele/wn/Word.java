@@ -16,7 +16,10 @@ import java.util.Iterator;
  * A <code>Word</code> is retrieved via {@link DictionaryDatabase#lookupWord},
  * and has a <i>lemma</i>, a <i>part of speech (POS)</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
  * 
- * XXX debatable what the type of each sense is - Steele said Synset, i'd say WordSense
+ * XXX<p>Debatable what the type of each sense is - Steele said Synset, i'd say WordSense.
+ * 
+ * <p>Note this class used to be called <tt>IndexWord</tt> which arguably makes more sense from the
+ * WordNet perspective.
  *
  * @see Synset
  * @see WordSense
