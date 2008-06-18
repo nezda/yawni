@@ -2,7 +2,6 @@ package edu.brandeis.cs.steele.wn.browser;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.event.*;
 import javax.swing.*;
 
 /**
@@ -33,7 +32,7 @@ class MoveMouseListener implements MouseListener, MouseMotionListener {
   public void mouseExited(final MouseEvent evt) {}
   public void mousePressed(final MouseEvent evt) {
     this.startDrag = this.getScreenLocation(evt);
-    this.startLoc = this.getFrame(this.target).getLocation();
+    this.startLoc = MoveMouseListener.getFrame(this.target).getLocation();
   }
   public void mouseReleased(final MouseEvent evt) {}
   public void mouseDragged(final MouseEvent evt) {
@@ -41,7 +40,7 @@ class MoveMouseListener implements MouseListener, MouseMotionListener {
     final Point offset = new Point(
         (int)current.getX() - (int)startDrag.getX(),
         (int)current.getY() - (int)startDrag.getY());
-    final JFrame frame = this.getFrame(target);
+    final JFrame frame = MoveMouseListener.getFrame(target);
     final Point new_location = new Point(
         (int)(this.startLoc.getX() + offset.getX()),
         (int)(this.startLoc.getY() + offset.getY()));
