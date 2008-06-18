@@ -3,7 +3,6 @@
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.wn;
-import java.util.*;
 
 /** 
  * A class that implements this interface is a broker or factory
@@ -15,7 +14,7 @@ import java.util.*;
  */
 public interface DictionaryDatabase {
   /** 
-   * Look up a word in the database by its <b>lemma</b>.  The search is
+   * Look up a <code>Word</code> in the database by its <b>lemma</b>.  The search is
    * case-independent and phrases are separated by spaces (e.g. "look up", not
    * "look_up").
    * @param pos The part-of-speech.
@@ -68,7 +67,7 @@ public interface DictionaryDatabase {
    * @param substring
    * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<Word> searchWords(final POS pos, final String substring);
+  public Iterable<Word> searchBySubstring(final POS pos, final String substring);
 
   /** 
    * Return an iterator of all the <code>Word</code>s whose lemmas <b>begin with</b> <var>prefix</var>.
@@ -76,7 +75,7 @@ public interface DictionaryDatabase {
    * @param substring
    * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<Word> searchIndexBeginning(final POS pos, final String substring);
+  public Iterable<Word> searchByPrefix(final POS pos, final String substring);
 
   /** Return an iterator of <b>all</b> the <code>Synset</code>s in the database.
    * @param pos The part-of-speech.
@@ -96,7 +95,8 @@ public interface DictionaryDatabase {
    */
   public Iterable<Pointer> pointers(final POS pos);
 
-  /** Return an iterator of <b>all</b> the <code>Pointer</code>s in the database.
+  /** Return an iterator of <b>all</b> the <code>Pointer</code>s in the database of
+   * type <code>PointerType</code>.
    * @param pos The part-of-speech.
    * @param pointerType The PointerType.
    * @return An iterable of <code>Pointer</code>s of type <code>PointerType</code>.
