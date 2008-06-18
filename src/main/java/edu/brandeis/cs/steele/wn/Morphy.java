@@ -3,10 +3,11 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 import java.util.logging.*;
 import edu.brandeis.cs.steele.util.*;
+import edu.brandeis.cs.steele.wn.FileBackedDictionary.DatabaseKey;
 
 /**
- * Java port of morph.c - WordNet search code morphological
- * processing functions
+ * Java port of <code>morph.c</code>'s <code>morphstr</code> - WordNet search
+ * code morphological processing functions.
  */
 class Morphy {
   private static final Logger log = Logger.getLogger(Morphy.class.getName());
@@ -86,13 +87,13 @@ class Morphy {
   };
 
   private final FileBackedDictionary dictionary;
-  private Cache morphyCache; 
+  private Cache<DatabaseKey, List<String>> morphyCache; 
 
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
-    //this.morphyCache = new LRUCache(dictionary.DEFAULT_CACHE_CAPACITY);
+    //this.morphyCache = new LRUCache<DatabaseKey, List<String>>(dictionary.DEFAULT_CACHE_CAPACITY);
     // for debug
-    this.morphyCache = new LRUCache(0);
+    this.morphyCache = new LRUCache<DatabaseKey, List<String>>(0);
   }
 
   /**
@@ -168,10 +169,10 @@ class Morphy {
     }
 
     final FileBackedDictionary.DatabaseKey cacheKey = new FileBackedDictionary.StringPOSDatabaseKey(origstr, pos);
-    final Object cached = morphyCache.get(cacheKey);
+    final List<String> cached = morphyCache.get(cacheKey);
     if (cached != null) {
       //FIXME doesn't cache null (combinations not in WordNet)
-      return (List<String>)cached;
+      return cached;
     }
     
     // Assume string hasn't had spaces substituted with '_'
@@ -200,9 +201,9 @@ class Morphy {
       // add variants from exception list
       // verb.exc line "saw see"
       //  e.g. input: "saw" output: "see", "saw"
-      //ONLY root: toReturn.add(clean(tmp[1]));
+      //ONLY root: toReturn.add(underScoreToSpace(tmp[1]));
       for(int i = tmp.length - 1; i >= 0; --i) {
-        toReturn.add(clean(tmp[i]));
+        toReturn.add(underScoreToSpace(tmp[i]));
       }
       phase1Done = true;
     }
@@ -237,7 +238,7 @@ class Morphy {
         if (log.isLoggable(Level.FINER)) {
           log.finer("origstr: "+origstr+" tmp1: "+tmp1);
         }
-        toReturn.add(clean(tmp1));
+        toReturn.add(underScoreToSpace(tmp1));
       }
       phase1Done = true;
       //FIXME "if verb has a preposition, then no more morphs"
@@ -375,7 +376,7 @@ class Morphy {
       //assert toReturn.isEmpty() == false; // we should already have added 1 thing right ?
       tmp = dictionary.getExceptions(str, pos);
       for (int i=1; tmp != null && i<tmp.length; ++i) {
-        toReturn.add(clean(tmp[i]));
+        toReturn.add(underScoreToSpace(tmp[i]));
       }
     } else {
       svcnt = 1; // LN pushes us back to above case (for subsequent calls) all this is destined for death anyway
@@ -383,7 +384,7 @@ class Morphy {
       tmp = dictionary.getExceptions(str, pos);
       if (tmp != null && tmp.length != 0 && tmp[1].equals(str) == false) {
         for (int i=1; i < tmp.length; ++i) {
-          toReturn.add(clean(tmp[i]));
+          toReturn.add(underScoreToSpace(tmp[i]));
         }
       }
     }
@@ -407,21 +408,20 @@ class Morphy {
     }
   }
 
-  static String clean(final String s) {
+  static String underScoreToSpace(final String s) {
     if (s == null) return s;
     return s.replace('_', ' ');
   }
 
   /**
    * Must be an exact match in the dictionary.
-   * (C version in search.c only returns true/false)
+   * (C version in <code>search.c</code> only returns <code>true</code>/</code>false</code>)
+   * Similar to <code>index_lookup</code>
    */
-  private Word is_defined(final String lemma, final POS pos) {
+  Word is_defined(final String lemma, final POS pos) {
     if (lemma.length() == 0) return null;
     return dictionary.lookupWord(pos, lemma);
   }
-
-  private static final String[] NO_STRINGS = new String[0];
 
   /**
    * Try to find baseform (lemma) of <b>individual word</b> <param>word</param>
@@ -505,6 +505,7 @@ class Morphy {
     return toReturn;
   }
 
+  //TODO move to Utils
   private static <T> T last(T[] ts) {
     if(ts == null || ts.length == 0) {
       return null;
