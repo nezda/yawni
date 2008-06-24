@@ -4,7 +4,7 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import java.io.*;
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -43,38 +43,55 @@ import java.rmi.RemoteException;
  * @version 1.0
  */
 public interface FileManagerInterface extends Remote {
-  /** Search for the line whose first word <i>is</i> <var>index</var> (that is, that begins with
-   * <var>index</var> followed by a space or tab).  <var>filename</var> must name a file
-   * whose lines are sorted by index word.
-   * @return The file offset of the start of the matching line, or <code>-1</code> if no such line
-   *         exists.
+  /** 
+   * Binary searches for line whose first word <i>is</i> <code>target</code> (that
+   * is, that begins with <code>target</code> followed by a space or tab) in
+   * file implied by <code>filename</code>.  Assumes this file is sorted by its
+   * first textual column of lowercased words.  This condtion can be verified
+   * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>
+   * @return The file offset of the start of the matching line if one exists. 
+   * Otherwise, return  (-(insertion point) - 1). 
+   * The insertion point is defined as the point at which the key would be
+   * inserted into the list: the index of the first element greater than the
+   * target, or list.size(), if all elements in the list are less than the
+   * specified target. Note that this guarantees that the return value will be
+   * &gt;= 0 if and only if the key is found.  This is analagous to
+   * {@link java.util.Arrays#binarySearch java.util.Arrays.binarySearch()}.
    */
-  public int getIndexedLinePointer(String filename, String index) throws IOException, RemoteException;
+  public int getIndexedLinePointer(final CharSequence target, final String filename) throws IOException, RemoteException;
 
-  /** Read the line that begins at file offset <var>offset</var> in the file named by <var>filename</var>. */
-  public String readLineAt(String filename, int offset) throws IOException, RemoteException;
+  /**
+   * @param filenameWnRelative if <code>true</code>, <var>filename</var> is relative to <tt>WNSEARCHDIR</tt>, else
+   * <var>filename</var> is absolute or classpath relative.
+   * @param start
+   */
+  public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException, RemoteException;
+
+  /**
+   * Read the line that begins at file offset <var>offset</var> in the file named by <var>filename</var>. 
+   */
+  public String readLineAt(final int offset, final String filename) throws IOException, RemoteException;
 
   /** Search for the line following the line that begins at <var>offset</var>.
    * @return The file offset of the start of the line, or <code>-1</code> if <var>offset</var>
    *         is the last line in the file.
    */
-  public int getNextLinePointer(String filename, int offset) throws IOException, RemoteException;
+  public int getNextLinePointer(final int offset, final String filename) throws IOException, RemoteException;
 
   /** Search for a line whose index word <i>contains</i> <var>substring</var>.
    * @return The file offset of the start of the matching line, or <code>-1</code> if
    *         no such line exists.
    */
-  public int getMatchingLinePointer(String filename, int offset, String substring) throws IOException, RemoteException;
+  public int getMatchingLinePointer(final int offset, final CharSequence substring, final String filename) throws IOException, RemoteException;
 
-  /** Search for a line whose index word <i>begins with</i> <var>substring</var>.
+  /** Search for a line whose index word <i>begins with</i> <var>prefix</var>.
    * @return The file offset of the start of the matching line, or <code>-1</code> if
    *         no such line exists.
    */
-  public int getMatchingBeginningLinePointer(String filename, int offset, String substring) throws IOException, RemoteException;
+  public int getPrefixMatchLinePointer(final int offset, final CharSequence prefix, final String filename) throws IOException, RemoteException;
 
   /** Treat file contents like an array of lines and return the zero-based,
    * inclusive line corresponding to <var>linenum</var> 
    */
-  public String readLineNumber(String filename, int linenum) throws
-  IOException;
+  public String readLineNumber(final int linenum, final String filename) throws IOException;
 }
