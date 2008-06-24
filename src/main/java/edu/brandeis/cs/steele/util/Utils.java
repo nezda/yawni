@@ -115,6 +115,11 @@ public class Utils {
   private static final UniqueMode DEFAULT_UNIQUE_MODE = UniqueMode.EQUALITY;
 
   public static <T extends Object & Comparable<? super T>>
+    boolean isUnique(final Iterable<? extends T> iterable) {
+      return isUnique(iterable.iterator(), false, DEFAULT_UNIQUE_MODE);
+    }
+
+  public static <T extends Object & Comparable<? super T>>
     boolean isUnique(final Iterable<? extends T> iterable, final boolean infoException) {
       return isUnique(iterable.iterator(), infoException, DEFAULT_UNIQUE_MODE);
     }
@@ -153,12 +158,8 @@ public class Utils {
               final StringBuilder msg = new StringBuilder("isUnique ").
                 append("(").append(uniqueMode).append(" mode) failure with prev: ").
                 append(prev).append(" curr: ").append(curr);
-              //FIXME 
               throw new IllegalArgumentException(msg.toString());
-              //XXX System.err.println(msg);
-              //XXX new Exception().printStackTrace();
             }
-            //FIXME return false;
             return false;
           }
           //XXX System.err.println(curr);
@@ -169,11 +170,26 @@ public class Utils {
     }
 
   /**
-   * Removes duplicates from <param>list</param>.  Does not require
+   * Removes adjacent duplicates from <param>list</param>.  <b>Assumes</b>
+   * <param>iterable</param>'s items are emitted in sorted order.
+   */
+  public static <T extends Object & Comparable<? super T>> 
+    Iterable<T> uniq(final Iterable<T> base) {
+      return uniq(false, base);
+  }
+
+  /** Validating factory method so template parameters are deduced. */
+  public static <T extends Object & Comparable<? super T>> 
+    Iterable<T> uniq(final boolean validateSort, final Iterable<T> base) {
+      return new Uniq<T>(validateSort, base);
+  }
+
+  /**
+   * Removes duplicates from <param>list</param>.  Does <i>not</i> require
    * <param>list</param> be sorted but does assume <param>list</param>
    * contains no null elements and is short (brute force algorithm).
    */
-  public static <T> List<T> uniq(List<T> list) {
+  public static <T> List<T> dedup(List<T> list) {
     //log.warning("input list: "+list+" list.size(): "+list.size());
     if (list == null || list.size() <= 1) {
       return list;
@@ -202,6 +218,11 @@ public class Utils {
     return list;
   }
 
+  public static <T> boolean isEmpty(final Iterable<T> iterable) {
+    return iterable.iterator().hasNext() == false;
+  }
+
+
   /**
    * <code>null</code>-tolerant version of {@link Object#equals}
    */
@@ -225,7 +246,7 @@ public class Utils {
       final int s2Len = s2.length();
 
       int o1 = 0, o2 = 0, result;
-      int end = s1Len < s2Len ? s1Len : s2Len;
+      final int end = s1Len < s2Len ? s1Len : s2Len;
       char c1, c2;
       while (o1 < end) {
         c1 = s1.charAt(o1++);
@@ -250,6 +271,126 @@ public class Utils {
       // this is a singleton
       return this == that;
     }
+  } // end class WordNetLexicalComparator
+
+  /**
+   * @see java.lang.String#hashCode
+   */
+  public static int hashCode(final CharSequence seq) {
+    if (seq instanceof String) {
+      return seq.hashCode();
+    }
+    // s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]*31^(n-n)
+    // 31 = 2^0 + 2^1 + 2^2 + 2^3 + 2^4 = 2^5 - 1
+    // 2^4 * 2*16
+    int hash = 0, multiplier = 1;
+    for(int i = 0, n = seq.length(); i < n; i++) {
+      hash += seq.charAt(i) * multiplier;
+      int shifted = multiplier << 5;
+      multiplier = shifted - multiplier;
+    }
+    return hash;
   }
 
+  /**
+   * @see java.lang.String#equals
+   */
+  public static boolean equals(final CharSequence s1, final CharSequence s2) {
+    final int s2Len = s2.length();
+    return s1.length() == s2Len && regionMatches(s1, 0, s2, 0, s2Len);
+  }
+
+  /**
+   * @see java.lang.String#startsWith
+   */
+  public static boolean startsWith(final CharSequence s1, final CharSequence s2) {
+    return regionMatches(s1, 0, s2, 0, s2.length());
+  }
+
+  /**
+   * @see java.lang.String#regionMatches
+   */
+  public static boolean regionMatches(final CharSequence s1, int offset1, 
+      final CharSequence s2, int offset2, int len) {
+    return regionMatches(false, s1, offset1, s2, offset2, len);
+  }
+  
+  /**
+   * @see java.lang.String#regionMatches
+   */
+  public static boolean regionMatches(final boolean ignoreCase, final CharSequence s1, int offset1, 
+      final CharSequence s2, int offset2, int len) {
+    //System.err.println("s1: "+s1+" s2: "+s2);
+    final int s1Len = s1.length();
+    //System.err.println("s1Len: "+s1Len);
+    //System.err.println("(s1Len-offset1): "+(s1Len-offset1)+ " len: "+len);
+    if ((s1Len - offset1) < len) {
+      return false;
+    }
+    final int s2Len = s2.length();
+    //System.err.println("s2Len: "+s1Len);
+    //System.err.println("(s2Len-offset2): "+(s2Len-offset2)+ " len: "+len);
+    if ((s2Len - offset2) < len) {
+      return false;
+    }
+    //System.err.println("len: "+len);
+
+    char c1, c2;
+    while (len-- != 0) {
+      c1 = s1.charAt(offset1++);
+      c2 = s2.charAt(offset2++);
+      //System.err.println("c1: "+c1+" c2: "+c2);
+      if (c1 == c2) {
+        continue;
+      }
+      if (ignoreCase) {
+        c1 = Character.toLowerCase(c1);
+        c2 = Character.toLowerCase(c2);
+      }
+      if (c1 == c2) {
+        continue;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  /** 
+   * A comparison predicate that specifically ignores case and ' ', '.', '-', '_' 
+   * letters and their order must still match.
+   */
+  public static boolean sameLetterDigitSequence(final CharSequence s1, final CharSequence s2) {
+    final int s1Len = s1.length();
+    final int s2Len = s2.length();
+    int len = Math.min(s1Len, s2Len);
+    int i = 0, j = 0;
+    char c1, c2;
+    while (len-- != 0) {
+      
+    }
+    throw new UnsupportedOperationException("IMPLEMENT ME");
+  }
+
+  //static class CharSequenceComparator implements Comparator<CharSequence>, Serializable {
+  //  private static final long serialVersionUID = 1L;
+  //  
+  //  /** {@inheritDoc} */
+  //  public int compare(final CharSequence s1, final CharSequence s2) {
+  //    int i = 0;
+  //    int n = Math.min(s1.length(), s2.length());
+  //    while (n-- != 0) {
+  //      final char c1 = s1.charAt(i);
+  //      final char c2 = s2.charAt(i++);
+  //      if (c1 != c2) {
+  //        return c1 - c2;
+  //      }
+  //    }
+  //    return s1.length() - s2.length();
+  //  }
+  //  /** {@inheritDoc} */
+  //  public boolean equals(final Object obj) {
+  //    return obj instanceof CharSequenceComparator;
+  //  }
+  //  public static final CharSequenceComparator INSTANCE = new CharSequenceComparator();
+  //} // end class CharSequenceComparator
 }
