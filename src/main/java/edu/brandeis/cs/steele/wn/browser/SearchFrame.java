@@ -8,7 +8,7 @@ package edu.brandeis.cs.steele.wn.browser;
 
 import edu.brandeis.cs.steele.wn.POS;
 import edu.brandeis.cs.steele.wn.Word;
-import edu.brandeis.cs.steele.util.MutatedIterable;
+import edu.brandeis.cs.steele.wn.WordToLemma;
 import edu.brandeis.cs.steele.util.MergedIterable;
 import edu.brandeis.cs.steele.util.Utils;
 
@@ -18,8 +18,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.undo.*;
 import javax.swing.border.*;
-import java.util.*;
-import java.util.List;
 import java.util.prefs.*;
 
 class SearchFrame extends JFrame {
@@ -36,7 +34,7 @@ class SearchFrame extends JFrame {
   private final JComboBox posChoice;
   private POS pos;
   private SearchType searchType;
-  private static final String LONGEST_WORD = "blood-oxygenation level dependent functional magnetic resonance imaging";
+  //private static final String LONGEST_WORD = "blood-oxygenation level dependent functional magnetic resonance imaging";
 
   private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.ALL};
 
@@ -129,33 +127,31 @@ class SearchFrame extends JFrame {
         final Iterable<Word> searchResults; 
         switch(searchType) {
           case SUBSTRING:
-            //return new WordToLemma(browserPanel.dictionary().searchWords(pos, query));
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchWords(pos, query); 
+              searchResults = browserPanel.dictionary().searchBySubstring(pos, query); 
             } else {
               searchResults = MergedIterable.merge(
-                  browserPanel.dictionary().searchWords(POS.NOUN, query),
-                  browserPanel.dictionary().searchWords(POS.VERB, query),
-                  browserPanel.dictionary().searchWords(POS.ADJ, query),
-                  browserPanel.dictionary().searchWords(POS.ADV, query));
+                  browserPanel.dictionary().searchBySubstring(POS.NOUN, query),
+                  browserPanel.dictionary().searchBySubstring(POS.VERB, query),
+                  browserPanel.dictionary().searchBySubstring(POS.ADJ, query),
+                  browserPanel.dictionary().searchBySubstring(POS.ADV, query));
             }
             break;
           case PREFIX:
-            //return new WordToLemma(browserPanel.dictionary().searchIndexBeginning(pos, query));
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchIndexBeginning(pos, query); 
+              searchResults = browserPanel.dictionary().searchByPrefix(pos, query); 
             } else {
               searchResults = MergedIterable.merge(
-                  browserPanel.dictionary().searchIndexBeginning(POS.NOUN, query),
-                  browserPanel.dictionary().searchIndexBeginning(POS.VERB, query),
-                  browserPanel.dictionary().searchIndexBeginning(POS.ADJ, query),
-                  browserPanel.dictionary().searchIndexBeginning(POS.ADV, query));
+                  browserPanel.dictionary().searchByPrefix(POS.NOUN, query),
+                  browserPanel.dictionary().searchByPrefix(POS.VERB, query),
+                  browserPanel.dictionary().searchByPrefix(POS.ADJ, query),
+                  browserPanel.dictionary().searchByPrefix(POS.ADV, query));
             }
             break;
           default:
             throw new IllegalArgumentException();
         }
-        return new WordToLemma(searchResults);
+        return Utils.uniq(new WordToLemma(searchResults));
       }
       @Override
       public void searchDone(final String query, final int numHits) {
@@ -280,16 +276,6 @@ class SearchFrame extends JFrame {
     this.searchField.setRequestFocusEnabled(true);
   }
   
-  static class WordToLemma extends MutatedIterable<Word, String> {
-    WordToLemma(final Iterable<Word> iterable) {
-      super(iterable);
-    }
-    @Override
-    public String apply(final Word word) { 
-      return word.getLemma(); 
-    }
-  } // end class WordToLemma
-
   private POS getSelectedPOS() {
     pos = CATS[posChoice.getSelectedIndex()];
     return pos;
