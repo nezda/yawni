@@ -9,12 +9,12 @@ import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
 
 /** Instances of this class enumerate the possible WordNet pointer types, and
  * are used to label {@link Pointer}s.  
- * Each <code>PointerType</code> carries additional information:
+ * Each <code>PointerType</code> carries additional information including:
  * <ul>
  *   <li> a human-readable label </li>
  *   <li> an optional symmetric (i.e. reflexive) type that labels links pointing the opposite direction </li>
  *   <li> an encoding of parts-of-speech that it applies to </li>
- *   <li> a short string (lemma) that represents it in the dictionary files </li>
+ *   <li> a short string that represents it in the dictionary files </li>
  * </ul>
  *
  * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN#sect4>http://wordnet.princeton.edu/man/wnsearch.3WN#sect4</a>
