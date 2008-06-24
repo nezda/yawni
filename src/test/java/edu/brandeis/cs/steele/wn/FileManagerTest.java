@@ -23,18 +23,18 @@ public class FileManagerTest {
     //final int offset = fm.getIndexedLinePointer(query, path, false);
     //System.err.println("found offset: "+offset);
     query = "3";
-    assertEquals(query(query), 4, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 4, fm.getIndexedLinePointer(query, 0, path, false));
     // tests non-zero start idx
     query = "3";
     assertEquals(query(query), 4, fm.getIndexedLinePointer(query, 4, path, false));
     query = "1";
-    assertEquals(query(query), 0, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 0, fm.getIndexedLinePointer(query, 0, path, false));
     query = "4";
-    assertEquals(query(query), 8, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 8, fm.getIndexedLinePointer(query, 0, path, false));
     query = "2";
-    assertEquals(query(query), -5, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), -5, fm.getIndexedLinePointer(query, 0, path, false));
     query = "7";
-    assertEquals(query(query), -21, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), -21, fm.getIndexedLinePointer(query, 0, path, false));
   }
 
   @Test
@@ -43,19 +43,19 @@ public class FileManagerTest {
     final String path = "src/test/resources/harderTestFile";
     String query;
     query = "3";
-    assertEquals(query(query), 27, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 27, fm.getIndexedLinePointer(query, 0, path, false));
     query = "1";
-    assertEquals(query(query), 0, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 0, fm.getIndexedLinePointer(query, 0, path, false));
     query = "4";
-    assertEquals(query(query), 81, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 81, fm.getIndexedLinePointer(query, 0, path, false));
     query = "2";
-    assertEquals(query(query), -28, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), -28, fm.getIndexedLinePointer(query, 0, path, false));
     query = "7";
-    assertEquals(query(query), -145, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), -145, fm.getIndexedLinePointer(query, 0, path, false));
     query = "88";
-    assertEquals(query(query), 144, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), 144, fm.getIndexedLinePointer(query, 0, path, false));
     query = "8";
-    assertEquals(query(query), -145, fm.getIndexedLinePointer(query, path, false));
+    assertEquals(query(query), -145, fm.getIndexedLinePointer(query, 0, path, false));
   }
 
   static String query(final String query) {
