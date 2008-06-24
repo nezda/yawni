@@ -10,13 +10,17 @@ import java.nio.*;
 import java.nio.charset.*;
 import java.nio.channels.*;
 import java.io.*;
+import edu.brandeis.cs.steele.util.Utils;
 
-/** An implementation of <code>FileManagerInterface</code> that reads files from the local file system.
- * A file  <code>FileManager</code> caches the file position before and after
- * <code>readLineAt</code> in order to eliminate the redundant IO activity that a naive implementation
- * of these methods would necessitate.
+/** An implementation of <code>FileManagerInterface</code> that reads files
+ * from the local file system.  A file  <code>FileManager</code> caches the
+ * file position before and after {@link FileManagerInterface#readLineAt
+ * FileManagerInterface.readLineAt()} in order to eliminate the redundant IO
+ * activity that a naive implementation of these methods would necessitate.
  *
- * Instances of this class are guarded.  Operations are synchronized by file.
+ * <p>Instances of this class are guarded.  All operations are read-only, but
+ * are synchronized per file to maintain state including the file pointer's
+ * position.
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
@@ -25,6 +29,7 @@ public class FileManager implements FileManagerInterface {
   //
   // Class variables
   //
+  //intentionally using FileBackedDictionary's logger (for now)
   private static final Logger log = Logger.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
   
   /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
@@ -87,7 +92,7 @@ public class FileManager implements FileManagerInterface {
       return home;
     } else {
       home = System.getenv("WNHOME");
-      if(home != null && new File(home).exists()) {
+      if (home != null && new File(home).exists()) {
         return home;
       }
     }
@@ -98,7 +103,7 @@ public class FileManager implements FileManagerInterface {
   }
 
   static String getWNSearchDir() {
-    //FIXME unify logic for this and getWNSearchDir() to try both
+    //FIXME unify logic for this (getWNSearchDir()) and getWNHome() to try both
     //system property AND environment variables and check readable
     String searchDir = System.getProperty("WNSEARCHDIR");
     if (searchDir != null && new File(searchDir).exists()) {
@@ -119,6 +124,7 @@ public class FileManager implements FileManagerInterface {
   static abstract class CharStream {
     abstract void seek(final int position) throws IOException;
     abstract int position() throws IOException;
+    abstract char charAt(int position) throws IOException;
     abstract int length() throws IOException;
     /** This works just like {@link RandomAccessFile#readLine} -- doesn't
      * support Unicode 
@@ -129,7 +135,7 @@ public class FileManager implements FileManagerInterface {
     }
     String readLineWord() throws IOException {
       final String ret = readLine();
-      if(ret == null) {
+      if (ret == null) {
         return null;
       }
       final int space = ret.indexOf(' ');
@@ -147,7 +153,7 @@ public class FileManager implements FileManagerInterface {
       //assumption is these CharStream's will be tiny
       //and we can still lazy load this
       seek(0);
-      for(int i = 0; i < linenum; i++) {
+      for (int i = 0; i < linenum; i++) {
         skipLine();
       }
       return readLine();
@@ -165,6 +171,10 @@ public class FileManager implements FileManagerInterface {
     @Override int position() throws IOException {
       return (int) raf.getFilePointer();
     }
+    @Override char charAt(int position) throws IOException {
+      seek(position);
+      return (char)raf.readByte();
+    }
     @Override int length() throws IOException {
       return (int) raf.length();
     }
@@ -174,14 +184,17 @@ public class FileManager implements FileManagerInterface {
   } // end class RAFCharStream
 
   private static class NIOCharStream extends CharStream {
-    //FIXME position seems redundant
+    //FIXME position seems redundant (ByteCharBuffer has position())
     protected int position;
     //protected final ByteBuffer buf;
     protected final ByteCharBuffer buf;
     
     NIOCharStream(final RandomAccessFile raf) throws IOException {
       final FileChannel fileChannel = raf.getChannel();
-      final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
+      final long size = fileChannel.size();
+      // program logic currently depends on the entire file being mapped into memory
+      // size /= 2;
+      final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
       // this buffer isDirect()
       //log.log(Level.FINE, "mmap.fine(): {0}", mmap.isDirect());
       //this.buf = mmap;
@@ -194,20 +207,23 @@ public class FileManager implements FileManagerInterface {
     @Override int position() throws IOException {
       return position;
     }
+    @Override char charAt(final int p) throws IOException {
+      return (char) buf.get(p);
+    }
     @Override int length() throws IOException {
       return buf.capacity();
     }
     @Override String readLine() throws IOException {
       final int s = position;
-      final int e = scanToLineBreak();
+      final int e = scanForwardToLineBreak();
       assert s >= 0;
       assert e >= 0;
       final int len = e - s;
-      if(len <= 0) {
+      if (len <= 0) {
         return null;
       }
       final char[] line = new char[len];
-      for(int j = s, i = 0; i < line.length; ++i, ++j) {
+      for (int j = s, i = 0; i < line.length; i++, j++) {
         // NOTE: casting byte to char here since WordNet is currently
         // only ASCII
         line[i] = (char) buf.get(j);
@@ -216,21 +232,21 @@ public class FileManager implements FileManagerInterface {
       return toReturn;
     }
     @Override void skipLine() throws IOException {
-      scanToLineBreak();
+      scanForwardToLineBreak();
     }
     @Override String readLineWord() throws IOException {
       final int s = position;
-      int e = scanToLineBreak();
+      int e = scanForwardToLineBreak();
       assert s >= 0;
       assert e >= 0;
       int len = e - s;
-      if(len <= 0) {
+      if (len <= 0) {
         return null;
       }
       e = scanToSpace(s);
       len = e - s;
       final char[] word = new char[len];
-      for(int j = s, i = 0; i < word.length; ++i, ++j) {
+      for (int j = s, i = 0; i < word.length; i++, j++) {
         // NOTE: casting byte to char here since WordNet is currently
         // only ASCII
         word[i] = (char) buf.get(j);
@@ -241,26 +257,26 @@ public class FileManager implements FileManagerInterface {
     protected int scanToSpace(int s) {
       // scan from current position to first ' '
       char c;
-      while(s < buf.capacity()) {
+      while (s < buf.capacity()) {
         c = (char) buf.get(s++);
-        if(c == ' ') {
+        if (c == ' ') {
           return s - 1;
         }
       }
       throw new IllegalStateException();
     }
-    protected int scanToLineBreak() {
+    protected int scanForwardToLineBreak() {
       // scan from current position to first ("\r\n"|"\r"|"\n")
       boolean done = false;
       boolean crnl = false;
       char c;
-      while(done == false && position < buf.capacity()) {
+      while (done == false && position < buf.capacity()) {
         c = (char) buf.get(position++);
         switch(c) {
           case '\r':
             // if next is \n, skip that too
             c = (char) buf.get(position++);
-            if(c != '\n') {
+            if (c != '\n') {
               // put it back
               --position;
             } else {
@@ -278,11 +294,16 @@ public class FileManager implements FileManagerInterface {
       // return exclusive end chopping line break delimitter(s)
       return crnl ? position - 2 : position - 1;
     }
+    protected int scanBackwardToLineBreak() {
+      // scan backwards to first \n
+      // - if immediately preceding char is \n, keep going
+      throw new UnsupportedOperationException();
+    }
   } // end class NIOCharStream
 
   /**
-   * Like a read-only CharBuffer made from a ByteBuffer with a stride of 1
-   * instead of 2.
+   * Like a read-only {@link CharBuffer} made from a {@link ByteBuffer} with a
+   * stride of 1 instead of 2.
    */
   private static class ByteCharBuffer implements CharSequence {
     private final ByteBuffer bb;
@@ -290,7 +311,7 @@ public class FileManager implements FileManagerInterface {
       this(bb, true);
     }
     ByteCharBuffer(final ByteBuffer bb, final boolean dupAndClear) {
-      if(dupAndClear) {
+      if (dupAndClear) {
         this.bb = bb.duplicate();
         this.bb.clear();
       } else {
@@ -336,16 +357,30 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class ByteCharBuffer
 
-  synchronized CharStream getFileStream(String filename) throws IOException {
+  synchronized CharStream getFileStream(final String filename) throws IOException {
+    return getFileStream(filename, true);
+  }
+
+  /**
+   * @param filename
+   * @param filenameWnRelative is a boolean which indicates that <param>filename</param>
+   * is relative (or absolute).  This facilitates testing and reuse.
+   * @return CharStream representing <param>filename</param> or null if no such file exists.
+   */
+  synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
-      final String pathname = searchDirectory + File.separator + filename;
+      final String pathname = 
+        filenameWnRelative ? searchDirectory + File.separator + filename :
+        filename;
       final File file = new File(pathname);
-      if(file.exists() && file.canRead()) {
+      if (file.exists() && file.canRead()) {
         //slow CharStream
         //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
         //fast CharStream stream
         stream = new NIOCharStream(new RandomAccessFile(file, "r"));
+      } else {
+        //TODO throw an exception to indicate that pathname is non existant/readble
       }
       filenameCache.put(filename, stream);
     }
@@ -356,9 +391,12 @@ public class FileManager implements FileManagerInterface {
   // Line-based interface methods
   //
   
-  public String readLineNumber(final String filename, final int linenum) throws IOException {
+  /**
+   * {@inheritDoc}
+   */
+  public String readLineNumber(final int linenum, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
-    if(stream == null) {
+    if (stream == null) {
       return null;
     }
     synchronized (stream) {
@@ -366,9 +404,11 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
-  // only called from within synchronized blocks
-  // core search routine
-  public String readLineAt(final String filename, final int offset) throws IOException {
+  /**
+   * {@inheritDoc}
+   */
+  // Core search routine.  Only called from within synchronized blocks.
+  public String readLineAt(final int offset, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       stream.seek(offset);
@@ -383,9 +423,11 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
-  // only called from within synchronized blocks
-  // core search routine
-  public int getNextLinePointer(final String filename, final int offset) throws IOException {
+  /**
+   * {@inheritDoc}
+   */
+  // Core search routine.  Only called from within synchronized blocks.
+  public int getNextLinePointer(final int offset, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       final int next;
@@ -402,9 +444,12 @@ public class FileManager implements FileManagerInterface {
   // Low-level Searching
   //
 
+  /**
+   * {@inheritDoc}
+   */
   // used by substring search iterator
-  public int getMatchingLinePointer(final String filename, int offset, final String substring) throws IOException {
-    if(substring.length() == 0) {
+  public int getMatchingLinePointer(int offset, final CharSequence substring, final String filename) throws IOException {
+    if (substring.length() == 0) {
       return -1;
     }
     final CharStream stream = getFileStream(filename);
@@ -417,7 +462,7 @@ public class FileManager implements FileManagerInterface {
           return -1;
         }
         nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-        if (line.indexOf(substring) >= 0) {
+        if (line.contains(substring)) {
           return offset;
         }
         offset = nextOffset;
@@ -425,12 +470,42 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   // used by prefix search iterator
-  public int getMatchingBeginningLinePointer(final String filename, int offset, final String prefix) throws IOException {
-    if(prefix.length() == 0) {
+  public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String filename) throws IOException {
+    if (prefix.length() == 0) {
+      return -1;
+    }
+    final int foffset = getIndexedLinePointer(prefix, offset, filename, true);
+    final int zoffset;
+    if (foffset < 0) {
+      // invert -(o - 1)
+      final int moffset = -(foffset + 1);
+      final String aline = readLineAt(moffset, filename);
+      if (aline == null || false == Utils.startsWith(aline, prefix)) {
+        zoffset = foffset;
+      } else {
+        zoffset = moffset;
+      }
+    } else {
+      zoffset = foffset;
+    }
+    return zoffset;
+  }
+
+  /**
+   * {@inheritDoc}
+   * XXX old version only languishing to verify new version
+   */
+  // used by prefix search iterator
+  int oldGetPrefixMatchLinePointer(int offset, final CharSequence prefix, final String filename) throws IOException {
+    if (prefix.length() == 0) {
       return -1;
     }
     final CharStream stream = getFileStream(filename);
+    final int origOffset = offset;
     synchronized (stream) {
       stream.seek(offset);
       do {
@@ -440,34 +515,80 @@ public class FileManager implements FileManagerInterface {
           return -1;
         }
         nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-        if (line.startsWith(prefix)) {
+        if (Utils.startsWith(line, prefix)) {
+          if (false == checkPrefixBinarySearch(prefix, origOffset, filename)) {
+            throw new IllegalStateException("search failed for prefix: "+prefix+" filename: "+filename);
+          }
+
           return offset;
         }
         offset = nextOffset;
       } while (true);
     }
   }
-  
-  /** Binary search for line from file implied by <param>filename</param> which starts with 
-   * a word equal to <param>target</param>.  Assumes this file is sorted by its first
-   * textual column of lowercased words.  This condtion can be verified with UNIX sort
-   * with the command <tt>sort -k1,1 -c</tt>
+
+  // throw-away test method until confidence in binary-search based version gets near 100%
+  private boolean checkPrefixBinarySearch(final CharSequence prefix, final int offset, final String filename) throws IOException {
+    final int foffset = getIndexedLinePointer(prefix, offset, filename, true);
+    //XXX System.err.println("foffset: "+foffset+" prefix: \""+prefix+"\"");
+    final String aline;
+    int zoffset;
+    if (foffset < 0) {
+      // invert -(o - 1)
+      final int moffset = -(foffset + 1);
+      zoffset = moffset;
+      // if moffset < size && line[moffset].startsWith(prefix)
+      aline = readLineAt(moffset, filename);
+    } else {
+      aline = readLineAt(foffset, filename);
+      zoffset = foffset;
+    }
+    //XXX System.err.println("aline: \""+aline+"\" zoffset: "+zoffset);
+
+    //System.err.println("line:  \""+line+"\" filename: "+filename);
+
+    //if (aline != null && aline.startsWith(prefix)) {
+    //  //assert offset >= 0;
+    //  System.err.println("offset >= 0: "+(offset >= 0)+" prefix: \""+prefix+"\"");
+    //} else {
+    //  //assert offset < 0;
+    //  System.err.println("offset < 0: "+(offset < 0)+" prefix: \""+prefix+"\"");
+    //}
+    //System.err.println();
+    return aline != null && Utils.startsWith(aline, prefix);
+  }
+
+  /**
+   * {@inheritDoc}
    */
-  public int getIndexedLinePointer(final String filename, final String target) throws IOException {
+  public int getIndexedLinePointer(final CharSequence target, final String filename) throws IOException {
+    return getIndexedLinePointer(target, 0, filename, true);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException {
+    // This binary search method should be usable by prefix search changing it
+    // from linear time to logarithmic time.
+    //
+    // - are there counter cases where the first-word binary search would return a different
+    //   result than a "normal" binary search?
+    //   - underscore comes before all lower cased letters 
     if (target.length() == 0) {
       return -1;
     }
     if (log.isLoggable(Level.FINEST)) {
       log.finest("target: "+target+" filename: "+filename);
     }
-    final CharStream stream = getFileStream(filename);
-    if(stream == null) {
-      return -1;
+    final CharStream stream = getFileStream(filename, filenameWnRelative);
+    if (stream == null) {
+      throw new IllegalArgumentException("no stream for "+filename);
     }
     synchronized (stream) {
-      int start = 0;
       int stop = stream.length();
       while (true) {
+        //FIXME fix possible overflow issue  with >>>
         final int midpoint = (start + stop) / 2;
         stream.seek(midpoint);
         stream.skipLine();
@@ -477,38 +598,43 @@ public class FileManager implements FileManagerInterface {
         }
         if (offset == start) {
           // cannot be a match here - would be zero width
-          return -1;
+          return -start - 1;
         } else if (offset == stop) {
-          if(start != 0) {
+          if (start != 0 && stream.charAt(start - 1) != '\n') {
             stream.seek(start + 1);
             stream.skipLine();
           } else {
-            stream.seek(start /* 0 */);
+            stream.seek(start);
           }
           if (log.isLoggable(Level.FINEST)) {
             log.finest(". "+stream.position());
           }
-          //FIXME why is this a while() loop and not an if??
-          //the stream position is not being updated in this loop
+          //FIXME why is this a while() loop and not an if?
+          // - scan through short lines?
           while (stream.position() < stop) {
             final int result = stream.position();
             final CharSequence firstWord = stream.readLineWord();
             if (log.isLoggable(Level.FINEST)) {
-              log.finest("  . \""+firstWord+"\" -> "+target.contentEquals(firstWord));
+              log.finest("  . \""+firstWord+"\" -> "+(0 == compare(target, firstWord)));
             }
-            if (target.contentEquals(firstWord)) {
+            final int compare = compare(target, firstWord);
+            if (compare == 0) {
               return result;
+            } else if (compare < 0) {
+              return -result - 1;
             }
           }
-          return -1;
+          return -stop - 1;
         } // end offset == stop branch
         final int result = stream.position();
         final CharSequence firstWord = stream.readLineWord();
-        final int compare = CharSequenceComparator.INSTANCE.compare(target, firstWord);
+        final int compare = compare(target, firstWord);
         if (log.isLoggable(Level.FINEST)) {
           log.finest(firstWord + ": " + compare);
         }
-        if (compare == 0) return result;
+        if (compare == 0) {
+          return result;
+        }
         if (compare > 0) {
           start = offset;
         } else {
@@ -518,35 +644,8 @@ public class FileManager implements FileManagerInterface {
       }
     }
   }
-  
-  // generic comparator for CharSequence / String pairs
-  static class CharSequenceComparator implements Comparator, Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    public int compare(final Object o1, final Object o2) {
-      if(o1 instanceof String && o2 instanceof String) {
-        return ((String)o1).compareTo((String)o2);
-      } else if(o1 instanceof CharSequence && 
-          o2 instanceof CharSequence) {
-        final CharSequence s1 = (CharSequence) o1;
-        final CharSequence s2 = (CharSequence) o2;
-        int i = 0;
-        int n = Math.min(s1.length(), s2.length());
-        while (n-- != 0) {
-          final char c1 = s1.charAt(i);
-          final char c2 = s2.charAt(i++);
-          if (c1 != c2) {
-            return c1 - c2;
-          }
-        }
-        return s1.length() - s2.length();
-      } else {
-        throw new IllegalArgumentException();
-      }
-    }
-    public boolean equals(Object obj) {
-      return obj instanceof CharSequenceComparator;
-    }
-    public static final CharSequenceComparator INSTANCE = new CharSequenceComparator();
-  } // end class CharSequenceComparator
+
+  private static int compare(final CharSequence s1, final CharSequence s2) {
+    return Utils.WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(s1, s2);
+  }
 }
