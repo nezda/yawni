@@ -10,7 +10,7 @@ import java.util.logging.*;
 
 /** A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <var>pos</var><code>.data</code> file.
  * A <code>Synset</code> represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
- * that names that concept (and each of which is therefore synonymous with the other wordSenses in the
+ * that names that concept (and each of which is therefore synonymous with the other <code>WordSense</code>s in the
  * <code>Synset</code>).
  *
  * <p><code>Synset</code>'s are linked by {@link Pointer}s into a network of related concepts; this is the <i>Net</i>
