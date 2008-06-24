@@ -49,6 +49,40 @@ public class UtilsTest {
     assertEquals(false, Utils.isSorted(ints2));
     assertEquals(false, Utils.isSorted(ints2.iterator()));
   }
+  
+  @Test
+  public void testStartsWith() {
+    assertTrue(Utils.startsWith("'hood", "'ho"));
+    assertFalse(Utils.startsWith("'ho", "'hood"));
+  }
+
+  @Test
+  public void testUniq() {
+    final List<Integer> empty = Collections.emptyList();
+    assertTrue(Utils.isUnique(Utils.uniq(empty)));
+    assertTrue(Utils.isEmpty(Utils.uniq(empty)));
+    final List<Integer> ints1 = Arrays.asList(1,2,3);
+    final List<Integer> ints1Dups = Arrays.asList(1,2,2,3);
+    assertEquals(true, Utils.isSorted(ints1));
+    assertEquals(true, Utils.isSorted(ints1Dups));
+    assertEquals(true, Utils.isSorted(ints1.iterator()));
+    assertFalse(Utils.isUnique(ints1Dups));
+    assertFalse(Utils.isEmpty(ints1Dups));
+    assertTrue(Utils.isUnique(Utils.uniq(ints1Dups)));
+    //System.err.println("pre uniq'd: "+asList(ints1Dups));
+    final Iterable<Integer> uniqd = Utils.uniq(ints1Dups);
+    //System.err.println("uniq'd: "+asList(uniqd));
+    //System.err.println("uniq'd: "+asList(uniqd));
+    assertFalse(Utils.isEmpty(Utils.uniq(ints1Dups)));
+  }
+
+  private static <T> List<T> asList(final Iterable<T> iterable) {
+    final List<T> list = new ArrayList<T>();
+    for(final T t : iterable) {
+      list.add(t);
+    }
+    return list;
+  }
 
   public static junit.framework.Test suite() {
     return new JUnit4TestAdapter(UtilsTest.class);
