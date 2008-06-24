@@ -42,7 +42,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   private final FileManagerInterface db;
-  private final Morphy morphy;
+  protected final Morphy morphy;
 
 
   //
@@ -112,8 +112,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
   // Entity lookup caching
   //
   final int DEFAULT_CACHE_CAPACITY = 10000;//100000;
-  private Cache synsetCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
-  private Cache indexWordCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
+  private Cache<DatabaseKey, Object> synsetCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
+  private Cache<DatabaseKey, Object> indexWordCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
   
   static interface DatabaseKey {
     public int hashCode();
@@ -143,10 +143,10 @@ public class FileBackedDictionary implements DictionaryDatabase {
   } // end class POSOffsetDatabaseKey
   
   static class StringPOSDatabaseKey implements DatabaseKey {
-    private final String key;
+    private final CharSequence key;
     private final byte posOrdinal;
 
-    StringPOSDatabaseKey(final String key, final POS pos) {
+    StringPOSDatabaseKey(final CharSequence key, final POS pos) {
       this.key = key;
       this.posOrdinal = (byte)pos.ordinal();
     }
@@ -154,13 +154,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
     @Override public boolean equals(final Object object) {
       if(object instanceof StringPOSDatabaseKey) {
         final StringPOSDatabaseKey that = (StringPOSDatabaseKey)object;
-        return that.posOrdinal == this.posOrdinal && that.key.equals(this.key);
+        return that.posOrdinal == this.posOrdinal && Utils.equals(that.key, this.key);
       }
       return false;
     }
 
     @Override public int hashCode() {
-      return posOrdinal ^ key.hashCode();
+      return posOrdinal ^ Utils.hashCode(key);
     }
   } // end class StringPOSDatabaseKey
 
@@ -243,7 +243,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   
   //FIXME cache's don't store null values!
-  private static void cacheDebug(final Cache cache) {
+  private static void cacheDebug(final Cache<DatabaseKey, Object> cache) {
     //System.err.println(cache.getClass().getSimpleName());
     //System.err.printf("getIndexWordAtCacheMiss: %d getIndexWordAtCacheHit: %d weirdGetIndexWordAtCacheMiss: %d\n", 
     //    getIndexWordAtCacheMiss, getIndexWordAtCacheHit, weirdGetIndexWordAtCacheMiss );
@@ -269,7 +269,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       final String filename = getIndexFilename(pos);
       final CharSequence line;
       try {
-        line = db.readLineAt(filename, offset);
+        line = db.readLineAt(offset, filename);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -296,7 +296,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       if (line == null) {
         final String filename = getDataFilename(pos);
         try {
-          line = db.readLineAt(filename, offset);
+          line = db.readLineAt(offset, filename);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -324,7 +324,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private static Object NULL_INDEX_WORD = new Object();
 
   /** {@inheritDoc} */
-  public Word lookupWord(final POS pos, final String lemma) {
+  public Word lookupWord(final POS pos, final CharSequence lemma) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
     if (indexWord != null && indexWord != NULL_INDEX_WORD) {
@@ -336,7 +336,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       final String filename = getIndexFilename(pos);
       final int offset;
       try {
-        offset = db.getIndexedLinePointer(filename, lemma.toLowerCase().replace(' ', '_'));
+        offset = db.getIndexedLinePointer(lemma, filename);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -357,9 +357,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     // use getindex() too ?
     final String filename = getExceptionsFilename(pos);
     try {
-      final int offset = db.getIndexedLinePointer(filename, derivation.toLowerCase());
+      final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
       if (offset >= 0) {
-        final String line = db.readLineAt(filename, offset);
+        final String line = db.readLineAt(offset, filename);
         // FIXME there could be > 1 entry on this line of the exception file
         // technically, i think should return the last word:
         //   line.substring(line.lastIndexOf(' ') + 1)
@@ -417,7 +417,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return syns.toArray(new Synset[syns.size()]);
   }
 
-  private final Cache exceptionsCache = new LRUCache(DEFAULT_CACHE_CAPACITY);
+  private final Cache<DatabaseKey, String[]> exceptionsCache = new LRUCache<DatabaseKey, String[]>(DEFAULT_CACHE_CAPACITY);
   //private final Cache exceptionsCache = new LRUCache(0);
   
   /** 
@@ -427,7 +427,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * first entry (the exceptional word itself!)</b>
    * morph.c exc_lookup()
    */
-  String[] getExceptions(final String someString, final POS pos) {
+  String[] getExceptions(final CharSequence someString, final POS pos) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(someString, pos);
     final Object cached = exceptionsCache.get(cacheKey);
     if(cached != null) {
@@ -438,9 +438,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     assert pos != null;
     final String filename = getExceptionsFilename(pos);
     try {
-      final int offset = db.getIndexedLinePointer(filename, someString);
+      final int offset = db.getIndexedLinePointer(someString, filename);
       if (offset >= 0) {
-        final String line = db.readLineAt(filename, offset);
+        final String line = db.readLineAt(offset, filename);
         final String[] toReturn = line.split(" ");
         assert toReturn.length >= 2;
         exceptionsCache.put(cacheKey, toReturn);
@@ -464,11 +464,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
     final int offset;
     final String line;
     try {
-      offset = db.getIndexedLinePointer(getCntlistDotRevFilename(), senseKey);
+      offset = db.getIndexedLinePointer(senseKey, getCntlistDotRevFilename());
       if(offset < 0) {
         line = null;
       } else {
-        line = db.readLineAt(getCntlistDotRevFilename(), offset);
+        line = db.readLineAt(offset, getCntlistDotRevFilename());
       }
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
@@ -481,7 +481,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     assert lexnum >= 0;
     String line;
     try {
-      line = db.readLineNumber(getLexnamesFilename(), lexnum);
+      line = db.readLineNumber(lexnum, getLexnamesFilename());
       if(line != null) {
         // parse line. format example:
         //00	adj.all	3
@@ -505,7 +505,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     assert framenum >= 1;
     String line = null;
     try {
-      line = db.readLineNumber(getGenericVerbFramesFilename(), framenum - 1);
+      line = db.readLineNumber(framenum - 1, getGenericVerbFramesFilename());
       assert line != null : "framenum: "+framenum;
       // parse line. format example:
       //<number>
@@ -534,9 +534,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   String lookupVerbSentencesNumbers(final String verbSenseKey) {
     String line = null;
     try {
-      final int offset = db.getIndexedLinePointer(getVerbSentencesIndexFilename(), verbSenseKey);
+      final int offset = db.getIndexedLinePointer(verbSenseKey, getVerbSentencesIndexFilename());
       if(offset >= 0) {
-        line = db.readLineAt(getVerbSentencesIndexFilename(), offset);
+        line = db.readLineAt(offset, getVerbSentencesIndexFilename());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -572,9 +572,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
   String lookupVerbSentence(final String verbSentenceNumber) {
     String line = null;
     try {
-      final int offset = db.getIndexedLinePointer(getVerbSentencesFilename(), verbSentenceNumber);
+      final int offset = db.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFilename());
       if(offset >= 0) {
-        line = db.readLineAt(getVerbSentencesFilename(), offset);
+        line = db.readLineAt(offset, getVerbSentencesFilename());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -618,10 +618,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
       this.pos = pos;
       this.filename = getIndexFilename(pos);
     }
-    public boolean hasNext() {
-      // meant to be used with LookaheadIterator
-      return true;
-    }
     public Word next() {
       try {
         String line;
@@ -630,17 +626,21 @@ public class FileBackedDictionary implements DictionaryDatabase {
             throw new NoSuchElementException();
           }
           offset = nextOffset;
-          line = db.readLineAt(filename, nextOffset);
+          line = db.readLineAt(nextOffset, filename);
           if (line == null) {
             throw new NoSuchElementException();
           }
-          nextOffset = db.getNextLinePointer(filename, nextOffset);
+          nextOffset = db.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith("  ")); // first few lines start with "  "
         //FIXME something seems wrong with this
         return new Word(line, offset);
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
+    }
+    public boolean hasNext() {
+      // meant to be used with LookaheadIterator
+      return true;
     }
     public void remove() {
       throw new UnsupportedOperationException();
@@ -660,27 +660,23 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * @see DictionaryDatabase#searchWords 
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
-  private class SearchIterator implements Iterator<Word> {
+  private class SearchBySubstringIterator implements Iterator<Word> {
     private final POS pos;
-    private final String substring;
+    private final CharSequence substring;
     private final String filename;
     private int nextOffset = 0;
 
-    SearchIterator(final POS pos, final String substring) {
+    SearchBySubstringIterator(final POS pos, final CharSequence substring) {
       this.pos = pos;
-      this.substring = Morphy.searchNormalize(substring);
+      this.substring = Morphy.searchNormalize(substring.toString());
       this.filename = getIndexFilename(pos);
-    }
-    public boolean hasNext() {
-      // meant to be used with LookaheadIterator
-      return true;
     }
     public Word next() {
       try {
-        final int offset = db.getMatchingLinePointer(filename, nextOffset, substring);
+        final int offset = db.getMatchingLinePointer(nextOffset, substring, filename);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
-          nextOffset = db.getNextLinePointer(filename, offset);
+          nextOffset = db.getNextLinePointer(offset, filename);
           return value;
         } else {
           throw new NoSuchElementException();
@@ -689,16 +685,20 @@ public class FileBackedDictionary implements DictionaryDatabase {
         throw new RuntimeException(e);
       }
     }
+    public boolean hasNext() {
+      // meant to be used with LookaheadIterator
+      return true;
+    }
     public void remove() {
       throw new UnsupportedOperationException();
     }
-  } // end class SearchIterator
+  } // end class SearchBySubstringIterator
 
   /** {@inheritDoc} */
-  public Iterable<Word> searchWords(final POS pos, final String substring) {
+  public Iterable<Word> searchBySubstring(final POS pos, final CharSequence substring) {
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
-        return new LookaheadIterator<Word>(new SearchIterator(pos, substring));
+        return new LookaheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
       }
     };
   }
@@ -707,28 +707,25 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * @see DictionaryDatabase#searchIndexBeginning 
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
-  private class StartsWithSearchIterator implements Iterator<Word> {
+  private class SearchByPrefixIterator implements Iterator<Word> {
     private final POS pos;
-    private final String prefix;
+    private final CharSequence prefix;
     private final String filename;
     private int nextOffset = 0;
-    StartsWithSearchIterator(final POS pos, final String prefix) {
+    SearchByPrefixIterator(final POS pos, final CharSequence prefix) {
       this.pos = pos;
-      //TODO really could trim this result too since no
+      //TODO really could String.trim() this result too since no
       //word will begin with a space or dash
-      this.prefix = Morphy.searchNormalize(prefix);
+      this.prefix = Morphy.searchNormalize(prefix.toString());
       this.filename = getIndexFilename(pos);
-    }
-    public boolean hasNext() {
-      // meant to be used with LookaheadIterator
-      return true;
     }
     public Word next() {
       try {
-        final int offset = db.getMatchingBeginningLinePointer(filename, nextOffset, prefix);
+        final int offset = db.getPrefixMatchLinePointer(nextOffset, prefix, filename);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
-          nextOffset = db.getNextLinePointer(filename, offset);
+          // setup for next element
+          nextOffset = db.getNextLinePointer(offset, filename);
           return value;
         } else {
           throw new NoSuchElementException();
@@ -737,16 +734,20 @@ public class FileBackedDictionary implements DictionaryDatabase {
         throw new RuntimeException(e);
       }
     }
+    public boolean hasNext() {
+      // meant to be used with LookaheadIterator
+      return true;
+    }
     public void remove() {
       throw new UnsupportedOperationException();
     }
-  } // end class StartsWithSearchIterator
+  } // end class SearchByPrefixIterator
   
   /** {@inheritDoc} */
-  public Iterable<Word> searchIndexBeginning(final POS pos, final String prefix) {
+  public Iterable<Word> searchByPrefix(final POS pos, final CharSequence prefix) {
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
-        return new LookaheadIterator<Word>(new StartsWithSearchIterator(pos, prefix));
+        return new LookaheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
       }
     };
   }
@@ -763,10 +764,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
       this.pos = pos;
       this.filename = getDataFilename(pos);
     }
-    public boolean hasNext() {
-      // meant to be used with LookaheadIterator
-      return true;
-    }
     public Synset next() {
       try {
         String line;
@@ -775,17 +772,21 @@ public class FileBackedDictionary implements DictionaryDatabase {
           if (nextOffset < 0) {
             throw new NoSuchElementException();
           }
-          line = db.readLineAt(filename, nextOffset);
+          line = db.readLineAt(nextOffset, filename);
           offset = nextOffset;
           if (line == null) {
             throw new NoSuchElementException();
           }
-          nextOffset = db.getNextLinePointer(filename, nextOffset);
+          nextOffset = db.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith("  ")); // first few lines start with "  "
         return getSynsetAt(pos, offset, line);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
+    }
+    public boolean hasNext() {
+      // meant to be used with LookaheadIterator
+      return true;
     }
     public void remove() {
       throw new UnsupportedOperationException();
@@ -804,20 +805,19 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** 
    * @see DictionaryDatabase#wordSenses 
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
   private class POSWordSensesIterator implements Iterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
     POSWordSensesIterator(final POS pos) {
+      // uses 2 level Iterator - first is Synsets,
+      // second is their WordSenses
+      // Both levels have a variable number of members
+      // Only second level's elements are emitted.
       this.wordSenses = MultiLevelIterable.of(words(pos)).iterator();
     }
     public boolean hasNext() {
       return wordSenses.hasNext();
     }
     public WordSense next() {
-      // uses 2 level Iterator - first is Synsets,
-      // second is their WordSenses
-      // Both levels have a variable number of members
-      // Only second level's elements are emitted.
       return wordSenses.next();
     }
     public void remove() {
@@ -837,7 +837,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** 
    * @see DictionaryDatabase#pointers 
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
   private class POSPointersIterator implements Iterator<Pointer> {
     private final Iterator<Pointer> pointers;
     POSPointersIterator(final POS pos, final PointerType pointerType) {
