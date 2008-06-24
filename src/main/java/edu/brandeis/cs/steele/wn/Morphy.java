@@ -92,7 +92,7 @@ class Morphy {
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
     //this.morphyCache = new LRUCache<DatabaseKey, List<String>>(dictionary.DEFAULT_CACHE_CAPACITY);
-    // for debug
+    // 0 capacity is for performance debugging
     this.morphyCache = new LRUCache<DatabaseKey, List<String>>(0);
   }
 
@@ -100,8 +100,8 @@ class Morphy {
    * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
    * Changes ' ''s to '_' to allows searches to pass.
    *
-   * Also used in FileBackedDictionary.SearchIterator and 
-   * FileBackedDictionary.StartsWithSearchIterator.
+   * Also used in {@link FileBackedDictionary.SearchIterator} and 
+   * {@link FileBackedDictionary.StartsWithSearchIterator}.
    */
   static String searchNormalize(String origstr) {
     if (log.isLoggable(Level.FINEST)) {
@@ -129,6 +129,7 @@ class Morphy {
     return origstr.toLowerCase().replaceAll("\\s+", "_");
   }
 
+  //TODO move to Utils
   private static boolean isOnlySpaces(final CharSequence origstr) {
     final int n = origstr.length();
     for(int i = n - 1; i >= 0; i--) {
@@ -138,27 +139,41 @@ class Morphy {
     }
     return n > 0;
   }
+
+  //TODO move to Utils
+  private static <T> T last(T[] ts) {
+    if(ts == null || ts.length == 0) {
+      return null;
+    } else {
+      return ts[ts.length - 1];
+    }
+  }
+
+  static String underScoreToSpace(final String s) {
+    if (s == null) return s;
+    return s.replace('_', ' ');
+  }
   
   /** 
    * Try to find baseform (lemma) of word or collocation in POS.
    * Unlike the original, returns <b>all</b> baseforms of origstr. 
    * Converts '_' to ' '.
-   * morph.c morphstr() function.  
    *
+   * <p>Port of <code>morph.c</code> function <code>morphstr()</code>.
    * <b>The original function returned nothing for words which were already
    * stemmed.</b>
    *
-   * Alorithm:
+   * <p>Alorithm:
    * - normalize search string to database format
    * - if search string in exception list, add distinct exceptional variants
    * - if pos != verb, add any distinct base forms
    * - if pos == verb and search string is multiword phrase with preposition,
-   *     add distinct morphprep variant if there is one
+   *     add distinct <code>morphprep</code> variant if there is one
    * - else if no variants found yet
    *     for each word in the collocation, build up search string with 
    *     that word's stem if it has one, or the original string splicing
    *     the provided token separators back in (e.g. "_", "-")
-   *     - add any variants
+   *     - add any defined variants
    *
    * TODO simplify this code - is a brute force port from tricky C code.
    * Consider Java idioms like StringTokenizer/Scanner.
@@ -393,7 +408,7 @@ class Morphy {
     if (word != null) {
       addTrueCaseLemmas(word, toReturn);
     }
-    final List<String> uniqed = Utils.uniq(toReturn);
+    final List<String> uniqed = Utils.dedup(toReturn);
     morphyCache.put(cacheKey, uniqed);
     if (log.isLoggable(Level.FINER)) {
       log.finer("returning "+toReturn+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
@@ -408,15 +423,10 @@ class Morphy {
     }
   }
 
-  static String underScoreToSpace(final String s) {
-    if (s == null) return s;
-    return s.replace('_', ' ');
-  }
-
   /**
    * Must be an exact match in the dictionary.
    * (C version in <code>search.c</code> only returns <code>true</code>/</code>false</code>)
-   * Similar to <code>index_lookup</code>
+   * Similar to C function <code>index_lookup</code>
    */
   Word is_defined(final String lemma, final POS pos) {
     if (lemma.length() == 0) return null;
@@ -426,7 +436,7 @@ class Morphy {
   /**
    * Try to find baseform (lemma) of <b>individual word</b> <param>word</param>
    * in POS <param>pos</param>.
-   * Port of morph.c morphword().
+   * Port of <code>morph.c<.code> function <code>morphword()</code>.
    */
   private String[] morphword(final String wordStr, final POS pos) {
     if (wordStr == null || wordStr.length() == 0) {
@@ -505,17 +515,8 @@ class Morphy {
     return toReturn;
   }
 
-  //TODO move to Utils
-  private static <T> T last(T[] ts) {
-    if(ts == null || ts.length == 0) {
-      return null;
-    } else {
-      return ts[ts.length - 1];
-    }
-  }
-
   /**
-   * Port of morph.c wordbase().
+   * Port of <code>morph.c</code> function <code>wordbase()</code>.
    */
   private String wordbase(final String word, final int enderIdx) {
     if (log.isLoggable(Level.FINEST)) {
@@ -530,7 +531,7 @@ class Morphy {
   /**
    * Find a preposition in the verb string and return its
    * corresponding word number. 
-   * Port of morph.c hasprep().
+   * Port of <code>morph.c<code> functin <code>hasprep()</code>.
    */
   private int hasprep(final String s, final int wdcnt) {
     if (log.isLoggable(Level.FINER)) {
@@ -553,7 +554,7 @@ class Morphy {
         }
       }
     }
-    log.finer("s contains no prep");
+    log.log(Level.FINER, "s {0} contains no prep", s);
     return 0;
   }
 
@@ -686,7 +687,7 @@ class Morphy {
 
   /** 
    * Count the number of words in a string delimited by space (' '), underscore
-   * ('_') or the passed in separator.
+   * ('_'), or the passed in separator.
    */
   static int countWords(final CharSequence s, final char separator) {
     switch(separator) {
@@ -699,75 +700,4 @@ class Morphy {
         return CharSequenceTokenizer.countTokens(s, 0, SPACE_UNDERSCORE + separator);
     }
   }
-
-  // LN getindex() is only 1 form of sloppy search (periods, hyphens, underscores
-
-  //private static final int WORDBUF = 256;
-  //private static final int MAX_FORMS = 5;
-
-  ///** 'smart' search of index file.  Find word in index file, trying different
-  // * techniques - replace hyphens with underscores, replace underscores with
-  // * hyphens, strip hyphens and underscores, strip periods. 
-  // * search.c's getindex() function
-  // */
-  //private Word[] getindex(String searchstr, POS pos) {
-  //  static Word offsets[MAX_FORMS];
-  //  static int offset;
-  //  // FIXME if pos == POS.SAT_ADJ , pos = POS.ADJ
-
-  //  char strings[MAX_FORMS][WORDBUF]; // vector of search strings
-
-  //  // This works like strrok(): if passed with a non-null string,
-  //  // prepare vector of search strings and offsets.  If string
-  //  // is null, look at current list of offsets and return next
-  //  // one, or null if no more alternatives for this word.
-
-  //  if (searchstr != null) {
-  //    offset = 0;
-  //    strtolower(searchstr);
-  //    for (int i = 0; i < MAX_FORMS; ++i) {
-  //      strcpy(strings[i], searchstr);
-  //      offsets[i] = 0;
-  //    }
-
-  //    strsubst(strings[1], '_', '-');
-  //    strsubst(strings[2], '-', '_');
-
-  //    // remove all spaces and hyphens from last search string, then
-  //    // all periods
-  //    for (int i = 0, j = 0, k = 0; i < searchstr.length(); ++i) {
-  //      final char c = searchstr.get(i);
-  //      if (c != '_' && c != '-') {
-  //        strings[3][j++] = c;
-  //      }
-  //      if (c != '.') {
-  //        strings[4][k++] = c;
-  //      }
-  //    }
-  //    strings[3][j] = '\0';
-  //    strings[4][k] = '\0';
-
-  //    // Get offset of first entry.  Then eliminate duplicates
-  //    // and get offsets of unique strings.
-
-  //    if (strings[0][0] != null) {
-  //      offsets[0] = index_lookup(strings[0], dbase);
-  //    }
-
-  //    for (i = 1; i < MAX_FORMS; i++) {
-  //      if ((strings[i][0]) != NULL && (strcmp(strings[0], strings[i]))) {
-  //        offsets[i] = index_lookup(strings[i], dbase);
-  //      }
-  //    }
-  //  }
-
-  //  for (int i = offset; i < MAX_FORMS; ++i) {
-  //    if (offsets[i]) {
-  //      offset = i + 1;
-  //      return offsets[i];
-  //    }
-  //  }
-
-  //  return null;
-  //}
 }
