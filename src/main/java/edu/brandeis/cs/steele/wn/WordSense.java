@@ -23,8 +23,8 @@ import edu.brandeis.cs.steele.util.Utils;
  */
 public class WordSense implements PointerTarget, Comparable<WordSense> {
   /** 
-   * <i>Optional</i> restrictions for the position of an adjective relative to the
-   * noun it modifies. aka "adjclass".
+   * <i>Optional</i> restrictions for the position(s) an adjective can take
+   * relative to the noun it modifies. aka "adjclass".
    */
   public enum AdjPosition {
     NONE(0),
