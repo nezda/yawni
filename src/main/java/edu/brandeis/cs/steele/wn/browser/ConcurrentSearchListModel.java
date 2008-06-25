@@ -1,6 +1,5 @@
 package edu.brandeis.cs.steele.wn.browser;
 
-import java.awt.*;
 import javax.swing.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -51,6 +50,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
    * <b>and</b> its values are <u>not changing</u>
    */
   private void setFocusable(final boolean focusable) {
+    jlist.clearSelection();
     jlist.setFocusable(focusable);
   }
   private JList jlist;
@@ -97,11 +97,21 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   public int getSize() {
     return filterItems.size();
   }
+  private static abstract class CatchAndRelease implements Runnable {
+    abstract void doRun();
+    public void run() {
+      try {
+        doRun();
+      } catch(Throwable t) {
+        t.printStackTrace();
+      }
+    }
+  } // end class CatchAndRelease
   private void redisplay(final Iterable toDisplay, final String query) {
     //XXX System.err.println("doRedisplay submitted "+new Date());
     final Future submittedTask = 
-      service.submit(new Runnable() {
-      public void run() {
+      service.submit(new CatchAndRelease() {
+      @Override void doRun() {
         doRedisplay(toDisplay, query);
         //XXX System.err.println("doRedisplay done      "+new Date());
       }
@@ -168,13 +178,13 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       newItems.add(obj);
       //TODO periodically fire interval added (using SwingUtilities.invokeLater()!)
       //FIXME check interrupted() to support cancellation !!!
-      //  probably best to do this in search iterators
+      //  probably best to do this in search iterators ?
     }
     searchDone(query, newItems.size()); 
     //XXX try {
       //XXX SwingUtilities.invokeAndWait(new Runnable() {
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
+      SwingUtilities.invokeLater(new CatchAndRelease() {
+        @Override void doRun() {
           // mismatch strategy optimizes common prefixes
           final int s = Utils.mismatch(filterItems, 0, filterItems.size(), newItems, 0);
           if (s != 0) {
@@ -209,6 +219,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
             }
           }
           assert filterItems.size() == newItems.size();
+          // clear the current selection
           fireContentsChanged(this, 0, Math.max(getSize(), oldSize));
           setFocusable(getSize() != 0);
           //XXX fireContentsChanged(this, 0, 20);
