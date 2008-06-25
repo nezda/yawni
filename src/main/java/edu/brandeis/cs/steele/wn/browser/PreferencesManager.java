@@ -31,13 +31,17 @@ class PreferencesManager implements AWTEventListener {
 
     //XXX for debugging
     //try {
-    //  prefs.clear();
+    //  //prefs.clear();
+    //  //prefs.removeNode();
+    //  prefs = Preferences.userNodeForPackage(PreferencesManager.class);
     //} catch(BackingStoreException bse) {
     //  bse.printStackTrace();
     //}
+    //TODO need way to do this in GUI since it clobbers user actions
+    //loadDefaults();
   };
 
-  static void loadDefaults() {
+  static synchronized void loadDefaults() {
     // TODO 
     // see if the defaults have been loaded,
     //   if not, load them
