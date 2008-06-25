@@ -21,7 +21,7 @@ import javax.swing.border.*;
 import java.util.prefs.*;
 
 class SearchFrame extends JFrame {
-  private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class);
+  private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
   private static final long serialVersionUID = 1L;
 
   private final Dimension minSize;
@@ -47,8 +47,8 @@ class SearchFrame extends JFrame {
     super("Substring Search");
     this.browserPanel = browserPanel;
     this.setVisible(false);
-    this.pos = POS.valueOf(prefs.get("SearchFrame.searchPOS", POS.NOUN.name()));
-    this.searchType = SearchType.valueOf(prefs.get("SearchFrame.searchType", SearchType.SUBSTRING.name()));
+    this.pos = POS.valueOf(prefs.get("searchPOS", POS.NOUN.name()));
+    this.searchType = SearchType.valueOf(prefs.get("searchType", SearchType.SUBSTRING.name()));
 
     final KeyListener windowHider = new KeyAdapter() {
       public void keyTyped(final KeyEvent event) {
@@ -102,7 +102,7 @@ class SearchFrame extends JFrame {
       public void itemStateChanged(final ItemEvent evt) {
         assert posChoice == evt.getSource();
         final POS pos = getSelectedPOS();
-        prefs.put("SearchFrame.searchPOS", pos.name());
+        prefs.put("searchPOS", pos.name());
         reissueSearch();
       }
     });
@@ -219,6 +219,17 @@ class SearchFrame extends JFrame {
         }
       }
     });
+    
+    final MouseListener doubleClickListener = new MouseAdapter() {
+      public void mouseClicked(final MouseEvent evt) {
+        if (evt.getClickCount() == 2) {
+          final int index = SearchFrame.this.resultList.locationToIndex(evt.getPoint());
+          SearchFrame.this.resultList.clearSelection();
+          SearchFrame.this.resultList.setSelectedIndex(index);
+        }
+      }
+    };
+    this.resultList.addMouseListener(doubleClickListener);
 
     final JScrollPane jsp = new  JScrollPane(resultList);
     jsp.setBorder(browserPanel.browser.textAreaBorder);
@@ -341,7 +352,7 @@ class SearchFrame extends JFrame {
       }
       public void actionPerformed(final ActionEvent evt) {
         searchType = SearchType.SUBSTRING;
-        prefs.put("SearchFrame.searchType", SearchType.SUBSTRING.name());
+        prefs.put("searchType", SearchType.SUBSTRING.name());
         reissueSearch();
       }
     } // end class SubstringAction
@@ -352,7 +363,7 @@ class SearchFrame extends JFrame {
       }
       public void actionPerformed(final ActionEvent evt) {
         searchType = SearchType.PREFIX;
-        prefs.put("SearchFrame.searchType", SearchType.PREFIX.name());
+        prefs.put("searchType", SearchType.PREFIX.name());
         reissueSearch();
       }
     } // end class PrefixAction
