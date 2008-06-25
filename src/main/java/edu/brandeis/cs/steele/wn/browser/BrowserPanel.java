@@ -27,7 +27,7 @@ import java.util.prefs.*;
 
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
-  private static Preferences prefs = Preferences.systemRoot().node(BrowserPanel.class.getPackage().getName());
+  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
 
   private static final long serialVersionUID = 1L;
 
