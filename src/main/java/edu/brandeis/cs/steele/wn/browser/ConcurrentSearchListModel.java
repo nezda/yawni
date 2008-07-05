@@ -25,18 +25,18 @@ import edu.brandeis.cs.steele.util.*;
  *   </ul>
  * <li> uses <code>JList</code> reference to maintain display correctness and optimize responsiveness</li>
  * </ul>
- * 
+ *
  * <h4>XXX (older prose design notes) XXX</h4>
  * Supports interactive display of a large Iterator/Iterable which (TODO start) fires update
  * events every n adds (n can be picked to fill the visible screen asap) (TODO end).
  * Traverses Iterable in a separate (single) thread and updates the model and
  * periodically signals the view on the event thread
  * (<code>SwingUtilities.invokeLater</code>).
- * 
+ *
  * <p><b>fireXxx() methods must only be called from the event thread
  * (JCiP, pp. 195) (e.g. via SwingUtilities.invokeAndWait() or
  * SwingUtilities.invokeLater().</b>
- * 
+ *
  * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
  */
 public abstract class ConcurrentSearchListModel extends AbstractListModel implements DocumentListener {
@@ -109,7 +109,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   } // end class CatchAndRelease
   private void redisplay(final Iterable toDisplay, final String query) {
     //XXX System.err.println("doRedisplay submitted "+new Date());
-    final Future submittedTask = 
+    final Future submittedTask =
       service.submit(new CatchAndRelease() {
       @Override void doRun() {
         doRedisplay(toDisplay, query);
@@ -131,14 +131,14 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     // redisplay() should be called in a non-event dispatch thread - it will need a little API
     // Easiest to use a single-threaded ExecutorService
     // - "waiting for work" is trivial
-    // ? how do we know if there are any workers in progress ? 
+    // ? how do we know if there are any workers in progress ?
     // ? how do we know if there's any work queued ? (maintain queue of work)
     // - allows cancellation
     // - handles worker daemon-ness (ThreadFactory that creates daemon threads - doesn't need to be shutdown)
     // - handles work thread death
     // ? how to make latest request preempt all others ? bounded buffer of size 1
     // ? maybe ScheduledThreadPoolExecutor - executes last submitted first and tosses others ?
-    // 
+    //
     // lifecyce
     // - wait for work
     // - execute work, periodically call back view via fireXxx() with SwingUtilities.invokeLater()
@@ -148,14 +148,14 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     // and start new refliter().  Easiest way to accomplish this is to fire partial change events
     // e.g. when first n filtered items are modified, fireContentsChanged(0, n)
     // then as each batch of n changes fire contents changes for that range
-    // - fancy responsiveness opti - use these 
+    // - fancy responsiveness opti - use these
     //   - getFirstVisibleIndex()
     //   - getLastVisibleIndex()
     //
     // consider ConcurrentArrayList to ensure no ConcurrentModificationException
-    // ? how to ensure view is of latest snapshot of filterItems and not an inconsistent, 
+    // ? how to ensure view is of latest snapshot of filterItems and not an inconsistent,
     //   artificial Frankenstein view ?
-    // 
+    //
     // TODO Consider a delay before acting on this in case there are many in short succession ?
     // Easier to cancel and more responsive looking?
     //
@@ -180,7 +180,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       //FIXME check interrupted() to support cancellation !!!
       //  probably best to do this in search iterators ?
     }
-    searchDone(query, newItems.size()); 
+    searchDone(query, newItems.size());
     //XXX try {
       //XXX SwingUtilities.invokeAndWait(new Runnable() {
       SwingUtilities.invokeLater(new CatchAndRelease() {
@@ -233,21 +233,21 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   }
 
   /** {@inheritDoc} */
-  public void changedUpdate(final DocumentEvent evt) { 
-    final String query = query(evt); 
-    redisplay(search(query), query); 
+  public void changedUpdate(final DocumentEvent evt) {
+    final String query = query(evt);
+    redisplay(search(query), query);
   }
   /** {@inheritDoc} */
-  public void insertUpdate(final DocumentEvent evt) { 
-    final String query = query(evt); 
-    redisplay(search(query), query); 
+  public void insertUpdate(final DocumentEvent evt) {
+    final String query = query(evt);
+    redisplay(search(query), query);
   }
   /** {@inheritDoc} */
-  public void removeUpdate(final DocumentEvent evt) { 
-    final String query = query(evt); 
-    redisplay(search(query), query); 
+  public void removeUpdate(final DocumentEvent evt) {
+    final String query = query(evt);
+    redisplay(search(query), query);
   }
-  
+
   private String query(final DocumentEvent evt) {
     final Document doc = evt.getDocument();
     try {

@@ -3,7 +3,7 @@ package edu.brandeis.cs.steele.wn.browser;
 import java.awt.*;
 import java.util.*;
 
-/** 
+/**
  * Simple FocusTraversalPolicy which cycles through provided components in sequential order
  * and defauls to the first component
  */
@@ -40,9 +40,9 @@ class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
     if(idx < 0) {
       return getDefaultComponent(focusCycleRoot);
     }
-    for(int 
+    for(int
         n = order.size(), i = next(idx, n, after), cnt = 0;
-        cnt < n;  
+        cnt < n;
         i = next(i, n, after), cnt++) {
       final Component comp = order.get(i);
       if(comp.isEnabled() && comp.isFocusable()) {

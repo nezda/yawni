@@ -20,11 +20,11 @@ import javax.xml.transform.stream.*;
 Try to use http://www.w3.org/TR/wordnet-rdf/
 - note odd Word/Collocation distinction - seems like this should be optional
 
-WordNetQueryResult 
+WordNetQueryResult
   queryTerm:"foo",
   queryPOS:"NOUN",
   queryPointerType:"HYPONYM"
-  
+
   NounSynsets
     NounSynset
     NounWordSense
@@ -116,7 +116,7 @@ public class Searcher {
 <root>
 <child name="value">Filler, ... I could have had a foo!</child>
 </root>
-*/    
+*/
 
     final Element root = doc.createElement("root");
     doc.appendChild(root);
