@@ -21,28 +21,28 @@ public enum POS {
   ALL("all POS", null, 0),
   /** <b>NOTE: do not reorder - PointerTypes relies on this</b> */
   /**
-   * <ol> 
+   * <ol>
    *   <li> a content word that can be used to refer to a person, place, thing, quality, or action </li>
    *   <li> the word class that can serve as the subject or object of a verb, the object of a preposition, or in apposition </li>
    * <ol>
    */
   NOUN("noun", "n", 1),
   /**
-   * <ol> 
+   * <ol>
    *   <li> the word class that serves as the predicate of a sentence </li>
    *   <li> a content word that denotes an action, occurrence, or state of existence </li>
    * <ol>
    */
   VERB("verb", "v", 2),
   /**
-   * <ol> 
+   * <ol>
    *   <li> a word that expresses an attribute of something </li>
    *   <li> the word class that qualifies nouns </li>
    * <ol>
    */
   ADJ("adjective", "a", 3),
   /**
-   * <ol> 
+   * <ol>
    *   <li> the word class that qualifies verbs or clauses </li>
    *   <li> a word that modifies something other than a noun </li>
    * <ol>
@@ -62,9 +62,9 @@ public enum POS {
   }
 
   /** A list of all <code>POS</code>s <b>except {@link POS#SAT_ADJ}</b> which doesn't
-   * have its own data files. 
+   * have its own data files.
    */
-  public static final POS[] CATS = {NOUN, VERB, ADJ, ADV}; 
+  public static final POS[] CATS = {NOUN, VERB, ADJ, ADV};
 
   //
   // Instance implementation
@@ -88,7 +88,7 @@ public enum POS {
   @Override public String toString() {
     return toString;
   }
-  
+
   //
   // Accessor
   //
