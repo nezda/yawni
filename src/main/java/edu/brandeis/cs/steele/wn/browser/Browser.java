@@ -55,7 +55,7 @@ public class Browser extends JFrame {
   // Check that we are on Mac OS X.  This is crucial to loading and using the OSXAdapter class.
   static final boolean MAC_OS_X = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
   static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-  
+
   private final Dimension minSize;
   private final JMenuBar mainMenuBar;
   private final JMenu fileMenu;
@@ -84,7 +84,7 @@ public class Browser extends JFrame {
     //XXX this.setSize(640, 480);
     //XXX Toolkit.getDefaultToolkit().setDynamicLayout(true);
     //XXX System.err.println("dynLayout: "+Toolkit.getDefaultToolkit().isDynamicLayoutActive());
-    
+
     this.textAreaBorder = new BasicBorders.MarginBorder() {
       private static final long serialVersionUID = 1L;
       private final Insets insets = new Insets(pad, pad, pad, pad);
@@ -161,7 +161,7 @@ public class Browser extends JFrame {
             "WordNet online lexical database.<br>"+
             "<br>"+
             "This Java version is by Luke Nezda and Oliver Steele.<br>"+
-            "The GUI is loosely based on Tcl/Tk interface<br>"+
+            "The GUI is loosely based on the Tcl/Tk interface<br>"+
             "by David Slomin and Randee Tengi.",
             "About JWordNet Browser",
             JOptionPane.DEFAULT_OPTION,
@@ -175,10 +175,10 @@ public class Browser extends JFrame {
     this.helpMenu.add(miAbout);
     this.mainMenuBar.add(helpMenu);
     setJMenuBar(mainMenuBar);
-    
+
     final WindowAdapter closer = new WindowAdapter() {
       @Override public void windowClosing(final WindowEvent evt) {
-        System.err.println("closing");
+        //System.err.println("closing");
         quitAction.actionPerformed(null);
       }
     };
@@ -189,7 +189,7 @@ public class Browser extends JFrame {
     this.minSize = new Dimension(getPreferredSize().width, getMinimumSize().height);
     setMinimumSize(minSize);
     addComponentListener(new ComponentAdapter() {
-      public void componentResized(final ComponentEvent evt) {        
+      public void componentResized(final ComponentEvent evt) {
         int width = getWidth();
         int height = getHeight();
         // we check if either the width
@@ -250,12 +250,14 @@ public class Browser extends JFrame {
   private static void setSystemProperties() {
     //TODO move to preferences ?
     // these won't hurt anything on non OS X platforms
+    // http://mindprod.com/jgloss/antialiasing.html#GOTCHAS
+    // ? Java 5 option that may cause fonts to look worse ??
     System.setProperty("swing.aatext", "true");
     System.setProperty("awt.useSystemAAFontSettings", "on");
     System.setProperty("apple.awt.textantialiasing", "on");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
     System.setProperty("apple.awt.brushMetalLook", "true");
-    System.setProperty("apple.awt.brushMetalRounded", "true"); 
+    System.setProperty("apple.awt.brushMetalRounded", "true");
     System.setProperty("apple.awt.showGrowBox", "false");
   }
 
