@@ -4,7 +4,7 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-/** 
+/**
  * A class that implements this interface is a broker or factory
  * for objects that model WordNet lexical and semantic entities.
  *
@@ -13,10 +13,11 @@ package edu.brandeis.cs.steele.wn;
  * @version 1.0
  */
 public interface DictionaryDatabase {
-  /** 
+  /**
    * Look up a <code>Word</code> in the database by its <b>lemma</b>.  The search is
    * case-independent and phrases are separated by spaces (e.g. "look up", not
-   * "look_up").
+   * "look_up"), but otherwise <var>lemma<var> must match the form in the
+   * database exactly.  Similar to C function <code>index_lookup</code>.
    * @param pos The part-of-speech.
    * @param lemma The orthographic representation of the word.
    * @return An <code>Word</code> representing the word, or
@@ -24,7 +25,7 @@ public interface DictionaryDatabase {
    */
   public Word lookupWord(final POS pos, final CharSequence lemma);
 
-  /** 
+  /**
    * Return the base form of an exceptional derivation, if an entry for it
    * exists in the database. e.g. returns "goose" from derivation query term
    * "geese" as <code>POS.NOUN</code>.
@@ -45,7 +46,7 @@ public interface DictionaryDatabase {
    */
   public String[] lookupBaseForms(final POS pos, final String someString);
 
-  /** 
+  /**
    * Convenient combination of basic API methods <code>lookupBaseForms()</code>, <code>lookupWord()</code>
    * and <code>Word.getSynsets()</code>.
    * @param pos The part-of-speech.
@@ -62,7 +63,7 @@ public interface DictionaryDatabase {
    */
   public Iterable<Word> words(final POS pos);
 
-  /** 
+  /**
    * Return an iterator of all the <code>Word</code>s whose lemmas contain <var>substring</var>
    * as a <b>substring</b>.
    * @param pos The part-of-speech.
@@ -71,7 +72,7 @@ public interface DictionaryDatabase {
    */
   public Iterable<Word> searchBySubstring(final POS pos, final CharSequence substring);
 
-  /** 
+  /**
    * Return an iterator of all the <code>Word</code>s whose lemmas <b>begin with</b> <var>prefix</var>.
    * @param pos The part-of-speech.
    * @param prefix The prefix to search for.
@@ -84,7 +85,7 @@ public interface DictionaryDatabase {
    * @return An iterable of <code>Synset</code>s.
    */
   public Iterable<Synset> synsets(final POS pos);
-  
+
   /** Return an iterator of <b>all</b> the <code>WordSense</code>s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>WordSense</code>s.
