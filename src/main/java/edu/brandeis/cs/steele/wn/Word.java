@@ -15,9 +15,9 @@ import java.util.Iterator;
  * A <code>Word</code> represents a line of a WordNet <code>index.<em>pos</em></code> file.
  * A <code>Word</code> is retrieved via {@link DictionaryDatabase#lookupWord},
  * and has a <i>lemma</i>, a <i>part of speech (POS)</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
- * 
+ *
  * XXX<p>Debatable what the type of each sense is - Steele said Synset, i'd say WordSense.
- * 
+ *
  * <p>Note this class used to be called <tt>IndexWord</tt> which arguably makes more sense from the
  * WordNet perspective.
  *
@@ -29,17 +29,17 @@ import java.util.Iterator;
  */
 public class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Word.class.getName());
-  
+
   /** offset in <var>pos</var><code>.index</code> file */
   private final int offset;
   /** No case "lemma". Each {@link WordSense} has at least 1 true case lemma
-   * (could vary by POS). 
+   * (could vary by POS).
    */
-  private final String lemma; 
+  private final String lemma;
   // number of senses with counts in sense tagged corpora
   private final int taggedSenseCount;
   /** Synsets are initially stored as offsets, and paged in on demand
-   * of the first call of {@link #getSynsets()}. 
+   * of the first call of {@link #getSynsets()}.
    */
   private Object synsets;
 
@@ -62,7 +62,7 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
       for (int i = 0; i < pointerCount; i++) {
         //XXX each of these tokens is a pointertype, although it may be may be
         //incorrect - see getPointerTypes() comments)
-        tokenizer.skipNextToken(); 
+        tokenizer.skipNextToken();
         //  try {
         //    ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
         //  } catch (final java.util.NoSuchElementException exc) {
@@ -98,7 +98,7 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
       //  //log.log(Level.SEVERE, "extra: {0}", extra);
       //}
     } catch (final RuntimeException e) {
-      log.log(Level.SEVERE, "Word parse error on offset: {0} line:\n\"{1}\"", 
+      log.log(Level.SEVERE, "Word parse error on offset: {0} line:\n\"{1}\"",
           new Object[]{ offset, line });
       log.log(Level.SEVERE, "",  e);
       throw e;
@@ -135,19 +135,21 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
     return ptrTypes;
   }
 
-  /** Return the word's lowercased <i>lemma</i>.  Its lemma is its orthographic
-   * representation, for example <code>"dog"</code> or <code>"get up"</code>
-   * or <code>"u.s."</code>.
+  /** Returns the <code>Word</code>'s lowercased <i>lemma</i>.  Its lemma is its orthographic
+   * representation, for example <tt>"dog"</tt> or <tt>"get up"</tt>
+   * or <tt>"u.s.a."</tt>.
+   * <p>Note that different senses of this word may have different lemmas - this
+   * is the canonical one (e.g. "cd" for "Cd", "CD", "cd").
    */
   public String getLemma() {
-    return lemma; 
+    return lemma;
   }
 
   /**
    * Number of "words" (aka "tokens") in this <tt>Word</tt>'s lemma.
    */
   public int getWordCount() {
-    // Morphy.counts() default implementation already counts 
+    // Morphy.counts() default implementation already counts
     // space (' ') and underscore ('_') separated words
     return Morphy.countWords(lemma, '-');
   }
@@ -176,7 +178,7 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
         final int[] synsetOffsets = (int[])synsets;
         // This memory optimization allows this.synsets is an int[] until this
         // method is called to avoid needing to store both the offset and synset
-        // arrays 
+        // arrays
         final Synset[] syns = new Synset[synsetOffsets.length];
         for (int i = 0; i < synsetOffsets.length; i++) {
           syns[i] = dictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
@@ -188,14 +190,14 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
     }
     return (Synset[])synsets;
   }
-  
+
   public WordSense[] getSenses() {
     final WordSense[] senses = new WordSense[getSynsets().length];
     int senseNumberMinusOne = 0;
     for (final Synset synset : getSynsets()) {
       final WordSense wordSense = synset.getWordSense(this);
       senses[senseNumberMinusOne] = wordSense;
-      assert senses[senseNumberMinusOne] != null : 
+      assert senses[senseNumberMinusOne] != null :
         this+" null WordSense at senseNumberMinusOne: "+senseNumberMinusOne;
       senseNumberMinusOne++;
     }
@@ -241,9 +243,9 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
       append(getLemma()).
       append("\"]").toString();
   }
-  
-  /** 
-   * {@inheritDoc} 
+
+  /**
+   * {@inheritDoc}
    */
   public int compareTo(final Word that) {
     int result;
