@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Comparator;
 
-/** 
+/**
  */
 public class Utils {
   private Utils() { }
@@ -34,7 +34,7 @@ public class Utils {
     return l1s;
   }
 
-  /** 
+  /**
    * Equivalent to the STL function by the same name except the
    * <code>first</code> and <code>last</code> are implied to select the entire
    * contents of <param>iterable</param>.
@@ -50,7 +50,7 @@ public class Utils {
 
   /**
    * @param iterable generator of sequences to check for natural sortedness
-   * @return whether or not the naturally <code>Comparable</code> elements of 
+   * @return whether or not the naturally <code>Comparable</code> elements of
    * sequences emitted by <var>iterable</var> are produced in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -62,7 +62,7 @@ public class Utils {
    * @param iterable generator of sequences to check for natural sortedness
    * @param infoException if <code>true</code>, throw informative <code>RuntimeException</code>
    * if <var>iterable</var> isn't sorted
-   * @return whether or not the naturally <code>Comparable</code> elements of 
+   * @return whether or not the naturally <code>Comparable</code> elements of
    * sequences emitted by <var>iterable</var> are produced in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -72,7 +72,7 @@ public class Utils {
 
   /**
    * @param iterator sequence to check for natural sortedness
-   * @return whether or not the naturally <code>Comparable</code> elements of 
+   * @return whether or not the naturally <code>Comparable</code> elements of
    * the sequence emitted by <var>iterator</var> are produced in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -123,7 +123,7 @@ public class Utils {
     boolean isUnique(final Iterable<? extends T> iterable, final boolean infoException) {
       return isUnique(iterable.iterator(), infoException, DEFAULT_UNIQUE_MODE);
     }
-  
+
   /**
    *TODO
    * Make versions of isSorted (IsSorted) and isUnique (IsUnique) that are
@@ -132,7 +132,7 @@ public class Utils {
    * <code>RuntimeException</code> if it is not.
    * IsUnique can optionally <i>make</i> a sorted sequence unique.
    * IsUnique should be able to make its decision based on <code>equals()</code> or <code>compareTo() == 0</code>
-   * although there could be discontinuous violations that it can't detect with exotic/wrong 
+   * although there could be discontinuous violations that it can't detect with exotic/wrong
    * <code>Comparable</code>/<code>Comparator</code>s -- add an enum.
    */
 
@@ -144,7 +144,7 @@ public class Utils {
           final T curr = iterator.next();
           final boolean constraintViolated;
           switch (uniqueMode) {
-            case EQUALITY: 
+            case EQUALITY:
               constraintViolated =  prev.compareTo(curr) == 0;
               break;
             case EQUALS:
@@ -173,13 +173,13 @@ public class Utils {
    * Removes adjacent duplicates from <param>list</param>.  <b>Assumes</b>
    * <param>iterable</param>'s items are emitted in sorted order.
    */
-  public static <T extends Object & Comparable<? super T>> 
+  public static <T extends Object & Comparable<? super T>>
     Iterable<T> uniq(final Iterable<T> base) {
       return uniq(false, base);
   }
 
   /** Validating factory method so template parameters are deduced. */
-  public static <T extends Object & Comparable<? super T>> 
+  public static <T extends Object & Comparable<? super T>>
     Iterable<T> uniq(final boolean validateSort, final Iterable<T> base) {
       return new Uniq<T>(validateSort, base);
   }
@@ -194,7 +194,7 @@ public class Utils {
     if (list == null || list.size() <= 1) {
       return list;
     }
-    //TODO if list size > x, use a HashSet<T> or a 
+    //TODO if list size > x, use a HashSet<T> or a
     // sort/uniq strategy
     int n = list.size();
     for (int i = 0; i < n; i++) {
@@ -310,15 +310,15 @@ public class Utils {
   /**
    * @see java.lang.String#regionMatches
    */
-  public static boolean regionMatches(final CharSequence s1, int offset1, 
+  public static boolean regionMatches(final CharSequence s1, int offset1,
       final CharSequence s2, int offset2, int len) {
     return regionMatches(false, s1, offset1, s2, offset2, len);
   }
-  
+
   /**
    * @see java.lang.String#regionMatches
    */
-  public static boolean regionMatches(final boolean ignoreCase, final CharSequence s1, int offset1, 
+  public static boolean regionMatches(final boolean ignoreCase, final CharSequence s1, int offset1,
       final CharSequence s2, int offset2, int len) {
     //System.err.println("s1: "+s1+" s2: "+s2);
     final int s1Len = s1.length();
@@ -355,8 +355,8 @@ public class Utils {
     return true;
   }
 
-  /** 
-   * A comparison predicate that specifically ignores case and ' ', '.', '-', '_' 
+  /**
+   * A comparison predicate that specifically ignores case and ' ', '.', '-', '_'
    * letters and their order must still match.
    */
   public static boolean sameLetterDigitSequence(final CharSequence s1, final CharSequence s2) {
@@ -366,14 +366,14 @@ public class Utils {
     int i = 0, j = 0;
     char c1, c2;
     while (len-- != 0) {
-      
+
     }
     throw new UnsupportedOperationException("IMPLEMENT ME");
   }
 
   //static class CharSequenceComparator implements Comparator<CharSequence>, Serializable {
   //  private static final long serialVersionUID = 1L;
-  //  
+  //
   //  /** {@inheritDoc} */
   //  public int compare(final CharSequence s1, final CharSequence s2) {
   //    int i = 0;
