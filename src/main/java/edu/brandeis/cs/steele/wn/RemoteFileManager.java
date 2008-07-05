@@ -14,7 +14,7 @@ import java.rmi.server.UnicastRemoteObject;
  * <code>FileBackedDictionary</code> instantiations, using RMI.  This class
  * also contains utility routines to publish a <code>RemoteFileManager</code>
  * for remote use, and to lookup a remote one for local use.
- * 
+ *
  * <p>To make a <code>RemoteFileManager</code> available to remote clients:
  * <pre>
  *   System.setSecurityManager(new RMISecurityManager());
@@ -26,7 +26,7 @@ import java.rmi.server.UnicastRemoteObject;
  * <pre>
  *   DictionaryDatabase dictionary = new FileBackedDictionary(RemoteFileManager.lookup(hostname));
  * </pre>
- * 
+ *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * <br>Copyright 1998 Oliver Steele, see <a href="http://www.cs.brandeis.edu/~steele/WNJ/license.html">
  * http://www.cs.brandeis.edu/~steele/WNJ/license.html</a>.
