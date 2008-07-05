@@ -31,7 +31,7 @@ class Morphy {
     log.addHandler(handler);
   }
 
-  private static final String SUFX[] = { 
+  private static final String SUFX[] = {
     // Noun suffixes
   //0    1      2      3      4       5       6      7
     "s", "ses", "xes", "zes", "ches", "shes", "men", "ies",
@@ -43,7 +43,7 @@ class Morphy {
     "er", "est", "er", "est"
   };
 
-  private static final String ADDR[] = { 
+  private static final String ADDR[] = {
     // Noun endings
   //0   1    2    3    4     5     6      7
     "", "s", "x", "z", "ch", "sh", "man", "y",
@@ -62,9 +62,9 @@ class Morphy {
   // ADJ 3
   // ADV 4
   // SATELLITE 5
-  
+
   // offsets and counts into SUFX and ADDR (0 not used since NOUN == 1)
-                                 //0  1  2  3  
+                                 //0  1  2  3
   private static int offsets[] = { 0, 0, 8, 16 };
   private static int cnts[] =    { 0, 8, 8, 4 };
 
@@ -87,7 +87,7 @@ class Morphy {
   };
 
   private final FileBackedDictionary dictionary;
-  private Cache<DatabaseKey, List<String>> morphyCache; 
+  private Cache<DatabaseKey, List<String>> morphyCache;
 
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
@@ -100,7 +100,7 @@ class Morphy {
    * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
    * Changes ' ''s to '_' to allows searches to pass.
    *
-   * Also used in {@link FileBackedDictionary.SearchIterator} and 
+   * Also used in {@link FileBackedDictionary.SearchIterator} and
    * {@link FileBackedDictionary.StartsWithSearchIterator}.
    */
   static String searchNormalize(String origstr) {
@@ -153,10 +153,10 @@ class Morphy {
     if (s == null) return s;
     return s.replace('_', ' ');
   }
-  
-  /** 
+
+  /**
    * Try to find baseform (lemma) of word or collocation in POS.
-   * Unlike the original, returns <b>all</b> baseforms of origstr. 
+   * Unlike the original, returns <b>all</b> baseforms of origstr.
    * Converts '_' to ' '.
    *
    * <p>Port of <code>morph.c</code> function <code>morphstr()</code>.
@@ -170,7 +170,7 @@ class Morphy {
    * - if pos == verb and search string is multiword phrase with preposition,
    *     add distinct <code>morphprep</code> variant if there is one
    * - else if no variants found yet
-   *     for each word in the collocation, build up search string with 
+   *     for each word in the collocation, build up search string with
    *     that word's stem if it has one, or the original string splicing
    *     the provided token separators back in (e.g. "_", "-")
    *     - add any defined variants
@@ -189,7 +189,7 @@ class Morphy {
       //FIXME doesn't cache null (combinations not in WordNet)
       return cached;
     }
-    
+
     // Assume string hasn't had spaces substituted with '_'
     final String str = searchNormalize(origstr);
     if (str.length() == 0) {
@@ -225,8 +225,8 @@ class Morphy {
 
     // Then try simply morph on original string
     if (phase1Done == false &&
-        pos != POS.VERB && 
-        null != (tmp = morphword(str, pos)) && 
+        pos != POS.VERB &&
+        null != (tmp = morphword(str, pos)) &&
         tmp[0].equals(str) == false) {
       if (log.isLoggable(Level.FINER)) {
         log.finer("Morphy hit str: "+str+" tmp[0]: "+tmp[0]+
@@ -236,15 +236,15 @@ class Morphy {
       // on morphs in tmp
       final Word word = is_defined(tmp[0], pos);
       addTrueCaseLemmas(word, toReturn);
-      
+
       phase1Done = true;
     }
-    
+
     Word word = null;
 
     int prep;
-    if (phase1Done == false && 
-        pos == POS.VERB && wordCount > 1 && 
+    if (phase1Done == false &&
+        pos == POS.VERB && wordCount > 1 &&
         (prep = hasprep(str, wordCount)) != 0) {
       // assume we have a verb followed by a preposition
       svprep = prep;
@@ -293,12 +293,12 @@ class Morphy {
           }
         }
         assert append != null;
-        if (end_idx < 0) { 
+        if (end_idx < 0) {
           // XXX shouldn't do this
           assert str.equals("_") || str.equals("-") : "str: "+str;
           //assert false : "word: \""+word+"\" str: \""+str+"\" wordCount: "+wordCount+" end_idx: "+end_idx;
           phase1Done = true;
-          break;           
+          break;
         }
         wordStr = str.substring(st_idx, end_idx);
         if (log.isLoggable(Level.FINER)) {
@@ -332,8 +332,8 @@ class Morphy {
         log.log(Level.FINER, "word: \""+wordStr+"\" str.substring(st_idx): \""+
             str.substring(st_idx)+"\" st_idx: "+st_idx+" "+pos);
       }
-      
-      // assertions: 
+
+      // assertions:
       // if single-word, st_idx == 0, queryStr == original string and word == original string and searchStr == ""
       // else st_idx = s.length() and queryStr == "" and queryStr =="" and searchstr == (possibly) stemmed items collocation
       final String queryStr = wordStr = str.substring(st_idx);
@@ -342,7 +342,7 @@ class Morphy {
       final String[] morphWords = morphword(queryStr, pos);
 
       assert searchstr != null;
-      
+
       if (morphWords != null) {
         checkLosingVariants(morphWords, "morphstr()");
         assert searchstr != null;
@@ -374,16 +374,16 @@ class Morphy {
       }
       phase1Done = true;
     }
-    
+
     assert phase1Done;
 
     //
     // start phase2+
     //
-    
+
     // in C code, executed on subsequent calls for same query string
 
-    if (svprep > 0) {           
+    if (svprep > 0) {
       // if verb has preposition, no more morphs
       //assert toReturn.isEmpty() == false; // we should already have added 1 thing right ?
       svprep = 0;
@@ -395,7 +395,7 @@ class Morphy {
       }
     } else {
       svcnt = 1; // LN pushes us back to above case (for subsequent calls) all this is destined for death anyway
-      assert str != null; 
+      assert str != null;
       tmp = dictionary.getExceptions(str, pos);
       if (tmp != null && tmp.length != 0 && tmp[1].equals(str) == false) {
         for (int i=1; i < tmp.length; ++i) {
@@ -429,7 +429,6 @@ class Morphy {
    * Similar to C function <code>index_lookup</code>
    */
   Word is_defined(final String lemma, final POS pos) {
-    if (lemma.length() == 0) return null;
     return dictionary.lookupWord(pos, lemma);
   }
 
@@ -452,7 +451,7 @@ class Morphy {
       return rest;
     }
 
-    if (pos == POS.ADV) {     
+    if (pos == POS.ADV) {
       // only use exception list for adverbs
       return null;
     }
@@ -530,7 +529,7 @@ class Morphy {
 
   /**
    * Find a preposition in the verb string and return its
-   * corresponding word number. 
+   * corresponding word number.
    * Port of <code>morph.c<code> functin <code>hasprep()</code>.
    */
   private int hasprep(final String s, final int wdcnt) {
@@ -558,7 +557,7 @@ class Morphy {
     return 0;
   }
 
-  /** 
+  /**
    *
    * Assume that the verb is the first word in the phrase.  Strip it
    * off, check for validity, then try various morphs with the
@@ -572,7 +571,7 @@ class Morphy {
     String end = null;
     final int rest = s.indexOf('_');
     final int last = s.lastIndexOf('_');
-    if (rest != last) {           
+    if (rest != last) {
       // implies more than 2 words (required for prepositional phrase)
       if (lastwd != null) {
         // last word found as a NOUN
@@ -592,7 +591,7 @@ class Morphy {
 
     String retval = null;
     final String[] exc_words = dictionary.getExceptions(firstWord, POS.VERB);
-    if (log.isLoggable(Level.FINER) && 
+    if (log.isLoggable(Level.FINER) &&
         exc_words != null && exc_words.length > 0 && exc_words[1].equals(firstWord) == false) {
       log.finer("exc_words "+Arrays.toString(exc_words)+
           " found for firstWord \""+firstWord+"\" but exc_words[1] != firstWord");
@@ -626,7 +625,7 @@ class Morphy {
     final int cnt = cnts[POS.VERB.getWordNetCode()];
     for (int i = 0; i < cnt; ++i) {
       final String exc_word = wordbase(firstWord, (i + offset));
-      if (exc_word != null && exc_word.equals(firstWord) == false) { 
+      if (exc_word != null && exc_word.equals(firstWord) == false) {
         // ending is different
         retval = exc_word + s.substring(rest);
         if (log.isLoggable(Level.FINER)) {
@@ -685,7 +684,7 @@ class Morphy {
   private static final String SPACE_UNDERSCORE = " _";
   private static final String SPACE_UNDERSCORE_DASH = " _-";
 
-  /** 
+  /**
    * Count the number of words in a string delimited by space (' '), underscore
    * ('_'), or the passed in separator.
    */
