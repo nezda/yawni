@@ -24,9 +24,9 @@ import java.util.logging.*;
  */
 public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Synset.class.getName());
-  // 
+  //
   // Instance implementation
-  // 
+  //
   /** offset in <code>data.</code><var>pos</var> file */
   private final int offset;
   private final WordSense[] wordSenses;
@@ -44,7 +44,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   Synset(final String line) {
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextInt();
-    final int lexfilenumInt = tokenizer.nextInt(); 
+    final int lexfilenumInt = tokenizer.nextInt();
     // there are currently only 45 lexfiles
     // http://wordnet.princeton.edu/man/lexnames.5WN
     assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
@@ -140,13 +140,15 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   boolean isAdjectiveCluster() {
     return isAdjectiveCluster;
   }
-  
+
   int lexfilenum() {
     return lexfilenum;
   }
 
-  /** 
-   * @return the lexname this <code>Synset</code> is a member of, e.g. "noun.quantity" 
+  /**
+   * Provides access to the 'lexicographer category' of this <code>Synset</code>.  This
+   * is variously called the 'lexname' or 'supersense'.
+   * @return the lexname this <code>Synset</code> is a member of, e.g. "noun.quantity"
    * @see <a href="http://wordnet.princeton.edu/man/lexnames.5WN">http://wordnet.princeton.edu/man/lexnames.5WN</a>
    */
   public String getLexCategory() {
@@ -162,8 +164,8 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
     return wordSenses;
   }
 
-  /** 
-   * If <code>word</code> is a member of this <code>Synset</code>, return the 
+  /**
+   * If <code>word</code> is a member of this <code>Synset</code>, return the
    *  <code>WordSense</code> it implies, else return <code>null</code>.
    */
   public WordSense getWordSense(final Word word) {
@@ -183,7 +185,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   int getOffset() {
     return offset;
   }
-  
+
   WordSense getWord(final int index) {
     return wordSenses[index];
   }
@@ -191,7 +193,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   //
   // Description
   //
-  
+
   public String getDescription() {
     return getDescription(false);
   }
@@ -244,12 +246,12 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   public Pointer[] getPointers() {
     return pointers;
   }
-  
+
   private static final Pointer[] NO_POINTERS = new Pointer[0];
-  
+
   public Pointer[] getPointers(final PointerType type) {
     List<Pointer> vector = null;
-    //TODO 
+    //TODO
     // if superTypes exist, search them, then current type
     // if current type exists, search it, then if subTypes exist, search them
     for (final Pointer pointer : pointers) {
@@ -276,8 +278,8 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   }
 
   /** @see PointerTarget */
-  public Synset getSynset() { 
-    return this; 
+  public Synset getSynset() {
+    return this;
   }
 
   //
@@ -310,8 +312,8 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
       append("\"]").toString();
   }
 
-  /** 
-   * {@inheritDoc} 
+  /**
+   * {@inheritDoc}
    */
   public int compareTo(final Synset that) {
     int result;
