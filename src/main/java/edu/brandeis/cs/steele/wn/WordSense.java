@@ -22,7 +22,7 @@ import edu.brandeis.cs.steele.util.Utils;
  * @version 1.0
  */
 public class WordSense implements PointerTarget, Comparable<WordSense> {
-  /** 
+  /**
    * <i>Optional</i> restrictions for the position(s) an adjective can take
    * relative to the noun it modifies. aka "adjclass".
    */
@@ -84,6 +84,11 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     return synset.getPOS();
   }
 
+  /** Returns the natural-cased lemma representation of this <code>WordSense</code>
+   * Its lemma is its orthographic representation, for example <tt>"dog"</tt>
+   * or <tt>"U.S.A."</tt> or <tt>"George Washington"</tt>.  Contrast to the
+   * canonical lemma provided by {@link Word#getLemma()}.
+   */
   public String getLemma() {
     return lemma;
   }
@@ -124,12 +129,16 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
    */
   public int getSenseNumber() {
     if(senseNumber < 1) {
+      // Ordering of Word's Synsets (combo(Word, Synset)=Word)
+      // is defined by sense tagged frequency, but this is implicit)
+      // Use lemma as key to find Word and then scan this WordSense's
+      // Synsets and find the one with this Synset
       final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
       final Word word = dictionary.lookupWord(getPOS(), lemma);
       assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
       int senseNumber = 0;
       for (final Synset syn : word.getSynsets()) {
-        --senseNumber;
+        senseNumber--;
         if(syn.equals(synset)) {
           senseNumber = -senseNumber;
           break;
@@ -143,8 +152,8 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   /**
-   * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt><br>
-   * <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
+   * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt><br>
+   * @see <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
    */
   String getSenseKey() {
     final String searchWord;
@@ -173,14 +182,14 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     if (synset.isAdjectiveCluster()) {
       senseKey = String.format("%s%%%d:%02d:%02d:%s:%02d",
           getLemma().toLowerCase(),
-          POS.SAT_ADJ.getWordNetCode(), 
+          POS.SAT_ADJ.getWordNetCode(),
           getSynset().lexfilenum(),
           getSynset().getWords()[synsetIndex].lexid,
           searchWord.toLowerCase(),
           headSense);
     } else {
       senseKey = String.format("%s%%%d:%02d:%02d::",
-          getLemma().toLowerCase(), 
+          getLemma().toLowerCase(),
           getPOS().getWordNetCode(),
           getSynset().lexfilenum(),
           getSynset().getWords()[synsetIndex].lexid
@@ -189,7 +198,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     return senseKey;
   }
 
-  /** 
+  /**
    * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html"><tt>cntlist</tt></a>
    */
   public int getSensesTaggedFrequency() {
@@ -219,7 +228,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       // sanity check   //System.err.println(this+" OK");
       // sanity check }
       //[WordSense 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
-      //assert getSenseNumber() == 
+      //assert getSenseNumber() ==
       //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
     }
     return count;
@@ -257,12 +266,12 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     return verbFrameFlags;
   }
 
-  /** 
+  /**
    * <p>Returns illustrative sentences and generic verb frames.  This <b>only</b> has values
    * for {@link POS#VERB} <code>WordSense</code>s.
    *
    * <p>For illustrative sentences (<tt>sents.vrb</tt>), "%s" is replaced with the verb lemma
-   * which seems unnecessarily ineeficient since you have the WordSense anyway.
+   * which seems unnecessarily ineficient since you have the WordSense anyway.
    *
    * <p>Official WordNet 3.0 documentation indicates "specific" and generic frames
    * are mutually exclusive which is not the case.
@@ -316,7 +325,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
           fn++) {
         if ((verbFrameFlags & (1L << fn)) != 0L) {
           final String frame = dictionary.lookupGenericFrame(fn + 1);
-          assert frame != null : 
+          assert frame != null :
             "this: "+this+" fn: "+fn+
             " shift: "+((1L << fn)+
             " verbFrameFlags: "+Long.toBinaryString(verbFrameFlags))+
@@ -396,7 +405,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     }
     return vector.toArray(new Pointer[vector.size()]);
   }
-  
+
   private static final Pointer[] NO_POINTERS = new Pointer[0];
 
   public Pointer[] getPointers() {
@@ -442,8 +451,8 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       append("]").toString();
   }
 
-  /** 
-   * {@inheritDoc} 
+  /**
+   * {@inheritDoc}
    */
   public int compareTo(final WordSense that) {
     int result;
