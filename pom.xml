@@ -87,7 +87,7 @@
           <source>1.5</source>
           <target>1.5</target>
           <!-- <fork>true</fork> -->
-          <!-- <encoding>UTF-8</encoding> -->
+          <encoding>UTF-8</encoding> <!-- look for arrows () in UI (as in RELATED TO → (verb) cat#1 -->
           <debug>true</debug>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
