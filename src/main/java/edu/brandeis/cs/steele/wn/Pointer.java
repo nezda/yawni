@@ -68,7 +68,7 @@ public class Pointer implements Comparable<Pointer> {
     return source instanceof WordSense;
     // else assert instanceof Synset;
   }
-  
+
   /** A semantic relationship holds between {@link Synset}s */
   public boolean isSemantic() {
     return source instanceof Synset;
@@ -85,7 +85,7 @@ public class Pointer implements Comparable<Pointer> {
     return resolveTarget(
         FileBackedDictionary.getInstance().getSynsetAt(
           POS.fromOrdinal(targetPOSOrdinal),
-          targetOffset), 
+          targetOffset),
         targetIndex);
   }
 

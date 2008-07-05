@@ -8,7 +8,7 @@ import java.util.*;
 import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
 
 /** Instances of this class enumerate the possible WordNet pointer types, and
- * are used to label {@link Pointer}s.  
+ * are used to label {@link Pointer}s.
  * Each <code>PointerType</code> carries additional information including:
  * <ul>
  *   <li> a human-readable label </li>
@@ -28,7 +28,7 @@ import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
 public enum PointerType {
   // consider Unicde ellipsis: "…" instead of "..."
 
-  // Nouns and Verbs 
+  // Nouns and Verbs
   HYPERNYM("hypernym", "@", 2, N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
   /** aka "instance of" */
   INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N | V, "Instance Hypernyms (%s is an instance of ...)"),
@@ -39,7 +39,7 @@ public enum PointerType {
   DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V, "Derivationally related forms"),
 
   // Nouns and Adjectives
-  
+
   //FIXME "=" or "\=" ?
   ATTRIBUTE("attribute", "=", 18, N | ADJ, "Attribute (%s is a value of ...)"),
   /** aka "also see" */
@@ -52,7 +52,7 @@ public enum PointerType {
   VERB_GROUP("verb group", "$", 19, V),
 
   // Nouns
-  /** 
+  /**
    * A word that names a part of a larger whole, aka "part name".
    * Pure-virtual PointerType.
    * @see PointerType#MEMBER_MERONYM
@@ -67,7 +67,7 @@ public enum PointerType {
   /** aka "is part". */
   PART_MERONYM("part meronym", "#p", 8, N, "Part Meronyms (... are parts of %s)"),
 
-  /** 
+  /**
    * A word that names the whole of which a given word is a part.
    * Pure-virtual PointerType.
    * @see PointerType#MEMBER_HOLONYM
@@ -81,9 +81,9 @@ public enum PointerType {
   SUBSTANCE_HOLONYM("substance holonym", "%s", 10, N, "Substance Holonyms (%s is a substance of ...)"),
   /** aka "has part". */
   PART_HOLONYM("part holonym", "%p", 11, N, "Part Holonyms (%s is a part of ...)"),
-  
+
   /** aka "topic term" */
-  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N), 
+  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N),
   /** aka "usage term" */
   MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N),
   /** aka "regiona term" */
@@ -107,17 +107,17 @@ public enum PointerType {
   DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV),
   /** aka "a region" */
   DOMAIN_OF_REGION("Domain of synset - REGION", ";r", 34, N | V | ADJ | ADV),
-  
-  /** 
+
+  /**
    * aka "class"<br>
-   * Pure-virtual PointerType. 
+   * Pure-virtual PointerType.
    * @see PointerType#MEMBER_OF_TOPIC_DOMAIN
    * @see PointerType#MEMBER_OF_REGION_DOMAIN
    * @see PointerType#MEMBER_OF_USAGE_DOMAIN
    */
   DOMAIN_MEMBER("Domain Member", "-", 22, N | V | ADJ | ADV),
 
-  /** 
+  /**
    * aka "classification"<br>
    * Pure-virtual PointerType.
    * @see PointerType#DOMAIN_OF_TOPIC
@@ -135,7 +135,7 @@ public enum PointerType {
     MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
     MEMBER_HOLONYM, SUBSTANCE_HOLONYM, PART_HOLONYM,
     SIMILAR_TO, PARTICIPLE_OF, PERTAINYM, DERIVED,
-    DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION, 
+    DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION,
     MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_REGION_DOMAIN, MEMBER_OF_USAGE_DOMAIN,
     DERIVATIONALLY_RELATED,
     INSTANCE_HYPERNYM, INSTANCE_HYPONYM
@@ -199,16 +199,16 @@ public enum PointerType {
      * <ul>
      *   <li> Holonym:: Part, Member, Substance </li>
      *   <li> Meronym:: Part, Member, Substance </li>
-     *   
+     *
      *   <li> Domain:: {Member, Domain} X {Topic, Region, Usage} </li>
      * </ul>
-     * 
+     *
      * Adjective - not sure how this fits in
      *   Similar To
      *
      *   Also see -- verb only ?
      */
-    
+
     /**
      * Usage of types, subTypes and superTypes:
      * <ul>
@@ -216,9 +216,9 @@ public enum PointerType {
      *   <li> if current type exists, search it, then if subTypes exist, search them </li>
      * </ul>
      *
-     * Example 1: 
+     * Example 1:
      * { George Bush } --instance hyper--> { President of the United States }
-     * George Bush, <i>the instance</i>, does not particpate in any other hyper/hypo relationships.  
+     * George Bush, <i>the instance</i>, does not particpate in any other hyper/hypo relationships.
      * That said, how does he get linked to hypernym { person } ?
      *
      * MORE GENERAL:  { President of the United States } --hyper--> { head of state } --hyper-->
@@ -235,7 +235,7 @@ public enum PointerType {
      *   - "inheritance" ?
      */
 
-    // e.g. "Bill Clinton" has instance hypernym "president"#2 
+    // e.g. "Bill Clinton" has instance hypernym "president"#2
     // which in turn has normal hypernyms
     HYPERNYM.superTypes = Arrays.asList(INSTANCE_HYPERNYM);
     // e.g. "president"#2 (* the Synset) has instance hyponyms ("George Washington", ...) AND
@@ -260,7 +260,7 @@ public enum PointerType {
     return VALUES[ordinal];
   }
 
-  /** 
+  /**
    * @return the <code>PointerType</code> whose key matches <var>key</var>.
    * @exception NoSuchElementException If <var>key</var> doesn't name any <code>PointerType</code>.
    */
@@ -290,7 +290,7 @@ public enum PointerType {
   PointerType(final String label, final String key, final int value, final int flags) {
     this(label, key, value, flags, null, null);
   }
-  
+
   PointerType(final String label, final String key, final int value, final int flags, final String longNounLabel) {
     this(label, key, value, flags, longNounLabel, null);
   }
@@ -365,14 +365,14 @@ public enum PointerType {
   public List<PointerType> getSuperTypes() {
     return this.superTypes;
   }
-  
+
   public List<PointerType> getSubTypes() {
     return this.subTypes;
   }
 }
 
-/** 
- * Flags for tagging a pointer type with the POS types it apples to. 
+/**
+ * Flags for tagging a pointer type with the POS types it apples to.
  * Separate class to allow PointerType enum constructor to reference it.
  */
 class PointerTypeFlag {
