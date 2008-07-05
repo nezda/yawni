@@ -3,13 +3,13 @@ package edu.brandeis.cs.steele.util;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/** 
+/**
  * Flattens an <code>Iterable</code> of an <code>Iterable</code> of <code>T</code> into
  * an <code>Iterable</code> of <code>T</code>.
  */
 public class MultiLevelIterable<T> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
-  
+
   private final Iterable<? extends Iterable<T>> base;
 
   public MultiLevelIterable(final Iterable<? extends Iterable<T>> base) {
@@ -17,11 +17,11 @@ public class MultiLevelIterable<T> implements Iterable<T> {
   }
 
   /** Primary factory method which deduces template parameters. */
-  public static <T> 
+  public static <T>
     Iterable<T> of(final Iterable<? extends Iterable<T>> base) {
       return new MultiLevelIterable<T>(base);
   }
-  
+
   /** {@inheritDoc} */
   public Iterator<T> iterator() {
     return new MultiLevelIterator<T>(base);
@@ -39,7 +39,7 @@ public class MultiLevelIterable<T> implements Iterable<T> {
       this.base = base.iterator();
       chamber(true);
     }
-    
+
     // invariants
     // if top == SENTINEL
     //   throws NoSuchElementException()
@@ -47,7 +47,7 @@ public class MultiLevelIterable<T> implements Iterable<T> {
     //   top.hasNext() OR top = SENTINEL
     private void chamber(final boolean init) {
       if (init == false && top == SENTINEL) {
-        // drained 
+        // drained
         throw new NoSuchElementException();
       } else {
         final Iterator<T> topIt = (Iterator<T>)top;
