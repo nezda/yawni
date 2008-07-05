@@ -34,7 +34,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   /**
    * Constructs a new <code>CharSequenceTokenizer</code> for <var>string</var> using whitespace as
    * the delimiter.
-   * 
+   *
    * @param string the CharSequence to be tokenized
    */
   public CharSequenceTokenizer(final CharSequence string) {
@@ -44,7 +44,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   /**
    * Constructs a new <code>CharSequenceTokenizer</code> for <var>string</var> using the specified
    * <var>delimiters</var> and returning delimiters as tokens when specified.
-   * 
+   *
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
    */
@@ -71,13 +71,13 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   /**
    * Returns the number of tokens in <var>string</var> separated by
    * <var>delimiters</var> starting at <var>position</var>.
-   * 
+   *
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
    * @return number of tokens that can be retreived before an exception will
    *         result
    */
-  public static int countTokens(final CharSequence string, final int position, 
+  public static int countTokens(final CharSequence string, final int position,
       final String delimiters) {
     int count = 0;
     boolean inToken = false;
@@ -100,7 +100,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
 
   /**
    * Returns true if unprocessed tokens remain.
-   * 
+   *
    * @return true if unprocessed tokens remain
    */
   public boolean hasNext() {
@@ -109,7 +109,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
 
   /**
    * Returns true if unprocessed tokens remain.
-   * 
+   *
    * @return true if unprocessed tokens remain
    */
   public boolean hasMoreTokens() {
@@ -127,7 +127,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
 
   /**
    * Returns the next token in the string as an CharSequence.
-   * 
+   *
    * @return next token in the string as an CharSequence
    * @exception NoSuchElementException if no tokens remain
    */
@@ -144,7 +144,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
 
   /**
    * Returns the next token in the string as a CharSequence.
-   * 
+   *
    * @return next token in the string as a CharSequence
    * @exception NoSuchElementException if no tokens remain
    */
@@ -187,7 +187,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   /**
    * Returns the next token in the string as a CharSequence. The delimiters used are
    * changed to the specified delimiters.
-   * 
+   *
    * @param delims the new delimiters to use
    * @return next token in the string as a CharSequence
    * @exception NoSuchElementException if no tokens remain
@@ -233,7 +233,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * result. Throws NumberFormatException if the string does not represent an
    * int quantity. The second argument specifies the radix to use when parsing
    * the value.
-   * 
+   *
    * @param string a string representation of an int quantity.
    * @param radix the base to use for conversion.
    * @return int the value represented by the argument
@@ -245,13 +245,13 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
       return parseInt(string, 0, string.length(), radix);
     }
 
-  static int parseInt(final CharSequence string, int offset, 
+  static int parseInt(final CharSequence string, int offset,
       final int end) {
     return parseInt(string, offset, end, 10);
   }
 
   // XXX borrowed from Apache Harmony
-  static int parseInt(final CharSequence string, int offset, 
+  static int parseInt(final CharSequence string, int offset,
       final int end, final int radix) {
     final int start = offset;
     if (string == null || radix < Character.MIN_RADIX
@@ -309,7 +309,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
     }
 
   // XXX borrowed from Apache Harmony
-  private static long parseLong(final CharSequence string, int offset, 
+  private static long parseLong(final CharSequence string, int offset,
       final int end, final int radix) {
     final int start = offset;
     if (string == null || radix < Character.MIN_RADIX
@@ -348,7 +348,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
     return result;
   }
 
-  private static String toString(final CharSequence charSequence, 
+  private static String toString(final CharSequence charSequence,
       final int offset, final int end) {
     return charSequence.subSequence(offset, end).toString();
   }
