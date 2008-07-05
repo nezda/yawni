@@ -1,6 +1,6 @@
 package edu.brandeis.cs.steele.wn.browser;
 
-import javax.swing.text.*; 
+import javax.swing.text.*;
 import java.util.regex.*;
 
 /**
@@ -16,8 +16,8 @@ class SearchFieldDocument extends PlainDocument {
 
   @Override
   public void insertString(
-      final int insOffset, 
-      String text, 
+      final int insOffset,
+      String text,
       final AttributeSet attr) throws BadLocationException {
     //// consider whether this insert will match
     //final String proposedInsert =
@@ -47,12 +47,12 @@ class SearchFieldDocument extends PlainDocument {
       //System.err.println("dirty doc: "+getText(0, getLength()));
     }
   }
-  
+
   @Override
   public void replace(
-      final int offset, 
+      final int offset,
       final int length,
-      String text, 
+      String text,
       final AttributeSet attr) throws BadLocationException {
     if(length != 0 && false == isClean(text, offset)) {
       final String toReplace = getText(offset, length);
