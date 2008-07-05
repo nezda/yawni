@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
  */
 public class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
-  
+
   private final Iterable<T>[] bases;
 
   public MergedIterable(final Iterable<T>... bases) {
@@ -27,17 +27,17 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
   }
 
   /** Primary factory method so template parameters are deduced. */
-  public static <T extends Object & Comparable<? super T>> 
+  public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<T>... bases) {
       return merge(false, bases);
   }
 
   /** Validating factory method so template parameters are deduced. */
-  public static <T extends Object & Comparable<? super T>> 
+  public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final Iterable<T>... bases) {
       return new MergedIterable<T>(validateSort, bases);
   }
-  
+
   /** {@inheritDoc} */
   public Iterator<T> iterator() {
     return new MergedIterator<T>(bases);
@@ -61,7 +61,7 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
    * <code>Iterator</code>.  Look at the 'top' of each base
    * <code>Iterator</code> caching these <tt>n</tt> values.
    * <code>next()</code> will return the minimum of these values.
-   * 
+   *
    * <h4>Running Time</h4>
    * Let <tt>k</tt> be the number of <code>Iterable</code> sequences to merge
    * (which themselves are presented in sorted order).  Let <tt>n</tt> be the
@@ -70,7 +70,7 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
    * <tt>O(n * lg k)</tt> if the sequence heads were stored in a priority
    * queue which will not be beneficial for small <tt>k</tt> (e.g. <tt>k < 10</tt>).
    *
-   * <h4>Issues</h4>
+   * <h4>TODO</h4>
    * - support remove()
    */
   private static class MergedIterator<T extends Object & Comparable<? super T>> implements Iterator<T> {
