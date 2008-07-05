@@ -11,14 +11,14 @@ import java.rmi.RemoteException;
 /** <code>FileManagerInterface</code> defines the interface between the <code>FileBackedDictionary</code> and the file system.
  * <code>FileBackedDictionary</code> invokes methods from this interface to retrieve lines of text from the
  * WordNet data files.
- * 
+ *
  * <p>Methods in this interface take filenames as arguments.  The filename is the name of
  * a WordNet file, and is relative to the database directory (e.g. <code>data.noun</code>, not
  * <code>dict/data.noun</code>).
- * 
+ *
  * <p>Methods in this interface operate on and return pointers, which are indices into the
  * file named by filename.
- * 
+ *
  * <p><code>FileManagerInterface</code> is designed to work efficiently across a network.  To this end, it obeys
  * two design principles:  it uses only primitive types (including <code>String</code>) as argument and return types,
  * and operations that search a file for a line with a specific property are provided by the
@@ -43,14 +43,14 @@ import java.rmi.RemoteException;
  * @version 1.0
  */
 public interface FileManagerInterface extends Remote {
-  /** 
+  /**
    * Binary searches for line whose first word <i>is</i> <code>target</code> (that
    * is, that begins with <code>target</code> followed by a space or tab) in
    * file implied by <code>filename</code>.  Assumes this file is sorted by its
    * first textual column of lowercased words.  This condtion can be verified
    * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>
-   * @return The file offset of the start of the matching line if one exists. 
-   * Otherwise, return  (-(insertion point) - 1). 
+   * @return The file offset of the start of the matching line if one exists.
+   * Otherwise, return  (-(insertion point) - 1).
    * The insertion point is defined as the point at which the key would be
    * inserted into the list: the index of the first element greater than the
    * target, or list.size(), if all elements in the list are less than the
@@ -68,7 +68,7 @@ public interface FileManagerInterface extends Remote {
   public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException, RemoteException;
 
   /**
-   * Read the line that begins at file offset <var>offset</var> in the file named by <var>filename</var>. 
+   * Read the line that begins at file offset <var>offset</var> in the file named by <var>filename</var>.
    */
   public String readLineAt(final int offset, final String filename) throws IOException, RemoteException;
 
@@ -91,7 +91,7 @@ public interface FileManagerInterface extends Remote {
   public int getPrefixMatchLinePointer(final int offset, final CharSequence prefix, final String filename) throws IOException, RemoteException;
 
   /** Treat file contents like an array of lines and return the zero-based,
-   * inclusive line corresponding to <var>linenum</var> 
+   * inclusive line corresponding to <var>linenum</var>
    */
   public String readLineNumber(final int linenum, final String filename) throws IOException;
 }
