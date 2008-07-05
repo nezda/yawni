@@ -31,7 +31,7 @@ public class FileManager implements FileManagerInterface {
   //
   //intentionally using FileBackedDictionary's logger (for now)
   private static final Logger log = Logger.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
-  
+
   /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
   public static final String VERSION = "2.0.0";
 
@@ -53,8 +53,8 @@ public class FileManager implements FileManagerInterface {
     }
 
     synchronized int matchingOffset(final String filename, final int offset) {
-      if (this.filename == null || 
-          previous != offset || 
+      if (this.filename == null ||
+          previous != offset ||
           //false == this.filename.equals(filename)
           false == this.filename.equals(filename)
           ) {
@@ -108,7 +108,7 @@ public class FileManager implements FileManagerInterface {
     String searchDir = System.getProperty("WNSEARCHDIR");
     if (searchDir != null && new File(searchDir).exists()) {
       return searchDir;
-    } 
+    }
     searchDir = System.getenv("WNSEARCHDIR");
     if (searchDir != null && new File(searchDir).exists()) {
       return searchDir;
@@ -127,7 +127,7 @@ public class FileManager implements FileManagerInterface {
     abstract char charAt(int position) throws IOException;
     abstract int length() throws IOException;
     /** This works just like {@link RandomAccessFile#readLine} -- doesn't
-     * support Unicode 
+     * support Unicode
      */
     abstract String readLine() throws IOException;
     void skipLine() throws IOException {
@@ -142,9 +142,9 @@ public class FileManager implements FileManagerInterface {
       assert space >= 0;
       return ret.substring(0, space);
     }
-    /** 
+    /**
      * Treat file contents like an array of lines and return the zero-based,
-     * inclusive line corresponding to <var>linenum</var> 
+     * inclusive line corresponding to <var>linenum</var>
      */
     String readLineNumber(int linenum) throws IOException {
       //TODO when creating the CharStream, add option to "index"/cache these results as either String[] OR String[][]
@@ -188,7 +188,7 @@ public class FileManager implements FileManagerInterface {
     protected int position;
     //protected final ByteBuffer buf;
     protected final ByteCharBuffer buf;
-    
+
     NIOCharStream(final RandomAccessFile raf) throws IOException {
       final FileChannel fileChannel = raf.getChannel();
       final long size = fileChannel.size();
@@ -370,7 +370,7 @@ public class FileManager implements FileManagerInterface {
   synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
-      final String pathname = 
+      final String pathname =
         filenameWnRelative ? searchDirectory + File.separator + filename :
         filename;
       final File file = new File(pathname);
@@ -390,7 +390,7 @@ public class FileManager implements FileManagerInterface {
   //
   // Line-based interface methods
   //
-  
+
   /**
    * {@inheritDoc}
    */
@@ -574,7 +574,7 @@ public class FileManager implements FileManagerInterface {
     //
     // - are there counter cases where the first-word binary search would return a different
     //   result than a "normal" binary search?
-    //   - underscore comes before all lower cased letters 
+    //   - underscore comes before all lower cased letters
     if (target.length() == 0) {
       return -1;
     }
