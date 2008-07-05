@@ -13,7 +13,7 @@ public abstract class MutatedIterable<T, R> implements Iterable<R> {
   public MutatedIterable(final Iterable<T> base) {
     this.base = base;
   }
-  
+
   abstract public R apply(final T t);
 
   @SuppressWarnings("unchecked")
