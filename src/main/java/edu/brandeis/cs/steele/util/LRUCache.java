@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
-  
+
   private static final float DEFAULT_LOAD_FACTOR = 0.75f;
   private static final boolean accessOrder = true;
   //private static final boolean insertionOrder = false;
@@ -22,31 +22,31 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   protected final int capacity;
 
   public LRUCache(final int capacity) {
-    super(capacity /* initial capacity */, 
-        DEFAULT_LOAD_FACTOR, 
+    super(capacity /* initial capacity */,
+        DEFAULT_LOAD_FACTOR,
         accessOrder);
     // actual capacity (ie max size)
     this.capacity = capacity;
   }
 
-  @Override 
+  @Override
   public synchronized V put(final K key, final V value) {
     //to disable for testing uncomment this
     //if(true) { return null; }
     return super.put(key, value);
   }
 
-  @Override 
+  @Override
   public synchronized V get(final Object key) {
     return super.get(key);
   }
 
-  @Override 
+  @Override
   public synchronized void clear() {
     super.clear();
   }
 
-  @Override 
+  @Override
   protected boolean removeEldestEntry(final Map.Entry<K, V> eldest) {
     // Return true to cause the oldest elm to be removed
     return size() > capacity;
