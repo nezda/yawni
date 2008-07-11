@@ -13,7 +13,7 @@ public class PreferencesManagerTest {
    * Normally <code>ignore</code> this test so we don't clear the user preferences
    * every time we run this test.
    */
-  //@Ignore
+  @Ignore
   @Test
   public void test1() throws BackingStoreException {
     Preferences prefs = Preferences.userNodeForPackage(PreferencesManagerTest.class);
