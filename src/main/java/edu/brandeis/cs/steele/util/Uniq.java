@@ -4,12 +4,15 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Derive a new <code>Iterable</code> by removing adjacaent duplicates
+ * Derive a new <code>Iterable</code> by removing adjacent duplicates
  * of the provided <i>sortable</i> <code>Iterable</code>s.
+ * <p>Much like the STL version below:<br> 
+ * <code>std::unique_copy(c.begin(), c.end(),  
+ *   std::ostream_iterator<c::type>(std::cout, " "));</code>
  */
 class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
-  
+
   private final Iterable<T> base;
 
   Uniq(final Iterable<T> base) {
@@ -61,7 +64,7 @@ class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T> {
       if (top == SENTINEL) {
         throw new NoSuchElementException();
       } else {
-        // store curr value of top 
+        // store curr value of top
         // find next value of top discarding any that are equal to currTop
         // or setting top to SENTINEL to mark eos
         T currTop = (T)top;
