@@ -72,36 +72,6 @@ public class FileManager implements FileManagerInterface {
   } // end class NextLineOffsetCache
   private NextLineOffsetCache nextLineOffsetCache = new NextLineOffsetCache();
 
-  static class LineWordCache {
-    private String filename;
-    private int position;
-    private String word;
-
-    /** synchronization keeps this consistent since multiple filename's may call
-     * this at the same time
-     */
-    synchronized void setLineWord(final String filename, final int position, final String word) {
-      this.filename = filename;
-      this.position = position;
-      this.word = word;
-    }
-
-    /** synchronization keeps this consistent since multiple filename's may call
-     * this at the same time
-     */
-    synchronized String wordForPosition(final String filename, final int position) {
-      if (this.filename == null ||
-          this.position != position ||
-          false == this.filename.equals(filename)
-          ) {
-        return null;
-      } else {
-        return word;
-      }
-    }
-  } // end class LineWordCache
-  private LineWordCache lineWordCache = new LineWordCache();
-
   //
   // Constructors
   //
@@ -288,8 +258,8 @@ public class FileManager implements FileManagerInterface {
     }
     @Override String readLineWord() throws IOException {
       final int s = position;
-      //System.err.println(filename+" readLineWord: "+s);
-      //new Exception().printStackTrace();
+      ////System.err.println(filename+" readLineWord: "+s);
+      ////new Exception().printStackTrace();
       //int e;
       //int len;
       //e = scanForwardToLineBreak();
@@ -297,7 +267,7 @@ public class FileManager implements FileManagerInterface {
       //assert e >= 0;
       //len = e - s;
       //if (len <= 0) {
-      //  assert false;
+      //  //assert false : "s: "+s+" e: "+e+" bbuf.capacity(): "+bbuff.capacity();
       //  return null;
       //}
       //e = scanToSpace(s);
@@ -310,9 +280,12 @@ public class FileManager implements FileManagerInterface {
       //}
       //final String toReturn = new String(word);
       //return toReturn;
+
       scanToSpace();
       final int e = scanForwardToLineBreak();
-      assert (e - s) > 0;
+      if ((e - s) <= 0) {
+        return null;
+      }
       return stringBuffer.toString();
     }
     /** Modifies <tt>position</tt> field */
@@ -328,7 +301,7 @@ public class FileManager implements FileManagerInterface {
         }
         stringBuffer.append(c);
       }
-      throw new IllegalStateException();
+      return bbuff.capacity();
     }
     ///** Doesn't modify <tt>position</tt> field */
     //private int scanToSpace(int s) {
@@ -391,6 +364,7 @@ public class FileManager implements FileManagerInterface {
   /**
    * Like a read-only {@link CharBuffer} made from a {@link ByteBuffer} with a
    * stride of 1 instead of 2.
+   * CURRENTLY NOT USED
    */
   private static class ByteCharBuffer implements CharSequence {
     private final ByteBuffer bb;
