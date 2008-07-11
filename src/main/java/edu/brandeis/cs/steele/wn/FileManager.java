@@ -41,17 +41,23 @@ public class FileManager implements FileManagerInterface {
   private String searchDirectory;
   private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
-  static class NextLineCache {
+  static class NextLineOffsetCache {
     private String filename;
     private int previous;
     private int next;
 
+    /** synchronization keeps this consistent since multiple filename's may call
+     * this at the same time
+     */
     synchronized void setNextLineOffset(final String filename, final int previous, final int next) {
       this.filename = filename;
       this.previous = previous;
       this.next = next;
     }
 
+    /** synchronization keeps this consistent since multiple filename's may call
+     * this at the same time
+     */
     synchronized int matchingOffset(final String filename, final int offset) {
       if (this.filename == null ||
           previous != offset ||
@@ -63,8 +69,38 @@ public class FileManager implements FileManagerInterface {
         return next;
       }
     }
-  } // end class NextLineCache
-  private NextLineCache nextLineCache = new NextLineCache();
+  } // end class NextLineOffsetCache
+  private NextLineOffsetCache nextLineOffsetCache = new NextLineOffsetCache();
+
+  static class LineWordCache {
+    private String filename;
+    private int position;
+    private String word;
+
+    /** synchronization keeps this consistent since multiple filename's may call
+     * this at the same time
+     */
+    synchronized void setLineWord(final String filename, final int position, final String word) {
+      this.filename = filename;
+      this.position = position;
+      this.word = word;
+    }
+
+    /** synchronization keeps this consistent since multiple filename's may call
+     * this at the same time
+     */
+    synchronized String wordForPosition(final String filename, final int position) {
+      if (this.filename == null ||
+          this.position != position ||
+          false == this.filename.equals(filename)
+          ) {
+        return null;
+      } else {
+        return word;
+      }
+    }
+  } // end class LineWordCache
+  private LineWordCache lineWordCache = new LineWordCache();
 
   //
   // Constructors
@@ -122,6 +158,11 @@ public class FileManager implements FileManagerInterface {
 
   // NOTE: CharStream is not thread-safe
   static abstract class CharStream {
+    protected final String filename;
+    /** Force subclasses to call this */
+    CharStream(final String filename) {
+      this.filename = filename;
+    }
     abstract void seek(final int position) throws IOException;
     abstract int position() throws IOException;
     abstract char charAt(int position) throws IOException;
@@ -162,7 +203,8 @@ public class FileManager implements FileManagerInterface {
 
   static class RAFCharStream extends CharStream {
     private final RandomAccessFile raf;
-    RAFCharStream(final RandomAccessFile raf) {
+    RAFCharStream(final String filename, final RandomAccessFile raf) {
+      super(filename);
       this.raf = raf;
     }
     @Override void seek(final int position) throws IOException {
@@ -185,11 +227,13 @@ public class FileManager implements FileManagerInterface {
 
   private static class NIOCharStream extends CharStream {
     //FIXME position seems redundant (ByteCharBuffer has position())
-    protected int position;
-    //protected final ByteBuffer buf;
-    protected final ByteCharBuffer buf;
+    private int position;
+    private final ByteBuffer bbuff;
+    //private final ByteCharBuffer bbuff;
+    private final StringBuilder stringBuffer;
 
-    NIOCharStream(final RandomAccessFile raf) throws IOException {
+    NIOCharStream(final String filename, final RandomAccessFile raf) throws IOException {
+      super(filename);
       final FileChannel fileChannel = raf.getChannel();
       final long size = fileChannel.size();
       // program logic currently depends on the entire file being mapped into memory
@@ -197,8 +241,9 @@ public class FileManager implements FileManagerInterface {
       final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
       // this buffer isDirect()
       //log.log(Level.FINE, "mmap.fine(): {0}", mmap.isDirect());
-      //this.buf = mmap;
-      this.buf = new ByteCharBuffer(mmap, false);
+      this.bbuff = mmap;
+      //this.bbuff = new ByteCharBuffer(mmap, false);
+      this.stringBuffer = new StringBuilder();
     }
     @Override void seek(final int position) throws IOException {
       // buffer cannot exceed Integer.MAX_VALUE since arrays are limited by this
@@ -208,74 +253,114 @@ public class FileManager implements FileManagerInterface {
       return position;
     }
     @Override char charAt(final int p) throws IOException {
-      return (char) buf.get(p);
+      return (char) bbuff.get(p);
     }
     @Override int length() throws IOException {
-      return buf.capacity();
+      return bbuff.capacity();
     }
     @Override String readLine() throws IOException {
       final int s = position;
-      final int e = scanForwardToLineBreak();
-      assert s >= 0;
-      assert e >= 0;
-      final int len = e - s;
-      if (len <= 0) {
+      //System.err.println(filename+" readLine: "+s);
+      //final int e = scanForwardToLineBreak();
+      //assert s >= 0;
+      //assert e >= 0;
+      //final int len = e - s;
+      //if (len <= 0) {
+      //  return null;
+      //}
+      //final char[] line = new char[len];
+      //for (int j = s, i = 0; i < line.length; i++, j++) {
+      //  // NOTE: casting byte to char here since WordNet is currently
+      //  // only ASCII
+      //  line[i] = (char) bbuff.get(j);
+      //}
+      //final String toReturn = new String(line);
+      //return toReturn;
+
+      final int e = scanForwardToLineBreak(true);
+      if ((e - s) <= 0) {
         return null;
       }
-      final char[] line = new char[len];
-      for (int j = s, i = 0; i < line.length; i++, j++) {
-        // NOTE: casting byte to char here since WordNet is currently
-        // only ASCII
-        line[i] = (char) buf.get(j);
-      }
-      final String toReturn = new String(line);
-      return toReturn;
+      return stringBuffer.toString();
     }
     @Override void skipLine() throws IOException {
       scanForwardToLineBreak();
     }
     @Override String readLineWord() throws IOException {
       final int s = position;
-      int e = scanForwardToLineBreak();
-      assert s >= 0;
-      assert e >= 0;
-      int len = e - s;
-      if (len <= 0) {
-        return null;
-      }
-      e = scanToSpace(s);
-      len = e - s;
-      final char[] word = new char[len];
-      for (int j = s, i = 0; i < word.length; i++, j++) {
-        // NOTE: casting byte to char here since WordNet is currently
-        // only ASCII
-        word[i] = (char) buf.get(j);
-      }
-      final String toReturn = new String(word);
-      return toReturn;
+      //System.err.println(filename+" readLineWord: "+s);
+      //new Exception().printStackTrace();
+      //int e;
+      //int len;
+      //e = scanForwardToLineBreak();
+      //assert s >= 0;
+      //assert e >= 0;
+      //len = e - s;
+      //if (len <= 0) {
+      //  assert false;
+      //  return null;
+      //}
+      //e = scanToSpace(s);
+      //len = e - s;
+      //final char[] word = new char[len];
+      //for (int j = s, i = 0; i < word.length; i++, j++) {
+      //  // NOTE: casting byte to char here since WordNet is currently
+      //  // only ASCII
+      //  word[i] = (char) bbuff.get(j);
+      //}
+      //final String toReturn = new String(word);
+      //return toReturn;
+      scanToSpace();
+      final int e = scanForwardToLineBreak();
+      assert (e - s) > 0;
+      return stringBuffer.toString();
     }
-    protected int scanToSpace(int s) {
+    /** Modifies <tt>position</tt> field */
+    private int scanToSpace() {
       // scan from current position to first ' '
+      // reset buffer
+      stringBuffer.setLength(0);
       char c;
-      while (s < buf.capacity()) {
-        c = (char) buf.get(s++);
+      while (position < bbuff.capacity()) {
+        c = (char) bbuff.get(position++);
         if (c == ' ') {
-          return s - 1;
+          return position - 1;
         }
+        stringBuffer.append(c);
       }
       throw new IllegalStateException();
     }
-    protected int scanForwardToLineBreak() {
+    ///** Doesn't modify <tt>position</tt> field */
+    //private int scanToSpace(int s) {
+    //  // scan from current position to first ' '
+    //  char c;
+    //  while (s < bbuff.capacity()) {
+    //    c = (char) bbuff.get(s++);
+    //    if (c == ' ') {
+    //      return s - 1;
+    //    }
+    //  }
+    //  throw new IllegalStateException();
+    //}
+    private int scanForwardToLineBreak() {
+      return scanForwardToLineBreak(false /* don't buffer */);
+    }
+    /** Modifies <tt>position</tt> field */
+    private int scanForwardToLineBreak(final boolean buffer) {
       // scan from current position to first ("\r\n"|"\r"|"\n")
       boolean done = false;
       boolean crnl = false;
+      if (buffer) {
+        // reset buffer
+        stringBuffer.setLength(0);
+      }
       char c;
-      while (done == false && position < buf.capacity()) {
-        c = (char) buf.get(position++);
+      while (done == false && position < bbuff.capacity()) {
+        c = (char) bbuff.get(position++);
         switch(c) {
           case '\r':
             // if next is \n, skip that too
-            c = (char) buf.get(position++);
+            c = (char) bbuff.get(position++);
             if (c != '\n') {
               // put it back
               --position;
@@ -288,13 +373,15 @@ public class FileManager implements FileManagerInterface {
             done = true;
             break;
           default:
-            // no-op
+            if (buffer) {
+              stringBuffer.append(c);
+            }
         }
       }
       // return exclusive end chopping line break delimitter(s)
       return crnl ? position - 2 : position - 1;
     }
-    protected int scanBackwardToLineBreak() {
+    private int scanBackwardToLineBreak() {
       // scan backwards to first \n
       // - if immediately preceding char is \n, keep going
       throw new UnsupportedOperationException();
@@ -376,9 +463,9 @@ public class FileManager implements FileManagerInterface {
       final File file = new File(pathname);
       if (file.exists() && file.canRead()) {
         //slow CharStream
-        //stream = new RAFCharStream(new RandomAccessFile(pathname, "r"));
+        //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
         //fast CharStream stream
-        stream = new NIOCharStream(new RandomAccessFile(file, "r"));
+        stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
       } else {
         //TODO throw an exception to indicate that pathname is non existant/readble
       }
@@ -418,7 +505,7 @@ public class FileManager implements FileManagerInterface {
       if (line == null) {
         nextOffset = -1;
       }
-      nextLineCache.setNextLineOffset(filename, offset, nextOffset);
+      nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
       return line;
     }
   }
@@ -431,7 +518,7 @@ public class FileManager implements FileManagerInterface {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
       final int next;
-      if (0 <= (next = nextLineCache.matchingOffset(filename, offset))) {
+      if (0 <= (next = nextLineOffsetCache.matchingOffset(filename, offset))) {
         return next;
       }
       stream.seek(offset);
@@ -456,13 +543,14 @@ public class FileManager implements FileManagerInterface {
     synchronized (stream) {
       stream.seek(offset);
       do {
-        final String line = stream.readLineWord();
+        // note the spaces of this 'word' are underscores
+        final String word = stream.readLineWord();
         final int nextOffset = stream.position();
-        if (line == null) {
+        if (word == null) {
           return -1;
         }
-        nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-        if (line.contains(substring)) {
+        nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
+        if (word.contains(substring)) {
           return offset;
         }
         offset = nextOffset;
@@ -509,13 +597,14 @@ public class FileManager implements FileManagerInterface {
     synchronized (stream) {
       stream.seek(offset);
       do {
-        final String line = stream.readLineWord();
+        // note the spaces of this 'word' are underscores
+        final String word = stream.readLineWord();
         final int nextOffset = stream.position();
-        if (line == null) {
+        if (word == null) {
           return -1;
         }
-        nextLineCache.setNextLineOffset(filename, offset, nextOffset);
-        if (Utils.startsWith(line, prefix)) {
+        nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
+        if (Utils.startsWith(word, prefix)) {
           if (false == checkPrefixBinarySearch(prefix, origOffset, filename)) {
             throw new IllegalStateException("search failed for prefix: "+prefix+" filename: "+filename);
           }
@@ -613,11 +702,12 @@ public class FileManager implements FileManagerInterface {
           // - scan through short lines?
           while (stream.position() < stop) {
             final int result = stream.position();
-            final CharSequence firstWord = stream.readLineWord();
+            // note the spaces of this 'word' are underscores
+            final CharSequence word = stream.readLineWord();
             if (log.isLoggable(Level.FINEST)) {
-              log.finest("  . \""+firstWord+"\" -> "+(0 == compare(target, firstWord)));
+              log.finest("  . \""+word+"\" -> "+(0 == compare(target, word)));
             }
-            final int compare = compare(target, firstWord);
+            final int compare = compare(target, word);
             if (compare == 0) {
               return result;
             } else if (compare < 0) {
@@ -627,10 +717,10 @@ public class FileManager implements FileManagerInterface {
           return -stop - 1;
         } // end offset == stop branch
         final int result = stream.position();
-        final CharSequence firstWord = stream.readLineWord();
-        final int compare = compare(target, firstWord);
+        final CharSequence word = stream.readLineWord();
+        final int compare = compare(target, word);
         if (log.isLoggable(Level.FINEST)) {
-          log.finest(firstWord + ": " + compare);
+          log.finest(word + ": " + compare);
         }
         if (compare == 0) {
           return result;
