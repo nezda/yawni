@@ -165,7 +165,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   }
 
   /**
-   * If <code>word</code> is a member of this <code>Synset</code>, return the
+   * If <var>word</var> is a member of this <code>Synset</code>, return the
    *  <code>WordSense</code> it implies, else return <code>null</code>.
    */
   public WordSense getWordSense(final Word word) {
