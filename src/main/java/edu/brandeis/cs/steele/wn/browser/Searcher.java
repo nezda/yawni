@@ -5,8 +5,12 @@ import edu.brandeis.cs.steele.wn.WordSense;
 import edu.brandeis.cs.steele.wn.Word;
 import edu.brandeis.cs.steele.wn.Pointer;
 import edu.brandeis.cs.steele.wn.PointerType;
+import edu.brandeis.cs.steele.wn.POS;
+import edu.brandeis.cs.steele.wn.DictionaryDatabase;
+import edu.brandeis.cs.steele.wn.FileBackedDictionary;
 
 import java.io.*;
+import java.util.*;
 
 import org.w3c.dom.*;
 
@@ -106,7 +110,7 @@ class PointerWriter {
 }
 
 public class Searcher {
-  public static void main(String[] args) throws Exception {
+  public static void test(String[] args) throws Exception {
     final DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
     final DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
     final Document doc = docBuilder.newDocument();
@@ -148,5 +152,33 @@ public class Searcher {
     final String xmlString = sw.toString();
 
     System.out.println(xmlString);
+  }
+
+  private static void lemmatize(final DictionaryDatabase dictionary, final String word, final Appendable output) throws Exception {
+    for (final POS pos : POS.CATS) {
+      boolean posShown = false;
+      for (final String lemma : dictionary.lookupBaseForms(pos, word)) {
+        if (posShown == false) {
+          output.append(pos.name());
+          output.append(" ");
+          posShown = true;
+        }
+        output.append(lemma);
+        output.append(" ");
+      }
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+    final Appendable output = System.out;
+    final Scanner scanner = new Scanner(System.in);    
+    while (scanner.hasNext()) {
+      final String word = scanner.next();
+      output.append(word);
+      output.append(" ");
+      lemmatize(dictionary, word, output);
+      output.append("\n");
+    }
   }
 }
