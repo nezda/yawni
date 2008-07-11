@@ -1,6 +1,7 @@
 package edu.brandeis.cs.steele.wn;
 
 import java.util.*;
+import java.util.regex.*;
 import java.util.logging.*;
 import edu.brandeis.cs.steele.util.*;
 import edu.brandeis.cs.steele.wn.FileBackedDictionary.DatabaseKey;
@@ -63,10 +64,10 @@ class Morphy {
   // ADV 4
   // SATELLITE 5
 
-  // offsets and counts into SUFX and ADDR (0 not used since NOUN == 1)
+  // OFFSETS and CNTS into SUFX and ADDR (0 not used since NOUN == 1)
                                  //0  1  2  3
-  private static int offsets[] = { 0, 0, 8, 16 };
-  private static int cnts[] =    { 0, 8, 8, 4 };
+  private static int OFFSETS[] = { 0, 0, 8, 16 };
+  private static int CNTS[] =    { 0, 8, 8, 4 };
 
   private static final String PREPOSITIONS[] = {
     "to",
@@ -95,6 +96,8 @@ class Morphy {
     // 0 capacity is for performance debugging
     this.morphyCache = new LRUCache<DatabaseKey, List<String>>(0);
   }
+
+  private static Pattern MULTI_WHITESPACE = Pattern.compile("\\s+");
 
   /**
    * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
@@ -126,7 +129,8 @@ class Morphy {
     }
     // lowercase and flatten all runs of white space to a single '_'
     //TODO consider compiling this regex
-    return origstr.toLowerCase().replaceAll("\\s+", "_");
+    //return origstr.toLowerCase().replaceAll("\\s+", "_");
+    return MULTI_WHITESPACE.matcher(origstr.toLowerCase()).replaceAll("_");
   }
 
   //TODO move to Utils
@@ -235,9 +239,12 @@ class Morphy {
       // use this knowledge and base forms to add all case variants
       // on morphs in tmp
       final Word word = is_defined(tmp[0], pos);
-      addTrueCaseLemmas(word, toReturn);
+      //assert word != null : "str: "+str+" tmp[0]: "+tmp[0]+" "+pos+" tmp.length: "+tmp.length;
+      if (word != null) {
+        addTrueCaseLemmas(word, toReturn);
 
-      phase1Done = true;
+        phase1Done = true;
+      }
     }
 
     Word word = null;
@@ -475,8 +482,8 @@ class Morphy {
       tmpbuf = wordStr;
     }
 
-    final int offset = offsets[pos.getWordNetCode()];
-    final int cnt = cnts[pos.getWordNetCode()];
+    final int offset = OFFSETS[pos.getWordNetCode()];
+    final int cnt = CNTS[pos.getWordNetCode()];
     String[] toReturn = null;
     String lastRetval = null;
     for(int i = 0; i < cnt; i++) {
@@ -621,8 +628,8 @@ class Morphy {
       }
     }
 
-    final int offset = offsets[POS.VERB.getWordNetCode()];
-    final int cnt = cnts[POS.VERB.getWordNetCode()];
+    final int offset = OFFSETS[POS.VERB.getWordNetCode()];
+    final int cnt = CNTS[POS.VERB.getWordNetCode()];
     for (int i = 0; i < cnt; ++i) {
       final String exc_word = wordbase(firstWord, (i + offset));
       if (exc_word != null && exc_word.equals(firstWord) == false) {
