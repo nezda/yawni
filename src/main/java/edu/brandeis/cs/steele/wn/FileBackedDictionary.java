@@ -18,7 +18,7 @@ import java.util.logging.*;
  * (<code>==</code> as well as <code>equals</code>), as would traversal of two <code>Pointer</code>s
  * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
  * two different objects to represent the same entity, if their retrieval is separated by other
- * database operations.  FIXME revisit this comment FIXME <i>The LRU cache will be replaced by a 
+ * database operations.  FIXME revisit this comment FIXME <i>The LRU cache will be replaced by a
  * cache based on WeakHashMap, once JDK 1.2 becomes more widely available.</i>
  *
  * @see edu.brandeis.cs.steele.wn.DictionaryDatabase
@@ -33,7 +33,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     log.setLevel(Level.SEVERE);
     //log.setLevel(Level.FINER);
   }
-  
+
   static {
     final Handler handler = new ConsoleHandler();
     handler.setLevel(Level.FINEST);
@@ -60,16 +60,16 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** Construct a dictionary backed by a set of files contained in the default
-   * WordNet search directory.  
+   * WordNet search directory.
    * @see FileManager for a description of the location of the default
-   * WordNet search directory (<code>$WNSEARCHDIR</code>). 
+   * WordNet search directory (<code>$WNSEARCHDIR</code>).
    */
   FileBackedDictionary() {
     this(new FileManager());
   }
 
   /** Construct a dictionary backed by a set of files contained in
-   * <var>search directory</var>. 
+   * <var>search directory</var>.
    */
   FileBackedDictionary(final String searchDirectory) {
     this(new FileManager(searchDirectory));
@@ -83,7 +83,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** Factory method to get <i>the</i> dictionary backed by a set of files contained
    * in the default WordNet search directory.
    * @see FileManager for a description of the location of the default
-   * WordNet search directory (<code>$WNSEARCHDIR</code>). 
+   * WordNet search directory (<code>$WNSEARCHDIR</code>).
    */
   public static FileBackedDictionary getInstance() {
     return InstanceHolder.instance;
@@ -114,12 +114,12 @@ public class FileBackedDictionary implements DictionaryDatabase {
   final int DEFAULT_CACHE_CAPACITY = 10000;//100000;
   private Cache<DatabaseKey, Object> synsetCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
   private Cache<DatabaseKey, Object> indexWordCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
-  
+
   static interface DatabaseKey {
     public int hashCode();
     public boolean equals(Object that);
   } // end interface DatabaseKey
-  
+
   static class POSOffsetDatabaseKey implements DatabaseKey {
     private final int offset;
     private final byte posOrdinal;
@@ -141,7 +141,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       return ((int) offset * 10) + posOrdinal;
     }
   } // end class POSOffsetDatabaseKey
-  
+
   static class StringPOSDatabaseKey implements DatabaseKey {
     private final CharSequence key;
     private final byte posOrdinal;
@@ -185,7 +185,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   private static final Map<POS, String> DATA_FILE_NAMES = new EnumMap<POS, String>(POS.class);
-  
+
   private static String getDataFilename(final POS pos) {
     String toReturn = DATA_FILE_NAMES.get(pos);
     if(toReturn == null) {
@@ -194,9 +194,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
     return toReturn;
   }
-  
+
   private static final Map<POS, String> INDEX_FILE_NAMES = new EnumMap<POS, String>(POS.class);
-  
+
   private static String getIndexFilename(final POS pos) {
     String toReturn = INDEX_FILE_NAMES.get(pos);
     if(toReturn == null) {
@@ -207,7 +207,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   private static final Map<POS, String> EXCEPTION_FILE_NAMES = new EnumMap<POS, String>(POS.class);
-  
+
   private static String getExceptionsFilename(final POS pos) {
     String toReturn = EXCEPTION_FILE_NAMES.get(pos);
     if(toReturn == null) {
@@ -216,7 +216,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
     return toReturn;
   }
-  
+
   private static String getCntlistDotRevFilename() {
     return "cntlist.rev";
   }
@@ -241,22 +241,22 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   // Entity retrieval
   //
-  
+
   //FIXME cache's don't store null values!
   private static void cacheDebug(final Cache<DatabaseKey, Object> cache) {
     //System.err.println(cache.getClass().getSimpleName());
-    //System.err.printf("getIndexWordAtCacheMiss: %d getIndexWordAtCacheHit: %d weirdGetIndexWordAtCacheMiss: %d\n", 
+    //System.err.printf("getIndexWordAtCacheMiss: %d getIndexWordAtCacheHit: %d weirdGetIndexWordAtCacheMiss: %d\n",
     //    getIndexWordAtCacheMiss, getIndexWordAtCacheHit, weirdGetIndexWordAtCacheMiss );
-    //System.err.printf("getSynsetAtCacheMiss: %d getSynsetAtCacheHit: %d weirdGetSynsetAtCacheMiss: %d\n", 
+    //System.err.printf("getSynsetAtCacheMiss: %d getSynsetAtCacheHit: %d weirdGetSynsetAtCacheMiss: %d\n",
     //    getSynsetAtCacheMiss, getSynsetAtCacheHit, weirdGetSynsetAtCacheMiss);
-    //System.err.printf("lookupIndexWordCacheMiss: %d lookupIndexWordCacheHit: %d weirdLookupIndexWordCacheMiss: %d\n", 
+    //System.err.printf("lookupIndexWordCacheMiss: %d lookupIndexWordCacheHit: %d weirdLookupIndexWordCacheMiss: %d\n",
     //    lookupIndexWordCacheMiss, lookupIndexWordCacheHit, weirdLookupIndexWordCacheMiss);
   }
 
   static int getIndexWordAtCacheMiss = 0;
   static int getIndexWordAtCacheHit = 0;
   static int weirdGetIndexWordAtCacheMiss = 0;
-  
+
   Word getIndexWordAt(final POS pos, final int offset) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Word word = (Word) indexWordCache.get(cacheKey);
@@ -276,14 +276,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
       word = new Word(line, offset);
       indexWordCache.put(cacheKey, word);
     }
-    assert word != null : "pos: "+pos+" offset: "+offset;
     return word;
   }
-  
+
   static int getSynsetAtCacheMiss = 0;
   static int getSynsetAtCacheHit = 0;
   static int weirdGetSynsetAtCacheMiss = 0;
-  
+
   Synset getSynsetAt(final POS pos, final int offset, String line) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Synset synset = (Synset) synsetCache.get(cacheKey);
@@ -304,7 +303,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
       synset = new Synset(line);
       synsetCache.put(cacheKey, synset);
     }
-    assert synset != null : "pos: "+pos+" offset: "+offset+" line: "+line;
     return synset;
   }
 
@@ -316,7 +314,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //
   // Lookup functions
   //
-  
+
   static int lookupIndexWordCacheMiss = 0;
   static int lookupIndexWordCacheHit = 0;
   static int weirdLookupIndexWordCacheMiss = 0;
@@ -349,7 +347,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
     return indexWord != NULL_INDEX_WORD ? (Word) indexWord : null;
   }
-  
+
   /** LN Not used much - this might not even have a <i>unique</i> result ? */
   public String lookupBaseForm(final POS pos, final String derivation) {
     // TODO add caching!
@@ -371,7 +369,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
     return null;
   }
-  
+
   /** {@inheritDoc} */
   public String[] lookupBaseForms(final POS pos, final String someString) {
     // TODO use getindex() too ?
@@ -419,8 +417,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   private final Cache<DatabaseKey, String[]> exceptionsCache = new LRUCache<DatabaseKey, String[]>(DEFAULT_CACHE_CAPACITY);
   //private final Cache exceptionsCache = new LRUCache(0);
-  
-  /** 
+
+  /**
    * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given <param>pos</param>.
    * The exception list files, <tt>pos</tt>.<i>exc</i> , are used to help the morphological
    * processor find base forms from irregular inflections.  <b>NOTE: Skip the
@@ -454,8 +452,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return NO_STRINGS;
   }
 
-  /** 
-   * <i>looks up</i> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a> 
+  /**
+   * <i>looks up</i> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a>
    * in the <code>cntlist.rev</code> file and returns the matching line (or
    * <code>null</code>).
    */
@@ -541,7 +539,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         // parse line. format example:
         //<number>
         //<framenum>[ ]+<frame string>
-        
+
         // skip leading digits, skip spaces, rest is frame text
         int idx = line.indexOf(" ");
         assert idx >= 0;
@@ -579,7 +577,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         // parse line. format example:
         //<number>
         //<sentenceNumber>[ ]+<sentence string>
-        
+
         // skip leading digits, skip spaces, rest is sentence text
         int idx = line.indexOf(" ");
         assert idx >= 0;
@@ -599,13 +597,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   private static final String[] NO_STRINGS = new String[0];
-  
+
   //
   // Iterators
   //
-  
-  /** 
-   * @see DictionaryDatabase#words 
+
+  /**
+   * @see DictionaryDatabase#words
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class WordIterator implements Iterator<Word> {
@@ -655,9 +653,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
     };
   }
-  
-  /** 
-   * @see DictionaryDatabase#searchWords 
+
+  /**
+   * @see DictionaryDatabase#searchWords
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchBySubstringIterator implements Iterator<Word> {
@@ -702,9 +700,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
     };
   }
-  
+
   /**
-   * @see DictionaryDatabase#searchIndexBeginning 
+   * @see DictionaryDatabase#searchIndexBeginning
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchByPrefixIterator implements Iterator<Word> {
@@ -742,7 +740,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       throw new UnsupportedOperationException();
     }
   } // end class SearchByPrefixIterator
-  
+
   /** {@inheritDoc} */
   public Iterable<Word> searchByPrefix(final POS pos, final CharSequence prefix) {
     return new Iterable<Word>() {
@@ -752,8 +750,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     };
   }
 
-  /** 
-   * @see DictionaryDatabase#synsets 
+  /**
+   * @see DictionaryDatabase#synsets
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class POSSynsetsIterator implements Iterator<Synset> {
@@ -802,8 +800,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     };
   }
 
-  /** 
-   * @see DictionaryDatabase#wordSenses 
+  /**
+   * @see DictionaryDatabase#wordSenses
    */
   private class POSWordSensesIterator implements Iterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
@@ -834,8 +832,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     };
   }
 
-  /** 
-   * @see DictionaryDatabase#pointers 
+  /**
+   * @see DictionaryDatabase#pointers
    */
   private class POSPointersIterator implements Iterator<Pointer> {
     private final Iterator<Pointer> pointers;
@@ -860,7 +858,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       this.pointerType = pointerType;
     }
     @Override
-    public List<Pointer> apply(final Synset synset) { 
+    public List<Pointer> apply(final Synset synset) {
       if (pointerType == null) {
         return Arrays.asList(synset.getPointers());
       } else {
