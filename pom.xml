@@ -114,6 +114,7 @@
         <configuration>
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <enableAssertions/>
         </configuration>
       </plugin>
       <plugin>
