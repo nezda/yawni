@@ -65,8 +65,9 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
       final int lexid = tokenizer.nextHexInt();
       int flags = 0;
       // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
-      if (lemma.charAt(lemma.length() - 1) == ')' && lemma.indexOf('(') > 0) {
-        final int lparenIdx = lemma.indexOf('(');
+      final int lparenIdx;
+      if (lemma.charAt(lemma.length() - 1) == ')' && 
+        (lparenIdx = lemma.lastIndexOf('(')) > 0) {
         final int rparenIdx = lemma.length() - 1;
         assert ')' == lemma.charAt(rparenIdx);
         //TODO use String.regionMatches() instead of creating 'marker'
