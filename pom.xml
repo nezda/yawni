@@ -115,6 +115,7 @@
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <enableAssertions/>
+          <!-- -XX:CompileThreshold=1 -->
         </configuration>
       </plugin>
       <plugin>
@@ -172,6 +173,8 @@
           <links>
             <url>http://java.sun.com/j2se/1.5.0/docs/api/</url>
           </links>
+          <encoding>UTF-8</encoding>
+          <docencoding>UTF-8</docencoding>
         </configuration>
       </plugin>
       <plugin>
