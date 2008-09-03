@@ -638,6 +638,7 @@ public class FileManager implements FileManagerInterface {
     // - are there counter cases where the first-word binary search would return a different
     //   result than a "normal" binary search?
     //   - underscore comes before all lower cased letters
+    //assert Utils.containsUpper(target) == false;
     if (target.length() == 0) {
       return -1;
     }
@@ -710,6 +711,8 @@ public class FileManager implements FileManagerInterface {
   }
 
   private static int compare(final CharSequence s1, final CharSequence s2) {
+    // caseless searches rely on this
     return Utils.WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(s1, s2);
+    //return Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(s1, s2);
   }
 }
