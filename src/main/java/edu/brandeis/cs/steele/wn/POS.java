@@ -18,6 +18,9 @@ public enum POS {
   //
   // Class variables
   //
+  /**
+   * Meta-<code>POS</code> representing all parts of speech.  For use in search methods.
+   */
   ALL("all POS", null, 0),
   /** <b>NOTE: do not reorder - PointerTypes relies on this</b> */
   /**
