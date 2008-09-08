@@ -355,6 +355,16 @@ public class Utils {
     return true;
   }
 
+  public static boolean containsUpper(final CharSequence string) {
+    int len = string.length();
+    while (len-- != 0) {
+      if (Character.isUpperCase(string.charAt(len))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * A comparison predicate that specifically ignores case and ' ', '.', '-', '_'
    * letters and their order must still match.
