@@ -13,7 +13,7 @@ import java.util.prefs.*;
  * TODO remove static methods -- go through getInstance()
  * TODO check if importPreferences() clobbers saved preferences
  * TODO put WNHOME/WNSEARCHDIR per-OS defaults (same as those from .jnlp file) into preferences
- *      and reflect them into system properties 
+ *      and reflect them into system properties
  * @author http://www.oreilly.com/catalog/swinghks/
  */
 class PreferencesManager implements AWTEventListener {
@@ -42,7 +42,7 @@ class PreferencesManager implements AWTEventListener {
   };
 
   static synchronized void loadDefaults() {
-    // TODO 
+    // TODO
     // see if the defaults have been loaded,
     //   if not, load them
     // * Don't clobber user preferences
@@ -54,12 +54,12 @@ class PreferencesManager implements AWTEventListener {
     // Preferences.userNodeForPackage(Class<?> c)
     //
     // TODO how to represent search history ?
-    // Note: when encoding values, there is a maximum size: 
+    // Note: when encoding values, there is a maximum size:
     // Preferences.MAX_VALUE_LENGTH characters
 
     final InputStream is = PreferencesManager.class.getResourceAsStream("defaults.xml");
     try {
-      Preferences.importPreferences(is); 
+      Preferences.importPreferences(is);
       is.close();
     } catch(InvalidPreferencesFormatException ipfe) {
       throw new RuntimeException(ipfe);
@@ -86,15 +86,40 @@ class PreferencesManager implements AWTEventListener {
           java.lang.System.err.println("Error setting LAF "+this+" " + e);
         }
       }
-    };
+    },
+    GTK {
+      public void set() {
+        try {
+          UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+          //UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+        } catch(Exception e) {
+          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+        }
+      }
+    }
+    ;
 
     public abstract void set();
   } // end enum LookAndFeel
 
   static void setLookAndFeel() {
     //TODO loadDefaults();
+    //LookAndFeel.GTK.set();
     LookAndFeel.System.set();
+    // even OS X LAF has bugs
     //LookAndFeel.CrossPlatform.set();
+
+    //System.getProperty("os.name").toLowerCase().startsWith("mac os x");
+
+    //for(final UIManager.LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
+    //  System.err.println("lafInfo: "+lafInfo);
+    //}
+
+    // ideal behavior:
+    // if not Linux (OS X or Windows)
+    //   use System
+    // else
+    //   use CrossPlatform
   }
 
   public static PreferencesManager getInstance() {
@@ -148,7 +173,7 @@ class PreferencesManager implements AWTEventListener {
       }
     }
   }
-  
+
   // TODO use background thread to update current window position on
   // move or use an ugly shutdown hook to make sure saves work
 
