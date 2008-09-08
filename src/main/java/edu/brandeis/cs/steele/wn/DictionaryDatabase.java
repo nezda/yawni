@@ -25,15 +25,15 @@ public interface DictionaryDatabase {
    */
   public Word lookupWord(final POS pos, final CharSequence lemma);
 
-  /**
-   * Return the base form of an exceptional derivation, if an entry for it
-   * exists in the database. e.g. returns "goose" from derivation query term
-   * "geese" as <code>POS.NOUN</code>.
-   * @param pos The part-of-speech.
-   * @param derivationLemma A (possibly <i>inflected</i>) form of the word.
-   * @return The <i>uninflected</i> word, or <code>null</code> if no exception entry exists.
-   */
-  public String lookupBaseForm(final POS pos, final String derivationLemma);
+  ///**
+  // * Return the base form of an exceptional derivation, if an entry for it
+  // * exists in the database. e.g. returns "goose" from derivation query term
+  // * "geese" as <code>POS.NOUN</code>.
+  // * @param pos The part-of-speech.
+  // * @param derivationLemma A (possibly <i>inflected</i>) form of the word.
+  // * @return The <i>uninflected</i> word, or <code>null</code> if no exception entry exists.
+  // */
+  //public String lookupBaseForm(final POS pos, final String derivationLemma);
 
   /**
    * Return all base forms (aka "lemmas") of <var>someString</var> in <var>pos</var>.
@@ -42,7 +42,6 @@ public interface DictionaryDatabase {
    * @param someString
    * @return baseform(s) of <var>someString</var>
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN">http://wordnet.princeton.edu/man/morphy.7WN</a>
-   * @since 1.2 XXX
    */
   public String[] lookupBaseForms(final POS pos, final String someString);
 
@@ -52,7 +51,6 @@ public interface DictionaryDatabase {
    * @param pos The part-of-speech.
    * @param someString
    * @return <code>Synset</code>(s) of <var>someString</var> in <var>pos</var>
-   * @since 1.2 XXX
    */
   public Synset[] lookupSynsets(final POS pos, final String someString);
 
