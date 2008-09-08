@@ -56,6 +56,8 @@ public class Browser extends JFrame {
   static final boolean MAC_OS_X = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
   static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
+  private final Application app = Application.getInstance();
+
   private final Dimension minSize;
   private final JMenuBar mainMenuBar;
   private final JMenu fileMenu;
@@ -74,7 +76,7 @@ public class Browser extends JFrame {
   final Border textAreaBorder;
 
   public Browser() {
-    super("JWordNet Browser");
+    super(Application.getInstance().getName()+" Browser");
     // ⌾ \u233e APL FUNCTIONAL SYMBOL CIRCLE JOT
     // ⊚ \u229a CIRCLED RING OPERATOR
     // ◎ \u25ce BULLSEYE
@@ -159,6 +161,8 @@ public class Browser extends JFrame {
             "<h2>JWordNet Browser</h2>"+
             "A graphical interface to the<br>"+
             "WordNet online lexical database.<br>"+
+            "<br>"+
+            "Version: "+app.getVersion()+" (Build "+app.getBuildNumber()+", "+app.getFormattedBuildDate()+")<br>"+
             "<br>"+
             "This Java version is by Luke Nezda and Oliver Steele.<br>"+
             "The GUI is loosely based on the Tcl/Tk interface<br>"+
