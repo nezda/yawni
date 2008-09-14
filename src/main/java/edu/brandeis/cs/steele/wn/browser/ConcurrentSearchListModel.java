@@ -103,6 +103,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       try {
         doRun();
       } catch(Throwable t) {
+        //FIXME bad form - should log
         t.printStackTrace();
       }
     }
@@ -117,7 +118,8 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       }
     });
     if (lastTask != null) {
-      final boolean lastTaskCancelled = lastTask.cancel(true);
+      final boolean mayInterruptIfRunning = true;
+      final boolean lastTaskCancelled = lastTask.cancel(mayInterruptIfRunning);
       if (lastTaskCancelled && lastTask.isCancelled()) {
         System.err.println("lastTaskCancelled: "+lastTaskCancelled+
             " lastQuery: \""+lastQuery+"\" query: \""+query+"\""+
