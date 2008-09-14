@@ -5,28 +5,29 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
 
-// By far most complex features involve multi-words, esp those containing
-// prepositions and "-"
-// TODO add tests with prepositions
-//
-// - test plan
-//   - Morphy
-//     - make sure caching strategies are not harming correctness (uses DatabaseKey(pos, someString))
-//   - specific synsets
-//     - using offets will require changes as WN is improved
-//     - could use lemmma, pos, and (sense number OR gloss)
-//   - other relations including derivationally related
-//   - add speed tests
-//     - task-based: count unique WordSense's in all DBs
-//     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
-//     - compare speed with various CharStream impls (add some package private methods)
-//   - sense numbers
-//   - gloss
-//   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
-
+/** 
+ * By far most complex features involve multi-words, esp those containing
+ * prepositions and "-".
+ *
+ * - Test Plan
+ *   - Morphy
+ *     - make sure caching strategies are not harming correctness (uses DatabaseKey(pos, someString))
+ *   - specific synsets
+ *     - using offets will require changes as WN is improved
+ *     - could use lemmma, pos, and (sense number OR gloss)
+ *   - other relations including derivationally related
+ *   - add speed tests
+ *     - task-based: count unique WordSense's in all DBs
+ *     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
+ *     - compare speed with various CharStream impls (add some package private methods)
+ *   - sense numbers
+ *   - gloss
+ *   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
+ * 
+ * TODO add tests with prepositions
+ * TODO consider proper Parameterized tests
+ */
 public class MorphyTest {
-  //TODO consider proper Parameterized tests
-
   private static DictionaryDatabase dictionary;
   @BeforeClass
   public static void init() {
@@ -90,6 +91,7 @@ public class MorphyTest {
     assertEquals(2, Morphy.countWords("dog _ gone", ' '));
     assertEquals(2, Morphy.countWords("dog__gone", ' '));
     assertEquals(2, Morphy.countWords("dog_ gone", ' '));
+    assertEquals(2, Morphy.countWords("_dog_gone_", ' '));
     assertEquals(1, Morphy.countWords("dog-gone", ' '));
     assertEquals(2, Morphy.countWords("dog-gone", '-'));
     assertEquals(3, Morphy.countWords("internal-combustion engine", '-'));
@@ -111,6 +113,7 @@ public class MorphyTest {
   @Test
   public void test1() {
     String[][] unstemmedStemmedCases = new String[][] {
+      // { POS, <unstemmed>, <stemmed> }
       { POS.NOUN.name(), "dogs", "dog" },
       { POS.NOUN.name(), "geese", "goose", "geese" },
       { POS.NOUN.name(), "handfuls", "handful" },
@@ -120,8 +123,10 @@ public class MorphyTest {
       { POS.NOUN.name(), "heiresses", "heiress" }, 
         //WN missing derivationally relation to neuter form "heir" - intentional?
       { POS.NOUN.name(), "heiress", "heiress" },
-      { POS.NOUN.name(), "George W. \t\tBush", "George W. Bush" }, //WN doesn't get this (extra internal space) (WN online does - probably string preprocessing)
+      { POS.NOUN.name(), "George W. \t\tBush", "George W. Bush" }, // WN doesn't get this (extra internal space) (WN online does - probably better input string preprocessing)
       { POS.NOUN.name(), "george w. bush", "George W. Bush" },
+      //{ POS.NOUN.name(), "f.d. roosevelt", "F. D. Roosevelt" }, // WN doesn't get this
+      //{ POS.NOUN.name(), "u.s", "u.s."}, // WN gets this, though probably via "US"
       //WN doesn't get this either (missing ".") { POS.NOUN.name(), "george w bush", "George W. Bush" },
       { POS.NOUN.name(), "mice", "mouse", "mice" },
       { POS.NOUN.name(), "internal-combustion engine", "internal-combustion engine" },
@@ -131,6 +136,12 @@ public class MorphyTest {
       { POS.NOUN.name(), "letter bombs", "letter bomb" },
       // needs "-" -> "" { POS.NOUN.name(), "fire-bomb", "firebomb" },
       // needs "-" -> " " { POS.NOUN.name(), "letter-bomb", "letter bomb" },
+      // harder one: 
+      // - needs to either not require getIndexedLinePointer() to operate on words OR 
+      //   + return the nearest hit (maybe negated to indicate no normal match)
+      // - could be really fast with a suffix index (reverse words)
+      // needs "" -> " " { POS.NOUN.name(), "letterbomb", "letter bomb" }, // WN doesn't get this
+      //{ POS.NOUN.name(), "hyper-active", "hyperactive" }, // WN doesn't get this
       { POS.NOUN.name(), "I ran", null }, // WN gets this as "Iran" - " " -> "" seems bad unless a variant has "-" in same position (WN online doesn't do this)
       { POS.NOUN.name(), "be an", null }, // WN gets this as "bean" (WN online doesn't do this)
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
@@ -138,6 +149,11 @@ public class MorphyTest {
       { POS.NOUN.name(), "superheroes", "superhero" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
       { POS.NOUN.name(), "businessmen", "businessmen", "businessman" },
       { POS.NOUN.name(), "_", null },
+      { POS.NOUN.name(), "\n", null },
+      { POS.NOUN.name(), "\ndog", null },
+      { POS.NOUN.name(), "dog\n", null },
+      { POS.NOUN.name(), "\n''", null },
+      { POS.NOUN.name(), "''\n", null },
       { POS.NOUN.name(), "-", null },
       { POS.NOUN.name(), "--", null },
       { POS.NOUN.name(), "__", null },
@@ -171,13 +187,14 @@ public class MorphyTest {
       { POS.VERB.name(), "asked for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
       { POS.VERB.name(), "was", "be", "was" },
+      { POS.NOUN.name(), "was", "WA" }, // weird- de-pluralizing Washington state abbr
       { POS.VERB.name(), "cannonball along", "cannonball along" },
-      //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, //XXX currently fails wnb too
+      //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, // WN doesn't get this
       //{ POS.VERB.name(), "finesses", "finesse" }, //not in WordNet 3.0 as a Verb
       { POS.VERB.name(), "accesses", "access" },
       { POS.VERB.name(), "went", "go", "went" },
       { POS.VERB.name(), "bloging" /* spelled wrong */, "blog" },
-      //{ POS.VERB.name(), "blogging" /* spelled correctly, not in exceptions file */, "blog" },
+      //{ POS.VERB.name(), "blogging" /* spelled _correctly_, not in exceptions file */, "blog" },
       { POS.VERB.name(), "shook hands", "shake hands", "shook hands" },
       { POS.VERB.name(), "Americanize", "Americanize" }, // capitalized verb - grep "v [0-9]+ [A-Z]" data.verb
       { POS.VERB.name(), "saw", "see", "saw" },
@@ -187,7 +204,7 @@ public class MorphyTest {
       { POS.ADJ.name(), "Middle Eastern", "Middle Eastern" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
       { POS.ADJ.name(), "Latin-American", "Latin-American" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
       { POS.ADJ.name(), "low-pitched", "low-pitched" },
-      //{ POS.ADJ.name(), "low-pitch", "low-pitched" }, // wnb misses
+      //{ POS.ADJ.name(), "low-pitch", "low-pitched" }, // WN doesn't get this
     };
     for(final String[] testElements : unstemmedStemmedCases) {
       final POS pos = POS.valueOf(testElements[0]);
@@ -209,7 +226,29 @@ public class MorphyTest {
         System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
       }
       assertTrue(isUnique(baseForms));
+
+      final List<String> upperBaseForms = stem(unstemmed.toUpperCase(), pos);
+      msg = "UPPER unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+upperBaseForms;
+      assertTrue(msg, upperBaseForms.contains(stemmed) || (stemmed == null && upperBaseForms.isEmpty()));
     }
+  }
+
+  @Test
+  public void testLookupWord() {
+    assertEquals(null, dictionary.lookupWord(POS.NOUN, ""));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "dog"));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "DOG"));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "ad blitz"));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "ad_blitz"));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "AD BLITZ"));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "wild-goose chase"));
+    assertTrue(null != dictionary.lookupWord(POS.NOUN, "wild-goose_chase"));
+  }
+
+  // could add explicit checks for this in API methods but that's pretty tedious
+  @Test(expected=NullPointerException.class)
+  public void testNullLookupWord() {
+    assertEquals(null, dictionary.lookupWord(POS.NOUN, null));
   }
 
   @Test
@@ -257,8 +296,59 @@ public class MorphyTest {
   }
 
   //TODO consider moving to Utils
-  private static boolean isUnique(final List<String> items) {
-    return items.size() == new HashSet<String>(items).size();
+  private static <T> boolean isUnique(final List<T> items) {
+    return items.size() == new HashSet<T>(items).size();
+  }
+
+  @Test
+  public void findCollocationAmbiguity() {
+    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+    int spaceAndDash = 0;
+    for(final POS pos : POS.CATS) {
+      for(final Word word : dictionary.words(pos)) {
+        final String lemma = word.getLemma();
+        if(lemma.indexOf("-") > 0 && lemma.indexOf(" ") > 0) {
+          spaceAndDash++;
+          //System.err.println("lemma: "+lemma+" spaceAndDash: "+spaceAndDash);
+        }
+      }
+    }
+    
+    int dash = 0;
+    int space = 0;
+    int dashNoDash = 0;
+    int dashSpace = 0;
+    int dashNotSpace = 0;
+    for (final POS pos : POS.CATS) {
+      for (final Word word : dictionary.words(pos)) {
+        final String lemma = word.getLemma();
+        if (lemma.indexOf("-") > 0) {
+          dash++;
+          final String noDash = lemma.replace("-", "");
+          if (null != dictionary.lookupWord(pos, noDash)) {
+            dashNoDash++;
+            //System.err.println("lemma: "+lemma+" dashNoDash "+dashNoDash);
+          }
+          final String dashToSpace = lemma.replace("-", " ");
+          if (null != dictionary.lookupWord(pos, dashToSpace)) {
+            dashSpace++;
+            //System.err.println("lemma: "+lemma+" dashSpace "+dashSpace);
+          } else {
+            dashNotSpace++;
+            //System.err.println("lemma: "+lemma+" dashNotSpace "+dashNotSpace);
+          }
+        }
+        if (lemma.indexOf(" ") > 0) {
+          space++;
+        }
+      }
+    }
+    System.err.println("dash: "+dash);
+    System.err.println("space: "+space);
+    System.err.println("dashNotSpace: "+dashNotSpace);
+    System.err.println("spaceAndDash: "+spaceAndDash);
+    System.err.println("dashNoDash: "+dashNoDash);
+    System.err.println("dashSpace: "+dashSpace);
   }
 
   //won't find anything without getindex() functionality?
