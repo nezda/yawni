@@ -64,12 +64,13 @@ public class BrowserPanel extends JPanel {
     //    // regex has to support partial matches (as they're typed)
     //    //String regex = "(?i)("+word+"[ /_-]?)+";
     //    //return new RegexConstrainedDocument(regex);
-    //    
+    //
     //    //return new SearchFieldDocument();
     //  }
     //};
     //XXX doesn't seem to work!? ((AbstractDocument)searchField.getDocument()).setDocumentFilter(new SearchFieldDocumentFilter());
     this.searchField = new JTextField();
+    SearchFrame.multiClickSelectAll(searchField);
     this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
     this.searchField.putClientProperty("JTextField.variant", "search");
@@ -79,11 +80,11 @@ public class BrowserPanel extends JPanel {
         assert searchField.getDocument() == evt.getDocument();
         searchFieldChanged = true;
       }
-      public void insertUpdate(final DocumentEvent evt) { 
+      public void insertUpdate(final DocumentEvent evt) {
         assert searchField.getDocument() == evt.getDocument();
         searchFieldChanged = true;
       }
-      public void removeUpdate(final DocumentEvent evt) { 
+      public void removeUpdate(final DocumentEvent evt) {
         assert searchField.getDocument() == evt.getDocument();
         searchFieldChanged = true;
       }
@@ -96,7 +97,7 @@ public class BrowserPanel extends JPanel {
         }
       }
     });
-    
+
     this.undoManager = new UndoManager() {
       private static final long serialVersionUID = 1L;
       @Override public boolean addEdit(UndoableEdit ue) {
@@ -157,9 +158,9 @@ public class BrowserPanel extends JPanel {
         searchField.grabFocus();
       }
     };
-    
+
     makePOSComboBoxes();
-    
+
     final JPanel searchAndPointersPanel = new JPanel(new GridBagLayout());
     final GridBagConstraints c = new GridBagConstraints();
 
@@ -195,7 +196,7 @@ public class BrowserPanel extends JPanel {
     // set width(pointerPanel) = width(searchPanel)
 
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
-    
+
     this.resultEditorPane = new StyledTextPane();
     this.resultEditorPane.setBorder(browser.textAreaBorder);
     this.resultEditorPane.setBackground(Color.WHITE);
@@ -204,7 +205,7 @@ public class BrowserPanel extends JPanel {
     this.resultEditorPane.setEditable(false);
     final JScrollPane jsp = new  JScrollPane(resultEditorPane);
     final JScrollBar jsb = jsp.getVerticalScrollBar();
-    
+
     //TODO move to StyledTextPane (already an action for this?)
     final Action scrollDown = new AbstractAction() {
       private static final long serialVersionUID = 1L;
@@ -245,11 +246,11 @@ public class BrowserPanel extends JPanel {
         "shift meta",
         };
     for (final String extraKey : extraKeys) {
-      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
-      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp); 
-      
-      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
-      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown); 
+      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp);
+      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp);
+
+      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown);
+      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown);
 
       for (final PointerTypeComboBox comboBox : this.posBoxes.values()) {
         comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" UP"), "scrollUp");
@@ -269,8 +270,8 @@ public class BrowserPanel extends JPanel {
 
     jsp.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
-    jsp.getVerticalScrollBar().setFocusable(false); 
-    jsp.getHorizontalScrollBar().setFocusable(false); 
+    jsp.getVerticalScrollBar().setFocusable(false);
+    jsp.getHorizontalScrollBar().setFocusable(false);
     // OS X usability guidelines recommend this
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -316,9 +317,9 @@ public class BrowserPanel extends JPanel {
     final char letter = 'A';
     // Lucida Sans Regular 12pt Plain
     graphics.setFont(new Font(
-          "Arial", //"Lucida Sans Regular", //"Serif",//"Arial", 
+          "Arial", //"Lucida Sans Regular", //"Serif",//"Arial",
           bold ? Font.BOLD : Font.PLAIN,
-          dimension - 
+          dimension -
           (bold ? 1 : 3)));
     graphics.setPaint(Color.BLACK);
     final FontRenderContext frc = graphics.getFontRenderContext();
@@ -362,7 +363,7 @@ public class BrowserPanel extends JPanel {
     // handle lower right @ 135% CW from TDC
     // drawOval(x,y,w,h)
     System.err.println("stroke: "+((BasicStroke)graphics.getStroke()).getEndCap());
-    System.err.printf("  caps: %s %d %s %d %s %d\n", 
+    System.err.printf("  caps: %s %d %s %d %s %d\n",
         "CAP_BUTT", BasicStroke.CAP_BUTT,
         "CAP_ROUND", BasicStroke.CAP_ROUND,
         "CAP_SQUARE", BasicStroke.CAP_SQUARE
@@ -383,7 +384,7 @@ public class BrowserPanel extends JPanel {
     graphics.setPaint(Color.BLACK);
     //graphics.drawOval(x, y, w, h);
     graphics.draw(new Ellipse2D.Double(1, 1, w, h));
-    
+
     //final char letter = 'A';
     //graphics.setPaint(Color.BLACK);
     //final FontRenderContext frc = graphics.getFontRenderContext();
@@ -393,7 +394,7 @@ public class BrowserPanel extends JPanel {
     //final float y = dimension
     //  - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
 
-    
+
     //graphics.drawString("" + letter, x, y);
     //if(bold) {
     //  // overspray a little
@@ -408,7 +409,7 @@ public class BrowserPanel extends JPanel {
     //System.err.println();
     //System.err.println("searchButton: "+searchButton);
   }
-  
+
   // Callback used by Browser so BrowserPanel can add menu items to File menu
   void addMenuItems(final Browser browser, final JMenu fileMenu) {
     fileMenu.addSeparator();
@@ -426,10 +427,10 @@ public class BrowserPanel extends JPanel {
       item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, MENU_MASK));
     } else {
       item.setAccelerator(KeyStroke.getKeyStroke(
-            KeyEvent.VK_Z, 
+            KeyEvent.VK_Z,
             MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
     }
-    
+
     fileMenu.addSeparator();
     item = fileMenu.add(resultEditorPane.biggerFont);
     item = fileMenu.add(resultEditorPane.smallerFont);
@@ -525,7 +526,7 @@ public class BrowserPanel extends JPanel {
     }
   } // end class RedoAction
 
-  /** 
+  /**
    * Nice looking SansSerif HTML rendering JTextPane.
    * http://www.jroller.com/jnicho02/entry/using_css_with_htmleditorpane
    */
@@ -535,14 +536,8 @@ public class BrowserPanel extends JPanel {
     Map<Object, Action> actions;
     final Action biggerFont;
     final Action smallerFont;
-    
-    StyledTextPane() {
-      //XXX final Map<Object, Action> actions = new HashMap<Object, Action>();
-      //XXX final Integer[] fontSizes = new Integer[]{ 10, 12, 14, 18, 20 };
-      //XXX for(final Integer fontSize : fontSizes) {
-      //XXX   actions.put(fontSize, new StyledEditorKit.FontSizeAction(String.valueOf(fontSize), fontSize));
-      //XXX }
 
+    StyledTextPane() {
       //XXX final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
       //TODO move to StyledTextPane
       //TODO add Ctrl++ / Ctrl+- to Menu shortcuts (View?)
@@ -570,7 +565,7 @@ public class BrowserPanel extends JPanel {
       //     get next smaller size and set its style
       //   else
       //     beep
-    
+
       this.biggerFont = new StyledEditorKit.StyledTextAction("Bigger Font") {
         private static final long serialVersionUID = 1L;
         final int fake = init();
@@ -579,11 +574,10 @@ public class BrowserPanel extends JPanel {
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK));
           return 0;
         }
+
         public void actionPerformed(final ActionEvent evt) {
           //System.err.println("bigger");//: "+evt);
-          selectAll();
-          getActionTable().get("font-size-18").actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
-          setCaretPosition(0); // scroll to top
+          newFontSize(18);
           smallerFont.setEnabled(true);
           this.setEnabled(false);
         }
@@ -598,9 +592,7 @@ public class BrowserPanel extends JPanel {
         }
         public void actionPerformed(final ActionEvent evt) {
           //System.err.println("smaller");//: "+evt);
-          selectAll();
-          getActionTable().get("font-size-14").actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
-          setCaretPosition(0); // scroll to top
+          newFontSize(14);
           biggerFont.setEnabled(true);
           this.setEnabled(false);
         }
@@ -609,21 +601,33 @@ public class BrowserPanel extends JPanel {
       this.smallerFont.setEnabled(false);
     }
 
-    @Override protected EditorKit createDefaultEditorKit() {
+    private void newFontSize(int fontSize) {
+      //XXX NOTE: not all sizes are defined, only
+      // 48 36 24 18 16 14 12 10 8
+      selectAll();
+      getActionTable().get("font-size-"+fontSize).actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
+      setCaretPosition(0); // scroll to top
+      final StyleSheet styleSheet = ((HTMLEditorKit)getStyledEditorKit()).getStyleSheet();
+      // setting this style makes this font size change stick
+      styleSheet.addRule("body {font-size: "+fontSize+";}");
+    }
+
+    @Override protected HTMLEditorKit createDefaultEditorKit() {
       final HTMLEditorKit kit = new HTMLEditorKit();
       final StyleSheet styleSheet = kit.getStyleSheet();
       styleSheet.addRule("body {font-family:sans-serif;}");
-      //styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
+      styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
       //FIXME text-indent:-10pt; causes the odd bolding bug
       //XXX styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
-      styleSheet.addRule("ul {list-style-type:none; display:block;}");
-      //styleSheet.addRule("ul ul {list-style-type:circle };");
+      //XXX XXX styleSheet.addRule("ul {list-style-type:none; display:block;}");
+      //XXX styleSheet.addRule("ul ul {list-style-type:circle };");
+      //XXX XXX styleSheet.addRule("ul ul {list-style-type:circle };");
       styleSheet.addRule("ul {margin-left:12pt; margin-bottom:0pt;}");
       //getDocument().putProperty("multiByte", false);
       return kit;
     }
 
-    // The following two methods allow us to find an
+    // The following method allows us to find an
     // action provided by the editor kit by its name.
     Map<Object, Action> getActionTable() {
       if (actions == null) {
@@ -638,8 +642,8 @@ public class BrowserPanel extends JPanel {
       return actions;
     }
   } // end class StyledTextPane
-  
-  /** 
+
+  /**
    * Class which encapsulates a button (for a pos) which controls a
    * JPopupMenu that is dynamically populated with a PointerTypeActions.
    * Key feature is popup width is as wide as the contents across platforms which is
@@ -699,11 +703,11 @@ public class BrowserPanel extends JPanel {
       this.addKeyListener(new KeyAdapter() {
         public void keyTyped(final KeyEvent evt) {
           switch(evt.getKeyChar()) {
-            case '\n': 
+            case '\n':
             case ' ':
               // doClick() just to show the button press
               doClick();
-              // the button will only get key strokes if the popup 
+              // the button will only get key strokes if the popup
               // is NOT showing (though the variable could be
               // out of sync due to app focus loss popup hide)
               showing = false;
@@ -722,7 +726,7 @@ public class BrowserPanel extends JPanel {
         System.err.println("SHOW");
         final Insets margins = getMargin();
         final int px = 5;
-        final int py = 1 + this.getHeight() - margins.bottom;        
+        final int py = 1 + this.getHeight() - margins.bottom;
         menu.show(this, px, py);
         showing = true;
       } else {
@@ -735,7 +739,7 @@ public class BrowserPanel extends JPanel {
     }
 
     /** populate with <code>PointerType</code>s which apply to pos+word */
-    void updateFor(final POS pos, final Word word) { 
+    void updateFor(final POS pos, final Word word) {
       menu.removeAll();
       menu.add(new PointerTypeAction("Senses", pos, null));
       for (final PointerType pointerType : word.getPointerTypes()) {
@@ -751,7 +755,7 @@ public class BrowserPanel extends JPanel {
         final JMenuItem item = menu.add(new VerbFramesAction(label));
       }
     }
-    
+
     // ultimately, a minimal subclass of JPopupMenu
     private class PointerTypeMenu extends JPopupMenu implements MenuKeyListener {
       private static final long serialVersionUID = 1L;
@@ -771,10 +775,10 @@ public class BrowserPanel extends JPanel {
       public void menuKeyTyped(final MenuKeyEvent evt) {
         System.err.println("menu evt: "+evt+" char: \""+evt.getKeyChar()+"\"");
         switch(evt.getKeyChar()) {
-          case '/': 
+          case '/':
             // if slash, go-back to searchField
             setVisible(false);
-            slashAction.actionPerformed(null); 
+            slashAction.actionPerformed(null);
             break;
         }
         // if tab, move focus to next thing
@@ -822,8 +826,8 @@ public class BrowserPanel extends JPanel {
     } // end class PointerTypeMenu
   } // end class PointerTypeComboBox
 
-  /** 
-   * Displays information related to a given POS + PointerType 
+  /**
+   * Displays information related to a given POS + PointerType
    */
   class PointerTypeAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
@@ -855,8 +859,8 @@ public class BrowserPanel extends JPanel {
     }
   } // end class PointerTypeAction
 
-  /** 
-   * Displays information related to a given POS + PointerType 
+  /**
+   * Displays information related to a given POS + PointerType
    */
   class VerbFramesAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
@@ -883,10 +887,10 @@ public class BrowserPanel extends JPanel {
 
     for (final POS pos : POS.CATS) {
       final PointerTypeComboBox comboBox = new PointerTypeComboBox(pos);
-      
+
       comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
-      
+
       this.posBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
     }
@@ -905,7 +909,7 @@ public class BrowserPanel extends JPanel {
 
   private synchronized void displayOverview() {
     // TODO normalize internal space
-    final String inputString = searchField.getText().trim(); 
+    final String inputString = searchField.getText().trim();
     this.displayedValue = inputString;
     if (inputString.length() == 0) {
       resultEditorPane.setFocusable(false);
@@ -969,9 +973,9 @@ public class BrowserPanel extends JPanel {
     }
     searchField.selectAll();
   }
-  
-  /** 
-   * Function object used to show status of user interaction as text at the bottom 
+
+  /**
+   * Function object used to show status of user interaction as text at the bottom
    * of the main window.
    */
   private static enum Status {
@@ -985,11 +989,11 @@ public class BrowserPanel extends JPanel {
     ;
 
     private final String formatString;
-    
+
     private Status(final String formatString) {
       this.formatString = formatString;
     }
-    
+
     String get(Object... args) {
       if (this == POINTER) {
         final PointerType pointerType = (PointerType)args[0];
@@ -1005,7 +1009,7 @@ public class BrowserPanel extends JPanel {
       }
     }
   } // end enum Status
-  
+
   // TODO For PointerType searches, show same text as combo box (e.g. "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
@@ -1021,9 +1025,9 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
-  /** 
-   * Core search routine which renders its results as HTML. 
-   * TODO 
+  /**
+   * Core search routine which renders its results as HTML.
+   * TODO
    * Factor out this logic into a result data structure like findtheinfo_ds() does
    * to separate logic from presentation.
    * Nice XML format would open up some nice possibilities for web services, commandline,
@@ -1033,7 +1037,7 @@ public class BrowserPanel extends JPanel {
     if (word != null) {
       final Synset[] senses = word.getSynsets();
       final int taggedCount = word.getTaggedSenseCount();
-      buffer.append("The " + word.getPOS().getLabel() + " <b>" + 
+      buffer.append("The " + word.getPOS().getLabel() + " <b>" +
         word.getLemma() + "</b> has " + senses.length + " sense" + (senses.length == 1 ? "" : "s") + " ");
       buffer.append("(");
       if (taggedCount == 0) {
@@ -1150,30 +1154,30 @@ public class BrowserPanel extends JPanel {
    * appendSenseChain().
    */
   void appendSenseChain(
-    final StringBuilder buffer, 
+    final StringBuilder buffer,
     final WordSense rootWordSense,
-    final PointerTarget sense, 
-    final PointerType inheritanceType, 
+    final PointerTarget sense,
+    final PointerType inheritanceType,
     final PointerType attributeType) {
     appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
   }
 
   private String listOpen() {
-    //return "<li>";
+    return "<li>";
     //return "<li>• ";
     //return "<li>\u2022 ";
-    return "<li>* ";
+    //XXX return "<li>* ";
   }
 
-  /** Add information from pointers (recursive) 
+  /** Add information from pointers (recursive)
    */
   void appendSenseChain(
-      final StringBuilder buffer, 
+      final StringBuilder buffer,
       final WordSense rootWordSense,
-      final PointerTarget sense, 
-      final PointerType inheritanceType, 
-      final PointerType attributeType, 
-      final int tab, 
+      final PointerTarget sense,
+      final PointerType inheritanceType,
+      final PointerType attributeType,
+      final int tab,
       Link ancestors) {
     buffer.append(listOpen());
     buffer.append(sense.getLongDescription());
