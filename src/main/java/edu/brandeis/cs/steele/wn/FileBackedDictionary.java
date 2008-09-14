@@ -323,6 +323,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Word lookupWord(final POS pos, final CharSequence lemma) {
+    checkValidPOS(pos);
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
     if (indexWord != null && indexWord != NULL_INDEX_WORD) {
@@ -349,29 +350,31 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** LN Not used much - this might not even have a <i>unique</i> result ? */
-  public String lookupBaseForm(final POS pos, final String derivation) {
-    // TODO add caching!
-    // FIXME in addition to exceptions file and Morhpy.morphstr() too
-    // use getindex() too ?
-    final String filename = getExceptionsFilename(pos);
-    try {
-      final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
-      if (offset >= 0) {
-        final String line = db.readLineAt(offset, filename);
-        // FIXME there could be > 1 entry on this line of the exception file
-        // technically, i think should return the last word:
-        //   line.substring(line.lastIndexOf(' ') + 1)
-        final int spaceIdx = line.indexOf(' ');
-        return line.substring(spaceIdx + 1);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return null;
-  }
+  //public String lookupBaseForm(final POS pos, final String derivation) {
+  //  checkValidPOS(pos);
+  //  // TODO add caching!
+  //  // FIXME in addition to exceptions file and Morhpy.morphstr() too
+  //  // use getindex() too ?
+  //  final String filename = getExceptionsFilename(pos);
+  //  try {
+  //    final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
+  //    if (offset >= 0) {
+  //      final String line = db.readLineAt(offset, filename);
+  //      // FIXME there could be > 1 entry on this line of the exception file
+  //      // technically, i think should return the last word:
+  //      //   line.substring(line.lastIndexOf(' ') + 1)
+  //      final int spaceIdx = line.indexOf(' ');
+  //      return line.substring(spaceIdx + 1);
+  //    }
+  //  } catch (IOException e) {
+  //    throw new RuntimeException(e);
+  //  }
+  //  return null;
+  //}
 
   /** {@inheritDoc} */
   public String[] lookupBaseForms(final POS pos, final String someString) {
+    checkValidPOS(pos);
     // TODO use getindex() too ?
     final List<String> morphs = morphy.morphstr(someString, pos);
     if(morphs.isEmpty()) {
@@ -385,6 +388,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Synset[] lookupSynsets(final POS pos, final String someString) {
+    checkValidPOS(pos);
+    // TODO support POS.ALL - NOTE: don't modify morphs directly as this
+    // will damage the Morphy cache
     // TODO use getindex() too ?
     final List<String> morphs = morphy.morphstr(someString, pos);
     if(morphs == null || morphs.isEmpty()) {
@@ -455,9 +461,15 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /**
    * <i>looks up</i> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a>
    * in the <code>cntlist.rev</code> file and returns the matching line (or
-   * <code>null</code>).
+   * <code>null</code>).  Informationally equivalent to searching
+   * <code>index.sense</code> (or <code>sense.idx</code> on older Windows
+   * releases).  Differences are that <code>cntlist.rev</code> includes defunct
+   * sense information (does no harm though because it isn't referenced in its
+   * WordNet), doesn't include entries for items with zero counts, doesn't
+   * include synset offset, and formats adjective sense keys correctly (including
+   * <code>WordSense.AdjPosition</code> information).
    */
-  String lookupCntlistDotRevLine(final String senseKey) {
+  String lookupCntlistDotRevLine(final CharSequence senseKey) {
     //TODO add caching
     final int offset;
     final String line;
@@ -495,6 +507,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
     }
+    if(line == null) {
+      line = "UNKNOWN.lexnum "+lexnum;
+    }
     return line;
   }
 
@@ -529,7 +544,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * @return verb sentence numbers as a comma separated list with no spaces
    *         (e.g. "15,16")
    */
-  String lookupVerbSentencesNumbers(final String verbSenseKey) {
+  String lookupVerbSentencesNumbers(final CharSequence verbSenseKey) {
     String line = null;
     try {
       final int offset = db.getIndexedLinePointer(verbSenseKey, getVerbSentencesIndexFilename());
@@ -596,6 +611,12 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return line;
   }
 
+  private static void checkValidPOS(final POS pos) {
+    if (POS.ALL == pos) {
+      throw new IllegalArgumentException("POS.ALL is not supported");
+    }
+  }
+
   private static final String[] NO_STRINGS = new String[0];
 
   //
@@ -647,6 +668,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Word> words(final POS pos) {
+    checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
         return new LookaheadIterator<Word>(new WordIterator(pos));
@@ -694,6 +716,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Word> searchBySubstring(final POS pos, final CharSequence substring) {
+    checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
         return new LookaheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
@@ -743,6 +766,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Word> searchByPrefix(final POS pos, final CharSequence prefix) {
+    checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
         return new LookaheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
@@ -793,6 +817,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Synset> synsets(final POS pos) {
+    checkValidPOS(pos);
     return new Iterable<Synset> () {
       public Iterator<Synset> iterator() {
         return new LookaheadIterator<Synset>(new POSSynsetsIterator(pos));
@@ -825,6 +850,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<WordSense> wordSenses(final POS pos) {
+    checkValidPOS(pos);
     return new Iterable<WordSense> () {
       public Iterator<WordSense> iterator() {
         return new POSWordSensesIterator(pos);
@@ -874,6 +900,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Pointer> pointers(final POS pos, final PointerType pointerType) {
+    checkValidPOS(pos);
+    // null pointerType interpretted as all PointerTypes
     return new Iterable<Pointer> () {
       public Iterator<Pointer> iterator() {
         return new POSPointersIterator(pos, pointerType);
