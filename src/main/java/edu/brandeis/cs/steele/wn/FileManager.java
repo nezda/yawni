@@ -632,8 +632,8 @@ public class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    */
   public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException {
-    // This binary search method should be usable by prefix search changing it
-    // from linear time to logarithmic time.
+    // This binary search method provides output usable by prefix search
+    // changing this operation from linear time to logarithmic time.
     //
     // - are there counter cases where the first-word binary search would return a different
     //   result than a "normal" binary search?
