@@ -131,11 +131,9 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     if(senseNumber < 1) {
       // Ordering of Word's Synsets (combo(Word, Synset)=Word)
       // is defined by sense tagged frequency, but this is implicit)
-      // Use lemma as key to find Word and then scan this WordSense's
-      // Synsets and find the one with this Synset
-      final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
-      final Word word = dictionary.lookupWord(getPOS(), lemma);
-      assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
+      // Get Word and scan this WordSense's Synsets and 
+      // find the one with this Synset
+      final Word word = getWord();
       int senseNumber = 0;
       for (final Synset syn : word.getSynsets()) {
         senseNumber--;
@@ -151,19 +149,29 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     return senseNumber;
   }
 
+  /** 
+   * Use this <code>WordSense</code>s lemma as key to find its <code>Word</code>.
+   */
+  Word getWord() {
+    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    final Word word = dictionary.lookupWord(getPOS(), lemma);
+    assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
+    return word;
+  }
+
   /**
    * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt><br>
    * @see <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
    */
-  String getSenseKey() {
+  CharSequence getSenseKey() {
     final String searchWord;
     final int headSense;
-    if (synset.isAdjectiveCluster()) {
-      final PointerTarget[] adjsses = synset.getTargets(PointerType.SIMILAR_TO);
+    if (getSynset().isAdjectiveCluster()) {
+      final PointerTarget[] adjsses = getSynset().getTargets(PointerType.SIMILAR_TO);
       assert adjsses.length == 1;
       final Synset adjss = (Synset)adjsses[0];
       // if satellite, key lemma in cntlist.rev
-      // is adjss's first word  (no case) and
+      // is adjss's first word (no case) and
       // adjss's lexid (aka lexfilenum) otherwise
       searchWord = adjss.getWords()[0].getLemma();
       headSense = adjss.getWords()[0].lexid;
@@ -171,31 +179,97 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       searchWord = getLemma();
       headSense = lexid;
     }
-    int synsetIndex;
-    for (synsetIndex = 0; synsetIndex < getSynset().getWords().length; synsetIndex++) {
-      if (getSynset().getWords()[synsetIndex].getLemma().equals(getLemma())) {
-        break;
+    final int lex_filenum = getSynset().lexfilenum();
+    final StringBuilder senseKey;
+    if (getSynset().isAdjectiveCluster()) {
+      // slow equivalent
+      // senseKey = String.format("%s%%%d:%02d:%02d:%s:%02d",
+      //     getLemma().toLowerCase(),
+      //     POS.SAT_ADJ.getWordNetCode(),
+      //     lex_filenum,
+      //     lexid,
+      //     searchWord.toLowerCase(),
+      //     headSense);
+      final int keyLength = getLemma().length() + 1 /* POS code length */ + 
+        2 /* lex_filenum length */ + 2 /* lexid length */ + 
+        searchWord.length() + 2 /* headSense lexid length */ + 5 /* delimiters */;
+      senseKey = new StringBuilder(keyLength);
+      for (int i = 0, n = getLemma().length(); i != n; ++i) {
+        senseKey.append(Character.toLowerCase(getLemma().charAt(i)));
       }
-    }
-    assert synsetIndex != getSynset().getWords().length;
-    final String senseKey;
-    if (synset.isAdjectiveCluster()) {
-      senseKey = String.format("%s%%%d:%02d:%02d:%s:%02d",
-          getLemma().toLowerCase(),
-          POS.SAT_ADJ.getWordNetCode(),
-          getSynset().lexfilenum(),
-          getSynset().getWords()[synsetIndex].lexid,
-          searchWord.toLowerCase(),
-          headSense);
+      senseKey.append("%");
+      senseKey.append(POS.SAT_ADJ.getWordNetCode());
+      senseKey.append(":");
+      if (lex_filenum < 10) {
+        senseKey.append("0");
+      }
+      senseKey.append(lex_filenum);
+      senseKey.append(":");
+      if (lexid < 10) {
+        senseKey.append("0");
+      }
+      senseKey.append(lexid);
+      senseKey.append(":");
+      for (int i = 0, n = searchWord.length(); i != n; ++i) {
+        senseKey.append(Character.toLowerCase(searchWord.charAt(i)));
+      }
+      senseKey.append(":");
+      if (headSense < 10) {
+        senseKey.append("0");
+      }
+      senseKey.append(headSense);
+      //assert oldAdjClusterSenseKey(searchWord, headSense).contentEquals(senseKey);
+      //assert senseKey.length() <= keyLength;
     } else {
-      senseKey = String.format("%s%%%d:%02d:%02d::",
-          getLemma().toLowerCase(),
-          getPOS().getWordNetCode(),
-          getSynset().lexfilenum(),
-          getSynset().getWords()[synsetIndex].lexid
-          );
+      // slow equivalent
+      // senseKey = String.format("%s%%%d:%02d:%02d::",
+      //     getLemma().toLowerCase(),
+      //     getPOS().getWordNetCode(),
+      //     lex_filenum,
+      //     lexid
+      //     );
+      final int keyLength = getLemma().length() + 1 /* POS code length */ + 
+        2 /* lex_filenum length */ + 2 /* lexid length */ + 5 /* delimiters */;
+      senseKey = new StringBuilder(keyLength);
+      for (int i = 0, n = getLemma().length(); i != n; ++i) {
+        senseKey.append(Character.toLowerCase(getLemma().charAt(i)));
+      }
+      senseKey.append("%");
+      senseKey.append(getPOS().getWordNetCode());
+      senseKey.append(":");
+      if (lex_filenum < 10) {
+        senseKey.append("0");
+      }
+      senseKey.append(lex_filenum);
+      senseKey.append(":");
+      if (lexid < 10) {
+        senseKey.append("0");
+      }
+      senseKey.append(lexid);
+      senseKey.append("::");
+      //assert oldNonAdjClusterSenseKey().contentEquals(senseKey);
+      //assert senseKey.length() <= keyLength;
     }
     return senseKey;
+  }
+
+  private String oldAdjClusterSenseKey(final String searchWord, final int headSense) {
+    return String.format("%s%%%d:%02d:%02d:%s:%02d",
+        getLemma().toLowerCase(),
+        POS.SAT_ADJ.getWordNetCode(),
+        getSynset().lexfilenum(),
+        lexid,
+        searchWord.toLowerCase(),
+        headSense);
+  }
+
+  private String oldNonAdjClusterSenseKey() {
+    return String.format("%s%%%d:%02d:%02d::",
+        getLemma().toLowerCase(),
+        getPOS().getWordNetCode(),
+        getSynset().lexfilenum(),
+        lexid
+        );
   }
 
   /**
@@ -207,7 +281,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     //there were any tagged senses for *any* sense of it (including this one)
     //and really we wouldn't need to look at sense (numbers) exceeding that value
     //as an optimization
-    final String senseKey = getSenseKey();
+    final CharSequence senseKey = getSenseKey();
     final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
     final String line = dictionary.lookupCntlistDotRevLine(senseKey);
     int count = 0;
@@ -237,23 +311,27 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   /**
    * FIXME this should only have 1 value (ie not be a Set)!
    */
-  public Set<AdjPosition> getAdjPositions() {
+  public AdjPosition getAdjPosition() {
     if (flags == 0) {
-      return Collections.emptySet();
+      return AdjPosition.NONE;
     }
     assert getPOS() == POS.ADJ;
-    final EnumSet<AdjPosition> adjPosFlagSet = EnumSet.noneOf(AdjPosition.class);
-    //FIXME check and add the apropos flags
     if (AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
-      adjPosFlagSet.add(AdjPosition.PREDICATIVE);
+      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags);
+      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags);
+      return AdjPosition.PREDICATIVE;
     }
     if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
-      adjPosFlagSet.add(AdjPosition.ATTRIBUTIVE);
+      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, flags);
+      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags);
+      return AdjPosition.ATTRIBUTIVE;
     }
     if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
-      adjPosFlagSet.add(AdjPosition.IMMEDIATE_POSTNOMINAL);
+      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags);
+      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, flags);
+      return AdjPosition.IMMEDIATE_POSTNOMINAL;
     }
-    return adjPosFlagSet;
+    throw new IllegalStateException("invalid flags "+flags);
   }
 
   //FIXME publish as EnumSet (though store set as a byte for max efficiency
@@ -282,7 +360,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     if (getPOS() != POS.VERB) {
       return Collections.emptyList();
     }
-    final String senseKey = getSenseKey();
+    final CharSequence senseKey = getSenseKey();
     final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
     final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
     List<String> frames = Collections.emptyList();
