@@ -47,7 +47,8 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
     final int lexfilenumInt = tokenizer.nextInt();
     // there are currently only 45 lexfiles
     // http://wordnet.princeton.edu/man/lexnames.5WN
-    assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
+    // disable assert to be lenient generated WordNets
+    //assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
     this.lexfilenum = (byte)lexfilenumInt;
     CharSequence ss_type = tokenizer.nextToken();
     if ("s".contentEquals(ss_type)) {
@@ -122,9 +123,14 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
         }
       }
       final int finalLen = (incEnd + 1) - (index + 2);
-      this.gloss = new char[finalLen];
-      assert gloss.length == finalLen: "gloss.length: "+gloss.length+" finalLen: "+finalLen;
-      line.getChars(index + 2, incEnd + 1, gloss, 0);
+      if (finalLen > 0) {
+        this.gloss = new char[finalLen];
+        assert gloss.length == finalLen: "gloss.length: "+gloss.length+" finalLen: "+finalLen;
+        line.getChars(index + 2, incEnd + 1, gloss, 0);
+      } else {
+        // synset with no gloss (support generated WordNets)
+        this.gloss = new char[0];
+      }
     } else {
       log.log(Level.SEVERE, "Synset has no gloss?:\n" + line);
       this.gloss = null;
