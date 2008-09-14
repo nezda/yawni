@@ -51,13 +51,50 @@ class SearchFrame extends JFrame {
     this.searchType = SearchType.valueOf(prefs.get("searchType", SearchType.SUBSTRING.name()));
 
     final KeyListener windowHider = new KeyAdapter() {
-      public void keyTyped(final KeyEvent event) {
-        if (event.getKeyChar() == 'w' &&
-          (event.getModifiers() & Browser.MENU_MASK) != 0) {
+      public void keyTyped(final KeyEvent evt) {
+        if (evt.getKeyChar() == 'w' &&
+          (evt.getModifiers() & Browser.MENU_MASK) != 0) {
           setVisible(false);
         }
       }
     };
+
+    // Control JList with up/down arrow keys in adjacent JTextField searchField
+    // without surrendering focus.
+    final KeyListener listArrowNav = new KeyAdapter() {
+      public void keyPressed(final KeyEvent evt) {
+        assert evt.getSource() == searchField;
+        if (evt.getKeyCode() == KeyEvent.VK_UP ||
+            evt.getKeyCode() == KeyEvent.VK_DOWN) {
+          final int size = resultList.getModel().getSize();
+          Integer nextSi = null;
+          if (size == 0) {
+            return;
+          }
+          final int si = resultList.getSelectedIndex();
+          if (si < 0){
+            nextSi = 0;
+          }
+          if (evt.getKeyCode() == KeyEvent.VK_UP) {
+            if (si != 0) {
+              nextSi = si - 1;
+            }
+          } else  if (evt.getKeyCode() == KeyEvent.VK_DOWN) {
+            final int max = resultList.getModel().getSize() - 1;
+            if (si < max) {
+              nextSi = si + 1;
+            }
+          }
+          if (nextSi != null) {
+            resultList.setSelectedIndex(nextSi);
+            resultList.ensureIndexIsVisible(nextSi);
+          }
+          // don't use these arrow keys as input to searchField
+          evt.consume();
+        }
+      }
+    };
+
     this.addKeyListener(windowHider);
 
     this.setLayout(new BorderLayout());
@@ -69,6 +106,9 @@ class SearchFrame extends JFrame {
     this.searchField.putClientProperty("JTextField.variant", "search");
 
     this.searchField.addKeyListener(windowHider);
+    this.searchField.addKeyListener(listArrowNav);
+
+    multiClickSelectAll(this.searchField);
 
     GridBagConstraints c = new GridBagConstraints();
     c.gridx = 0;
@@ -82,6 +122,7 @@ class SearchFrame extends JFrame {
     final Action slashAction = new AbstractAction("Slash") {
       private static final long serialVersionUID = 1L;
       public void actionPerformed(final ActionEvent evt) {
+        searchField.selectAll();
         searchField.grabFocus();
       }
     };
@@ -108,7 +149,7 @@ class SearchFrame extends JFrame {
     });
     this.posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     this.posChoice.getActionMap().put("Slash", slashAction);
-    
+
     c = new GridBagConstraints();
     c.gridx = 1;
     c.gridy = 0;
@@ -121,14 +162,14 @@ class SearchFrame extends JFrame {
 
     this.searchListModel = new ConcurrentSearchListModel() {
       private static final long serialVersionUID = 1L;
-      @Override 
+      @Override
       public Iterable search(final String query) {
         // performs the actual search
-        final Iterable<Word> searchResults; 
+        final Iterable<Word> searchResults;
         switch(searchType) {
           case SUBSTRING:
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchBySubstring(pos, query); 
+              searchResults = browserPanel.dictionary().searchBySubstring(pos, query);
             } else {
               searchResults = MergedIterable.merge(
                   browserPanel.dictionary().searchBySubstring(POS.NOUN, query),
@@ -139,7 +180,7 @@ class SearchFrame extends JFrame {
             break;
           case PREFIX:
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchByPrefix(pos, query); 
+              searchResults = browserPanel.dictionary().searchByPrefix(pos, query);
             } else {
               searchResults = MergedIterable.merge(
                   browserPanel.dictionary().searchByPrefix(POS.NOUN, query),
@@ -219,7 +260,8 @@ class SearchFrame extends JFrame {
         }
       }
     });
-    
+
+    // respond to double clicks when result list gains focus
     final MouseListener doubleClickListener = new MouseAdapter() {
       public void mouseClicked(final MouseEvent evt) {
         if (evt.getClickCount() == 2) {
@@ -236,7 +278,7 @@ class SearchFrame extends JFrame {
     jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    //XXX considering violating the OS X HIG policy of always or never showing the 
+    //XXX considering violating the OS X HIG policy of always or never showing the
     // horizontal scrollbar
     //XXX jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -260,7 +302,7 @@ class SearchFrame extends JFrame {
     this.minSize = new Dimension(300, getMinimumSize().height);
     setMinimumSize(minSize);
     addComponentListener(new ComponentAdapter() {
-      public void componentResized(final ComponentEvent evt) {        
+      public void componentResized(final ComponentEvent evt) {
         int width = getWidth();
         int height = getHeight();
         // we check if either the width
@@ -286,7 +328,7 @@ class SearchFrame extends JFrame {
     this.searchField.requestFocusInWindow();
     this.searchField.setRequestFocusEnabled(true);
   }
-  
+
   private POS getSelectedPOS() {
     pos = CATS[posChoice.getSelectedIndex()];
     return pos;
@@ -305,8 +347,29 @@ class SearchFrame extends JFrame {
     //this.setLocation(browserPanel.getLocation().x + 20, browserPanel.getLocation().y + 20);
   }
 
-  /** 
-   * Function object used to show status of user interaction as text at the bottom 
+  /**
+   * Make 4+ multi-clicks behave like 3-clicks.
+   */
+  static void multiClickSelectAll(final JTextField searchField) {
+    searchField.addMouseListener(new MouseAdapter() {
+      public void mouseClicked(final MouseEvent evt) {
+        //System.err.printf("evt.getClickCount(): %3d when: %,d ms\n", 
+        //  evt.getClickCount(), evt.getWhen());
+        //for(MouseListener ml : searchField.getMouseListeners()) {
+        //  System.err.println("ml: "+ml+" "+ml.getClass());
+        //}
+        if(evt.getClickCount() > 3) {
+          if(evt.getComponent() == searchField) {
+            //System.err.println("multi-select");
+            searchField.selectAll();
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Function object used to show status of user interaction as text at the bottom
    * of the main window.
    */
   private static enum Status {
@@ -318,11 +381,11 @@ class SearchFrame extends JFrame {
     ;
 
     private final String formatString;
-    
+
     private Status(final String formatString) {
       this.formatString = formatString;
     }
-    
+
     String get(Object... args) {
       return String.format(formatString, args);
     }
@@ -336,7 +399,7 @@ class SearchFrame extends JFrame {
   synchronized void setSearchText(final String searchText) {
     searchField.setText(searchText);
   }
-  
+
   private void reissueSearch() {
     // pos may change, SearchType may change
     // trigger DocumentEvent which will cause updates to be displayed
@@ -400,7 +463,7 @@ class SearchFrame extends JFrame {
     }
   }
 
-  @Override 
+  @Override
   public void setVisible(final boolean visible) {
     super.setVisible(visible);
     if(visible) {
