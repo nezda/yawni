@@ -153,6 +153,7 @@
         <configuration>
           <archive>
             <compress/>
+            <compress>true</compress>
             <index/>
             <manifest>
               <mainClass>edu.brandeis.cs.steele.wn.browser.Browser</mainClass>
