@@ -374,11 +374,25 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public String[] lookupBaseForms(final POS pos, final String someString) {
-    checkValidPOS(pos);
     // TODO use getindex() too ?
-    final List<String> morphs = morphy.morphstr(someString, pos);
-    if(morphs.isEmpty()) {
-      return NO_STRINGS;
+    final List<String> morphs;
+    if (pos == POS.ALL) {
+      final Iterable<String> baseForms = Utils.uniq(
+          MergedIterable.merge(
+              morphy.morphstr(someString, POS.NOUN),
+              morphy.morphstr(someString, POS.VERB),
+              morphy.morphstr(someString, POS.ADJ),
+              morphy.morphstr(someString, POS.ADV)
+              ));
+      morphs = new ArrayList<String>();
+      for (final String baseForm : baseForms) {
+        morphs.add(baseForm);
+      }
+    } else {
+      morphs = morphy.morphstr(someString, pos);
+    }
+    if (morphs.isEmpty()) {
+        return NO_STRINGS;
     }
     final String[] toReturn = morphs.toArray(new String[morphs.size()]);
     return toReturn;
