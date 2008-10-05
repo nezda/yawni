@@ -22,7 +22,8 @@
 
   <resources>
     <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
-    <jar href="jwordnet-2.0.0-SNAPSHOT.jar"/>
+    <!-- <jar href="jwordnet-2.0.0-SNAPSHOT.jar"/> -->
+    <jar href="${pom.artifactId}-${pom.version}.jar"/>
     <!-- attempt to work around minor javaws bug
       http://lists.apple.com/archives/java-dev/2005/Mar/msg00426.html -->
     <property name="apple.awt.brushMetalLook" value="true"/>

@@ -18,7 +18,7 @@
       <entry key="lookAndFeel" value="System"/> 
       <entry key="antiAliased" value="true"/> 
       <!-- "0" will be interpretted as use system default -->
-      <entry key="fontSize" value="0"/> 
+      <entry key="fontSize" value="0"/>
       <entry key="saveWindowsSizes" value="true"/>
       <entry key="saveWindowsPositions" value="true"/>
     </map>
