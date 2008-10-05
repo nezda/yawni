@@ -284,6 +284,7 @@ public class BrowserPanel extends JPanel {
     this.searchField.addActionListener(searchAction);
 
     validate();
+    preload();
   }
 
   static Icon createUndoIcon() {
@@ -903,9 +904,32 @@ public class BrowserPanel extends JPanel {
     displayOverview();
   }
 
+  // 
+  private synchronized void preload() {
+
+    final Runnable preloader = new Runnable() {
+      public void run() {
+        // issue search for word which occurs as all POS to
+        // so all data files will be preloaded
+        // some words in all 4 pos
+        //   clear, down, fast, fine, firm, flush, foward, second, 
+        // Note: lookupWord() only touches index.<pos> files
+        final String inputString = "clear"; 
+        for (final POS pos : POS.CATS) {
+          String[] forms = dictionary().lookupBaseForms(pos, inputString);
+          for (final String form : forms) {
+            final Word word = dictionary().lookupWord(pos, form);
+            word.toString();
+          }
+        }
+      }
+    };
+    new Thread(preloader).start();
+  }
+
   /**
    * Generic search and output generation code
-   **/
+   */
 
   private synchronized void displayOverview() {
     // TODO normalize internal space
@@ -921,6 +945,7 @@ public class BrowserPanel extends JPanel {
       return;
     }
     resultEditorPane.setFocusable(true);
+    // generate overview output
     final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
@@ -928,6 +953,7 @@ public class BrowserPanel extends JPanel {
       if (forms == null) {
         forms = new String[]{ inputString };
       } else {
+        //XXX debug crap
         boolean found = false;
         for (final String form : forms) {
           if (form.equals(inputString)) {
@@ -941,7 +967,7 @@ public class BrowserPanel extends JPanel {
         }
       }
       boolean enabled = false;
-      //System.err.println("  BrowserPanel forms: \""+Arrays.asList(forms)+"\" pos: "+pos);
+      //XXX System.err.println("  BrowserPanel forms: \""+Arrays.asList(forms)+"\" pos: "+pos);
       final SortedSet<String> noCaseForms = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       for (final String form : forms) {
         if (noCaseForms.contains(form)) {
@@ -950,7 +976,7 @@ public class BrowserPanel extends JPanel {
         }
         noCaseForms.add(form);
         final Word word = dictionary().lookupWord(pos, form);
-        //System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" Word found?: "+(word != null));
+        //XXX System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" Word found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer, false);
         if (word != null) {
@@ -963,6 +989,7 @@ public class BrowserPanel extends JPanel {
       posBoxes.get(pos).setEnabled(enabled);
       definitionExists |= enabled;
     }
+    
     if (definitionExists) {
       updateStatusBar(Status.OVERVIEW, inputString);
       resultEditorPane.setText(buffer.toString());
