@@ -17,7 +17,7 @@ public class DictionaryDatabaseTest {
 
   /** 
    * test POS.ALL support
-   * + String[] lookupBaseForms(POS pos, String someString)
+   * - String[] lookupBaseForms(POS pos, String someString)
    * - Synset[] lookupSynsets(POS pos, String someString)
    * - Iterator<Pointer> pointers(POS pos)
    * - Iterator<Pointer> pointers(POS pos, PointerType pointerType)
@@ -25,13 +25,13 @@ public class DictionaryDatabaseTest {
    * - Iterator<Synset> synsets(POS pos)
    * - Iterator<WordSense> wordSenses(POS pos)
    */
-  //@Ignore
+  @Ignore
   @Test
   public void test() {
     final String[] tanks = dictionary.lookupBaseForms(POS.ALL, "tank");
     System.err.println("tanks: "+Arrays.toString(tanks));
-    final String[] geese = dictionary.lookupBaseForms(POS.ALL, "geese");
-    System.err.println("geese: "+Arrays.toString(geese));
+    final String[] gooses = dictionary.lookupBaseForms(POS.ALL, "goose");
+    System.err.println("gooses: "+Arrays.toString(gooses));
   }
 
   @Test(expected=IllegalArgumentException.class)

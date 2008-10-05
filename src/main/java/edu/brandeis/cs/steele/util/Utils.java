@@ -37,7 +37,7 @@ public class Utils {
   /**
    * Equivalent to the STL function by the same name except the
    * <code>first</code> and <code>last</code> are implied to select the entire
-   * contents of <var>iterable</var>.
+   * contents of <param>iterable</param>.
    * @see <a href="http://www.sgi.com/tech/stl/distance.html">distane</a>
    */
   public static long distance(final Iterable<?> iterable) {
@@ -170,8 +170,8 @@ public class Utils {
     }
 
   /**
-   * Removes adjacent duplicates from <var>list</var>.  <b>Assumes</b>
-   * <var>iterable</var>'s items are emitted in sorted order.
+   * Removes adjacent duplicates from <param>list</param>.  <b>Assumes</b>
+   * <param>iterable</param>'s items are emitted in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> uniq(final Iterable<T> base) {
@@ -185,8 +185,8 @@ public class Utils {
   }
 
   /**
-   * Removes duplicates from <var>list</var>.  Does <i>not</i> require
-   * <var>list</var> be sorted but does assume <var>list</var>
+   * Removes duplicates from <param>list</param>.  Does <i>not</i> require
+   * <param>list</param> be sorted but does assume <param>list</param>
    * contains no null elements and is short (brute force algorithm).
    */
   public static <T> List<T> dedup(List<T> list) {
