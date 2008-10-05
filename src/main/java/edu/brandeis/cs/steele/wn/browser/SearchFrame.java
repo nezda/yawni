@@ -49,7 +49,8 @@ class SearchFrame extends JFrame {
     this.setVisible(false);
     this.pos = POS.valueOf(prefs.get("searchPOS", POS.NOUN.name()));
     this.searchType = SearchType.valueOf(prefs.get("searchType", SearchType.SUBSTRING.name()));
-
+    
+    // Command+W
     final KeyListener windowHider = new KeyAdapter() {
       public void keyTyped(final KeyEvent evt) {
         if (evt.getKeyChar() == 'w' &&
@@ -58,6 +59,14 @@ class SearchFrame extends JFrame {
         }
       }
     };
+    this.addKeyListener(windowHider);
+
+    // handle window manager window close
+    this.addWindowListener(new WindowAdapter() {
+      public void windowClosing(final WindowEvent evt) {
+        setVisible(false);
+      }
+    });
 
     // Control JList with up/down arrow keys in adjacent JTextField searchField
     // without surrendering focus.
@@ -95,30 +104,19 @@ class SearchFrame extends JFrame {
       }
     };
 
-    this.addKeyListener(windowHider);
-
-    this.setLayout(new BorderLayout());
-
     this.searchPanel = new JPanel();
     this.searchPanel.setLayout(new GridBagLayout());
-    this.searchPanel.setBorder(new EmptyBorder(3,3,3,3));
-    this.searchField = new JTextField("", 12);
-    this.searchField.putClientProperty("JTextField.variant", "search");
+    this.searchPanel.setBorder(new EmptyBorder(3 /*top*/, 3 /*left*/, 3 /*bottom*/, 3 /*right*/));
 
+    final int searchFieldWidth = 12;
+    this.searchField = new JTextField("", searchFieldWidth);
+    // rounded corners and magnifying glass icon on OS X
+    this.searchField.putClientProperty("JTextField.variant", "search");
     this.searchField.addKeyListener(windowHider);
     this.searchField.addKeyListener(listArrowNav);
-
     multiClickSelectAll(this.searchField);
 
-    GridBagConstraints c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
-    c.gridheight = GridBagConstraints.REMAINDER;
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.anchor = GridBagConstraints.EAST;
-    c.weightx = 1.0;
-    this.searchPanel.add(searchField, c);
-
+    // use slash key ("/") to initiate search like vi, gmail, ...
     final Action slashAction = new AbstractAction("Slash") {
       private static final long serialVersionUID = 1L;
       public void actionPerformed(final ActionEvent evt) {
@@ -127,6 +125,7 @@ class SearchFrame extends JFrame {
       }
     };
 
+    // build POS chooser
     this.posChoice = new JComboBox();
     this.posChoice.setFont(this.posChoice.getFont().deriveFont(this.posChoice.getFont().getSize() - 1f));
     this.posChoice.setRequestFocusEnabled(false);
@@ -150,6 +149,18 @@ class SearchFrame extends JFrame {
     this.posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     this.posChoice.getActionMap().put("Slash", slashAction);
 
+    // layout searchField and controls
+    this.setLayout(new BorderLayout());
+
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx = 0;
+    c.gridy = 0;
+    c.gridheight = GridBagConstraints.REMAINDER;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.anchor = GridBagConstraints.EAST;
+    c.weightx = 1.0;
+    this.searchPanel.add(searchField, c);
+
     c = new GridBagConstraints();
     c.gridx = 1;
     c.gridy = 0;
@@ -160,6 +171,7 @@ class SearchFrame extends JFrame {
 
     this.add(this.searchPanel, BorderLayout.NORTH);
 
+    // build re-active searching ListModel + DocumentListener
     this.searchListModel = new ConcurrentSearchListModel() {
       private static final long serialVersionUID = 1L;
       @Override
@@ -214,14 +226,15 @@ class SearchFrame extends JFrame {
     };
     this.searchField.getDocument().addDocumentListener(this.searchListModel);
     this.resultList = new JList(searchListModel);
-    // causes JList cell prototype, horizontal scrollbar is always
-    // showing which is confusing
+    // JList cell prototype, causes horizontal scrollbar to always
+    // show which is confusing
     //this.resultList.setPrototypeCellValue(LONGEST_WORD);
     this.searchListModel.setJList(this.resultList);
     this.resultList.addKeyListener(windowHider);
     this.resultList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     this.resultList.setLayoutOrientation(JList.VERTICAL);
 
+    // handle changes to selected list item (by mouse or arrows)
     this.resultList.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(final ListSelectionEvent evt) {
         if (resultList.isSelectionEmpty()) {
@@ -261,10 +274,10 @@ class SearchFrame extends JFrame {
       }
     });
 
-    // respond to double clicks when result list gains focus
+    // respond to double+ clicks when result list gains focus
     final MouseListener doubleClickListener = new MouseAdapter() {
       public void mouseClicked(final MouseEvent evt) {
-        if (evt.getClickCount() == 2) {
+        if (evt.getClickCount() >= 2) {
           final int index = SearchFrame.this.resultList.locationToIndex(evt.getPoint());
           SearchFrame.this.resultList.clearSelection();
           SearchFrame.this.resultList.setSelectedIndex(index);
@@ -273,6 +286,7 @@ class SearchFrame extends JFrame {
     };
     this.resultList.addMouseListener(doubleClickListener);
 
+    // layout search results list
     final JScrollPane jsp = new  JScrollPane(resultList);
     jsp.setBorder(browserPanel.browser.textAreaBorder);
     jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
@@ -289,18 +303,15 @@ class SearchFrame extends JFrame {
     this.add(this.statusLabel, BorderLayout.SOUTH);
     updateStatusBar(Status.NO_SEARCH);
 
-    this.addWindowListener(new WindowAdapter() {
-      public void windowClosing(final WindowEvent evt) {
-        setVisible(false);
-      }
-    });
-
+    // set window size
     validate();
     final int height = 300;
     final int width = (int)(getPreferredSize().width * 1.1);
     this.setSize(Math.min(300, width), height);
     this.minSize = new Dimension(300, getMinimumSize().height);
     setMinimumSize(minSize);
+
+    // enforce min dimensions
     addComponentListener(new ComponentAdapter() {
       public void componentResized(final ComponentEvent evt) {
         int width = getWidth();
@@ -323,6 +334,7 @@ class SearchFrame extends JFrame {
     });
 
     reposition();
+
     //setSize(getPreferredSize().width, getPreferredSize().height);
     this.setVisible(true);
     this.searchField.requestFocusInWindow();
@@ -406,6 +418,9 @@ class SearchFrame extends JFrame {
     searchField.setText(searchField.getText());
   }
 
+  /**
+   * Build SearchType constraints controls
+   */
   private void addConstraintButtons(final JComponent constraintPanel) {
     final ButtonGroup group = new ButtonGroup();
     class SubstringAction extends AbstractAction {
@@ -473,7 +488,7 @@ class SearchFrame extends JFrame {
 
   //XXX unused
   String cleanSearchField() {
-    // " " is OK
+    // " " is OK (SearchType.SUBSTRING search for collocations)
     // " a" is NOT OK (translate to "a")
     //return searchField.getText().trim();
     //FIXME return searchField.getText().replaceAll("\\s+", " ");
