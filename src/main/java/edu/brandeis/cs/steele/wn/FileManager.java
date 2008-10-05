@@ -10,7 +10,10 @@ import java.nio.*;
 import java.nio.charset.*;
 import java.nio.channels.*;
 import java.io.*;
+import java.util.concurrent.atomic.AtomicLong;
 import edu.brandeis.cs.steele.util.Utils;
+import java.net.URL;
+import java.net.URLConnection;
 
 /** An implementation of <code>FileManagerInterface</code> that reads files
  * from the local file system.  A file  <code>FileManager</code> caches the
@@ -202,8 +205,15 @@ public class FileManager implements FileManagerInterface {
     //private final ByteCharBuffer bbuff;
     private final StringBuilder stringBuffer;
 
-    NIOCharStream(final String filename, final RandomAccessFile raf) throws IOException {
+    NIOCharStream(final String filename, final ByteBuffer bbuff) throws IOException {
       super(filename);
+      this.bbuff = bbuff;
+      this.stringBuffer = new StringBuilder();
+    }
+    NIOCharStream(final String filename, final RandomAccessFile raf) throws IOException {
+      this(filename, asByteBuffer(raf));
+    }
+    private static ByteBuffer asByteBuffer(final RandomAccessFile raf) throws IOException {
       final FileChannel fileChannel = raf.getChannel();
       final long size = fileChannel.size();
       // program logic currently depends on the entire file being mapped into memory
@@ -211,9 +221,8 @@ public class FileManager implements FileManagerInterface {
       final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
       // this buffer isDirect()
       //log.log(Level.FINE, "mmap.fine(): {0}", mmap.isDirect());
-      this.bbuff = mmap;
       //this.bbuff = new ByteCharBuffer(mmap, false);
-      this.stringBuffer = new StringBuilder();
+      return mmap;
     }
     @Override void seek(final int position) throws IOException {
       // buffer cannot exceed Integer.MAX_VALUE since arrays are limited by this
@@ -230,23 +239,6 @@ public class FileManager implements FileManagerInterface {
     }
     @Override String readLine() throws IOException {
       final int s = position;
-      //System.err.println(filename+" readLine: "+s);
-      //final int e = scanForwardToLineBreak();
-      //assert s >= 0;
-      //assert e >= 0;
-      //final int len = e - s;
-      //if (len <= 0) {
-      //  return null;
-      //}
-      //final char[] line = new char[len];
-      //for (int j = s, i = 0; i < line.length; i++, j++) {
-      //  // NOTE: casting byte to char here since WordNet is currently
-      //  // only ASCII
-      //  line[i] = (char) bbuff.get(j);
-      //}
-      //final String toReturn = new String(line);
-      //return toReturn;
-
       final int e = scanForwardToLineBreak(true);
       if ((e - s) <= 0) {
         return null;
@@ -258,29 +250,6 @@ public class FileManager implements FileManagerInterface {
     }
     @Override String readLineWord() throws IOException {
       final int s = position;
-      ////System.err.println(filename+" readLineWord: "+s);
-      ////new Exception().printStackTrace();
-      //int e;
-      //int len;
-      //e = scanForwardToLineBreak();
-      //assert s >= 0;
-      //assert e >= 0;
-      //len = e - s;
-      //if (len <= 0) {
-      //  //assert false : "s: "+s+" e: "+e+" bbuf.capacity(): "+bbuff.capacity();
-      //  return null;
-      //}
-      //e = scanToSpace(s);
-      //len = e - s;
-      //final char[] word = new char[len];
-      //for (int j = s, i = 0; i < word.length; i++, j++) {
-      //  // NOTE: casting byte to char here since WordNet is currently
-      //  // only ASCII
-      //  word[i] = (char) bbuff.get(j);
-      //}
-      //final String toReturn = new String(word);
-      //return toReturn;
-
       scanToSpace();
       final int e = scanForwardToLineBreak();
       if ((e - s) <= 0) {
@@ -303,18 +272,6 @@ public class FileManager implements FileManagerInterface {
       }
       return bbuff.capacity();
     }
-    ///** Doesn't modify <tt>position</tt> field */
-    //private int scanToSpace(int s) {
-    //  // scan from current position to first ' '
-    //  char c;
-    //  while (s < bbuff.capacity()) {
-    //    c = (char) bbuff.get(s++);
-    //    if (c == ' ') {
-    //      return s - 1;
-    //    }
-    //  }
-    //  throw new IllegalStateException();
-    //}
     private int scanForwardToLineBreak() {
       return scanForwardToLineBreak(false /* don't buffer */);
     }
@@ -360,6 +317,50 @@ public class FileManager implements FileManagerInterface {
       throw new UnsupportedOperationException();
     }
   } // end class NIOCharStream
+
+  /**
+   * Fast CharStream created from InputStream (eg could be read from jar file)
+   * backed by a byte[].
+   */
+  private static class InputStreamCharStream extends NIOCharStream {
+    InputStreamCharStream(final String filename, final InputStream input, final int len) throws IOException {
+      super(filename, asByteBuffer(input, len));
+    }
+    InputStreamCharStream(final String filename) throws IOException {
+      // interpret filename as a File path
+      this(filename, new FileInputStream(filename), -1);
+    }
+    private static ByteBuffer asByteBuffer(final InputStream input, final int len) throws IOException {
+      if(len == -1) {
+        throw new RuntimeException("unknown length not currently supported");
+      }
+      final byte[] buffer = new byte[len];
+      int totalBytesRead = 0;
+      while(input.available() > 0) {
+        int bytesRead = input.read(buffer, totalBytesRead, len - totalBytesRead);
+        totalBytesRead += bytesRead;
+      }
+      if(len != totalBytesRead) {
+        throw new RuntimeException("Read error");
+      }
+      return ByteBuffer.wrap(buffer);
+
+      // read into ByteArrayOutputStream
+      // FIXME
+      // - going to have to look into subproject for data stuff
+      //   - maybe want 1 for each WN version
+      //   * key downside of providing data in jar is licensing issues
+      // - this has a little lag to load, ideally would preload in background after GUI loaded
+      //XXX final byte[] buffer = new byte[8192];
+      //XXX final ByteArrayOutputStream baos = new ByteArrayOutputStream(buffer.length);
+      //XXX int bytesRead;
+      //XXX while((bytesRead = input.read(buffer)) != -1) {
+      //XXX   baos.write(buffer, 0, bytesRead);
+      //XXX }
+      //XXX //baos.write(new FileInputStream(filename));
+      //XXX return ByteBuffer.wrap(baos.toByteArray());
+    }
+  } // end class InputStreamCharStream
 
   /**
    * Like a read-only {@link CharBuffer} made from a {@link ByteBuffer} with a
@@ -422,6 +423,8 @@ public class FileManager implements FileManagerInterface {
     return getFileStream(filename, true);
   }
 
+  private AtomicLong streamInitTime = new AtomicLong(0);
+
   /**
    * @param filename
    * @param filenameWnRelative is a boolean which indicates that <param>filename</param>
@@ -431,15 +434,33 @@ public class FileManager implements FileManagerInterface {
   synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
+      //XXX hack - assume WN dict/ is in the classpath
+      final URL url = getClass().getClassLoader().getResource(filename);
+      final URLConnection conn = url.openConnection();
+      //System.err.println("url: "+url);
+      //conn.connect();
+      final int len = conn.getContentLength();
+      final InputStream input = conn.getInputStream();
+      //final InputStream input = url.openStream();
+      //System.err.println("len: "+len+" input: "+input);
+
       final String pathname =
         filenameWnRelative ? searchDirectory + File.separator + filename :
         filename;
       final File file = new File(pathname);
       if (file.exists() && file.canRead()) {
+        final long start = System.nanoTime();
         //slow CharStream
         //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
         //fast CharStream stream
-        stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
+        //stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
+        //fast CharStream created from InputStream (e.g. could be read from jar file)
+        //stream = new InputStreamCharStream(pathname);
+        //stream = new InputStreamCharStream(filename, input, (int)file.length());
+        stream = new InputStreamCharStream(filename, input, len);
+        final long duration = System.nanoTime() - start;
+        final long total = streamInitTime.getAndAdd(duration);
+        //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
       } else {
         //TODO throw an exception to indicate that pathname is non existant/readble
       }

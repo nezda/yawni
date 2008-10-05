@@ -8,6 +8,7 @@ import edu.brandeis.cs.steele.wn.PointerType;
 import edu.brandeis.cs.steele.wn.POS;
 import edu.brandeis.cs.steele.wn.DictionaryDatabase;
 import edu.brandeis.cs.steele.wn.FileBackedDictionary;
+import edu.brandeis.cs.steele.util.MergedIterable;
 
 import java.io.*;
 import java.util.*;
@@ -167,6 +168,19 @@ public class Searcher {
         output.append(" ");
       }
     }
+  }
+
+  private static void findAmbig(final DictionaryDatabase dictionary, final Appendable output) throws Exception {
+    // find any words in all 4 pos
+    //   clear, down, fast, fine, firm, flush, foward, second, 
+    // - lookupWord() only touches index.<pos> files
+        Iterable<Word> searchResults;
+        
+              searchResults = MergedIterable.merge(
+                  dictionary.words(POS.NOUN),
+                  dictionary.words(POS.VERB),
+                  dictionary.words(POS.ADJ),
+                  dictionary.words(POS.ADV));
   }
 
   public static void main(String[] args) throws Exception {
