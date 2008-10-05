@@ -9,8 +9,9 @@ import java.util.prefs.*;
 /**
  * Save window positions and all other persistent user preferences.
  * Doesn't use Properties (files), uses Preferences - no files or maps to manage.
+ * TODO rename this class PreferencesManager
  * TODO remove static methods -- go through getInstance()
- * TODO check if importPreferences() clobbers saved preferences - seems it would have to
+ * TODO check if importPreferences() clobbers saved preferences
  * TODO put WNHOME/WNSEARCHDIR per-OS defaults (same as those from .jnlp file) into preferences
  *      and reflect them into system properties
  * @author http://www.oreilly.com/catalog/swinghks/
@@ -41,7 +42,6 @@ class PreferencesManager implements AWTEventListener {
   };
 
   static synchronized void loadDefaults() {
-    // FIXME currently clobbers all settings
     // TODO
     // see if the defaults have been loaded,
     //   if not, load them
@@ -68,7 +68,6 @@ class PreferencesManager implements AWTEventListener {
     }
   }
 
-  /** Utility enum to change the Swing LookAndFeel */
   enum LookAndFeel {
     System {
       public void set() {
@@ -92,32 +91,21 @@ class PreferencesManager implements AWTEventListener {
       public void set() {
         try {
           UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-        } catch(Exception e) {
-          java.lang.System.err.println("Error setting LAF "+this+" " + e);
-        }
-      }
-    },
-    MOTIF {
-      public void set() {
-        try {
-          UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+          //UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
         } catch(Exception e) {
           java.lang.System.err.println("Error setting LAF "+this+" " + e);
         }
       }
     }
     ;
-    /**
-     * Activate this LookAndFeel
-     */
+
     public abstract void set();
   } // end enum LookAndFeel
 
   static void setLookAndFeel() {
-
-    // set manually
+    //TODO loadDefaults();
     //LookAndFeel.GTK.set();
-    //LookAndFeel.System.set();
+    LookAndFeel.System.set();
     // even OS X LAF has bugs
     //LookAndFeel.CrossPlatform.set();
 
@@ -132,11 +120,6 @@ class PreferencesManager implements AWTEventListener {
     //   use System
     // else
     //   use CrossPlatform
-  
-    //TODO loadDefaults();
-    final String defaultLnFName = "System";
-    final String lnfName = prefs.get("lookAndFeel", defaultLnFName);
-    LookAndFeel.valueOf(lnfName).set();
   }
 
   public static PreferencesManager getInstance() {
@@ -158,6 +141,7 @@ class PreferencesManager implements AWTEventListener {
     //} catch(IOException ioe) {
     //  throw new RuntimeException(ioe);
     //}
+    //
   }
 
   /** {@inheritDoc} */

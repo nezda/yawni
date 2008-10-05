@@ -10,7 +10,6 @@ import java.io.*;
  */
 class Application {
   private final String applicationName;
-  private final String artifactId;
   private final String applicationVersion;
   private final String buildNumber;
   private final Date buildDate;
@@ -26,7 +25,6 @@ class Application {
       props.load(in);
       in.close();
       this.applicationName = (String) props.get("application.name");
-      this.artifactId = (String) props.get("application.artifactId");
       this.applicationVersion = (String) props.get("application.version");
       this.buildNumber = (String) props.get("application.buildNumber");
       final String buildDateString = (String) props.get("application.buildDate");
@@ -34,7 +32,6 @@ class Application {
 
       //System.err.println("getPackage(): "+getPackagePath());
       //System.err.println("props: "+props);
-      //System.err.println(this);
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -51,10 +48,6 @@ class Application {
 
   public String getName() {
     return applicationName;
-  }
-
-  public String getArtifactId() {
-    return artifactId;
   }
 
   public String getVersion() {
@@ -77,8 +70,6 @@ class Application {
     return new StringBuilder().
       append("[").
       append(getName()).
-      //append(" ").
-      //append(getArtifactId()).
       append(" ").
       append(getVersion()).
       append(" ").
