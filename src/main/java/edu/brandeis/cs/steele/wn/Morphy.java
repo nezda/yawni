@@ -436,7 +436,7 @@ class Morphy {
    * Similar to C function <code>index_lookup</code>
    */
   Word is_defined(final String lemma, final POS pos) {
-    return dictionary.lookupWord(pos, lemma);
+    return dictionary.lookupWord(lemma, pos);
   }
 
   /**

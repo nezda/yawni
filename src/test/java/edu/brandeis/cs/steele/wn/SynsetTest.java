@@ -34,7 +34,7 @@ public class SynsetTest {
   @Test
   public void test2() {
     // adj up#7 member of noun TOPIC computer#1
-    final Word word = dictionary.lookupWord(POS.ADJ, "up");
+    final Word word = dictionary.lookupWord("up", POS.ADJ);
     System.err.println("word: "+word+" pointerTypes: "+word.getPointerTypes());
     System.err.println("  "+word.getSense(7).getLongDescription());
     //assertTrue(
@@ -52,7 +52,7 @@ public class SynsetTest {
   @Test
   public void test3() {
     // adj low-pitch#1 is attribute of "pitch"
-    final Word word = dictionary.lookupWord(POS.ADJ, "low-pitched");
+    final Word word = dictionary.lookupWord("low-pitched", POS.ADJ);
     System.err.println("word: "+word+" pointerTypes: "+word.getPointerTypes());
     System.err.println("  "+word.getSense(1).getLongDescription());
     //assertTrue(
@@ -70,7 +70,7 @@ public class SynsetTest {
   @Test
   public void testInstances() {
     // adj low-pitch#1 is attribute of "pitch"
-    final Word word = dictionary.lookupWord(POS.NOUN, "George Bush");
+    final Word word = dictionary.lookupWord("George Bush", POS.NOUN);
     System.err.println("word: "+word+" pointerTypes: "+word.getPointerTypes());
     System.err.println("  "+word.getSense(1).getLongDescription());
     final PointerType[] pointerTypes = new PointerType[] { 

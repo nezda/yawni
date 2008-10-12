@@ -323,7 +323,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private static Object NULL_INDEX_WORD = new Object();
 
   /** {@inheritDoc} */
-  public Word lookupWord(final POS pos, final CharSequence lemma) {
+  public Word lookupWord(final CharSequence lemma, final POS pos) {
     checkValidPOS(pos);
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
@@ -374,7 +374,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //}
 
   /** {@inheritDoc} */
-  public String[] lookupBaseForms(final POS pos, final String someString) {
+  public String[] lookupBaseForms(final String someString, final POS pos) {
     // TODO use getindex() too ?
     final List<String> morphs;
     if (pos == POS.ALL) {
@@ -402,7 +402,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private static final Synset[] NO_SYNSETS = new Synset[0];
 
   /** {@inheritDoc} */
-  public Synset[] lookupSynsets(final POS pos, final String someString) {
+  public Synset[] lookupSynsets(final String someString, final POS pos) {
     checkValidPOS(pos);
     // TODO support POS.ALL - NOTE: don't modify morphs directly as this
     // will damage the Morphy cache
@@ -418,7 +418,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     int morphNum = -1;
     for (final String lemma : morphs) {
       morphNum++;
-      final Word word = this.lookupWord(pos, lemma);
+      final Word word = this.lookupWord(lemma, pos);
       if (word == null) {
         // some morphstr() values will not be defined words (lemmas).
         continue;
@@ -742,7 +742,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   } // end class SearchBySubstringIterator
 
   /** {@inheritDoc} */
-  public Iterable<Word> searchBySubstring(final POS pos, final CharSequence substring) {
+  public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos) {
     checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
@@ -792,7 +792,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   } // end class SearchByPrefixIterator
 
   /** {@inheritDoc} */
-  public Iterable<Word> searchByPrefix(final POS pos, final CharSequence prefix) {
+  public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos) {
     checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
@@ -922,11 +922,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Pointer> pointers(final POS pos) {
-    return pointers(pos, null);
+    return pointers(null, pos);
   }
 
   /** {@inheritDoc} */
-  public Iterable<Pointer> pointers(final POS pos, final PointerType pointerType) {
+  public Iterable<Pointer> pointers(final PointerType pointerType, final POS pos) {
     checkValidPOS(pos);
     // null pointerType interpretted as all PointerTypes
     return new Iterable<Pointer> () {

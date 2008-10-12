@@ -39,60 +39,60 @@ public class IterationTest {
     // + search before first word (non-existant)
     // + iterate over words, iterate over prefixes
     //   + assert containsLemma(Iterable<Word> matches)
-    final Iterable<Word> firstWord = dictionary.searchByPrefix(POS.NOUN, "'hood");
+    final Iterable<Word> firstWord = dictionary.searchByPrefix("'hood", POS.NOUN);
     final Word first = firstWord.iterator().next();
     assertEquals("'hood", first.getLemma());
-    final Iterable<Word> firstWordPrefix = dictionary.searchByPrefix(POS.NOUN, "'hoo");
+    final Iterable<Word> firstWordPrefix = dictionary.searchByPrefix("'hoo", POS.NOUN);
     final Word firstPrefix = firstWordPrefix.iterator().next();
     assertEquals("'hood", firstPrefix.getLemma());
-    final Iterable<Word> preFirstWord = dictionary.searchByPrefix(POS.NOUN, "''");
+    final Iterable<Word> preFirstWord = dictionary.searchByPrefix("''", POS.NOUN);
     assertFalse(preFirstWord.iterator().hasNext());
 
-    final Iterable<Word> lastWord = dictionary.searchByPrefix(POS.NOUN, "zyrian");
+    final Iterable<Word> lastWord = dictionary.searchByPrefix("zyrian", POS.NOUN);
     final Word last = lastWord.iterator().next();
     assertEquals("zyrian", last.getLemma());
-    final Iterable<Word> lastWordPrefix = dictionary.searchByPrefix(POS.NOUN, "zyria");
+    final Iterable<Word> lastWordPrefix = dictionary.searchByPrefix("zyria", POS.NOUN);
     final Word lastPrefix = lastWordPrefix.iterator().next();
     assertEquals("zyrian", lastPrefix.getLemma());
-    final Iterable<Word> postLastWordPrefix = dictionary.searchByPrefix(POS.NOUN, "zz");
+    final Iterable<Word> postLastWordPrefix = dictionary.searchByPrefix("zz", POS.NOUN);
     assertFalse(postLastWordPrefix.iterator().hasNext());
 
     for (final POS pos : POS.CATS) {
-      final Iterable<Word> leadingDashPrefix = dictionary.searchByPrefix(pos, "-");
+      final Iterable<Word> leadingDashPrefix = dictionary.searchByPrefix("-", pos);
       assertFalse(leadingDashPrefix.iterator().hasNext());
-      final Iterable<String> leadingDashPrefixLemma = new WordToLemma(dictionary.searchByPrefix(pos, "-"));
+      final Iterable<String> leadingDashPrefixLemma = new WordToLemma(dictionary.searchByPrefix("-", pos));
       assertFalse(leadingDashPrefixLemma.iterator().hasNext());
-      final Iterable<Word> leadingSpacePrefix = dictionary.searchByPrefix(pos, " ");
+      final Iterable<Word> leadingSpacePrefix = dictionary.searchByPrefix(" ", pos);
       assertFalse(leadingSpacePrefix.iterator().hasNext());
-      final Iterable<Word> emptyPrefix = dictionary.searchByPrefix(pos, "");
+      final Iterable<Word> emptyPrefix = dictionary.searchByPrefix("", pos);
       assertFalse(leadingSpacePrefix.iterator().hasNext());
     }
 
     final Iterable<Word> anyEmptyPrefix = MergedIterable.merge(true,
-        dictionary.searchByPrefix(POS.NOUN, "-"),
-        dictionary.searchByPrefix(POS.VERB, "-"),
-        dictionary.searchByPrefix(POS.ADJ, "-"),
-        dictionary.searchByPrefix(POS.ADV, "-"));
+        dictionary.searchByPrefix("-", POS.NOUN),
+        dictionary.searchByPrefix("-", POS.VERB),
+        dictionary.searchByPrefix("-", POS.ADJ),
+        dictionary.searchByPrefix("-", POS.ADV));
     assertFalse(anyEmptyPrefix.iterator().hasNext());
     
     final Iterable<Word> anyNonExistantPrefix = MergedIterable.merge(true,
-        dictionary.searchByPrefix(POS.NOUN, "lllllll"),
-        dictionary.searchByPrefix(POS.VERB, "lllllll"),
-        dictionary.searchByPrefix(POS.ADJ, "lllllll"),
-        dictionary.searchByPrefix(POS.ADV, "lllllll"));
+        dictionary.searchByPrefix("lllllll", POS.NOUN),
+        dictionary.searchByPrefix("lllllll", POS.VERB),
+        dictionary.searchByPrefix("lllllll", POS.ADJ),
+        dictionary.searchByPrefix("lllllll", POS.ADV));
     assertFalse(anyNonExistantPrefix.iterator().hasNext());
 
     final Iterable<Word> anyLeadingDashPrefix = MergedIterable.merge(true,
-        dictionary.searchByPrefix(POS.NOUN, ""),
-        dictionary.searchByPrefix(POS.VERB, ""),
-        dictionary.searchByPrefix(POS.ADJ, ""),
-        dictionary.searchByPrefix(POS.ADV, ""));
+        dictionary.searchByPrefix("", POS.NOUN),
+        dictionary.searchByPrefix("", POS.VERB),
+        dictionary.searchByPrefix("", POS.ADJ),
+        dictionary.searchByPrefix("", POS.ADV));
     assertFalse(anyEmptyPrefix.iterator().hasNext());
 
     final Iterable<String> runs = Utils.uniq(
         new WordToLemma(MergedIterable.merge(true,
-            dictionary.searchByPrefix(POS.NOUN, "run"),
-            dictionary.searchByPrefix(POS.VERB, "run"))));
+            dictionary.searchByPrefix("run", POS.NOUN),
+            dictionary.searchByPrefix("run", POS.VERB))));
     assertTrue(Utils.isUnique(runs, true));
 
     // this is sped up by only searching for randomized prefixes
@@ -108,21 +108,21 @@ public class IterationTest {
       final String lemma = word.getLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
-        final Iterable<Word> matches = dictionary.searchByPrefix(pos, lemma);
+        final Iterable<Word> matches = dictionary.searchByPrefix(lemma, pos);
         numPrefixTests++;
         assertTrue(containsLemma(matches, lemma));
       }
     }
     //System.err.println("numPrefixTests: "+numPrefixTests);
 
-    final Iterable<Word> spaceWords = dictionary.searchBySubstring(POS.NOUN, " ");
+    final Iterable<Word> spaceWords = dictionary.searchBySubstring(" ", POS.NOUN);
     assertTrue(spaceWords.iterator().hasNext());
 
     final Iterable<Word> anyNonExistantSubstring = MergedIterable.merge(true,
-        dictionary.searchBySubstring(POS.NOUN, "lllllll"),
-        dictionary.searchBySubstring(POS.VERB, "lllllll"),
-        dictionary.searchBySubstring(POS.ADJ, "lllllll"),
-        dictionary.searchBySubstring(POS.ADV, "lllllll"));
+        dictionary.searchBySubstring("lllllll", POS.NOUN),
+        dictionary.searchBySubstring("lllllll", POS.VERB),
+        dictionary.searchBySubstring("lllllll", POS.ADJ),
+        dictionary.searchBySubstring("lllllll", POS.ADV));
     assertFalse(anyNonExistantSubstring.iterator().hasNext());
 
     final float substringDitchProportion = 0.9999f;
@@ -135,7 +135,7 @@ public class IterationTest {
       final String lemma = word.getLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
-        final Iterable<Word> matches = dictionary.searchBySubstring(pos, lemma);
+        final Iterable<Word> matches = dictionary.searchBySubstring(lemma, pos);
         numSubstringTests++;
         assertTrue(containsLemma(matches, lemma));
         //System.err.println("numSubstringTests: "+numSubstringTests);
@@ -378,7 +378,7 @@ public class IterationTest {
       String str = word.getLemma();
       // exhaustive -- all POS
       for(POS pos : POS.CATS) {
-        Synset[] syns = dictionary.lookupSynsets(pos, str);
+        Synset[] syns = dictionary.lookupSynsets(str, pos);
         if(pos == word.getPOS()) {
           assertTrue("loopback failure", syns.length > 0);
         }

@@ -28,9 +28,9 @@ public class DictionaryDatabaseTest {
   //@Ignore
   @Test
   public void test() {
-    final String[] tanks = dictionary.lookupBaseForms(POS.ALL, "tank");
+    final String[] tanks = dictionary.lookupBaseForms("tank", POS.ALL);
     System.err.println("tanks: "+Arrays.toString(tanks));
-    final String[] geese = dictionary.lookupBaseForms(POS.ALL, "geese");
+    final String[] geese = dictionary.lookupBaseForms("geese", POS.ALL);
     System.err.println("geese: "+Arrays.toString(geese));
   }
 
@@ -42,7 +42,7 @@ public class DictionaryDatabaseTest {
    */
   @Test(expected=IllegalArgumentException.class)
   public void test_lookupWord() {
-    dictionary.lookupWord(POS.ALL, "tank");
+    dictionary.lookupWord("tank", POS.ALL);
   }
 
   /**
@@ -60,7 +60,7 @@ public class DictionaryDatabaseTest {
     //  Synset[] syns = dictionary.lookupSynsets(pos, str);
     //}
     // just our source POS
-    Synset[] syns = dictionary.lookupSynsets(pos, str);
+    Synset[] syns = dictionary.lookupSynsets(str, pos);
     if (syns.length == 0) {
       System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
     }

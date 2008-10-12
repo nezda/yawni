@@ -157,7 +157,7 @@ public class Searcher {
   private static void lemmatize(final DictionaryDatabase dictionary, final String word, final Appendable output) throws Exception {
     for (final POS pos : POS.CATS) {
       boolean posShown = false;
-      for (final String lemma : dictionary.lookupBaseForms(pos, word)) {
+      for (final String lemma : dictionary.lookupBaseForms(word, pos)) {
         if (posShown == false) {
           output.append(pos.name());
           output.append(" ");

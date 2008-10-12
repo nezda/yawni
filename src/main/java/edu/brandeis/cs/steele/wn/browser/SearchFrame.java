@@ -182,24 +182,24 @@ class SearchFrame extends JFrame {
         switch(searchType) {
           case SUBSTRING:
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchBySubstring(pos, query);
+              searchResults = browserPanel.dictionary().searchBySubstring(query, pos);
             } else {
               searchResults = MergedIterable.merge(
-                  browserPanel.dictionary().searchBySubstring(POS.NOUN, query),
-                  browserPanel.dictionary().searchBySubstring(POS.VERB, query),
-                  browserPanel.dictionary().searchBySubstring(POS.ADJ, query),
-                  browserPanel.dictionary().searchBySubstring(POS.ADV, query));
+                  browserPanel.dictionary().searchBySubstring(query, POS.NOUN),
+                  browserPanel.dictionary().searchBySubstring(query, POS.VERB),
+                  browserPanel.dictionary().searchBySubstring(query, POS.ADJ),
+                  browserPanel.dictionary().searchBySubstring(query, POS.ADV));
             }
             break;
           case PREFIX:
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchByPrefix(pos, query);
+              searchResults = browserPanel.dictionary().searchByPrefix(query, pos);
             } else {
               searchResults = MergedIterable.merge(
-                  browserPanel.dictionary().searchByPrefix(POS.NOUN, query),
-                  browserPanel.dictionary().searchByPrefix(POS.VERB, query),
-                  browserPanel.dictionary().searchByPrefix(POS.ADJ, query),
-                  browserPanel.dictionary().searchByPrefix(POS.ADV, query));
+                  browserPanel.dictionary().searchByPrefix(query, POS.NOUN),
+                  browserPanel.dictionary().searchByPrefix(query, POS.VERB),
+                  browserPanel.dictionary().searchByPrefix(query, POS.ADJ),
+                  browserPanel.dictionary().searchByPrefix(query, POS.ADV));
             }
             break;
           default:
@@ -245,18 +245,18 @@ class SearchFrame extends JFrame {
         final String lemma = searchListModel.getElementAt(index).toString();
         Word word = null;
         if (pos != POS.ALL) {
-          word = browserPanel.dictionary().lookupWord(pos, lemma);
+          word = browserPanel.dictionary().lookupWord(lemma, pos);
         } else {
           // do lookup for all POS and return first hit
-          word = browserPanel.dictionary().lookupWord(POS.NOUN, lemma);
+          word = browserPanel.dictionary().lookupWord(lemma, POS.NOUN);
           if (word == null) {
-            word = browserPanel.dictionary().lookupWord(POS.VERB, lemma);
+            word = browserPanel.dictionary().lookupWord(lemma, POS.VERB);
           }
           if (word == null) {
-            word = browserPanel.dictionary().lookupWord(POS.ADJ, lemma);
+            word = browserPanel.dictionary().lookupWord(lemma, POS.ADJ);
           }
           if (word == null) {
-            word = browserPanel.dictionary().lookupWord(POS.ADV, lemma);
+            word = browserPanel.dictionary().lookupWord(lemma, POS.ADV);
           }
         }
         if (word == null) {

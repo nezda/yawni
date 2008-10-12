@@ -857,11 +857,11 @@ public class BrowserPanel extends JPanel {
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
-      Word word = BrowserPanel.this.dictionary().lookupWord(pos, inputString);
+      Word word = BrowserPanel.this.dictionary().lookupWord(inputString, pos);
       if (word == null) {
-        final String[] forms = dictionary().lookupBaseForms(pos, inputString);
+        final String[] forms = dictionary().lookupBaseForms(inputString, pos);
         assert forms.length > 0 : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary().lookupWord(pos, forms[0]);
+        word = BrowserPanel.this.dictionary().lookupWord(forms[0], pos);
         assert forms.length > 0;
       }
       if (pointerType == null) {
@@ -886,11 +886,11 @@ public class BrowserPanel extends JPanel {
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
-      Word word = BrowserPanel.this.dictionary().lookupWord(POS.VERB, inputString);
+      Word word = BrowserPanel.this.dictionary().lookupWord(inputString, POS.VERB);
       if (word == null) {
-        final String[] forms = dictionary().lookupBaseForms(POS.VERB, inputString);
+        final String[] forms = dictionary().lookupBaseForms(inputString, POS.VERB);
         assert forms.length > 0 : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary().lookupWord(POS.VERB, forms[0]);
+        word = BrowserPanel.this.dictionary().lookupWord(forms[0], POS.VERB);
         assert forms.length > 0;
       }
       displayVerbFrames(word);
@@ -930,9 +930,9 @@ public class BrowserPanel extends JPanel {
         // Note: lookupWord() only touches index.<pos> files
         final String inputString = "clear"; 
         for (final POS pos : POS.CATS) {
-          String[] forms = dictionary().lookupBaseForms(pos, inputString);
+          String[] forms = dictionary().lookupBaseForms(inputString, pos);
           for (final String form : forms) {
-            final Word word = dictionary().lookupWord(pos, form);
+            final Word word = dictionary().lookupWord(form, pos);
             word.toString();
           }
         }
@@ -963,7 +963,7 @@ public class BrowserPanel extends JPanel {
     final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
-      String[] forms = dictionary().lookupBaseForms(pos, inputString);
+      String[] forms = dictionary().lookupBaseForms(inputString, pos);
       if (forms == null) {
         forms = new String[]{ inputString };
       } else {
@@ -989,7 +989,7 @@ public class BrowserPanel extends JPanel {
           continue;
         }
         noCaseForms.add(form);
-        final Word word = dictionary().lookupWord(pos, form);
+        final Word word = dictionary().lookupWord(form, pos);
         //XXX System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" Word found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer, false);

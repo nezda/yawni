@@ -35,7 +35,7 @@ public class MorphyTest {
   }
 
   private static List<String> stem(final String someString, final POS pos) {
-    return Arrays.asList(dictionary.lookupBaseForms(pos, someString));
+    return Arrays.asList(dictionary.lookupBaseForms(someString, pos));
   }
 
   //TODO consider moving to Utils
@@ -235,30 +235,30 @@ public class MorphyTest {
 
   @Test
   public void testLookupWord() {
-    assertEquals(null, dictionary.lookupWord(POS.NOUN, ""));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "dog"));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "DOG"));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "ad blitz"));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "ad_blitz"));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "AD BLITZ"));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "wild-goose chase"));
-    assertTrue(null != dictionary.lookupWord(POS.NOUN, "wild-goose_chase"));
+    assertEquals(null, dictionary.lookupWord("", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("dog", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("DOG", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("ad blitz", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("ad_blitz", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("AD BLITZ", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("wild-goose chase", POS.NOUN));
+    assertTrue(null != dictionary.lookupWord("wild-goose_chase", POS.NOUN));
   }
 
   // could add explicit checks for this in API methods but that's pretty tedious
   @Test(expected=NullPointerException.class)
   public void testNullLookupWord() {
-    assertEquals(null, dictionary.lookupWord(POS.NOUN, null));
+    assertEquals(null, dictionary.lookupWord(null, POS.NOUN));
   }
 
   @Test
   public void testWordSense() {
-    assertEquals(42, dictionary.lookupWord(POS.NOUN, "dog").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(2, dictionary.lookupWord(POS.VERB, "dog").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(3, dictionary.lookupWord(POS.ADJ, "cardinal").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(0, dictionary.lookupWord(POS.ADJ, "cardinal").getSenses()[1].getSensesTaggedFrequency());
-    assertEquals(9, dictionary.lookupWord(POS.ADJ, "concrete").getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(1, dictionary.lookupWord(POS.ADJ, "dogmatic").getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(42, dictionary.lookupWord("dog", POS.NOUN).getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(2, dictionary.lookupWord("dog", POS.VERB).getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(3, dictionary.lookupWord("cardinal", POS.ADJ).getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(0, dictionary.lookupWord("cardinal", POS.ADJ).getSenses()[1].getSensesTaggedFrequency());
+    assertEquals(9, dictionary.lookupWord("concrete", POS.ADJ).getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(1, dictionary.lookupWord("dogmatic", POS.ADJ).getSenses()[0].getSensesTaggedFrequency());
   }
 
   @Test
@@ -325,12 +325,12 @@ public class MorphyTest {
         if (lemma.indexOf("-") > 0) {
           dash++;
           final String noDash = lemma.replace("-", "");
-          if (null != dictionary.lookupWord(pos, noDash)) {
+          if (null != dictionary.lookupWord(noDash, pos)) {
             dashNoDash++;
             //System.err.println("lemma: "+lemma+" dashNoDash "+dashNoDash);
           }
           final String dashToSpace = lemma.replace("-", " ");
-          if (null != dictionary.lookupWord(pos, dashToSpace)) {
+          if (null != dictionary.lookupWord(dashToSpace, pos)) {
             dashSpace++;
             //System.err.println("lemma: "+lemma+" dashSpace "+dashSpace);
           } else {

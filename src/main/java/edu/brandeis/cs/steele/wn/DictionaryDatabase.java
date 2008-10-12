@@ -18,12 +18,12 @@ public interface DictionaryDatabase {
    * case-independent and phrases are separated by spaces (e.g. "look up", not
    * "look_up"), but otherwise <var>lemma<var> must match the form in the
    * database exactly.  Similar to C function <code>index_lookup</code>.
-   * @param pos The part-of-speech.
    * @param lemma The orthographic representation of the word.
+   * @param pos The part-of-speech.
    * @return An <code>Word</code> representing the word, or
    * <code>null</code> if no such entry exists.
    */
-  public Word lookupWord(final POS pos, final CharSequence lemma);
+  public Word lookupWord(final CharSequence lemma, final POS pos);
 
   ///**
   // * Return the base form of an exceptional derivation, if an entry for it
@@ -38,21 +38,21 @@ public interface DictionaryDatabase {
   /**
    * Return all base forms (aka "lemmas") of <var>someString</var> in <var>pos</var>.
    * Utilizes an implementation of the <code>morphstr()</code> and <code>getindex()</code> algorithms.
-   * @param pos The part-of-speech.
-   * @param someString
+ * @param someString
+ * @param pos The part-of-speech.
    * @return baseform(s) of <var>someString</var>
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN">http://wordnet.princeton.edu/man/morphy.7WN</a>
    */
-  public String[] lookupBaseForms(final POS pos, final String someString);
+  public String[] lookupBaseForms(final String someString, final POS pos);
 
   /**
    * Convenient combination of basic API methods <code>lookupBaseForms()</code>, <code>lookupWord()</code>
    * and <code>Word.getSynsets()</code>.
-   * @param pos The part-of-speech.
    * @param someString
+   * @param pos The part-of-speech.
    * @return <code>Synset</code>(s) of <var>someString</var> in <var>pos</var>
    */
-  public Synset[] lookupSynsets(final POS pos, final String someString);
+  public Synset[] lookupSynsets(final String someString, final POS pos);
 
   /**
    * Return an iterator of <b>all</b> the <code>Word</code>s in the database.
@@ -64,19 +64,19 @@ public interface DictionaryDatabase {
   /**
    * Return an iterator of all the <code>Word</code>s whose lemmas contain <var>substring</var>
    * as a <b>substring</b>.
-   * @param pos The part-of-speech.
    * @param substring The substring to search for.
+   * @param pos The part-of-speech.
    * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<Word> searchBySubstring(final POS pos, final CharSequence substring);
+  public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
 
   /**
    * Return an iterator of all the <code>Word</code>s whose lemmas <b>begin with</b> <var>prefix</var>.
-   * @param pos The part-of-speech.
    * @param prefix The prefix to search for.
+   * @param pos The part-of-speech.
    * @return An iterable of <code>Word</code>s.
    */
-  public Iterable<Word> searchByPrefix(final POS pos, final CharSequence prefix);
+  public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
 
   /** Return an iterator of <b>all</b> the <code>Synset</code>s in the database.
    * @param pos The part-of-speech.
@@ -98,9 +98,9 @@ public interface DictionaryDatabase {
 
   /** Return an iterator of <b>all</b> the <code>Pointer</code>s in the database of
    * type <code>PointerType</code>.
-   * @param pos The part-of-speech.
    * @param pointerType The <code>PointerType</code>.
+   * @param pos The part-of-speech.
    * @return An iterable of <code>Pointer</code>s of type <code>PointerType</code>.
    */
-  public Iterable<Pointer> pointers(final POS pos, final PointerType pointerType);
+  public Iterable<Pointer> pointers(final PointerType pointerType, final POS pos);
 }
