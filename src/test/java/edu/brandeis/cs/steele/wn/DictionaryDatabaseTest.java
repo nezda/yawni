@@ -34,8 +34,36 @@ public class DictionaryDatabaseTest {
     System.err.println("geese: "+Arrays.toString(geese));
   }
 
+  /**
+   * Expects exception because POS.ALL does not make sense for method 
+   * lookupWord(POS, lemma) which returns at most 1 result.
+   * TODO subclass IllegalArgumentException (a RuntimeException) 
+   * indicating this.
+   */
   @Test(expected=IllegalArgumentException.class)
   public void test_lookupWord() {
     dictionary.lookupWord(POS.ALL, "tank");
+  }
+
+  /**
+   * Look for warning issues with lookupSynsets()
+   */
+  @Test
+  public void lookupSynsetsTest() {
+    //String str = "allow for";
+    //String str = "allowing for";
+    String str = "allows for";
+    POS pos = POS.VERB;
+
+    // exhaustive -- all POS
+    //for(POS pos : POS.CATS) {
+    //  Synset[] syns = dictionary.lookupSynsets(pos, str);
+    //}
+    // just our source POS
+    Synset[] syns = dictionary.lookupSynsets(pos, str);
+    if (syns.length == 0) {
+      System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
+    }
+    //System.err.println(str+": "+Arrays.toString(syns));
   }
 }
