@@ -14,7 +14,6 @@ import edu.brandeis.cs.steele.util.MergedIterable;
  * Goal: verify various iteration methods of dictionary behave as expected.
  */
 public class IterationTest {
-
   private static DictionaryDatabase dictionary;
   private static Random rand;
   @BeforeClass
@@ -367,6 +366,29 @@ public class IterationTest {
           dictionary.pointers(POS.ADV))) {
       final String s = pointer.toString();
       //System.err.println(s);
+    }
+  }
+
+  /**
+   * Look for warning issues with lookupSynsets()
+   */
+  @Test
+  public void lookupSynsetsTest() {
+    for (final Word word : dictionary.words(POS.ALL)) {
+      String str = word.getLemma();
+      // exhaustive -- all POS
+      for(POS pos : POS.CATS) {
+        Synset[] syns = dictionary.lookupSynsets(pos, str);
+        if(pos == word.getPOS()) {
+          assertTrue("loopback failure", syns.length > 0);
+        }
+      }
+      // just our source POS
+      //Synset[] syns = dictionary.lookupSynsets(word.getPOS(), str);
+      //if (syns.length == 0) {
+      //  System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
+      //}
+      //System.err.println(str+": "+Arrays.toString(syns));
     }
   }
   
