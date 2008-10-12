@@ -24,6 +24,7 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 import javax.swing.plaf.metal.*;
 import java.util.prefs.*;
+import java.lang.reflect.InvocationTargetException;
 
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
@@ -672,8 +673,8 @@ public class BrowserPanel extends JPanel {
       this.setHorizontalTextPosition(SwingConstants.LEFT);
       this.setVerticalTextPosition(SwingConstants.CENTER);
       this.pos = pos;
-      this.menu = new PointerTypeMenu(this);
-      this.setComponentPopupMenu(menu);
+      this.menu = new PointerTypeMenu();
+      //this.setComponentPopupMenu(menu);
       this.showing = false;
       this.inButton = false;
 
@@ -689,14 +690,22 @@ public class BrowserPanel extends JPanel {
         //public void mouseReleased(final MouseEvent evt) {
         //  System.err.println("mouseReleased");
         //}
-        public void mousePressed(final MouseEvent evt) {
+        public void mouseClicked(final MouseEvent evt) {
           if (false == isEnabled()) {
+            System.err.println("not enabled");
             return;
           }
           assert inButton;
           //System.err.println("mousePressed "+menu.isPopupTrigger(evt));
           assert evt.getComponent() instanceof JButton;
-          togglePopup();
+          // maybe do this in event thread
+          assert SwingUtilities.isEventDispatchThread();
+          SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+              togglePopup();
+            }
+          });
+          //togglePopup();
           //System.err.println("mousePressed done");
         }
       });
@@ -723,14 +732,16 @@ public class BrowserPanel extends JPanel {
 
     /** if popup is showing, hide it, else show it */
     private void togglePopup() {
-      if (false == showing) {
-        System.err.println("SHOW");
+      if (false == menu.isVisible()) {
+        System.err.println("SHOW menu.isVisible(): "+menu.isVisible());
         final Insets margins = getMargin();
         final int px = 5;
         final int py = 1 + this.getHeight() - margins.bottom;
         menu.show(this, px, py);
         showing = true;
+        System.err.println("  menu.isVisible(): "+menu.isVisible());
       } else {
+        assert menu.isVisible();
         System.err.println("HIDE");
         //menu.setVisible(false);
         showing = false;
@@ -760,9 +771,7 @@ public class BrowserPanel extends JPanel {
     // ultimately, a minimal subclass of JPopupMenu
     private class PointerTypeMenu extends JPopupMenu implements MenuKeyListener {
       private static final long serialVersionUID = 1L;
-      final PointerTypeComboBox comboBox;
-      PointerTypeMenu(final PointerTypeComboBox comboBox) {
-        this.comboBox = comboBox;
+      PointerTypeMenu() {
         //XXX setLightWeightPopupEnabled(true);
         addMenuKeyListener(this);
         //XXX System.err.println("getFocusTraversalKeys(): "+getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
@@ -785,6 +794,9 @@ public class BrowserPanel extends JPanel {
         // if tab, move focus to next thing
       }
 
+      // Mouse click event missed after use JPopupMenu
+      // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4694797
+      // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
       @Override public void setVisible(final boolean show) {
         super.setVisible(show);
         if (show) {
@@ -795,6 +807,7 @@ public class BrowserPanel extends JPanel {
         } else {
           //showing = false;
         }
+        showing = show;
         //System.err.println("V setVisible: "+show);
         //System.err.println("V isFocusable(): "+isFocusable());
         //System.err.println("V isDisplayable(): "+isDisplayable());
@@ -815,14 +828,15 @@ public class BrowserPanel extends JPanel {
         //System.err.println("firePopupMenuWillBecomeInvisible()");
         //System.err.println("isFocusable(): "+isFocusable());
         //System.err.println("invis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
-        if (false == comboBox.inButton) {
-          comboBox.showing = false;
-        }
+        //if (false == inButton) {
+        //  showing = false;
+        //}
+        //MenuSelectionManager.defaultManager().clearSelectedPath();
       }
 
       @Override protected void firePopupMenuCanceled() {
         //System.err.println("firePopupMenuCanceled()");
-        //comboBox.showing = false;
+        //showing = false;
       }
     } // end class PointerTypeMenu
   } // end class PointerTypeComboBox
