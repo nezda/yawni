@@ -167,7 +167,7 @@ class Morphy {
    * <b>The original function returned nothing for words which were already
    * stemmed.</b>
    *
-   * <p>Alorithm:
+   * <p>Algorithm:
    * - normalize search string to database format
    * - if search string in exception list, add distinct exceptional variants
    * - if pos != verb, add any distinct base forms
