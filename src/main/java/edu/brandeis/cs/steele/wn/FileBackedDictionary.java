@@ -30,7 +30,8 @@ import java.util.logging.*;
 public class FileBackedDictionary implements DictionaryDatabase {
   private static final Logger log = Logger.getLogger(FileBackedDictionary.class.getName());
   static {
-    log.setLevel(Level.SEVERE);
+    //log.setLevel(Level.SEVERE);
+    log.setLevel(Level.WARNING);
     //log.setLevel(Level.FINER);
   }
 
@@ -407,29 +408,31 @@ public class FileBackedDictionary implements DictionaryDatabase {
     // will damage the Morphy cache
     // TODO use getindex() too ?
     final List<String> morphs = morphy.morphstr(someString, pos);
-    if(morphs == null || morphs.isEmpty()) {
+    if (morphs == null || morphs.isEmpty()) {
       return NO_SYNSETS;
     }
     // 0. if we have morphs, we will have syns
     // 1. get all the Words (usually 1)
     // 2. merge all their Synsets
     final ArrayList<Synset> syns = new ArrayList<Synset>();
-    for(final String lemma : morphs) {
+    int morphNum = -1;
+    for (final String lemma : morphs) {
+      morphNum++;
       final Word word = this.lookupWord(pos, lemma);
-      if(word == null) {
-        // LN little hacky - morphstr() bug that it returns a "lemma" for
-        // an undefined word ?
-        //assert morphs.size() == 1 : "morphs: "+morphs;
-        if(morphs.size() != 1) {
-          log.log(Level.WARNING, "morphs: "+morphs);
-        }
-        //break; // LN why did i break here ?
+      if (word == null) {
+        // some morphstr() values will not be defined words (lemmas).
         continue;
       }
       syns.ensureCapacity(syns.size() + word.getSynsets().length);
-      for(final Synset syn : word.getSynsets()) {
+      for (final Synset syn : word.getSynsets()) {
         syns.add(syn);
       }
+    }
+    // sometimes all morphstr() values will be generated and undefined for this POS
+    // FIXME really, its kind of annoying that morphy sometimes returns undefined variants
+    if (morphs.isEmpty() == false && syns.isEmpty()) {
+      //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
+      return NO_SYNSETS;
     }
     // TODO dedup this ?
     return syns.toArray(new Synset[syns.size()]);
@@ -682,12 +685,22 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Word> words(final POS pos) {
-    checkValidPOS(pos);
-    return new Iterable<Word>() {
-      public Iterator<Word> iterator() {
-        return new LookaheadIterator<Word>(new WordIterator(pos));
-      }
-    };
+    if (pos == POS.ALL) {
+      final Iterable<Word> allWords =
+          MergedIterable.merge(
+              words(POS.NOUN),
+              words(POS.VERB),
+              words(POS.ADJ),
+              words(POS.ADV)
+              );
+      return allWords;
+    } else {
+      return new Iterable<Word>() {
+        public Iterator<Word> iterator() {
+          return new LookaheadIterator<Word>(new WordIterator(pos));
+        }
+      };
+    }
   }
 
   /**
