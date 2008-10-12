@@ -95,6 +95,7 @@ class SearchFrame extends JFrame {
             }
           }
           if (nextSi != null) {
+            // FIXME has produced exceptions (nextSi = -2)
             resultList.setSelectedIndex(nextSi);
             resultList.ensureIndexIsVisible(nextSi);
           }
