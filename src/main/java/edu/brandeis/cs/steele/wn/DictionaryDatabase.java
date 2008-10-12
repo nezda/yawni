@@ -87,14 +87,12 @@ public interface DictionaryDatabase {
   /** Return an iterator of <b>all</b> the <code>WordSense</code>s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>WordSense</code>s.
-   * @since 2.0
    */
   public Iterable<WordSense> wordSenses(final POS pos);
 
   /** Return an iterator of <b>all</b> the <code>Pointer</code>s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of <code>Pointer</code>s.
-   * @since 2.0
    */
   public Iterable<Pointer> pointers(final POS pos);
 
@@ -103,7 +101,6 @@ public interface DictionaryDatabase {
    * @param pos The part-of-speech.
    * @param pointerType The <code>PointerType</code>.
    * @return An iterable of <code>Pointer</code>s of type <code>PointerType</code>.
-   * @since 2.0
    */
   public Iterable<Pointer> pointers(final POS pos, final PointerType pointerType);
 }
