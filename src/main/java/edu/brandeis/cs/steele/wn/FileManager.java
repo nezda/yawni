@@ -105,10 +105,11 @@ public class FileManager implements FileManagerInterface {
         return home;
       }
     }
-    log.log(Level.SEVERE, "WNHOME is not defined correctly as either a Java system property or environment variable. "+
-        System.getenv()+" \n\nsystem properties: "+System.getProperties());
-    throw new IllegalStateException("WNHOME is not defined correctly as either a Java system property or environment variable. "+
-        System.getenv()+" \n\nsystem properties: "+System.getProperties());
+    //log.log(Level.SEVERE, "WNHOME is not defined correctly as either a Java system property or environment variable. "+
+    //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
+    //throw new IllegalStateException("WNHOME is not defined correctly as either a Java system property or environment variable. "+
+    //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
+    return null;
   }
 
   static String getWNSearchDir() {
@@ -162,7 +163,7 @@ public class FileManager implements FileManagerInterface {
      */
     String readLineNumber(int linenum) throws IOException {
       //TODO when creating the CharStream, add option to "index"/cache these results as either String[] OR String[][]
-      //where each row is an array of the delimted items on it and a second optional argument
+      //where each row is an array of the delimited items on it and a second optional argument
       //readLineNumber(int linenum, int wordnum)
       //assumption is these CharStream's will be tiny
       //and we can still lazy load this
@@ -323,13 +324,26 @@ public class FileManager implements FileManagerInterface {
    * backed by a byte[].
    */
   private static class InputStreamCharStream extends NIOCharStream {
+    /**
+     * @param filename interpretted as classpath relative path
+     * @param input
+     * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
+     * 1 buffer thus maximizing efficiency.
+     */
     InputStreamCharStream(final String filename, final InputStream input, final int len) throws IOException {
       super(filename, asByteBuffer(input, len));
     }
-    InputStreamCharStream(final String filename) throws IOException {
-      // interpret filename as a File path
-      this(filename, new FileInputStream(filename), -1);
-    }
+    /**
+     * @param filepath
+     */
+    //InputStreamCharStream(final String filepath) throws IOException {
+    //  this(filepath, new FileInputStream(filepath), -1);
+    //}
+    /**
+     * @param input
+     * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
+     * 1 buffer thus maximizing efficiency.
+     */
     private static ByteBuffer asByteBuffer(final InputStream input, final int len) throws IOException {
       if(len == -1) {
         throw new RuntimeException("unknown length not currently supported");
@@ -344,21 +358,6 @@ public class FileManager implements FileManagerInterface {
         throw new RuntimeException("Read error");
       }
       return ByteBuffer.wrap(buffer);
-
-      // read into ByteArrayOutputStream
-      // FIXME
-      // - going to have to look into subproject for data stuff
-      //   - maybe want 1 for each WN version
-      //   * key downside of providing data in jar is licensing issues
-      // - this has a little lag to load, ideally would preload in background after GUI loaded
-      //XXX final byte[] buffer = new byte[8192];
-      //XXX final ByteArrayOutputStream baos = new ByteArrayOutputStream(buffer.length);
-      //XXX int bytesRead;
-      //XXX while((bytesRead = input.read(buffer)) != -1) {
-      //XXX   baos.write(buffer, 0, bytesRead);
-      //XXX }
-      //XXX //baos.write(new FileInputStream(filename));
-      //XXX return ByteBuffer.wrap(baos.toByteArray());
     }
   } // end class InputStreamCharStream
 
@@ -423,7 +422,8 @@ public class FileManager implements FileManagerInterface {
     return getFileStream(filename, true);
   }
 
-  private AtomicLong streamInitTime = new AtomicLong(0);
+  // used in multi-threaded load initialization timing tests
+  private long streamInitTime;
 
   /**
    * @param filename
@@ -434,39 +434,75 @@ public class FileManager implements FileManagerInterface {
   synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
-      //XXX hack - assume WN dict/ is in the classpath
-      final URL url = getClass().getClassLoader().getResource(filename);
-      final URLConnection conn = url.openConnection();
-      //System.err.println("url: "+url);
-      //conn.connect();
-      final int len = conn.getContentLength();
-      final InputStream input = conn.getInputStream();
-      //final InputStream input = url.openStream();
-      //System.err.println("len: "+len+" input: "+input);
-
+      // currently, if getWNHome() fails, the program crashes
+      // getWNSearchDir() uses getWNHome()
+      //
+      // new:
+      // if JWORDNET_USE_JAR, try the jar
+      // - XXX sys prop to guaruntee using the jar to prevent weird
+      //   application-level WN data version mismatches
+      //   - sysprops and environment variables create security issues
+      //   - XXX should this be the default
+      // else if WNSEARCHDIR (or WNHOME) are defined, use them
+      // - benefits: mmap'd FileChannel requires less memory and inits faster
+      //   - allows simple WN data version changes
+      // else try the jar
+      // - zero environment dependencies
+      //
+      // What behavior should we use if SecurityException is thrown?
+      // - this would invariably mean reading local environment variables 
+      //   and arbitrary files from disk was also prohibited so jar is 
+      //   only solution 
+      // How can we test behavior in a sandboxed environment ?
+      //
+      // If we read from jar, do we need user to trust our application at all?
+      // - may not even need signing in this case - data also delivered as a 
+      //   (11MB) jar so not even network reads required)
+      //
+      // How can we test behavior in the sandboxed, high security environment?
+      
       final String pathname =
         filenameWnRelative ? searchDirectory + File.separator + filename :
         filename;
+
+      final long start = System.nanoTime();
       final File file = new File(pathname);
       if (file.exists() && file.canRead()) {
-        final long start = System.nanoTime();
         //slow CharStream
         //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
         //fast CharStream stream
-        //stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
-        //fast CharStream created from InputStream (e.g. could be read from jar file)
-        //stream = new InputStreamCharStream(pathname);
-        //stream = new InputStreamCharStream(filename, input, (int)file.length());
-        stream = new InputStreamCharStream(filename, input, len);
-        final long duration = System.nanoTime() - start;
-        final long total = streamInitTime.getAndAdd(duration);
-        //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
+        stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
+        //System.err.printf("FileCharStream\n");
       } else {
-        //TODO throw an exception to indicate that pathname is non existant/readble
+        stream = getURLStream(filename);
+        //System.err.printf("URLCharStream\n");
+      }
+      final long duration = System.nanoTime() - start;
+      final long total = streamInitTime += duration;
+      //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
+      if (stream == null) {
+        log.log(Level.SEVERE, "Unable to find data with filename: {0}", filename);
       }
       filenameCache.put(filename, stream);
     }
     return stream;
+  }
+
+  /**
+   * Interpret resourcename as a classpath-relative URL.
+   * @param resourcename
+   * @return CharStream corresponding to resourcename
+   */
+  private synchronized CharStream getURLStream(String resourcename) throws IOException {
+    resourcename = "dict/" + resourcename;
+    // assume WN dict/ is in the classpath
+    final URL url = getClass().getClassLoader().getResource(resourcename);
+    final URLConnection conn = url.openConnection();
+    // get resource length so we can avoid unnecessary buffer copies
+    final int len = conn.getContentLength();
+    final InputStream input = conn.getInputStream();
+    // fast CharStream created from InputStream (e.g. could be read from jar file)
+    return new InputStreamCharStream(resourcename, input, len);
   }
 
   //
