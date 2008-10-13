@@ -11,4 +11,4 @@ VERSION=2.0.0-SNAPSHOT
 ASSERT_ENABLE=" -ea -Dswing.aatext=true -Dawt.useSystemAAFontSettings=on -Dapple.awt.textantialiasing=on -Dapple.laf.useScreenMenuBar=true -Dapple.awt.brushMetalLook=true -Dapple.awt.brushMetalRounded=true -Dapple.awt.showGrowBox=false"
 #java='/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home/bin/java -ea'
 java='java'
-$java -Xdock:name="JWordNet Browser" $LEVEL_ARG $ARGS -Dfile.encoding=US-ASCII $ASSERT_ENABLE -DWNHOME="$WNHOME" -cp ./dict:./target/jwordnet-$VERSION.jar edu.brandeis.cs.steele.wn.browser.Browser "$@"
+$java -Xdock:name="JWordNet Browser" $LEVEL_ARG $ARGS -Dfile.encoding=US-ASCII $ASSERT_ENABLE -DWNHOME="$WNHOME" -cp ./dict:./core/target/jwordnet-core-$VERSION.jar edu.brandeis.cs.steele.wn.browser.Browser "$@"
