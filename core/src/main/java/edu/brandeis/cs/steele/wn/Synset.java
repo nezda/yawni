@@ -280,7 +280,6 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   }
 
   public PointerTarget[] getTargets(final PointerType type) {
-    //TODO could be a little more efficient (no need for intermediate Pointer[])
     return collectTargets(getPointers(type));
   }
 
