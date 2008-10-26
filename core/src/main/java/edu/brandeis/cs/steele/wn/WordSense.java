@@ -125,7 +125,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
 
 
   /**
-   * 1-indexed value.
+   * 1-indexed value.  Note that this value often varies across WordNet versions.
    */
   public int getSenseNumber() {
     if(senseNumber < 1) {
@@ -309,7 +309,8 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   /**
-   * FIXME this should only have 1 value (ie not be a Set)!
+   * Adjective position indicator.
+   * @see AdjPosition
    */
   public AdjPosition getAdjPosition() {
     if (flags == 0) {
@@ -334,7 +335,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     throw new IllegalStateException("invalid flags "+flags);
   }
 
-  //FIXME publish as EnumSet (though store set as a byte for max efficiency
+  // published as long, stored as byte for max efficiency
   long getFlags() {
     return flags;
   }
@@ -491,7 +492,6 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   public Pointer[] getPointers(final PointerType type) {
-    //TODO could be a little more efficient (no need for intermediate Pointer[])
     return restrictPointers(synset.getPointers(type));
   }
 
@@ -500,7 +500,6 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   public PointerTarget[] getTargets(final PointerType type) {
-    //TODO could be a little more efficient (no need for intermediate Pointer[])
     return Synset.collectTargets(getPointers(type));
   }
 
