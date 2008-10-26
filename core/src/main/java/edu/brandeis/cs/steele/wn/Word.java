@@ -173,10 +173,10 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
   public Synset[] getSynsets() {
     // careful with this.synsets
     synchronized(this) {
-      if (synsets instanceof int[]) {
+      if (this.synsets instanceof int[]) {
         final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
         final int[] synsetOffsets = (int[])synsets;
-        // This memory optimization allows this.synsets is an int[] until this
+        // This memory optimization allows this.synsets as an int[] until this
         // method is called to avoid needing to store both the offset and synset
         // arrays
         final Synset[] syns = new Synset[synsetOffsets.length];
@@ -184,11 +184,11 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
           syns[i] = dictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
           assert syns[i] != null : "null Synset at index "+i+" of "+this;
         }
-        synsets = syns;
+        this.synsets = syns;
       }
       // else assert this.synsets instanceof Synset[] already
     }
-    return (Synset[])synsets;
+    return (Synset[])this.synsets;
   }
 
   public WordSense[] getSenses() {
@@ -257,5 +257,4 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
     }
     return result;
   }
-
 }
