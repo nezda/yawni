@@ -167,7 +167,14 @@ public class Searcher {
         output.append(" ");
       }
     }
+    // using POS.ALL - slightly more efficient, but can't know POS of stem
+    //for (final String lemma : dictionary.lookupBaseForms(word, POS.ALL)) {
+    //  output.append(lemma);
+    //  output.append(" ");
+    //}
   }
+
+  // TODO torture test: recursively get all hypernyms / hyponyms -- see if caches blow out memory
 
   public static void main(String[] args) throws Exception {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
