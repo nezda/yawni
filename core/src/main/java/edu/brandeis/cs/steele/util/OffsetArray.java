@@ -1,5 +1,12 @@
 package edu.brandeis.cs.steele.util;
 
+import java.util.List;
+import java.util.AbstractList;
+import java.util.RandomAccess;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+
 /**
  * Strided array of unsigned 3-byte integers.  This means the maximum
  * value which can be stored is 16,777,215 (i.e., 0x00FFFFFF)
@@ -18,7 +25,7 @@ public class OffsetArray {
   // note these shift versions may be faster than their multiplication / division
   // counterparts:
   // x * 3 = x + (x << 1)
-  // x / 3 = x >> 1 ... XXX
+  // x / 3 = (x >> 1) ... XXX 9/3=3 9/2=4r1 21/3=7 21/2=10r1
   private final int stride = 3;
   private final int maxValue = 0x00FFFFFF;
   private byte[] content;
@@ -36,17 +43,18 @@ public class OffsetArray {
 
   public final int get(int offset) {
     offset *= 3;
-    return 
+    // partial reads cannot happen since will throw ArrayIndexOutOfBoundsException
+    return
       (content[offset] & 0xFF) |
       (content[offset + 1] & 0xFF) << 8 |
       (content[offset + 2] & 0xFF) << 16;
   }
 
   public final void set(int offset, final int value) {
-    if(value < 0 || value > maxValue) {
+    if (value < 0 || value > maxValue) {
       throw new IllegalArgumentException("invalid value "+value);
     }
-    if(offset >= length) {
+    if (offset >= length) {
       // disallow any partial write
       throw new ArrayIndexOutOfBoundsException("offset "+offset+" >= "+length);
     }
@@ -64,11 +72,46 @@ public class OffsetArray {
     return length == 0;
   }
   
+  private transient IntegerList integerList;
+
+  /** 
+   * Convenient {@link java.util.List} view of the containing OffsetArray
+   * relying on autoboxing.
+   */
+  public List<Integer> asIntegerList() {
+    if (integerList == null) {
+      integerList = new IntegerList();
+    }
+    return integerList;
+  }
+
+  /** 
+   * {@link java.util.List} view of the containing OffsetArray relying on autoboxing.
+   * Note that every call to {@link #get} will likely result in a new Integer object 
+   * allocation.
+   */
+  private class IntegerList extends AbstractList<Integer> implements RandomAccess {
+    @Override
+    public final Integer get(int offset) {
+      return OffsetArray.this.get(offset);
+    }
+    @Override
+    public final Integer set(int offset, Integer value) {
+      final Integer prev = get(offset);
+      OffsetArray.this.set(offset, offset);
+      return prev;
+    }
+    @Override
+    public final int size() {
+      return OffsetArray.this.size();
+    }
+  } // end class IntegerList
+  
   // stick with Object hashCode for now
 
   @Override
   public final boolean equals(Object obj) {
-    if(obj instanceof OffsetArray) {
+    if (obj instanceof OffsetArray) {
       final OffsetArray that = (OffsetArray)obj;
       return java.util.Arrays.equals(this.content, that.content);
     }
@@ -77,15 +120,12 @@ public class OffsetArray {
 
   @Override
   public final String toString() {
-    final StringBuilder buffer = new StringBuilder();
-    buffer.append("[");
-    for(int i=0; i<length; i++) {
-      buffer.append(get(i));
-      if(i != (length - 1)) {
-        buffer.append(", ");
-      }
-    }
-    buffer.append("]");
-    return buffer.toString();
+    return asIntegerList().toString();
   }
+
+  //public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+  //}
+
+  //public void writeExternal(ObjectOutput out) throws IOException {
+  //}
 }
