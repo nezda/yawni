@@ -25,8 +25,9 @@ class SearchFrame extends JFrame {
   private static final long serialVersionUID = 1L;
 
   private final Dimension minSize;
+  private final Browser browser;
   private final BrowserPanel browserPanel;
-  final JComponent searchPanel;
+  private final JComponent searchPanel;
   private final JTextField searchField;
   private final ConcurrentSearchListModel searchListModel;
   private final JList resultList;
@@ -43,13 +44,14 @@ class SearchFrame extends JFrame {
     PREFIX
   };
 
-  SearchFrame(final BrowserPanel browserPanel) {
+  SearchFrame(final Browser browser, final BrowserPanel browserPanel) {
     super("Substring Search");
+    this.browser = browser;
     this.browserPanel = browserPanel;
     this.setVisible(false);
     this.pos = POS.valueOf(prefs.get("searchPOS", POS.NOUN.name()));
     this.searchType = SearchType.valueOf(prefs.get("searchType", SearchType.SUBSTRING.name()));
-    
+
     // Command+W
     final KeyListener windowHider = new KeyAdapter() {
       public void keyTyped(final KeyEvent evt) {
@@ -106,6 +108,11 @@ class SearchFrame extends JFrame {
     };
 
     this.searchPanel = new JPanel();
+
+    final MoveMouseListener searchWindowMouseListener = new MoveMouseListener(searchPanel);
+    this.addMouseListener(searchWindowMouseListener);
+    this.addMouseMotionListener(searchWindowMouseListener);
+
     this.searchPanel.setLayout(new GridBagLayout());
     this.searchPanel.setBorder(new EmptyBorder(3 /*top*/, 3 /*left*/, 3 /*bottom*/, 3 /*right*/));
 
@@ -289,7 +296,7 @@ class SearchFrame extends JFrame {
 
     // layout search results list
     final JScrollPane jsp = new  JScrollPane(resultList);
-    jsp.setBorder(browserPanel.browser.textAreaBorder);
+    jsp.setBorder(browser.textAreaBorder());
     jsp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

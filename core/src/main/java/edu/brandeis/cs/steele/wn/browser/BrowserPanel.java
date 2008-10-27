@@ -36,7 +36,25 @@ public class BrowserPanel extends JPanel {
   DictionaryDatabase dictionary() {
     return FileBackedDictionary.getInstance();
   }
-  final Browser browser;
+  private final Browser browser;
+  private boolean hasFocus = false;
+
+  private class FocusWatcher implements WindowFocusListener {
+    public void windowGainedFocus(final WindowEvent evt) {
+      System.err.println("gained");
+      hasFocus = true;
+    }
+    public void windowLostFocus(final WindowEvent evt) {
+      System.err.println("lost");
+      hasFocus = false;
+    }
+  } // end class FocusWatcher
+
+  private class FocusWatcher2 extends WindowAdapter { 
+    public void windowDeactivated(final WindowEvent evt) {
+      System.err.println("deactivated");
+    }
+  }
 
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
   private JTextField searchField;
@@ -57,6 +75,9 @@ public class BrowserPanel extends JPanel {
   public BrowserPanel(final Browser browser) {
     this.browser = browser;
     super.setLayout(new BorderLayout());
+
+    browser.addWindowFocusListener(new FocusWatcher());
+    browser.addWindowListener(new FocusWatcher2());
 
     //this.searchField = new JTextField() {
     //  private static final long serialVersionUID = 1L;
@@ -199,7 +220,7 @@ public class BrowserPanel extends JPanel {
     this.add(searchAndPointersPanel, BorderLayout.NORTH);
 
     this.resultEditorPane = new StyledTextPane();
-    this.resultEditorPane.setBorder(browser.textAreaBorder);
+    this.resultEditorPane.setBorder(browser.textAreaBorder());
     this.resultEditorPane.setBackground(Color.WHITE);
     // http://www.groupsrv.com/computers/about179434.html
     // enables scrolling with arrow keys
@@ -451,7 +472,7 @@ public class BrowserPanel extends JPanel {
 
   @Override public void setVisible(final boolean visible) {
     super.setVisible(visible);
-    if(visible) {
+    if (visible) {
       searchField.requestFocusInWindow();
     }
   }
@@ -651,7 +672,7 @@ public class BrowserPanel extends JPanel {
    * Key feature is popup width is as wide as the contents across platforms which is
    * deceptively difficult using JComboBox on most platforms (except OS X).
    */
-  private class PointerTypeComboBox extends JButton /* implements ActionListener */ {
+  private class PointerTypeComboBox extends JToggleButton /* implements ActionListener */ {
     // FIXME if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
     // FIXME if user changes text field contents and selects menu, bad things will happen
     // FIXME tab doesn't work from popup menu
@@ -690,22 +711,43 @@ public class BrowserPanel extends JPanel {
         //public void mouseReleased(final MouseEvent evt) {
         //  System.err.println("mouseReleased");
         //}
-        public void mouseClicked(final MouseEvent evt) {
+        //public void mouseClicked(final MouseEvent evt) {
+        //  if (false == isEnabled()) {
+        //    System.err.println("not enabled");
+        //    return;
+        //  }
+        //  assert inButton;
+        //  //System.err.println("mousePressed "+menu.isPopupTrigger(evt));
+        //  //XXX assert evt.getComponent() instanceof JButton;
+        //  // maybe do this in event thread
+        //  assert SwingUtilities.isEventDispatchThread();
+        //  SwingUtilities.invokeLater(new Runnable() {
+        //    public void run() {
+        //      togglePopup();
+        //    }
+        //  });
+        //  //togglePopup();
+        //  //System.err.println("mousePressed done");
+        //}
+      });
+      
+      this.addActionListener(new ActionListener() {
+        public void actionPerformed(final ActionEvent evt) {
           if (false == isEnabled()) {
             System.err.println("not enabled");
             return;
           }
-          assert inButton;
+          //assert inButton;
           //System.err.println("mousePressed "+menu.isPopupTrigger(evt));
-          assert evt.getComponent() instanceof JButton;
-          // maybe do this in event thread
-          assert SwingUtilities.isEventDispatchThread();
-          SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-              togglePopup();
-            }
-          });
-          //togglePopup();
+          //XXX assert evt.getComponent() instanceof JButton;
+          //assert SwingUtilities.isEventDispatchThread();
+          //SwingUtilities.invokeLater(new Runnable() {
+          //  public void run() {
+          //    togglePopup();
+          //  }
+          //});
+          System.err.println("isSelected(): "+isSelected());
+          togglePopup();
           //System.err.println("mousePressed done");
         }
       });
@@ -732,16 +774,17 @@ public class BrowserPanel extends JPanel {
 
     /** if popup is showing, hide it, else show it */
     private void togglePopup() {
-      if (false == menu.isVisible()) {
-        System.err.println("SHOW menu.isVisible(): "+menu.isVisible());
+      //if (false == menu.isVisible()) {
+      if (false == showing) {
+        System.err.println("SHOW");
         final Insets margins = getMargin();
         final int px = 5;
         final int py = 1 + this.getHeight() - margins.bottom;
         menu.show(this, px, py);
         showing = true;
-        System.err.println("  menu.isVisible(): "+menu.isVisible());
+        //System.err.println("  menu.isVisible(): "+menu.isVisible());
       } else {
-        assert menu.isVisible();
+        //assert menu.isVisible();
         System.err.println("HIDE");
         //menu.setVisible(false);
         showing = false;
@@ -787,7 +830,10 @@ public class BrowserPanel extends JPanel {
         switch(evt.getKeyChar()) {
           case '/':
             // if slash, go-back to searchField
+            //PointerTypeComboBox.this.doClick();
+            PointerTypeComboBox.this.setSelected(false);
             setVisible(false);
+            showing = false;
             slashAction.actionPerformed(null);
             break;
         }
@@ -806,14 +852,19 @@ public class BrowserPanel extends JPanel {
           //showing = true;
         } else {
           //showing = false;
+          if(hasFocus == false || inButton == false) {
+            PointerTypeComboBox.this.setSelected(false);
+            showing = false;
+          }
         }
-        showing = show;
-        //System.err.println("V setVisible: "+show);
+        //XXX showing = show;
+        System.err.println("setVisible: "+show+" hasFocus: "+hasFocus+" inButton: "+inButton);
         //System.err.println("V isFocusable(): "+isFocusable());
         //System.err.println("V isDisplayable(): "+isDisplayable());
       }
 
       @Override protected  void firePopupMenuWillBecomeVisible() {
+        System.err.println("firePopupMenuWillBecomeVisible()");
         //System.err.println("firePopupMenuWillBecomeVisible() "+isLightweightComponent(this)+
         //    " isLightWeightPopupEnabled(): "+isLightWeightPopupEnabled());
         //System.err.println("isFocusable(): "+isFocusable());
@@ -822,20 +873,22 @@ public class BrowserPanel extends JPanel {
         //requestFocus();
         //System.err.println("isDisplayable(): "+isDisplayable());
         //System.err.println("vis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
+        //showing = true;
       }
 
       @Override protected  void firePopupMenuWillBecomeInvisible() {
-        //System.err.println("firePopupMenuWillBecomeInvisible()");
+        System.err.println("firePopupMenuWillBecomeInvisible()");
         //System.err.println("isFocusable(): "+isFocusable());
         //System.err.println("invis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
         //if (false == inButton) {
         //  showing = false;
         //}
         //MenuSelectionManager.defaultManager().clearSelectedPath();
+        //showing = false;
       }
 
       @Override protected void firePopupMenuCanceled() {
-        //System.err.println("firePopupMenuCanceled()");
+        System.err.println("firePopupMenuCanceled()");
         //showing = false;
       }
     } // end class PointerTypeMenu
@@ -920,7 +973,6 @@ public class BrowserPanel extends JPanel {
 
   // 
   private synchronized void preload() {
-
     final Runnable preloader = new Runnable() {
       public void run() {
         // issue search for word which occurs as all POS to
