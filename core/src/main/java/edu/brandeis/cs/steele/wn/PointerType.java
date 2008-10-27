@@ -381,5 +381,7 @@ class PointerTypeFlag {
   static final int ADJ = 4;
   static final int ADV = 8;
   static final int SAT_ADJ = 16;
+  // special case indicator for lexical relations (those connecting specific WordSenses)
+  // rather than common case semantic relations which connect Synsets.
   static final int LEXICAL = 32;
 }
