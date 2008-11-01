@@ -8,7 +8,7 @@ import java.util.*;
 public class OffsetArrayTest {
   @Test
   public void basics() {
-    OffsetArray a1 = new OffsetArray(4);
+    IdArray a1 = new IdArray(4);
     a1.set(0, 0);
     a1.set(1, 1);
     a1.set(2, 2);
@@ -19,7 +19,7 @@ public class OffsetArrayTest {
     assertEquals(a1.get(2), 2);
     assertEquals(a1.get(3), 3);
 
-    OffsetArray a2 = new OffsetArray(4);
+    IdArray a2 = new IdArray(4);
     a2.set(0, 0);
     a2.set(1, 1);
     a2.set(2, 2);
@@ -31,7 +31,7 @@ public class OffsetArrayTest {
   @Test
   public void linearMarch() {
     final int len = 2048;
-    OffsetArray a1 = new OffsetArray(len);
+    IdArray a1 = new IdArray(len);
     for(int i=0; i<len; i++) {
       a1.set(i, i);
     }
@@ -42,7 +42,7 @@ public class OffsetArrayTest {
 
   @Test
   public void empty() {
-    OffsetArray a1 = new OffsetArray(0);
+    IdArray a1 = new IdArray(0);
     //System.err.println(a1);
     assertEquals(Arrays.toString(new int[0]), a1.toString());
     assertTrue(a1.isEmpty());
@@ -51,25 +51,25 @@ public class OffsetArrayTest {
 
   @Test (expected=ArrayIndexOutOfBoundsException.class)
   public void outOfBounds() {
-    OffsetArray a1 = new OffsetArray(0);
+    IdArray a1 = new IdArray(0);
     a1.set(1, 1);
   }
   
   @Test (expected=IllegalArgumentException.class)
   public void overflow() {
-    OffsetArray a1 = new OffsetArray(1);
+    IdArray a1 = new IdArray(1);
     a1.set(0, Integer.MAX_VALUE); 
   }
 
   @Test (expected=IllegalArgumentException.class)
   public void negative() {
-    OffsetArray a1 = new OffsetArray(1);
+    IdArray a1 = new IdArray(1);
     a1.set(0, -1);
   }
 
   @Test
   public void toStringDoesntThrow() {
-    OffsetArray a1 = new OffsetArray(4);
+    IdArray a1 = new IdArray(4);
     a1.set(0, 0);
     a1.set(1, 1);
     a1.set(2, 2);
@@ -82,7 +82,7 @@ public class OffsetArrayTest {
    */
   @Test
   public void asIntegerList() {
-    OffsetArray descending = new OffsetArray(4);
+    IdArray descending = new IdArray(4);
     descending.set(0, 3);
     descending.set(1, 2);
     descending.set(2, 1);

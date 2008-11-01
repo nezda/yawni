@@ -8,20 +8,19 @@ import java.io.IOException;
 import java.io.ObjectInput;
 
 /**
- * Strided array of unsigned 3-byte integers.  This means the maximum
- * value which can be stored is 16,777,215 (i.e., 0x00FFFFFF)
- * Provides 1 byte of storage savings per offset which can add up in
- * some applications but preserves fast random access.
- * Like an array, an OffsetArray is not resizable.
+ * Strided array of unsigned 3-byte integers.  The maximum value which can be
+ * stored is 16,777,215 (i.e., 0x00FFFFFF). Provides 1 byte of storage savings
+ * per offset over int[] which can add up in some applications but preserves
+ * fast random access.  Like an array, an IdArray is not resizable.
  *
  * Features:
  * <ul>
- *   <li> TODO sort, including partial ranges</li>
  *   <li> TODO binary search, including partial ranges </li>
  *   <li> TODO fast serialization and deserialization ({@link Externalizable}). </li>
+ *   <li> TODO sort, including partial ranges</li>
  * </ul>
  */
-public class OffsetArray {
+public class IdArray {
   // note these shift versions may be faster than their multiplication / division
   // counterparts:
   // x * 3 = x + (x << 1)
@@ -33,7 +32,7 @@ public class OffsetArray {
   /**
    * @param number of offsets to store
    */
-  public OffsetArray(final int length) {
+  public IdArray(final int length) {
     if (length < 0) {
       throw new IllegalArgumentException("invalid length "+length);
     }
@@ -75,7 +74,7 @@ public class OffsetArray {
   private transient IntegerList integerList;
 
   /** 
-   * Convenient {@link java.util.List} view of the containing OffsetArray
+   * Convenient {@link java.util.List} view of the containing IdArray
    * relying on autoboxing.
    */
   public List<Integer> asIntegerList() {
@@ -86,24 +85,24 @@ public class OffsetArray {
   }
 
   /** 
-   * {@link java.util.List} view of the containing OffsetArray relying on autoboxing.
+   * {@link java.util.List} view of the containing IdArray relying on autoboxing.
    * Note that every call to {@link #get} will likely result in a new Integer object 
    * allocation.
    */
   private class IntegerList extends AbstractList<Integer> implements RandomAccess {
     @Override
     public final Integer get(int offset) {
-      return OffsetArray.this.get(offset);
+      return IdArray.this.get(offset);
     }
     @Override
     public final Integer set(int offset, Integer value) {
       final Integer prev = get(offset);
-      OffsetArray.this.set(offset, offset);
+      IdArray.this.set(offset, offset);
       return prev;
     }
     @Override
     public final int size() {
-      return OffsetArray.this.size();
+      return IdArray.this.size();
     }
   } // end class IntegerList
   
@@ -111,8 +110,8 @@ public class OffsetArray {
 
   @Override
   public final boolean equals(Object obj) {
-    if (obj instanceof OffsetArray) {
-      final OffsetArray that = (OffsetArray)obj;
+    if (obj instanceof IdArray) {
+      final IdArray that = (IdArray)obj;
       return java.util.Arrays.equals(this.content, that.content);
     }
     return false;
