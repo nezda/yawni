@@ -73,7 +73,7 @@ public class Browser extends JFrame {
   // FIXME ditch this magic number
   final Icon BLANK_ICON = new BlankIcon(14, 14);
   final int pad = 5;
-  final Border textAreaBorder;
+  private final Border textAreaBorder;
 
   public Browser() {
     super(Application.getInstance().getName()+" Browser");
@@ -224,8 +224,8 @@ public class Browser extends JFrame {
 
   private void showSearchWindow(final String searchText) {
     if (searchWindow == null) {
-      searchWindow = new SearchFrame(browserPanel);
-      searchWindowMouseListener = new MoveMouseListener(searchWindow.searchPanel);
+      searchWindow = new SearchFrame(this, browserPanel);
+      searchWindowMouseListener = new MoveMouseListener(searchWindow.searchPanel());
       searchWindow.addMouseListener(searchWindowMouseListener);
       searchWindow.addMouseMotionListener(searchWindowMouseListener);
     }
@@ -233,6 +233,10 @@ public class Browser extends JFrame {
     searchWindow.setSearchText(searchText);
     searchWindow.toFront();
     searchWindow.setVisible(true);
+  }
+
+  Border textAreaBorder() {
+    return textAreaBorder;
   }
 
   /**

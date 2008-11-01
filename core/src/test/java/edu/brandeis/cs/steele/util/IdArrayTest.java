@@ -5,7 +5,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
 
-public class OffsetArrayTest {
+public class IdArrayTest {
   @Test
   public void basics() {
     IdArray a1 = new IdArray(4);

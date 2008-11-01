@@ -353,6 +353,10 @@ class SearchFrame extends JFrame {
     pos = CATS[posChoice.getSelectedIndex()];
     return pos;
   }
+  
+  JComponent searchPanel() {
+    return searchPanel;
+  }
 
   void reposition() {
     //TODO align top of SearchFrame with top of Browser along its left edge
