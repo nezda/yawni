@@ -107,6 +107,6 @@ public class IdArrayTest {
   }
 
   public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(OffsetArrayTest.class);
+    return new JUnit4TestAdapter(IdArrayTest.class);
   }
 }
