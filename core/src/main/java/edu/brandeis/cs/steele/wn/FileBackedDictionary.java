@@ -76,6 +76,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
     this(new FileManager(searchDirectory));
   }
 
+  // thread-safe singleton trick from:
+  // http://tech.puredanger.com/2007/06/15/double-checked-locking/
   static class InstanceHolder {
     /** singleton reference */
     static final FileBackedDictionary instance = new FileBackedDictionary();
