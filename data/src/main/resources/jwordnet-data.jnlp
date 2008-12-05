@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+  <!-- FIXME make the codebase path a param -->
   <jnlp spec="1.0+" codebase="file:///home/luke/code/java/jwordnet.refactor/jnlp/">
   <!-- <jnlp spec="1.0+" codebase="http://www.fatbread.com/"> -->
   <information>
-    <title>JWordNet Daat</title>
+    <title>JWordNet Data</title>
     <vendor>Luke Nezda</vendor>
     <homepage href="http://www.fatbread.com/" />
     <description>WordNet data in jar for JWordNet browser</description>
