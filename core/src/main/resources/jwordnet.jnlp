@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+  <!-- FIXME make the codebase path a param -->
   <jnlp spec="1.0+" codebase="file:///home/luke/code/java/jwordnet.refactor/jnlp/">
   <!-- <jnlp spec="1.0+" codebase="http://www.fatbread.com/"> -->
   <information>
