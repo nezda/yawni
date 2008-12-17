@@ -6,8 +6,7 @@ public class WordToLemma extends MutatedIterable<Word, String> {
   public WordToLemma(final Iterable<Word> iterable) {
     super(iterable);
   }
-  @Override
-  public String apply(final Word word) {
+  @Override public String apply(final Word word) {
     return word.getLemma();
   }
 }
