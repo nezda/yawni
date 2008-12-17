@@ -43,8 +43,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   private final FileManagerInterface db;
-  protected final Morphy morphy;
-
+  final Morphy morphy;
 
   //
   // Constructors
@@ -119,8 +118,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
   private Cache<DatabaseKey, Object> indexWordCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
 
   static interface DatabaseKey {
-    public int hashCode();
-    public boolean equals(Object that);
+    @Override public int hashCode();
+    @Override public boolean equals(Object that);
   } // end interface DatabaseKey
 
   static class POSOffsetDatabaseKey implements DatabaseKey {
@@ -141,7 +140,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
 
     @Override public int hashCode() {
-      return ((int) offset * 10) + posOrdinal;
+      return (offset * 10) + posOrdinal;
     }
   } // end class POSOffsetDatabaseKey
 
