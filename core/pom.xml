@@ -64,6 +64,13 @@
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <enableAssertions/>
           <!-- -XX:CompileThreshold=1 -->
+          <systemProperties>
+            <!-- Required to pass this system property through to the unit tests -->
+            <property>
+              <name>WNHOME</name>
+              <value>${WNHOME}</value>
+            </property>
+          </systemProperties>
         </configuration>
       </plugin>
       <plugin>
