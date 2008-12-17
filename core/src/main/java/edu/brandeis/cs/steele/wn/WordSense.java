@@ -153,7 +153,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
    * Use this <code>WordSense</code>s lemma as key to find its <code>Word</code>.
    */
   Word getWord() {
-    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     final Word word = dictionary.lookupWord(lemma, getPOS());
     assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
     return word;
