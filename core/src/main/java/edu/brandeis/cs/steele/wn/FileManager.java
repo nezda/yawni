@@ -7,15 +7,12 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 import java.util.logging.*;
 import java.nio.*;
-import java.nio.charset.*;
 import java.nio.channels.*;
 import java.io.*;
-import java.util.concurrent.atomic.AtomicLong;
 import edu.brandeis.cs.steele.util.Utils;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.JarURLConnection;
-import java.util.jar.*;
 
 /** An implementation of <code>FileManagerInterface</code> that reads files
  * from the local file system.  A file  <code>FileManager</code> caches the
@@ -467,9 +464,13 @@ public class FileManager implements FileManagerInterface {
       final String pathname =
         filenameWnRelative ? searchDirectory + File.separator + filename :
         filename;
+      //System.err.println("filenameWnRelative: "+filenameWnRelative);
+      //System.err.println("searchDirectory: "+searchDirectory);
+      //System.err.println("filename: "+filename);
 
       final long start = System.nanoTime();
       final File file = new File(pathname);
+      //System.err.printf("pathname: "+file+"\n");
       if (file.exists() && file.canRead()) {
         //slow CharStream
         //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
