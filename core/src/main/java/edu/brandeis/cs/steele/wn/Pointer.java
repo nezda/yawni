@@ -100,10 +100,10 @@ public class Pointer implements Comparable<Pointer> {
   //
   // Object methods
   //
-  @Override public boolean equals(final Object object) {
-    return (object instanceof Pointer)
-      && ((Pointer) object).source.equals(this.source)
-      && ((Pointer) object).index == this.index;
+  @Override public boolean equals(final Object that) {
+    return (that instanceof Pointer)
+      && ((Pointer) that).source.equals(this.source)
+      && ((Pointer) that).index == this.index;
   }
 
   @Override public int hashCode() {

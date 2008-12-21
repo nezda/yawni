@@ -223,15 +223,15 @@ public class Word implements Comparable<Word>, Iterable<WordSense> {
   //
   // Object methods
   //
-  @Override public boolean equals(final Object object) {
-    return (object instanceof Word)
-      && ((Word) object).posOrdinal == posOrdinal
-      && ((Word) object).offset == offset;
+  @Override public boolean equals(final Object that) {
+    return (that instanceof Word)
+      && ((Word) that).posOrdinal == posOrdinal
+      && ((Word) that).offset == offset;
   }
 
   @Override public int hashCode() {
     // times 10 shifts left by 1 decimal place
-    return ((int) offset * 10) + getPOS().hashCode();
+    return (offset * 10) + getPOS().hashCode();
   }
 
   @Override public String toString() {

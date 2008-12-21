@@ -291,15 +291,15 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   //
   // Object methods
   //
-  @Override public boolean equals(Object object) {
-    return (object instanceof Synset)
-      && ((Synset) object).posOrdinal == posOrdinal
-      && ((Synset) object).offset == offset;
+  @Override public boolean equals(Object that) {
+    return (that instanceof Synset)
+      && ((Synset) that).posOrdinal == posOrdinal
+      && ((Synset) that).offset == offset;
   }
 
   @Override public int hashCode() {
     // times 10 shifts right by 1 decimal place
-    return ((int) offset * 10) + getPOS().hashCode();
+    return (offset * 10) + getPOS().hashCode();
   }
 
   @Override public String toString() {
