@@ -167,7 +167,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
     return new String(gloss);
   }
 
-  public WordSense[] getWords() {
+  public WordSense[] getWordSenses() {
     return wordSenses;
   }
 
@@ -193,7 +193,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
     return offset;
   }
 
-  WordSense getWord(final int index) {
+  WordSense getWordSense(final int index) {
     return wordSenses[index];
   }
 
