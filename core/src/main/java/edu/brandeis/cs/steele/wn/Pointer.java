@@ -93,7 +93,7 @@ public class Pointer implements Comparable<Pointer> {
     if (index == 0) {
       return synset;
     } else {
-      return synset.getWord(index - 1);
+      return synset.getWordSense(index - 1);
     }
   }
 
