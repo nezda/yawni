@@ -150,7 +150,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   /** 
-   * Use this <code>WordSense</code>s lemma as key to find its <code>Word</code>.
+   * Use this <code>WordSense</code>'s lemma as key to find its <code>Word</code>.
    */
   Word getWord() {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
@@ -173,8 +173,8 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       // if satellite, key lemma in cntlist.rev
       // is adjss's first word (no case) and
       // adjss's lexid (aka lexfilenum) otherwise
-      searchWord = adjss.getWords()[0].getLemma();
-      headSense = adjss.getWords()[0].lexid;
+      searchWord = adjss.getWordSenses()[0].getLemma();
+      headSense = adjss.getWordSenses()[0].lexid;
     } else {
       searchWord = getLemma();
       headSense = lexid;
