@@ -14,14 +14,14 @@ import java.util.*;
  * <code>Iterator</code> protocol distributes the work of determining whether another
  * element exists, and supplying it, across two methods.  A call that implements an <code>Iterator</code> that terminates on
  * failure to generate must therefore cache the next result.  This class can be used as a
- * wrapper, to cache the result independently of the generator logic.  <code>LookaheadIterator.hasNext</code>
+ * wrapper, to cache the result independently of the generator logic.  <code>LookAheadIterator.hasNext</code>
  * returns <code>false</code> when <code>hasNext</code> of the wrapped object returns <code>false</code>,
  * <i>or</i> when <code>next</code> of the wrapped class throws a {@link NoSuchElementException}.
  *
  * <p>An <code>Iterator&lt;String&gt;</code> that supplies the lines of a file until the file ends
  * can be written thusly:
  * <pre>
- * new LookaheadIterator&lt;String&gt;(new Iterator&lt;String&gt;() {
+ * new LookAheadIterator&lt;String&gt;(new Iterator&lt;String&gt;() {
  *   BuffereredReader input = ...;
  *   public boolean hasNext() { return true; }
  *   public String next() {
@@ -37,7 +37,7 @@ import java.util.*;
  * <p>An <code>Iterator</code> that generates the natural numbers below the first with
  * that satisfy predicate <var>p</var> can be written thusly:
  * <pre>
- * new LookaheadIterator&lt;Integer&gt;(new Iterator&lt;Integer&gt;() {
+ * new LookAheadIterator&lt;Integer&gt;(new Iterator&lt;Integer&gt;() {
  *   int n = 0;
  *   public boolean hasNext() { return true; }
  *   public Integer next() {
@@ -59,13 +59,13 @@ import java.util.*;
 //   next() which will set "nextItem" to POISON when actual data source is exhausted
 //   On each call to next(), source will be probed for another item to distribute
 //   which will be cached.
-public class LookaheadIterator<T> implements Iterator<T> {
+public class LookAheadIterator<T> implements Iterator<T> {
   protected Iterator<T> ground;
   protected boolean peeked;
   protected T nextObject;
   protected boolean more;
 
-  public LookaheadIterator(final Iterator<T> ground) {
+  public LookAheadIterator(final Iterator<T> ground) {
     this.peeked = false;
     this.ground = ground;
   }
