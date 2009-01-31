@@ -83,7 +83,8 @@ public class Pointer implements Comparable<Pointer> {
 
   public PointerTarget getTarget() {
     return resolveTarget(
-        FileBackedDictionary.getInstance().getSynsetAt(
+        // using source.getSynset() to avoid requiring a local field
+        source.getSynset().fileBackedDictionary.getSynsetAt(
           POS.fromOrdinal(targetPOSOrdinal),
           targetOffset),
         targetIndex);
