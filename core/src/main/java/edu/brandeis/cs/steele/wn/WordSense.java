@@ -8,7 +8,8 @@ import java.util.*;
 import edu.brandeis.cs.steele.util.Utils;
 
 
-/** A <code>WordSense</code> represents the lexical information related to a specific sense of a {@link Word}.
+/**
+ * A <code>WordSense</code> represents the lexical information related to a specific sense of a {@link Word}.
  *
  * <code>WordSense</code>'s are linked by {@link Pointer}s into a network of lexically related <code>Synset</code>s
  * and <code>WordSense</code>s.
@@ -21,7 +22,7 @@ import edu.brandeis.cs.steele.util.Utils;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class WordSense implements PointerTarget, Comparable<WordSense> {
+public final class WordSense implements PointerTarget, Comparable<WordSense> {
   /**
    * <i>Optional</i> restrictions for the position(s) an adjective can take
    * relative to the noun it modifies. aka "adjclass".
@@ -60,6 +61,9 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
   private long verbFrameFlags;
   private short senseNumber;
 
+  //
+  // Constructor
+  //
   WordSense(final Synset synset, final String lemma, final int lexid, final int flags) {
     this.synset = synset;
     this.lemma = lemma;
@@ -106,16 +110,16 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     if(AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
       flagString.append("predicative");
     }
-    if(AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
-      if(flagString.length() != 0) {
+    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
+      if (flagString.length() != 0) {
         flagString.append(",");
       }
       // synonymous with attributive - WordNet browser seems to use this
       // while the database files seem to indicate it as attributive
       flagString.append("prenominal");
     }
-    if(AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
-      if(flagString.length() != 0) {
+    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
+      if (flagString.length() != 0) {
         flagString.append(",");
       }
       flagString.append("immediate_postnominal");
@@ -123,12 +127,11 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     return flagString.toString();
   }
 
-
   /**
    * 1-indexed value.  Note that this value often varies across WordNet versions.
    */
   public int getSenseNumber() {
-    if(senseNumber < 1) {
+    if (senseNumber < 1) {
       // Ordering of Word's Synsets (combo(Word, Synset)=Word)
       // is defined by sense tagged frequency, but this is implicit)
       // Get Word and scan this WordSense's Synsets and 
@@ -137,7 +140,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       int senseNumber = 0;
       for (final Synset syn : word.getSynsets()) {
         senseNumber--;
-        if(syn.equals(synset)) {
+        if (syn.equals(synset)) {
           senseNumber = -senseNumber;
           break;
         }
@@ -153,8 +156,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
    * Use this <code>WordSense</code>'s lemma as key to find its <code>Word</code>.
    */
   Word getWord() {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
-    final Word word = dictionary.lookupWord(lemma, getPOS());
+    final Word word = synset.fileBackedDictionary.lookupWord(lemma, getPOS());
     assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
     return word;
   }
@@ -282,7 +284,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
     //and really we wouldn't need to look at sense (numbers) exceeding that value
     //as an optimization
     final CharSequence senseKey = getSenseKey();
-    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    final FileBackedDictionary dictionary = synset.fileBackedDictionary;
     final String line = dictionary.lookupCntlistDotRevLine(senseKey);
     int count = 0;
     if (line != null) {
@@ -362,7 +364,7 @@ public class WordSense implements PointerTarget, Comparable<WordSense> {
       return Collections.emptyList();
     }
     final CharSequence senseKey = getSenseKey();
-    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
+    final FileBackedDictionary dictionary = synset.fileBackedDictionary;
     final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
     List<String> frames = Collections.emptyList();
     if (sentenceNumbers != null) {
