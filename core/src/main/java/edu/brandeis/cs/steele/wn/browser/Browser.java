@@ -11,35 +11,24 @@ package edu.brandeis.cs.steele.wn.browser;
 import java.util.logging.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.rmi.RMISecurityManager;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.basic.*;
 import java.util.prefs.*;
-import java.lang.reflect.*;
 
-/** A graphical interface to the WordNet online lexical database.
+/**
+ * A graphical interface to the WordNet online lexical database.
  *
  * <p>The GUI is loosely based on the interface to the Tcl/Tk version by David Slomin.
  *
  * <p>The browser can be invoked as follows:
- * <dl>
- *   <dt><code>java edu.brandeis.cs.steele.wn.Browser</code>
- *   <dt>To invoke a browser on the local database.
+ * <ul>
+ *   <li> <code>java edu.brandeis.cs.steele.wn.Browser</code><br>
+ *        To invoke a browser on the local database. </li>
  *
- *   <dt><code>java edu.brandeis.cs.steele.wn.Browser <var>dir</dir></code>
- *   <dt>To invoke a browser on a local database stored at <var>dir</dir>.
- *
- *   <dt><code>java edu.brandeis.cs.steele.wn.Browser -hostname <var>hostname</var></code>
- *   <dt>To invoke a browser that's served by a <code>RemoteFileManager</code> on <var>hostname</var>.
- *       See {@link edu.brandeis.cs.steele.wn.RemoteFileManager RemoteFileManager}.
- *
- *   <dt><code>java edu.brandeis.cs.steele.wn.Browser -server</code>
- *   <dt>To create a <code>RemoteFileManager</code> and connect to it using the RMI interface.
- *       This is useful for testing.
- * </dl>
+ *   <li> <code>java edu.brandeis.cs.steele.wn.Browser <var>dir</dir></code><br>
+ *        To invoke a browser on a local database stored at <tt>dir</tt>. </li>
+ * </ul>
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
@@ -81,16 +70,12 @@ public class Browser extends JFrame {
     // ⊚ \u229a CIRCLED RING OPERATOR
     // ◎ \u25ce BULLSEYE
     this.setName(Browser.class.getName());
-    //FIXME this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //XXX this.setVisible(false);
-    //XXX this.setSize(640, 480);
-    //XXX Toolkit.getDefaultToolkit().setDynamicLayout(true);
-    //XXX System.err.println("dynLayout: "+Toolkit.getDefaultToolkit().isDynamicLayoutActive());
 
     this.textAreaBorder = new BasicBorders.MarginBorder() {
       private static final long serialVersionUID = 1L;
       private final Insets insets = new Insets(pad, pad, pad, pad);
-      @Override public Insets getBorderInsets(final Component c) {
+      @Override
+      public Insets getBorderInsets(final Component c) {
         return insets;
       }
     };
@@ -109,8 +94,11 @@ public class Browser extends JFrame {
       private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
-        putValue(Action.MNEMONIC_KEY, KeyEvent.VK_F);
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F, MENU_MASK));
+        final KeyStroke findKeyStroke = KeyStroke.getKeyStroke(
+          KeyEvent.VK_F,
+          KeyEvent.SHIFT_DOWN_MASK | MENU_MASK);
+        putValue(Action.MNEMONIC_KEY, findKeyStroke.getKeyCode());
+        putValue(Action.ACCELERATOR_KEY, findKeyStroke);
         putValue(Action.SMALL_ICON, BLANK_ICON);
         //putValue(Action.SMALL_ICON, browserPanel.createFindIcon(14, true));
         return 0;
@@ -181,8 +169,8 @@ public class Browser extends JFrame {
     setJMenuBar(mainMenuBar);
 
     final WindowAdapter closer = new WindowAdapter() {
-      @Override public void windowClosing(final WindowEvent evt) {
-        //System.err.println("closing");
+      @Override
+      public void windowClosing(final WindowEvent evt) {
         quitAction.actionPerformed(null);
       }
     };
@@ -193,6 +181,7 @@ public class Browser extends JFrame {
     this.minSize = new Dimension(getPreferredSize().width, getMinimumSize().height);
     setMinimumSize(minSize);
     addComponentListener(new ComponentAdapter() {
+      @Override
       public void componentResized(final ComponentEvent evt) {
         int width = getWidth();
         int height = getHeight();
@@ -274,57 +263,8 @@ public class Browser extends JFrame {
     PreferencesManager.setLookAndFeel();
 
     //final DictionaryDatabase dictionary;
-    //String searchDir = null;
-    //String hostname = null;
-    //boolean isServer = false;
-
-    //// parse the arguments
-    //for (int i = 0; i < args.length; ++i) {
-    //  if (args[i].equals("-hostname")) {
-    //    hostname = args[++i];
-    //  } else if (args[i].equals("-server")) {
-    //    isServer = true;
-    //  } else if (args[i].startsWith("-") || searchDir != null) {
-    //    displayUsageError();
-    //    return;
-    //  } else {
-    //    searchDir = args[i];
-    //  }
-    //}
-    //if (hostname != null && isServer) {
-    //  displayUsageError();
-    //  return;
-    //}
-
-    //// create or lookup the server
-    //if (isServer) {
-    //  // Install a security manager and create a registry, but ignore any errors --
-    //  // one may already exist, and we'll just fall through to work with that one
-    //  // (and propagate the exception that RemoteFileManager.bind throws, if it
-    //  // doesn't exist).
-    //  try {
-    //    System.setSecurityManager(new RMISecurityManager());
-    //    LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
-    //  } catch (Exception e) { }
-    //  try {
-    //    if (searchDir != null) {
-    //      new RemoteFileManager(searchDir).bind();
-    //    } else {
-    //      new RemoteFileManager().bind();
-    //    }
-    //  } catch (Exception e) {
-    //    throw new RuntimeException(e.toString());
-    //  }
-    //  // Connect to that server.
-    //  hostname = "127.0.0.1";
-    //}
-    //if (hostname != null) {
-    //  try {
-    //    dictionary = FileBackedDictionary.getInstance(RemoteFileManager.lookup(hostname));
-    //  } catch (Exception e) {
-    //    throw new RuntimeException(e.toString());
-    //  }
-    //} else if (searchDir != null) {
+    //String searchDir = null; // args[0]
+    //if (searchDir != null) {
     //  dictionary = FileBackedDictionary.getInstance(searchDir);
     //} else {
     //  dictionary = FileBackedDictionary.getInstance();
@@ -339,6 +279,6 @@ public class Browser extends JFrame {
   }
 
   //static void displayUsageError() {
-  //  System.err.println("usage: Browser [-hostname | -server] [searchDir]");
+  //  System.err.println("usage: Browser [searchDir]");
   //}
 }
