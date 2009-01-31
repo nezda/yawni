@@ -275,7 +275,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-      word = new Word(line, offset);
+      word = new Word(line, offset, this);
       indexWordCache.put(cacheKey, word);
     }
     return word;
@@ -302,7 +302,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
           throw new RuntimeException(e);
         }
       }
-      synset = new Synset(line);
+      synset = new Synset(line, this);
       synsetCache.put(cacheKey, synset);
     }
     return synset;
@@ -670,13 +670,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
           nextOffset = db.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith("  ")); // first few lines start with "  "
         //FIXME something seems wrong with this
-        return new Word(line, offset);
+        return new Word(line, offset, FileBackedDictionary.this);
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
     }
     public boolean hasNext() {
-      // meant to be used with LookaheadIterator
+      // meant to be used with LookAheadIterator
       return true;
     }
     public void remove() {
@@ -698,7 +698,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     } else {
       return new Iterable<Word>() {
         public Iterator<Word> iterator() {
-          return new LookaheadIterator<Word>(new WordIterator(pos));
+          return new LookAheadIterator<Word>(new WordIterator(pos));
         }
       };
     }
@@ -734,7 +734,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
     }
     public boolean hasNext() {
-      // meant to be used with LookaheadIterator
+      // meant to be used with LookAheadIterator
       return true;
     }
     public void remove() {
@@ -747,7 +747,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
-        return new LookaheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
+        return new LookAheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
       }
     };
   }
@@ -784,7 +784,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
     }
     public boolean hasNext() {
-      // meant to be used with LookaheadIterator
+      // meant to be used with LookAheadIterator
       return true;
     }
     public void remove() {
@@ -797,7 +797,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     checkValidPOS(pos);
     return new Iterable<Word>() {
       public Iterator<Word> iterator() {
-        return new LookaheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
+        return new LookAheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
       }
     };
   }
@@ -835,7 +835,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       }
     }
     public boolean hasNext() {
-      // meant to be used with LookaheadIterator
+      // meant to be used with LookAheadIterator
       return true;
     }
     public void remove() {
@@ -848,7 +848,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     checkValidPOS(pos);
     return new Iterable<Synset> () {
       public Iterator<Synset> iterator() {
-        return new LookaheadIterator<Synset>(new POSSynsetsIterator(pos));
+        return new LookAheadIterator<Synset>(new POSSynsetsIterator(pos));
       }
     };
   }
