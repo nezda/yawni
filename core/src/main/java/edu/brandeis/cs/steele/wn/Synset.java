@@ -8,7 +8,8 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 import java.util.logging.*;
 
-/** A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <var>pos</var><code>.data</code> file.
+/**
+ * A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <var>pos</var><code>.data</code> file.
  * A <code>Synset</code> represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
  * that names that concept (and each of which is therefore synonymous with the other <code>WordSense</code>s in the
  * <code>Synset</code>).
@@ -22,11 +23,13 @@ import java.util.logging.*;
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
  */
-public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
+public final class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Synset.class.getName());
   //
   // Instance implementation
   //
+  /** package private for use by WordSense */
+  final FileBackedDictionary fileBackedDictionary;
   /** offset in <code>data.</code><var>pos</var> file */
   private final int offset;
   private final WordSense[] wordSenses;
@@ -41,7 +44,8 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
   // Constructor
   //
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
-  Synset(final String line) {
+  Synset(final String line, final FileBackedDictionary fileBackedDictionary) {
+    this.fileBackedDictionary = fileBackedDictionary;
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextInt();
     final int lexfilenumInt = tokenizer.nextInt();
@@ -84,13 +88,13 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
           throw new RuntimeException("unknown syntactic marker " + marker);
         }
       }
-      wordSenses[i] = new WordSense(this, lemma.replace('_', ' '), lexid, flags);
+      this.wordSenses[i] = new WordSense(this, lemma.replace('_', ' '), lexid, flags);
     }
 
     final int pointerCount = tokenizer.nextInt();
     this.pointers = new Pointer[pointerCount];
     for (int i = 0; i < pointerCount; i++) {
-      pointers[i] = new Pointer(this, i, tokenizer);
+      this.pointers[i] = new Pointer(this, i, tokenizer);
     }
 
     if (posOrdinal == POS.VERB.ordinal()) {
@@ -101,10 +105,10 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
         final int f_num = tokenizer.nextInt();
         final int w_num = tokenizer.nextHexInt();
         if (w_num > 0) {
-          wordSenses[w_num - 1].setVerbFrameFlag(f_num);
+          this.wordSenses[w_num - 1].setVerbFrameFlag(f_num);
         } else {
           for (int j = 0; j < wordSenses.length; j++) {
-            wordSenses[j].setVerbFrameFlag(f_num);
+            this.wordSenses[j].setVerbFrameFlag(f_num);
           }
         }
       }
@@ -159,8 +163,7 @@ public class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordS
    * @see <a href="http://wordnet.princeton.edu/man/lexnames.5WN">http://wordnet.princeton.edu/man/lexnames.5WN</a>
    */
   public String getLexCategory() {
-    final FileBackedDictionary dictionary = FileBackedDictionary.getInstance();
-    return dictionary.lookupLexCategory(lexfilenum());
+    return fileBackedDictionary.lookupLexCategory(lexfilenum());
   }
 
   public String getGloss() {
