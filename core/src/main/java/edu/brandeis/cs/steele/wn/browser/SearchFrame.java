@@ -16,10 +16,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.undo.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
 
+// TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JFrame {
   private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
   private static final long serialVersionUID = 1L;
@@ -54,6 +54,7 @@ class SearchFrame extends JFrame {
 
     // Command+W
     final KeyListener windowHider = new KeyAdapter() {
+      @Override
       public void keyTyped(final KeyEvent evt) {
         if (evt.getKeyChar() == 'w' &&
           (evt.getModifiers() & Browser.MENU_MASK) != 0) {
@@ -65,6 +66,7 @@ class SearchFrame extends JFrame {
 
     // handle window manager window close
     this.addWindowListener(new WindowAdapter() {
+      @Override
       public void windowClosing(final WindowEvent evt) {
         setVisible(false);
       }
@@ -73,6 +75,7 @@ class SearchFrame extends JFrame {
     // Control JList with up/down arrow keys in adjacent JTextField searchField
     // without surrendering focus.
     final KeyListener listArrowNav = new KeyAdapter() {
+      @Override
       public void keyPressed(final KeyEvent evt) {
         assert evt.getSource() == searchField;
         if (evt.getKeyCode() == KeyEvent.VK_UP ||
@@ -83,7 +86,7 @@ class SearchFrame extends JFrame {
             return;
           }
           final int si = resultList.getSelectedIndex();
-          if (si < 0){
+          if (si < 0) {
             nextSi = 0;
           }
           if (evt.getKeyCode() == KeyEvent.VK_UP) {
@@ -135,6 +138,7 @@ class SearchFrame extends JFrame {
 
     // build POS chooser
     this.posChoice = new JComboBox();
+    this.posChoice.putClientProperty("JComboBox.isPopDown", Boolean.TRUE);
     this.posChoice.setFont(this.posChoice.getFont().deriveFont(this.posChoice.getFont().getSize() - 1f));
     this.posChoice.setRequestFocusEnabled(false);
     this.posChoice.addKeyListener(windowHider);
@@ -275,6 +279,7 @@ class SearchFrame extends JFrame {
     });
 
     this.resultList.addFocusListener(new FocusAdapter() {
+      @Override
       public void focusGained(final FocusEvent evt) {
         if (resultList.isSelectionEmpty() && searchListModel.getSize() > 0) {
           resultList.setSelectedIndex(0);
@@ -284,6 +289,7 @@ class SearchFrame extends JFrame {
 
     // respond to double+ clicks when result list gains focus
     final MouseListener doubleClickListener = new MouseAdapter() {
+      @Override
       public void mouseClicked(final MouseEvent evt) {
         if (evt.getClickCount() >= 2) {
           final int index = SearchFrame.this.resultList.locationToIndex(evt.getPoint());
@@ -321,6 +327,7 @@ class SearchFrame extends JFrame {
 
     // enforce min dimensions
     addComponentListener(new ComponentAdapter() {
+      @Override
       public void componentResized(final ComponentEvent evt) {
         int width = getWidth();
         int height = getHeight();
@@ -376,6 +383,7 @@ class SearchFrame extends JFrame {
    */
   static void multiClickSelectAll(final JTextField searchField) {
     searchField.addMouseListener(new MouseAdapter() {
+      @Override
       public void mouseClicked(final MouseEvent evt) {
         //System.err.printf("evt.getClickCount(): %3d when: %,d ms\n", 
         //  evt.getClickCount(), evt.getWhen());
