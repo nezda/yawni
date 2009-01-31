@@ -112,9 +112,8 @@ class PreferencesManager implements AWTEventListener {
      */
     public abstract void set();
   } // end enum LookAndFeel
-
+  
   static void setLookAndFeel() {
-
     // set manually
     //LookAndFeel.GTK.set();
     //LookAndFeel.System.set();
