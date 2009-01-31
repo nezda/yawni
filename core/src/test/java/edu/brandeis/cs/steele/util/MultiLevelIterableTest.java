@@ -1,6 +1,5 @@
 package edu.brandeis.cs.steele.util;
 
-import junit.framework.JUnit4TestAdapter;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
@@ -31,9 +30,5 @@ public class MultiLevelIterableTest {
       list.add(t);
     }
     return list;
-  }
-
-  public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(MultiLevelIterableTest.class);
   }
 }
