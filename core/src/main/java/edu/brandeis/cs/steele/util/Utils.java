@@ -86,6 +86,8 @@ public class Utils {
    * if <var>iterator</var> isn't sorted
    * @return whether or not the naturally <code>Comparable</code> elements
    * emitted by <var>iterator</var> are produced in sorted order.
+   * @throws IllegalArgumentException with informative message if <var>infoException<var>
+   * and <em>not</em> sorted.
    */
   public static <T extends Object & Comparable<? super T>>
     boolean isSorted(final Iterator<? extends T> iterator, final boolean infoException) {
@@ -378,6 +380,7 @@ public class Utils {
     while (len-- != 0) {
 
     }
+    
     throw new UnsupportedOperationException("IMPLEMENT ME");
   }
 
