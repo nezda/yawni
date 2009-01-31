@@ -18,10 +18,10 @@ import java.util.*;
  * returns <code>false</code> when <code>hasNext</code> of the wrapped object returns <code>false</code>,
  * <i>or</i> when <code>next</code> of the wrapped class throws a {@link NoSuchElementException}.
  *
- * <p>An <code>Iterator&lt;String&gt;</code> that supplies the lines of a file until the file ends
+ * <p>An {@code Iterator<String>} that supplies the lines of a file until the file ends
  * can be written thusly:
- * <pre>
- * new LookAheadIterator&lt;String&gt;(new Iterator&lt;String&gt;() {
+ * <pre>{@code
+ * new LookAheadIterator<String>(new Iterator<String>() {
  *   BuffereredReader input = ...;
  *   public boolean hasNext() { return true; }
  *   public String next() {
@@ -32,12 +32,12 @@ import java.util.*;
  *     return line;
  *   }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>An <code>Iterator</code> that generates the natural numbers below the first with
  * that satisfy predicate <var>p</var> can be written thusly:
- * <pre>
- * new LookAheadIterator&lt;Integer&gt;(new Iterator&lt;Integer&gt;() {
+ * <pre>{@code
+ * new LookAheadIterator<Integer>(new Iterator<Integer>() {
  *   int n = 0;
  *   public boolean hasNext() { return true; }
  *   public Integer next() {
@@ -47,8 +47,8 @@ import java.util.*;
  *     }
  *     return value;
  *   }
- * }
- * </pre>
+ *}
+ *}</pre>
  *
  * @author Oliver Steele, steele@cs.brandeis.edu
  * @version 1.0
