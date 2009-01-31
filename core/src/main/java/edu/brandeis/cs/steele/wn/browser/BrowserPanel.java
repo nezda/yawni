@@ -18,49 +18,44 @@ import java.util.*;
 import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
-import javax.swing.plaf.metal.*;
 import java.util.prefs.*;
-import java.lang.reflect.InvocationTargetException;
 
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
-
   private static final long serialVersionUID = 1L;
-
   private DictionaryDatabase dictionary;
+
   DictionaryDatabase dictionary() {
     return FileBackedDictionary.getInstance();
   }
   private final Browser browser;
-  private boolean hasFocus = false;
+//  private boolean hasFocus = false;
 
-  private class FocusWatcher implements WindowFocusListener {
-    public void windowGainedFocus(final WindowEvent evt) {
-      System.err.println("gained");
-      hasFocus = true;
-    }
-    public void windowLostFocus(final WindowEvent evt) {
-      System.err.println("lost");
-      hasFocus = false;
-    }
-  } // end class FocusWatcher
-
-  private class FocusWatcher2 extends WindowAdapter { 
-    public void windowDeactivated(final WindowEvent evt) {
-      System.err.println("deactivated");
-    }
-  }
-
+//  private class FocusWatcher implements WindowFocusListener {
+//    public void windowGainedFocus(final WindowEvent evt) {
+//      //DBG System.err.println("gained");
+//      hasFocus = true;
+//    }
+//    public void windowLostFocus(final WindowEvent evt) {
+//      //DBG System.err.println("lost");
+//      hasFocus = false;
+//    }
+//  } // end class FocusWatcher
+//
+//  private class FocusWatcher2 extends WindowAdapter {
+//    public void windowDeactivated(final WindowEvent evt) {
+//      //DBG System.err.println("deactivated");
+//    }
+//  }
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
   private JTextField searchField;
   // whenever this is true, the content of search field has changed
   // and is not synced with the display
-  private boolean searchFieldChanged;
+//  private boolean searchFieldChanged;
   private String displayedValue;
   private final JButton searchButton;
   private final UndoManager undoManager;
@@ -70,14 +65,14 @@ public class BrowserPanel extends JPanel {
   private EnumMap<POS, PointerTypeComboBox> posBoxes;
   private final Action slashAction;
   private final JLabel statusLabel;
-  private final int pad = 5;
+//  private final int pad = 5;
 
   public BrowserPanel(final Browser browser) {
     this.browser = browser;
     super.setLayout(new BorderLayout());
 
-    browser.addWindowFocusListener(new FocusWatcher());
-    browser.addWindowListener(new FocusWatcher2());
+    //XXX DBG browser.addWindowFocusListener(new FocusWatcher());
+    //XXX DBG browser.addWindowListener(new FocusWatcher2());
 
     //this.searchField = new JTextField() {
     //  private static final long serialVersionUID = 1L;
@@ -100,21 +95,24 @@ public class BrowserPanel extends JPanel {
     this.searchField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(final DocumentEvent evt) {
         assert searchField.getDocument() == evt.getDocument();
-        searchFieldChanged = true;
+//        searchFieldChanged = true;
       }
+
       public void insertUpdate(final DocumentEvent evt) {
         assert searchField.getDocument() == evt.getDocument();
-        searchFieldChanged = true;
+//        searchFieldChanged = true;
       }
+
       public void removeUpdate(final DocumentEvent evt) {
         assert searchField.getDocument() == evt.getDocument();
-        searchFieldChanged = true;
+//        searchFieldChanged = true;
       }
+
       String getModText(final DocumentEvent evt) {
         try {
           final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
           return change;
-        } catch(BadLocationException ble) {
+        } catch (BadLocationException ble) {
           throw new RuntimeException(ble);
         }
       }
@@ -122,6 +120,7 @@ public class BrowserPanel extends JPanel {
 
     this.undoManager = new UndoManager() {
       private static final long serialVersionUID = 1L;
+
       @Override public boolean addEdit(UndoableEdit ue) {
         //System.err.println("ue: "+ue);
         return super.addEdit(ue);
@@ -147,7 +146,7 @@ public class BrowserPanel extends JPanel {
         // text which the menus are currently for, need to
         // re-issue the search
         final String inputString = searchField.getText().trim();
-        if(false == inputString.equals(displayedValue)) {
+        if (false == inputString.equals(displayedValue)) {
           // issue fresh search
           searchButton.doClick();
           // don't yield focus
@@ -160,8 +159,9 @@ public class BrowserPanel extends JPanel {
 
     final Action searchAction = new AbstractAction("Search") {
       private static final long serialVersionUID = 1L;
+
       public void actionPerformed(final ActionEvent event) {
-        if(event.getSource() == searchField) {
+        if (event.getSource() == searchField) {
           // doClick() will generate another event
           // via searchButton
           searchButton.doClick();
@@ -176,6 +176,7 @@ public class BrowserPanel extends JPanel {
 
     this.slashAction = new AbstractAction("Slash") {
       private static final long serialVersionUID = 1L;
+
       public void actionPerformed(final ActionEvent event) {
         searchField.grabFocus();
       }
@@ -225,18 +226,19 @@ public class BrowserPanel extends JPanel {
     // http://www.groupsrv.com/computers/about179434.html
     // enables scrolling with arrow keys
     this.resultEditorPane.setEditable(false);
-    final JScrollPane jsp = new  JScrollPane(resultEditorPane);
+    final JScrollPane jsp = new JScrollPane(resultEditorPane);
     final JScrollBar jsb = jsp.getVerticalScrollBar();
 
     //TODO move to StyledTextPane (already an action for this?)
     final Action scrollDown = new AbstractAction() {
       private static final long serialVersionUID = 1L;
+
       public void actionPerformed(final ActionEvent event) {
         final int max = jsb.getMaximum();
         final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, +1);
         final int vpos = jsb.getValue();
         final int newPos = Math.min(max, vpos + inc);
-        if(newPos != vpos) {
+        if (newPos != vpos) {
           jsb.setValue(newPos);
         }
       }
@@ -245,39 +247,41 @@ public class BrowserPanel extends JPanel {
     //TODO move to StyledTextPane (already an action for this?)
     final Action scrollUp = new AbstractAction() {
       private static final long serialVersionUID = 1L;
+
       public void actionPerformed(final ActionEvent event) {
         //final int max = jsb.getMaximum();
         final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, -1);
         final int vpos = jsb.getValue();
         final int newPos = Math.max(0, vpos - inc);
-        if(newPos != vpos) {
+        if (newPos != vpos) {
           jsb.setValue(newPos);
         }
       }
     };
 
+    // zoom support
     this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), resultEditorPane.biggerFont);
     this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.biggerFont);
     this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), resultEditorPane.smallerFont);
     this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.smallerFont);
 
-    final String[] extraKeys = new String[] {
+    final String[] extraKeys = new String[]{
       "pressed",
-        "shift pressed",
-        "meta pressed",
-        "shift meta",
-        };
+      "shift pressed",
+      "meta pressed",
+      "shift meta",
+    };
     for (final String extraKey : extraKeys) {
-      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp);
-      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" UP"), scrollUp);
+      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " UP"), scrollUp);
+      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " UP"), scrollUp);
 
-      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown);
-      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey+" DOWN"), scrollDown);
+      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " DOWN"), scrollDown);
+      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " DOWN"), scrollDown);
 
       for (final PointerTypeComboBox comboBox : this.posBoxes.values()) {
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" UP"), "scrollUp");
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey + " UP"), "scrollUp");
         comboBox.getActionMap().put("scrollUp", scrollUp);
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey+" DOWN"), "scrollDown");
+        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey + " DOWN"), "scrollDown");
         comboBox.getActionMap().put("scrollDown", scrollDown);
 
         // yea these don't use extraKey
@@ -289,7 +293,7 @@ public class BrowserPanel extends JPanel {
         comboBox.getActionMap().put("smaller", resultEditorPane.smallerFont);
       }
     }
-
+    // search keyboard support
     jsp.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
     jsp.getVerticalScrollBar().setFocusable(false);
@@ -312,6 +316,7 @@ public class BrowserPanel extends JPanel {
   static Icon createUndoIcon() {
     return new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
   }
+
   static Icon createRedoIcon() {
     return new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
   }
@@ -323,7 +328,7 @@ public class BrowserPanel extends JPanel {
   static BufferedImage createFontScaleImage(final int dimension, final boolean bold) {
     // new RGB image with transparency channel
     final BufferedImage image = new BufferedImage(dimension, dimension,
-        BufferedImage.TYPE_INT_ARGB);
+      BufferedImage.TYPE_INT_ARGB);
     // create new graphics and set anti-aliasing hints
     final Graphics2D graphics = (Graphics2D) image.getGraphics().create();
     // set completely transparent
@@ -333,24 +338,22 @@ public class BrowserPanel extends JPanel {
       }
     }
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
+      RenderingHints.VALUE_ANTIALIAS_ON);
     graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
     final char letter = 'A';
     // Lucida Sans Regular 12pt Plain
     graphics.setFont(new Font(
-          "Arial", //"Lucida Sans Regular", //"Serif",//"Arial",
-          bold ? Font.BOLD : Font.PLAIN,
-          dimension -
-          (bold ? 1 : 3)));
+      "Arial", //"Lucida Sans Regular", //"Serif",//"Arial",
+      bold ? Font.BOLD : Font.PLAIN,
+      dimension -
+      (bold ? 1 : 3)));
     graphics.setPaint(Color.BLACK);
     final FontRenderContext frc = graphics.getFontRenderContext();
     final TextLayout mLayout = new TextLayout("" + letter, graphics.getFont(), frc);
-    final float x = (float) (-.5 + (dimension - mLayout.getBounds()
-          .getWidth()) / 2);
-    final float y = dimension
-      - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
+    final float x = (float) (-.5 + (dimension - mLayout.getBounds().getWidth()) / 2);
+    final float y = dimension - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
     graphics.drawString("" + letter, x, y);
     if (bold) {
       // overspray a little
@@ -367,7 +370,7 @@ public class BrowserPanel extends JPanel {
   static BufferedImage createFindImage(final int dimension, final boolean bold) {
     // new RGB image with transparency channel
     final BufferedImage image = new BufferedImage(dimension, dimension,
-        BufferedImage.TYPE_INT_ARGB);
+      BufferedImage.TYPE_INT_ARGB);
     // create new graphics and set anti-aliasing hints
     final Graphics2D graphics = (Graphics2D) image.getGraphics().create();
     // set completely transparent
@@ -377,26 +380,25 @@ public class BrowserPanel extends JPanel {
       }
     }
     graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
+      RenderingHints.VALUE_ANTIALIAS_ON);
     graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
     //XXX make magnifying glass
     // circle (upper left)
     // handle lower right @ 135% CW from TDC
     // drawOval(x,y,w,h)
-    System.err.println("stroke: "+((BasicStroke)graphics.getStroke()).getEndCap());
+    System.err.println("stroke: " + ((BasicStroke) graphics.getStroke()).getEndCap());
     System.err.printf("  caps: %s %d %s %d %s %d\n",
-        "CAP_BUTT", BasicStroke.CAP_BUTT,
-        "CAP_ROUND", BasicStroke.CAP_ROUND,
-        "CAP_SQUARE", BasicStroke.CAP_SQUARE
-        );
+      "CAP_BUTT", BasicStroke.CAP_BUTT,
+      "CAP_ROUND", BasicStroke.CAP_ROUND,
+      "CAP_SQUARE", BasicStroke.CAP_SQUARE);
     graphics.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
     int x = 1;
     int y = 1;
-    int w = (int)((dimension - (x * 2)) * .75);
+    int w = (int) ((dimension - (x * 2)) * .75);
     int h = w;
-    System.err.println("w: "+w);
+    System.err.println("w: " + w);
     // handle
     //int x1 = ;
     //int y1 = ;
@@ -450,8 +452,8 @@ public class BrowserPanel extends JPanel {
       item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, MENU_MASK));
     } else {
       item.setAccelerator(KeyStroke.getKeyStroke(
-            KeyEvent.VK_Z,
-            MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        KeyEvent.VK_Z,
+        MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
     }
 
     fileMenu.addSeparator();
@@ -485,6 +487,7 @@ public class BrowserPanel extends JPanel {
   // other non-static fields
   class UndoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
+
     UndoAction() {
       super("Undo");
       setEnabled(false);
@@ -495,7 +498,7 @@ public class BrowserPanel extends JPanel {
       try {
         searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.undo();
-      } catch(final CannotUndoException ex) {
+      } catch (final CannotUndoException ex) {
         System.err.println("Unable to undo: " + ex);
         ex.printStackTrace();
       }
@@ -519,6 +522,7 @@ public class BrowserPanel extends JPanel {
   // other non-static fields
   class RedoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
+
     RedoAction() {
       super("Redo");
       setEnabled(false);
@@ -529,7 +533,7 @@ public class BrowserPanel extends JPanel {
       try {
         searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.redo();
-      } catch(final CannotRedoException ex) {
+      } catch (final CannotRedoException ex) {
         System.err.println("Unable to redo: " + ex);
         ex.printStackTrace();
       }
@@ -555,10 +559,17 @@ public class BrowserPanel extends JPanel {
    */
   private static class StyledTextPane extends JTextPane {
     private static final long serialVersionUID = 1L;
-
     Map<Object, Action> actions;
     final Action biggerFont;
     final Action smallerFont;
+
+    @Override public void paintComponent(final Graphics g) {
+      // bullets look better anti-aliased (still pretty big)
+      final Graphics2D g2d = (Graphics2D) g;
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
+      super.paintComponent(g);
+    }
 
     StyledTextPane() {
       //XXX final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
@@ -592,6 +603,7 @@ public class BrowserPanel extends JPanel {
       this.biggerFont = new StyledEditorKit.StyledTextAction("Bigger Font") {
         private static final long serialVersionUID = 1L;
         final int fake = init();
+
         private int init() {
           putValue(Action.SMALL_ICON, createFontScaleIcon(16, true));
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK));
@@ -608,11 +620,13 @@ public class BrowserPanel extends JPanel {
       this.smallerFont = new StyledEditorKit.StyledTextAction("Smaller Font") {
         private static final long serialVersionUID = 1L;
         final int fake = init();
+
         private int init() {
           putValue(Action.SMALL_ICON, createFontScaleIcon(16, false));
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK));
           return 0;
         }
+
         public void actionPerformed(final ActionEvent evt) {
           //System.err.println("smaller");//: "+evt);
           newFontSize(14);
@@ -628,16 +642,24 @@ public class BrowserPanel extends JPanel {
       //XXX NOTE: not all sizes are defined, only
       // 48 36 24 18 16 14 12 10 8
       selectAll();
-      getActionTable().get("font-size-"+fontSize).actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
+      getActionTable().get("font-size-" + fontSize).actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
       setCaretPosition(0); // scroll to top
-      final StyleSheet styleSheet = ((HTMLEditorKit)getStyledEditorKit()).getStyleSheet();
+      final StyleSheet styleSheet = ((HTMLEditorKit) getStyledEditorKit()).getStyleSheet();
       // setting this style makes this font size change stick
-      styleSheet.addRule("body {font-size: "+fontSize+";}");
+      styleSheet.addRule("body {font-size: " + fontSize + ";}");
     }
 
     @Override protected HTMLEditorKit createDefaultEditorKit() {
       final HTMLEditorKit kit = new HTMLEditorKit();
       final StyleSheet styleSheet = kit.getStyleSheet();
+      // add a CSS rule to force body tags to use the default label font
+      // instead of the value in javax.swing.text.html.default.csss
+      //XXX final Font font = UIManager.getFont("Label.font");
+      //XXX String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+      //XXX          "font-size: " + font.getSize() + "pt; }";
+      //XXX final String bodyRule = "body { font-family: " + font.getFamily() + "; }";
+      //XXX styleSheet.addRule(bodyRule);
+
       styleSheet.addRule("body {font-family:sans-serif;}");
       styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
       //FIXME text-indent:-10pt; causes the odd bolding bug
@@ -667,231 +689,63 @@ public class BrowserPanel extends JPanel {
   } // end class StyledTextPane
 
   /**
-   * Class which encapsulates a button (for a pos) which controls a
-   * JPopupMenu that is dynamically populated with a PointerTypeActions.
-   * Key feature is popup width is as wide as the contents across platforms which is
-   * deceptively difficult using JComboBox on most platforms (except OS X).
+   * Command button encapsulates a button (for a pos) which controls a
+   * menu that is dynamically populated with PointerTypeAction(s).
+   * - handles Slash (search)
+   * - interactive updates via updateFor()
    */
-  private class PointerTypeComboBox extends JToggleButton /* implements ActionListener */ {
-    // FIXME if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
+  private class PointerTypeComboBox extends PopdownButton {
     // FIXME if user changes text field contents and selects menu, bad things will happen
-    // FIXME tab doesn't work from popup menu
     // FIXME text in HTML pane looks bold at line wraps
-    // + arrows, Ctrl++/Ctrl+-, slash doesn't work from popup menu
-    // TODO type-to-navigate popup menu (like JComboBox - code can be copied from there)
-    // TODO add down arrow to indicate combo box-like behavior
     private static final long serialVersionUID = 1L;
     private final POS pos;
-    final PointerTypeMenu menu;
-    private boolean showing;
-    private boolean inButton;
 
     PointerTypeComboBox(final POS pos) {
       //super(Utils.capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
-      //super(Utils.capitalize(pos.getLabel()), new MetalComboBoxIcon());
-      super(Utils.capitalize(pos.getLabel())/*, new MetalComboBoxIcon()*/);
-      this.setDisabledIcon(getIcon());
-      this.setHorizontalTextPosition(SwingConstants.LEFT);
-      this.setVerticalTextPosition(SwingConstants.CENTER);
+      super(Utils.capitalize(pos.getLabel()));
       this.pos = pos;
-      this.menu = new PointerTypeMenu();
-      //this.setComponentPopupMenu(menu);
-      this.showing = false;
-      this.inButton = false;
+      getPopupMenu().addMenuKeyListener(new MenuKeyListener() {
+        public void menuKeyPressed(final MenuKeyEvent evt) {
+        }
 
-      this.addMouseListener(new MouseAdapter() {
-        public void mouseEntered(final MouseEvent evt) {
-          //System.err.println("mouseEntered");
-          inButton = true;
+        public void menuKeyReleased(final MenuKeyEvent evt) {
         }
-        public void mouseExited(final MouseEvent evt) {
-          //System.err.println("mouseExited");
-          inButton = false;
-        }
-        //public void mouseReleased(final MouseEvent evt) {
-        //  System.err.println("mouseReleased");
-        //}
-        //public void mouseClicked(final MouseEvent evt) {
-        //  if (false == isEnabled()) {
-        //    System.err.println("not enabled");
-        //    return;
-        //  }
-        //  assert inButton;
-        //  //System.err.println("mousePressed "+menu.isPopupTrigger(evt));
-        //  //XXX assert evt.getComponent() instanceof JButton;
-        //  // maybe do this in event thread
-        //  assert SwingUtilities.isEventDispatchThread();
-        //  SwingUtilities.invokeLater(new Runnable() {
-        //    public void run() {
-        //      togglePopup();
-        //    }
-        //  });
-        //  //togglePopup();
-        //  //System.err.println("mousePressed done");
-        //}
-      });
-      
-      this.addActionListener(new ActionListener() {
-        public void actionPerformed(final ActionEvent evt) {
-          if (false == isEnabled()) {
-            System.err.println("not enabled");
-            return;
-          }
-          //assert inButton;
-          //System.err.println("mousePressed "+menu.isPopupTrigger(evt));
-          //XXX assert evt.getComponent() instanceof JButton;
-          //assert SwingUtilities.isEventDispatchThread();
-          //SwingUtilities.invokeLater(new Runnable() {
-          //  public void run() {
-          //    togglePopup();
-          //  }
-          //});
-          System.err.println("isSelected(): "+isSelected());
-          togglePopup();
-          //System.err.println("mousePressed done");
-        }
-      });
 
-      this.addKeyListener(new KeyAdapter() {
-        public void keyTyped(final KeyEvent evt) {
-          switch(evt.getKeyChar()) {
-            case '\n':
-            case ' ':
-              // doClick() just to show the button press
-              doClick();
-              // the button will only get key strokes if the popup
-              // is NOT showing (though the variable could be
-              // out of sync due to app focus loss popup hide)
-              showing = false;
-              togglePopup();
+        public void menuKeyTyped(final MenuKeyEvent evt) {
+          //System.err.println("menu evt: " + evt + " char: \"" + evt.getKeyChar() + "\"");
+          switch (evt.getKeyChar()) {
+            case '/':
+              // if slash, hide menu, go back to searchField
+              PointerTypeComboBox.this.doClick();
+              slashAction.actionPerformed(null);
               break;
-            default:
+            case '\t':
+              System.err.println("menu evt: tab");
+              hidePopupMenu();
               break;
           }
+        // if tab, move focus to next thing
         }
       });
-    }
-
-    /** if popup is showing, hide it, else show it */
-    private void togglePopup() {
-      //if (false == menu.isVisible()) {
-      if (false == showing) {
-        System.err.println("SHOW");
-        final Insets margins = getMargin();
-        final int px = 5;
-        final int py = 1 + this.getHeight() - margins.bottom;
-        menu.show(this, px, py);
-        showing = true;
-        //System.err.println("  menu.isVisible(): "+menu.isVisible());
-      } else {
-        //assert menu.isVisible();
-        System.err.println("HIDE");
-        //menu.setVisible(false);
-        showing = false;
-      }
-      // keep focus to allow keyboard toggle
-      //XXX requestFocusInWindow();
     }
 
     /** populate with <code>PointerType</code>s which apply to pos+word */
     void updateFor(final POS pos, final Word word) {
-      menu.removeAll();
-      menu.add(new PointerTypeAction("Senses", pos, null));
+      getPopupMenu().removeAll();
+      getPopupMenu().add(new PointerTypeAction("Senses", pos, null));
       for (final PointerType pointerType : word.getPointerTypes()) {
         // use word+pos custom labels for drop downs
         final String label = String.format(pointerType.getFormatLabel(word.getPOS()), word.getLemma());
         //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
-        final JMenuItem item = menu.add(new PointerTypeAction(label, pos, pointerType));
+        final JMenuItem item = getPopupMenu().add(new PointerTypeAction(label, pos, pointerType));
       }
       if (pos == POS.VERB) {
         // use word+pos custom labels for drop downs
         final String label = String.format("Sentence frames for verb %s", word.getLemma());
         //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
-        final JMenuItem item = menu.add(new VerbFramesAction(label));
+        final JMenuItem item = getPopupMenu().add(new VerbFramesAction(label));
       }
     }
-
-    // ultimately, a minimal subclass of JPopupMenu
-    private class PointerTypeMenu extends JPopupMenu implements MenuKeyListener {
-      private static final long serialVersionUID = 1L;
-      PointerTypeMenu() {
-        //XXX setLightWeightPopupEnabled(true);
-        addMenuKeyListener(this);
-        //XXX System.err.println("getFocusTraversalKeys(): "+getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
-        //XXX System.err.println("areFocusTraversalKeysSet(): "+areFocusTraversalKeysSet(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
-      }
-
-      public void menuKeyPressed(final MenuKeyEvent evt) {
-      }
-      public void menuKeyReleased(final MenuKeyEvent evt) {
-      }
-      public void menuKeyTyped(final MenuKeyEvent evt) {
-        System.err.println("menu evt: "+evt+" char: \""+evt.getKeyChar()+"\"");
-        switch(evt.getKeyChar()) {
-          case '/':
-            // if slash, go-back to searchField
-            //PointerTypeComboBox.this.doClick();
-            PointerTypeComboBox.this.setSelected(false);
-            setVisible(false);
-            showing = false;
-            slashAction.actionPerformed(null);
-            break;
-        }
-        // if tab, move focus to next thing
-      }
-
-      // Mouse click event missed after use JPopupMenu
-      // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4694797
-      // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
-      @Override public void setVisible(final boolean show) {
-        super.setVisible(show);
-        if (show) {
-          //System.err.println("V requestFocus(): "+requestFocus(false));
-          //System.err.println("requestFocus(): "+requestFocus(true));
-          //System.err.println("requestDefaultFocus(): "+requestDefaultFocus());
-          //showing = true;
-        } else {
-          //showing = false;
-          if(hasFocus == false || inButton == false) {
-            PointerTypeComboBox.this.setSelected(false);
-            showing = false;
-          }
-        }
-        //XXX showing = show;
-        System.err.println("setVisible: "+show+" hasFocus: "+hasFocus+" inButton: "+inButton);
-        //System.err.println("V isFocusable(): "+isFocusable());
-        //System.err.println("V isDisplayable(): "+isDisplayable());
-      }
-
-      @Override protected  void firePopupMenuWillBecomeVisible() {
-        System.err.println("firePopupMenuWillBecomeVisible()");
-        //System.err.println("firePopupMenuWillBecomeVisible() "+isLightweightComponent(this)+
-        //    " isLightWeightPopupEnabled(): "+isLightWeightPopupEnabled());
-        //System.err.println("isFocusable(): "+isFocusable());
-        //System.err.println("requestFocus(): "+requestFocus(false));
-        //System.err.println("requestFocus(): "+requestFocus(true));
-        //requestFocus();
-        //System.err.println("isDisplayable(): "+isDisplayable());
-        //System.err.println("vis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
-        //showing = true;
-      }
-
-      @Override protected  void firePopupMenuWillBecomeInvisible() {
-        System.err.println("firePopupMenuWillBecomeInvisible()");
-        //System.err.println("isFocusable(): "+isFocusable());
-        //System.err.println("invis focused: "+KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner());
-        //if (false == inButton) {
-        //  showing = false;
-        //}
-        //MenuSelectionManager.defaultManager().clearSelectedPath();
-        //showing = false;
-      }
-
-      @Override protected void firePopupMenuCanceled() {
-        System.err.println("firePopupMenuCanceled()");
-        //showing = false;
-      }
-    } // end class PointerTypeMenu
   } // end class PointerTypeComboBox
 
   /**
@@ -907,6 +761,7 @@ public class BrowserPanel extends JPanel {
       this.pos = pos;
       this.pointerType = pointerType;
     }
+
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
@@ -919,7 +774,7 @@ public class BrowserPanel extends JPanel {
       }
       if (pointerType == null) {
         //FIXME bad form to use stderr
-        System.err.println("word: "+word);
+        System.err.println(word);
         displaySenses(word);
       } else {
         displaySenseChain(word, pointerType);
@@ -936,6 +791,7 @@ public class BrowserPanel extends JPanel {
     VerbFramesAction(final String label) {
       super(label);
     }
+
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
@@ -980,7 +836,7 @@ public class BrowserPanel extends JPanel {
         // some words in all 4 pos
         //   clear, down, fast, fine, firm, flush, foward, second, 
         // Note: lookupWord() only touches index.<pos> files
-        final String inputString = "clear"; 
+        final String inputString = "clear";
         for (final POS pos : POS.CATS) {
           String[] forms = dictionary().lookupBaseForms(inputString, pos);
           for (final String form : forms) {
@@ -996,7 +852,6 @@ public class BrowserPanel extends JPanel {
   /**
    * Generic search and output generation code
    */
-
   private synchronized void displayOverview() {
     // TODO normalize internal space
     final String inputString = searchField.getText().trim();
@@ -1017,7 +872,7 @@ public class BrowserPanel extends JPanel {
     for (final POS pos : POS.CATS) {
       String[] forms = dictionary().lookupBaseForms(inputString, pos);
       if (forms == null) {
-        forms = new String[]{ inputString };
+        forms = new String[]{inputString};
       } else {
         //XXX debug crap
         boolean found = false;
@@ -1029,7 +884,7 @@ public class BrowserPanel extends JPanel {
         }
         if (forms.length > 0 && found == false) {
           System.err.println("    BrowserPanel inputString: \"" + inputString +
-              "\" not found in forms: "+Arrays.toString(forms));
+            "\" not found in forms: " + Arrays.toString(forms));
         }
       }
       boolean enabled = false;
@@ -1055,7 +910,7 @@ public class BrowserPanel extends JPanel {
       posBoxes.get(pos).setEnabled(enabled);
       definitionExists |= enabled;
     }
-    
+
     if (definitionExists) {
       updateStatusBar(Status.OVERVIEW, inputString);
       resultEditorPane.setText(buffer.toString());
@@ -1078,9 +933,7 @@ public class BrowserPanel extends JPanel {
     SYNONYMS("Synonyms search for %s \"%s\""),
     NO_MATCHES("No matches found."),
     POINTER("\"%s\" search for %s \"%s\""),
-    VERB_FRAMES("Verb Frames search for verb \"%s\"")
-    ;
-
+    VERB_FRAMES("Verb Frames search for verb \"%s\"");
     private final String formatString;
 
     private Status(final String formatString) {
@@ -1089,14 +942,13 @@ public class BrowserPanel extends JPanel {
 
     String get(Object... args) {
       if (this == POINTER) {
-        final PointerType pointerType = (PointerType)args[0];
+        final PointerType pointerType = (PointerType) args[0];
         final POS pos = (POS) args[1];
-        final String lemma = (String)args[2];
-        return
-          String.format(formatString,
-            String.format(pointerType.getFormatLabel(pos), lemma),
-            pos.getLabel(),
-            lemma);
+        final String lemma = (String) args[2];
+        return String.format(formatString,
+          String.format(pointerType.getFormatLabel(pos), lemma),
+          pos.getLabel(),
+          lemma);
       } else {
         return String.format(formatString, args);
       }
@@ -1172,7 +1024,7 @@ public class BrowserPanel extends JPanel {
             buffer.append("<ul>\n");
             for (final PointerTarget target : similar) {
               buffer.append(listOpen());
-              final Synset targetSynset = (Synset)target;
+              final Synset targetSynset = (Synset) target;
               buffer.append(targetSynset.getLongDescription(verbose));
               buffer.append("</li>\n");
             }
@@ -1220,8 +1072,8 @@ public class BrowserPanel extends JPanel {
       }
     }
     buffer.append("Applies to " + numApplicableSenses + " of the " + senses.length + " senses" +
-        //(senses.length > 1 ? "s" : "")+
-        " of <b>" + word.getLemma() + "</b>\n");
+      //(senses.length > 1 ? "s" : "")+
+      " of <b>" + word.getLemma() + "</b>\n");
     for (int i = 0; i < senses.length; ++i) {
       if (senses[i].getTargets(pointerType).length > 0) {
         buffer.append("<br><br>Sense " + (i + 1) + "\n");
@@ -1233,7 +1085,7 @@ public class BrowserPanel extends JPanel {
           inheritanceType = pointerType;
           attributeType = null;
         }
-        System.err.println("word: "+word+" inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
+        System.err.println(word + " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
         buffer.append("<ul>\n");
         appendSenseChain(buffer, senses[i].getWordSense(word), senses[i], inheritanceType, attributeType);
         buffer.append("</ul>\n");
@@ -1257,21 +1109,21 @@ public class BrowserPanel extends JPanel {
 
   private String listOpen() {
     return "<li>";
-    //return "<li>• ";
-    //return "<li>\u2022 ";
-    //XXX return "<li>* ";
+  //return "<li>• ";
+  //return "<li>\u2022 ";
+  //XXX return "<li>* ";
   }
 
   /** Add information from pointers (recursive)
    */
   void appendSenseChain(
-      final StringBuilder buffer,
-      final WordSense rootWordSense,
-      final PointerTarget sense,
-      final PointerType inheritanceType,
-      final PointerType attributeType,
-      final int tab,
-      Link ancestors) {
+    final StringBuilder buffer,
+    final WordSense rootWordSense,
+    final PointerTarget sense,
+    final PointerType inheritanceType,
+    final PointerType attributeType,
+    final int tab,
+    Link ancestors) {
     buffer.append(listOpen());
     buffer.append(sense.getLongDescription());
     buffer.append("</li>\n");
@@ -1286,17 +1138,17 @@ public class BrowserPanel extends JPanel {
           srcMatch = pointer.getSource().getSynset().equals(rootWordSense.getSynset());
         }
         if (srcMatch == false) {
-          //System.err.println("rootWordSense: "+rootWordSense+
-          //    " inheritanceType: "+inheritanceType+" attributeType: "+attributeType);
-          //System.err.println("pointer: "+pointer);
+          System.err.println("rootWordSense: " + rootWordSense +
+            " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
+          System.err.println(pointer);
           continue;
         }
         buffer.append("<li>");
         if (target instanceof WordSense) {
           assert pointer.isLexical();
-          final WordSense wordSense = (WordSense)target;
+          final WordSense wordSense = (WordSense) target;
           //FIXME RELATED TO label below only right for DERIVATIONALLY_RELATED
-          buffer.append("RELATED TO → ("+wordSense.getPOS().getLabel()+") "+wordSense.getLemma()+"#"+wordSense.getSenseNumber());
+          buffer.append("RELATED TO → (" + wordSense.getPOS().getLabel() + ") " + wordSense.getLemma() + "#" + wordSense.getSenseNumber());
           //ANTONYM example:
           //Antonym of dissociate (Sense 2)
           buffer.append("<br>\n");
@@ -1323,21 +1175,19 @@ public class BrowserPanel extends JPanel {
     }
   }
   //FIXME red DERIVATIONALLY_RELATED shows Sense 2 which has no links!?
-
   private static final EnumSet<PointerType> NON_RECURSIVE_POINTER_TYPES = EnumSet.of(
-      PointerType.DERIVATIONALLY_RELATED,
-      PointerType.MEMBER_OF_TOPIC_DOMAIN, PointerType.MEMBER_OF_USAGE_DOMAIN, PointerType.MEMBER_OF_REGION_DOMAIN,
-      PointerType.DOMAIN_OF_TOPIC, PointerType.DOMAIN_OF_USAGE, PointerType.DOMAIN_OF_REGION,
-      PointerType.ANTONYM
-  );
+    PointerType.DERIVATIONALLY_RELATED,
+    PointerType.MEMBER_OF_TOPIC_DOMAIN, PointerType.MEMBER_OF_USAGE_DOMAIN, PointerType.MEMBER_OF_REGION_DOMAIN,
+    PointerType.DOMAIN_OF_TOPIC, PointerType.DOMAIN_OF_USAGE, PointerType.DOMAIN_OF_REGION,
+    PointerType.ANTONYM);
 
   private void displayVerbFrames(final Word word) {
     updateStatusBar(Status.VERB_FRAMES, word.getLemma());
     final StringBuilder buffer = new StringBuilder();
     final Synset[] senses = word.getSynsets();
     buffer.append(senses.length + " sense" +
-        (senses.length > 1 ? "s" : "")+
-        " of <b>" + word.getLemma() + "</b>\n");
+      (senses.length > 1 ? "s" : "") +
+      " of <b>" + word.getLemma() + "</b>\n");
     for (int i = 0; i < senses.length; ++i) {
       if (senses[i].getWordSense(word).getVerbFrames().isEmpty() == false) {
         buffer.append("<br><br>Sense " + (i + 1) + "\n");
