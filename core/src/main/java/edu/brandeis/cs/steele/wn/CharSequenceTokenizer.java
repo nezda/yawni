@@ -129,14 +129,14 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * Returns the next token in the string as an CharSequence.
    *
    * @return next token in the string as an CharSequence
-   * @exception NoSuchElementException if no tokens remain
+   * @throws NoSuchElementException if no tokens remain
    */
   public CharSequence next() {
     return nextToken();
   }
 
   /**
-   * @exception UnsupportedOperationException
+   * @throws UnsupportedOperationException
    */
   public void remove() {
     throw new UnsupportedOperationException();
@@ -144,15 +144,26 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
 
   /**
    * Returns the next token in the string as a CharSequence.
-   *
    * @return next token in the string as a CharSequence
-   * @exception NoSuchElementException if no tokens remain
+   * @throws NoSuchElementException if no tokens remain
    */
   public CharSequence nextToken() {
     final int s = scanToTokenStart();
     final int e = scanToTokenEnd();
     return string.subSequence(s, e);
   }
+
+  // TODO better to use a mutable object with a little friendlier interface
+  // like say CharSequence: MutableCharSequence
+  // if we overloaded equals() & hashCode(), make it comparable with
+  // String, etc. - still will be order dep (us.equals(them) vs. them.equals(us)
+  // high-performance, high-risk method
+//  public void nextToken(int[] startEnd) {
+//    final int s = scanToTokenStart();
+//    final int e = scanToTokenEnd();
+//    startEnd[0] = s;
+//    startEnd[1] = e;
+//  }
 
   private int scanToTokenStart() {
     final int length = string.length();
@@ -237,7 +248,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @param string a string representation of an int quantity.
    * @param radix the base to use for conversion.
    * @return int the value represented by the argument
-   * @exception NumberFormatException
+   * @throws NumberFormatException
    *                if the argument could not be parsed as an int quantity.
    */
   static int parseInt(final CharSequence string, final int radix)
@@ -300,7 +311,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @param string a string representation of an long quantity.
    * @param radix the base to use for conversion.
    * @return long the value represented by the argument
-   * @exception NumberFormatException
+   * @throws NumberFormatException
    *                if the argument could not be parsed as a long quantity.
    */
   private static long parseLong(final CharSequence string, final int radix)
