@@ -1,6 +1,6 @@
 package edu.brandeis.cs.steele.util;
 
-import junit.framework.JUnit4TestAdapter;
+import java.nio.CharBuffer;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
@@ -76,15 +76,21 @@ public class UtilsTest {
     assertFalse(Utils.isEmpty(Utils.uniq(ints1Dups)));
   }
 
+  @Test
+  public void testCharSequenceTokenizer() {
+    final String s = "someString";
+    final CharBuffer cb = CharBuffer.wrap(s);
+    // String, StringBuilder/StringBuffer, and CharBuffer are all incompatible with
+    // respect to equals() AND hashCode()
+    assertFalse(s.equals(cb));
+    assertFalse(s.hashCode() != cb.hashCode());
+  }
+
   private static <T> List<T> asList(final Iterable<T> iterable) {
     final List<T> list = new ArrayList<T>();
     for(final T t : iterable) {
       list.add(t);
     }
     return list;
-  }
-
-  public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(UtilsTest.class);
   }
 }
