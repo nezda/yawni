@@ -83,7 +83,7 @@ public class UtilsTest {
     // String, StringBuilder/StringBuffer, and CharBuffer are all incompatible with
     // respect to equals() AND hashCode()
     assertFalse(s.equals(cb));
-    assertFalse(s.hashCode() != cb.hashCode());
+    assertTrue(s.hashCode() != cb.hashCode());
   }
 
   private static <T> List<T> asList(final Iterable<T> iterable) {
