@@ -13,7 +13,7 @@ public class Utils {
    * @return <var>str</var> with its first letter {@link Character#toUpperCase}
    */
   public static String capitalize(final String str) {
-    return Character.toUpperCase(str.charAt(0))+str.substring(1);
+    return Character.toUpperCase(str.charAt(0)) + str.substring(1);
   }
 
   /**
@@ -42,7 +42,7 @@ public class Utils {
    */
   public static long distance(final Iterable<?> iterable) {
     long distance = 0;
-    for(final Object obj : iterable) {
+    for (final Object obj : iterable) {
       distance++;
     }
     return distance;
@@ -91,7 +91,7 @@ public class Utils {
    */
   public static <T extends Object & Comparable<? super T>>
     boolean isSorted(final Iterator<? extends T> iterator, final boolean infoException) {
-      if (iterator.hasNext() ) {
+      if (iterator.hasNext()) {
         T prev = iterator.next();
         while (iterator.hasNext()) {
           final T curr = iterator.next();
@@ -140,7 +140,7 @@ public class Utils {
 
   public static <T extends Object & Comparable<? super T>>
     boolean isUnique(final Iterator<? extends T> iterator, final boolean infoException, final UniqueMode uniqueMode) {
-      if (iterator.hasNext() ) {
+      if (iterator.hasNext()) {
         T prev = iterator.next();
         while (iterator.hasNext()) {
           final T curr = iterator.next();
@@ -224,7 +224,6 @@ public class Utils {
     return iterable.iterator().hasNext() == false;
   }
 
-
   /**
    * <code>null</code>-tolerant version of {@link Object#equals}
    */
@@ -269,12 +268,13 @@ public class Utils {
       return s1Len - s2Len;
     }
 
+    @Override
     public boolean equals(Object that) {
       // this is a singleton
       return this == that;
     }
   } // end class WordNetLexicalComparator
-
+  
   /**
    * @see java.lang.String#hashCode
    */
@@ -286,7 +286,7 @@ public class Utils {
     // 31 = 2^0 + 2^1 + 2^2 + 2^3 + 2^4 = 2^5 - 1
     // 2^4 * 2*16
     int hash = 0, multiplier = 1;
-    for(int i = 0, n = seq.length(); i < n; i++) {
+    for (int i = 0, n = seq.length(); i < n; i++) {
       hash += seq.charAt(i) * multiplier;
       int shifted = multiplier << 5;
       multiplier = shifted - multiplier;
