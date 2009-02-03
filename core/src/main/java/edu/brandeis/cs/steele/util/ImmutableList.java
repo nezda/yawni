@@ -1,7 +1,26 @@
+/*
+ *  Copyright (C) 2007 Google Inc.
+ * 
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package edu.brandeis.cs.steele.util;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -98,6 +117,31 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
         }
     }
   }
+  public static <E> ImmutableList<E> of(final Iterable<? extends E> elements) {
+    if (elements instanceof ImmutableList) {
+      return (ImmutableList<E>) elements;
+    } else if (elements instanceof Collection) {
+      @SuppressWarnings("unchecked")
+      final Collection<E> elementsAsCollection = (Collection<E>) elements;
+      final int size = elementsAsCollection.size();
+      @SuppressWarnings("unchecked")
+      final E[] elementsAsArray = (E[]) new Object[size];
+      final E[] returnedElementsAsArray = elementsAsCollection.toArray(elementsAsArray);
+      assert returnedElementsAsArray == elementsAsArray;
+      return ImmutableList.of(elementsAsArray);
+    } else {
+      final Collection<E> elementsAsCollection = new ArrayList<E>();
+      for(final E e : elements) {
+        elementsAsCollection.add(e);
+      }
+      return ImmutableList.of(elementsAsCollection);
+    }
+  }
+  // covariant subList type inferences doesn't work
+  // confine this casting ugliness to here
+  public static <E> ImmutableList<E> subList(final ImmutableList<E> list, int fromIndex, int toIndex) {
+    return (ImmutableList<E>) list.subList(fromIndex, toIndex);
+  }
 
   private ImmutableList() {}
 
@@ -121,12 +165,12 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
 
   // lifted from Google Collections
   private static Object[] copyIntoArray(Object... items) {
-    Object[] array = new Object[items.length];
+    final Object[] array = new Object[items.length];
     int index = 0;
-    for (Object element : items) {
-      if (element == null) {
-        throw new NullPointerException("at index " + index);
-      }
+    for (final Object element : items) {
+//      if (element == null) {
+//        throw new NullPointerException("at index " + index);
+//      }
       array[index++] = element;
     }
     return array;
@@ -134,12 +178,12 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
 
   // lifted from Google Collections
   private static Object[] copyIntoArray(Iterable<?> items, int size) {
-    Object[] array = new Object[size];
+    final Object[] array = new Object[size];
     int index = 0;
-    for (Object element : items) {
-      if (element == null) {
-        throw new NullPointerException("at index " + index);
-      }
+    for (final Object element : items) {
+//      if (element == null) {
+//        throw new NullPointerException("at index " + index);
+//      }
       array[index++] = element;
     }
     return array;
@@ -195,7 +239,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       return Collections.<E>emptyList().listIterator(index);
     }
     /* @Override */
-    public List<E> subList(int fromIndex, int toIndex) {
+    public ImmutableList<E> subList(int fromIndex, int toIndex) {
       if (fromIndex != 0 || toIndex != 0) {
         throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
             + ".." + toIndex + ", list size is 0");
@@ -208,7 +252,10 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
     /* @Override */
     public <T> T[] toArray(T[] a) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      if (a.length > 0) {
+        a[0] = null;
+      }
+      return a;
     }
     @Override
     public int hashCode() {
@@ -280,14 +327,6 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       }
       throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
             + ".." + toIndex + ", list size is " + size());
-    }
-    /* @Override */
-    public Object[] toArray() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    /* @Override */
-    public <T> T[] toArray(T[] a) {
-      throw new UnsupportedOperationException("Not supported yet.");
     }
   } // end class Singleton
   
@@ -697,11 +736,13 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
 //      }
 //      return false;
 //    }
+    @Override
     public Object[] toArray() {
       Object[] newArray = new Object[size()];
       System.arraycopy(items, 0, newArray, 0, size());
       return newArray;
     }
+    @Override
     public <T> T[] toArray(T[] other) {
       if (other.length < size()) {
         other = newArray(other, size());
@@ -800,7 +841,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
         return Restleton.this.get(index);
       }
       /* @Override */
-      public List<E> subList(int fromIndex, int toIndex) {
+      public ImmutableList<E> subList(int fromIndex, int toIndex) {
 //        if (fromIndex < 0) {
 //          throw new IndexOutOfBoundsException();
 //        }
@@ -880,7 +921,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     public boolean containsAll(Collection<?> c) {
       // TODO consider optimiziation strategies - c not necessarily a RandomAccess & List, but
       // we made that assumption for equals()
-      for (Object target : c) {
+      for (final Object target : c) {
         if (false == contains(target)) {
           return false;
         }
@@ -953,6 +994,27 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     /* @Override */
     public final void clear() {
       throw new UnsupportedOperationException();
+    }
+    public abstract ImmutableList<E> subList(int fromIndex, int toIndex);
+    /* @Override */
+    public Object[] toArray() {
+      final Object[] newArray = new Object[size()];
+      for (int i = begin(), n = end(); i < n; i++) {
+        newArray[i] = get(i);
+      }
+      return newArray;
+    }
+    /* @Override */
+    public <T> T[] toArray(T[] other) {
+      if (other.length < size()) {
+        other = newArray(other, size());
+      } else if (other.length > size()) {
+        other[size()] = null;
+      }
+      for (int i = begin(), n = end(); i < n; i++) {
+        other[i] = (T) get(i);
+      }
+      return other;
     }
     /**
      * {@inheritDoc}
