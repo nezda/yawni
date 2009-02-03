@@ -16,6 +16,7 @@
  */
 
 package edu.brandeis.cs.steele.wn;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -65,7 +66,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    *         result
    */
   public int countTokens() {
-    return countTokens(string, position, delimiters);
+    return countTokens(string, position, string.length(), delimiters);
   }
 
   /**
@@ -77,11 +78,29 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
    * @return number of tokens that can be retreived before an exception will
    *         result
    */
-  public static int countTokens(final CharSequence string, final int position,
-      final String delimiters) {
+  public static int countTokens(final CharSequence string, final String delimiters) {
+    return countTokens(string, 0, string.length(), delimiters);
+  }
+
+  /**
+   * Returns the number of tokens in <var>string</var> separated by
+   * <var>delimiters</var> starting at <var>position</var>.
+   *
+   * @param string the string to be tokenized
+   * @param position in string
+   * @param length after position
+   * @param delimiters the delimiters to use
+   * @return number of tokens that can be retreived before an exception will
+   *         result
+   */
+  public static int countTokens(
+    final CharSequence string,
+    final int position,
+    final int length,
+    final String delimiters) {
     int count = 0;
     boolean inToken = false;
-    for (int i = position, length = string.length(); i < length; i++) {
+    for (int i = position; i < length; i++) {
       final char ci = string.charAt(i);
       if (delimiters.indexOf(ci, 0) >= 0) {
         if (inToken) {
