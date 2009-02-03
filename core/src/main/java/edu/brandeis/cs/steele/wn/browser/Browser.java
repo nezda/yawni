@@ -266,6 +266,7 @@ public class Browser extends JFrame {
     // http://mindprod.com/jgloss/antialiasing.html#GOTCHAS
     // ? Java 5 option that may cause fonts to look worse ??
     System.setProperty("swing.aatext", "true");
+    // Java 6 http://java.sun.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
     System.setProperty("awt.useSystemAAFontSettings", "on");
     System.setProperty("apple.awt.textantialiasing", "on");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
