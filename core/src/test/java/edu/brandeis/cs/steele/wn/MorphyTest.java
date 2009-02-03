@@ -1,6 +1,21 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package edu.brandeis.cs.steele.wn;
 
-import junit.framework.JUnit4TestAdapter;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
@@ -198,6 +213,7 @@ public class MorphyTest {
       { POS.VERB.name(), "shook hands", "shake hands", "shook hands" },
       { POS.VERB.name(), "Americanize", "Americanize" }, // capitalized verb - grep "v [0-9]+ [A-Z]" data.verb
       { POS.VERB.name(), "saw", "see", "saw" },
+      { POS.VERB.name(), "let the cats out of the bag", "let the cat out of the bag" },
       { POS.ADJ.name(), "onliner" /* no idea */, "online" },
       // should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
       { POS.ADJ.name(), "redder" /* no idea */, "red" },
@@ -206,12 +222,12 @@ public class MorphyTest {
       { POS.ADJ.name(), "low-pitched", "low-pitched" },
       //{ POS.ADJ.name(), "low-pitch", "low-pitched" }, // WN doesn't get this
     };
-    for(final String[] testElements : unstemmedStemmedCases) {
+    for (final String[] testElements : unstemmedStemmedCases) {
       final POS pos = POS.valueOf(testElements[0]);
       final String unstemmed = testElements[1];
       final String stemmed = testElements[2];
       final List<String> goldStems = new ArrayList<String>();
-      for(int i = 2; i < testElements.length; ++i) {
+      for (int i = 2; i < testElements.length; ++i) {
         goldStems.add(testElements[i]);
       }
       final List<String> baseForms = stem(unstemmed, pos);
@@ -220,7 +236,7 @@ public class MorphyTest {
       //System.err.println(msg);
       assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
       //TODO on failure, could try other POS
-      if(baseForms.size() >= 2) {
+      if (baseForms.size() >= 2) {
         //TODO tighten up this test - don't allow any extra unspecified variants
         // note this considers case variants distinct
         System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
@@ -265,25 +281,25 @@ public class MorphyTest {
   public void detectLostVariants() {
     int issues = 0;
     int nonCaseIssues = 0;
-    for(final POS pos : POS.CATS) {
-      for(final Word word : dictionary.words(pos)) {
-        for(final WordSense wordSense : word.getSenses()) {
+    for (final POS pos : POS.CATS) {
+      for (final Word word : dictionary.words(pos)) {
+        for (final WordSense wordSense : word.getSenses()) {
           final String lemma = wordSense.getLemma();
           final List<String> restems = stem(lemma, pos);
           String msg = "ok";
-          if(false == restems.contains(lemma)) {
-            msg = "restems: "+restems+" doesn't contain lemma: "+lemma;
+          if (false == restems.contains(lemma)) {
+            msg = "restems: " + restems + " doesn't contain lemma: " + lemma;
             ++issues;
             boolean nonCaseIssue = false == containsIgnoreCase(lemma, restems);
-            if(nonCaseIssue) {
+            if (nonCaseIssue) {
               ++nonCaseIssues;
             }
             System.err.println(
-                "issues: "+issues+" nonCases: "+nonCaseIssues+
-                (nonCaseIssue ? "*" : " ")+
-                " "+msg);
+              "issues: " + issues + " nonCases: " + nonCaseIssues +
+              (nonCaseIssue ? "*" : " ") +
+              " " + msg);
           }
-          if(restems.size() > 1) {
+          if (restems.size() > 1) {
             //System.err.println(pos+" lemma: "+lemma+" restems: "+restems);
           }
           assertTrue(msg, restems.contains(lemma));
@@ -302,14 +318,13 @@ public class MorphyTest {
 
   @Test
   public void findCollocationAmbiguity() {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     int spaceAndDash = 0;
-    for(final POS pos : POS.CATS) {
-      for(final Word word : dictionary.words(pos)) {
+    for (final POS pos : POS.CATS) {
+      for (final Word word : dictionary.words(pos)) {
         final String lemma = word.getLemma();
-        if(lemma.indexOf("-") > 0 && lemma.indexOf(" ") > 0) {
+        if (lemma.indexOf("-") > 0 && lemma.indexOf(" ") > 0) {
           spaceAndDash++;
-          //System.err.println("lemma: "+lemma+" spaceAndDash: "+spaceAndDash);
+        //System.err.println("lemma: "+lemma+" spaceAndDash: "+spaceAndDash);
         }
       }
     }
@@ -354,7 +369,6 @@ public class MorphyTest {
   //won't find anything without getindex() functionality?
   //@Test
   //public void findLexicalAmbiguity() {
-  //  final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
   //  int issues = 0;
   //  int nonCaseIssues = 0;
   //  for(final POS pos : POS.CATS) {
@@ -395,8 +409,4 @@ public class MorphyTest {
   //    }
   //  }
   //}
-
-  public static junit.framework.Test suite() {
-    return new JUnit4TestAdapter(MorphyTest.class);
-  }
 }
