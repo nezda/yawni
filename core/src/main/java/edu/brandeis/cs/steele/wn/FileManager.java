@@ -1,4 +1,20 @@
 /*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+/*
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -14,7 +30,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.JarURLConnection;
 
-/** An implementation of <code>FileManagerInterface</code> that reads files
+/**
+ * An implementation of <code>FileManagerInterface</code> that reads files
  * from the local file system.  A file  <code>FileManager</code> caches the
  * file position before and after {@link FileManagerInterface#readLineAt
  * FileManagerInterface.readLineAt()} in order to eliminate the redundant IO
@@ -180,20 +197,25 @@ public class FileManager implements FileManagerInterface {
       super(filename);
       this.raf = raf;
     }
-    @Override void seek(final int position) throws IOException {
+    @Override
+    void seek(final int position) throws IOException {
       raf.seek(position);
     }
-    @Override int position() throws IOException {
+    @Override
+    int position() throws IOException {
       return (int) raf.getFilePointer();
     }
-    @Override char charAt(int position) throws IOException {
+    @Override
+    char charAt(int position) throws IOException {
       seek(position);
       return (char)raf.readByte();
     }
-    @Override int length() throws IOException {
+    @Override
+    int length() throws IOException {
       return (int) raf.length();
     }
-    @Override String readLine() throws IOException {
+    @Override
+    String readLine() throws IOException {
       return raf.readLine();
     }
   } // end class RAFCharStream
@@ -224,20 +246,25 @@ public class FileManager implements FileManagerInterface {
       //this.bbuff = new ByteCharBuffer(mmap, false);
       return mmap;
     }
-    @Override void seek(final int position) throws IOException {
+    @Override
+    void seek(final int position) throws IOException {
       // buffer cannot exceed Integer.MAX_VALUE since arrays are limited by this
       this.position = position;
     }
-    @Override int position() throws IOException {
+    @Override
+    int position() throws IOException {
       return position;
     }
-    @Override char charAt(final int p) throws IOException {
+    @Override
+    char charAt(final int p) throws IOException {
       return (char) bbuff.get(p);
     }
-    @Override int length() throws IOException {
+    @Override
+    int length() throws IOException {
       return bbuff.capacity();
     }
-    @Override String readLine() throws IOException {
+    @Override
+    String readLine() throws IOException {
       final int s = position;
       final int e = scanForwardToLineBreak(true);
       if ((e - s) <= 0) {
@@ -245,10 +272,12 @@ public class FileManager implements FileManagerInterface {
       }
       return stringBuffer.toString();
     }
-    @Override void skipLine() throws IOException {
+    @Override
+    void skipLine() throws IOException {
       scanForwardToLineBreak();
     }
-    @Override String readLineWord() throws IOException {
+    @Override
+    String readLineWord() throws IOException {
       final int s = position;
       scanToSpace();
       final int e = scanForwardToLineBreak();
@@ -287,7 +316,7 @@ public class FileManager implements FileManagerInterface {
       char c;
       while (done == false && position < bbuff.capacity()) {
         c = (char) bbuff.get(position++);
-        switch(c) {
+        switch (c) {
           case '\r':
             // if next is \n, skip that too
             c = (char) bbuff.get(position++);
@@ -344,17 +373,17 @@ public class FileManager implements FileManagerInterface {
      * 1 buffer thus maximizing efficiency.
      */
     private static ByteBuffer asByteBuffer(final InputStream input, final int len, final String filename) throws IOException {
-      if(len == -1) {
+      if (len == -1) {
         throw new RuntimeException("unknown length not currently supported");
       }
       final byte[] buffer = new byte[len];
       int totalBytesRead = 0;
-      while(input.available() > 0) {
+      while (input.available() > 0) {
         int bytesRead = input.read(buffer, totalBytesRead, len - totalBytesRead);
         totalBytesRead += bytesRead;
       }
       // coud resize buffer
-      if(len != totalBytesRead) {
+      if (len != totalBytesRead) {
         throw new RuntimeException("Read error. Only read "+totalBytesRead+" of "+len+" for "+filename);
       }
       return ByteBuffer.wrap(buffer);
@@ -413,7 +442,8 @@ public class FileManager implements FileManagerInterface {
       // so cannot simply "return this;"
       // (position()+start, position()+end]
     }
-    @Override public String toString() {
+    @Override
+    public String toString() {
       throw new UnsupportedOperationException("TODO IMPLEMENT ME");
     }
   } // end class ByteCharBuffer
@@ -504,7 +534,7 @@ public class FileManager implements FileManagerInterface {
     final URLConnection conn = url.openConnection();
     // get resource length so we can avoid unnecessary buffer copies
     final int len;
-    if(conn instanceof JarURLConnection) {
+    if (conn instanceof JarURLConnection) {
       // JarURLConnection.getContentLength() returns the raw size of the source
       // jar file rather than the uncompressed entry's size if it is a different
       // jar from this class's definition
@@ -665,16 +695,16 @@ public class FileManager implements FileManagerInterface {
     final int foffset = getIndexedLinePointer(prefix, offset, filename, true);
     //XXX System.err.println("foffset: "+foffset+" prefix: \""+prefix+"\"");
     final String aline;
-    int zoffset;
+    //int zoffset;
     if (foffset < 0) {
       // invert -(o - 1)
       final int moffset = -(foffset + 1);
-      zoffset = moffset;
+      //zoffset = moffset;
       // if moffset < size && line[moffset].startsWith(prefix)
       aline = readLineAt(moffset, filename);
     } else {
       aline = readLineAt(foffset, filename);
-      zoffset = foffset;
+      //zoffset = foffset;
     }
     //XXX System.err.println("aline: \""+aline+"\" zoffset: "+zoffset);
 
