@@ -364,12 +364,10 @@ class Morphy {
 
       if (morphWords.isEmpty() == false) {
         checkLosingVariants(morphWords, "morphstr()");
-        assert searchstr != null;
         assert morphWords.get(0) != null;
         searchstr += morphWords.get(0);
       } else {
         // morphWords is null
-        assert searchstr != null;
         assert wordStr != null;
         //LN is this adding the last word of the collocation ?
         searchstr += wordStr;
@@ -459,8 +457,7 @@ class Morphy {
     if (tmp.isEmpty() == false) {
       // found it in exception list
       // LN skips first one because of modified getExceptions semantics
-      //return (ImmutableList<String>) tmp.subList(1, tmp.size());
-      return ImmutableList.subList(tmp, 1, tmp.size());
+      return tmp.subList(1, tmp.size());
     }
 
     if (pos == POS.ADV) {
