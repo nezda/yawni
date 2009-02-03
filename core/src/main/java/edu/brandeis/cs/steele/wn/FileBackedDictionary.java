@@ -1,4 +1,20 @@
 /*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+/*
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
  * the copyright notice and this restriction, and label your changes.
  */
@@ -131,15 +147,17 @@ public class FileBackedDictionary implements DictionaryDatabase {
       this.posOrdinal = (byte) pos.ordinal();
     }
 
-    @Override public boolean equals(final Object object) {
-      if(object instanceof POSOffsetDatabaseKey) {
+    @Override
+    public boolean equals(final Object object) {
+      if (object instanceof POSOffsetDatabaseKey) {
         final POSOffsetDatabaseKey that = (POSOffsetDatabaseKey)object;
         return that.posOrdinal == this.posOrdinal && that.offset == this.offset;
       }
       return false;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
       return (offset * 10) + posOrdinal;
     }
   } // end class POSOffsetDatabaseKey
@@ -153,15 +171,17 @@ public class FileBackedDictionary implements DictionaryDatabase {
       this.posOrdinal = (byte)pos.ordinal();
     }
 
-    @Override public boolean equals(final Object object) {
-      if(object instanceof StringPOSDatabaseKey) {
+    @Override
+    public boolean equals(final Object object) {
+      if (object instanceof StringPOSDatabaseKey) {
         final StringPOSDatabaseKey that = (StringPOSDatabaseKey)object;
         return that.posOrdinal == this.posOrdinal && Utils.equals(that.key, this.key);
       }
       return false;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
       return posOrdinal ^ Utils.hashCode(key);
     }
   } // end class StringPOSDatabaseKey
@@ -190,7 +210,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   private static String getDataFilename(final POS pos) {
     String toReturn = DATA_FILE_NAMES.get(pos);
-    if(toReturn == null) {
+    if (toReturn == null) {
       toReturn = "data." + getDatabaseSuffixName(pos);
       DATA_FILE_NAMES.put(pos, toReturn);
     }
@@ -201,7 +221,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   private static String getIndexFilename(final POS pos) {
     String toReturn = INDEX_FILE_NAMES.get(pos);
-    if(toReturn == null) {
+    if (toReturn == null) {
       toReturn = "index." + getDatabaseSuffixName(pos);
       INDEX_FILE_NAMES.put(pos, toReturn);
     }
@@ -212,7 +232,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   private static String getExceptionsFilename(final POS pos) {
     String toReturn = EXCEPTION_FILE_NAMES.get(pos);
-    if(toReturn == null) {
+    if (toReturn == null) {
       toReturn = getDatabaseSuffixName(pos) + ".exc";
       EXCEPTION_FILE_NAMES.put(pos, toReturn);
     }
@@ -439,7 +459,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return syns.toArray(new Synset[syns.size()]);
   }
 
-  private final Cache<DatabaseKey, String[]> exceptionsCache = new LRUCache<DatabaseKey, String[]>(DEFAULT_CACHE_CAPACITY);
+  private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = new LRUCache<DatabaseKey, ImmutableList<String>>(DEFAULT_CACHE_CAPACITY);
   //private final Cache exceptionsCache = new LRUCache(0);
 
   /**
@@ -449,11 +469,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
    * first entry (the exceptional word itself!)</b>
    * morph.c exc_lookup()
    */
-  String[] getExceptions(final CharSequence someString, final POS pos) {
+  ImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(someString, pos);
-    final Object cached = exceptionsCache.get(cacheKey);
-    if(cached != null) {
-      return (String[]) cached;
+    final ImmutableList<String> cached = exceptionsCache.get(cacheKey);
+    if (cached != null) {
+      return cached;
     }
     assert someString != null;
     assert someString.length() > 0 : "someString: \""+someString+"\" "+pos;
@@ -463,17 +483,17 @@ public class FileBackedDictionary implements DictionaryDatabase {
       final int offset = db.getIndexedLinePointer(someString, filename);
       if (offset >= 0) {
         final String line = db.readLineAt(offset, filename);
-        final String[] toReturn = line.split(" ");
-        assert toReturn.length >= 2;
+        final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
+        assert toReturn.size() >= 2;
         exceptionsCache.put(cacheKey, toReturn);
         return toReturn;
       } else {
-        exceptionsCache.put(cacheKey, NO_STRINGS);
+        exceptionsCache.put(cacheKey, ImmutableList.<String>of());
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return NO_STRINGS;
+    return ImmutableList.of();
   }
 
   /**
@@ -493,12 +513,12 @@ public class FileBackedDictionary implements DictionaryDatabase {
     final String line;
     try {
       offset = db.getIndexedLinePointer(senseKey, getCntlistDotRevFilename());
-      if(offset < 0) {
+      if (offset < 0) {
         line = null;
       } else {
         line = db.readLineAt(offset, getCntlistDotRevFilename());
       }
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
     return line;
@@ -510,7 +530,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     String line;
     try {
       line = db.readLineNumber(lexnum, getLexnamesFilename());
-      if(line != null) {
+      if (line != null) {
         // parse line. format example:
         //00	adj.all	3
         //<lexnum>\tlexname\t<pos ordinal>
@@ -519,13 +539,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
         int end = line.lastIndexOf('\t');
         assert start != end;
         line = line.substring(start + 1, end);
-      } else if(lexnum < Lexnames.contents.length) {
+      } else if (lexnum < Lexnames.contents.length) {
         line = Lexnames.contents[lexnum][1];
       }
     } catch(IOException ioe) {
       throw new RuntimeException(ioe);
     }
-    if(line == null) {
+    if (line == null) {
       line = "UNKNOWN.lexnum "+lexnum;
     }
     return line;
@@ -545,14 +565,14 @@ public class FileBackedDictionary implements DictionaryDatabase {
       // skip leading digits, skip spaces, rest is frame text
       int idx = line.indexOf(" ");
       assert idx >= 0;
-      for(int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
+      for (int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
         idx++;
       }
       assert line.charAt(idx) == ' ';
       assert line.charAt(idx + 1) != ' ';
       idx++;
       line = line.substring(idx);
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
     return line;
@@ -566,7 +586,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     String line = null;
     try {
       final int offset = db.getIndexedLinePointer(verbSenseKey, getVerbSentencesIndexFilename());
-      if(offset >= 0) {
+      if (offset >= 0) {
         line = db.readLineAt(offset, getVerbSentencesIndexFilename());
         assert line != null;
         // parse line. format example:
@@ -576,11 +596,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
         // skip leading digits, skip spaces, rest is frame text
         int idx = line.indexOf(" ");
         assert idx >= 0;
-        for(int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
+        for (int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
           idx++;
         }
         assert line.charAt(idx) == ' ';
-        if(idx + 1 < line.length()) {
+        if (idx + 1 < line.length()) {
           assert line.charAt(idx + 1) != ' ' : "verbSenseKey: "+verbSenseKey;
           idx++;
           line = line.substring(idx);
@@ -591,7 +611,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
           line = null;
         }
       }
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
     return line;
@@ -604,7 +624,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     String line = null;
     try {
       final int offset = db.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFilename());
-      if(offset >= 0) {
+      if (offset >= 0) {
         line = db.readLineAt(offset, getVerbSentencesFilename());
         assert line != null;
         // parse line. format example:
@@ -614,7 +634,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         // skip leading digits, skip spaces, rest is sentence text
         int idx = line.indexOf(" ");
         assert idx >= 0;
-        for(int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
+        for (int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
           idx++;
         }
         assert line.charAt(idx) == ' ';
@@ -623,7 +643,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         line = line.substring(idx);
         assert line.indexOf("%s") >= 0;
       }
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
     return line;
