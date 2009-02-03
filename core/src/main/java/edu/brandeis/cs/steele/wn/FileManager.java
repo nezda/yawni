@@ -514,9 +514,7 @@ public class FileManager implements FileManagerInterface {
       final long duration = System.nanoTime() - start;
       final long total = streamInitTime += duration;
       //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
-      if (stream == null) {
-        log.log(Level.SEVERE, "Unable to find data with filename: {0}", filename);
-      }
+      assert stream != null;
       filenameCache.put(filename, stream);
     }
     return stream;
