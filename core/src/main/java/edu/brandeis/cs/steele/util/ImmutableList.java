@@ -74,9 +74,6 @@ import java.util.RandomAccess;
 // - hopefully compiler won't have problems with deeply nested implementation classes
 //   ImmutableList -> AbstractList -> Singleton -> Doubleton -> ...
 
-//TODO
-// - Collection<? extends E> factories / ctors
-// - <T> T[] toArray(T[] a)
 public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   @SuppressWarnings("unchecked")
   public static <E> ImmutableList<E> of() {
@@ -110,7 +107,8 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       case 5: return ImmutableList.of(all[0], all[1], all[2], all[3], all[4]);
       default:
         if (all.length > 5) {
-          return new Restleton<E>(all);
+          //return new Restleton<E>(all);
+          return new RegularImmutableList<E>(all);
         } else {
           // this is impossible
           throw new IllegalStateException();
@@ -136,11 +134,6 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       }
       return ImmutableList.of(elementsAsCollection);
     }
-  }
-  // covariant subList type inferences doesn't work
-  // confine this casting ugliness to here
-  public static <E> ImmutableList<E> subList(final ImmutableList<E> list, int fromIndex, int toIndex) {
-    return (ImmutableList<E>) list.subList(fromIndex, toIndex);
   }
 
   private ImmutableList() {}
@@ -866,6 +859,71 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       }
     } // end class SubList
   } // end class Restleton
+  
+  /**
+   * Classic {@code ArrayList}-style implementation.  Implementation liberally copied
+   * from GoogleCollections ImmutableList.RegularImmutableList
+   * @param <E>
+   */
+  private static final class RegularImmutableList<E> extends AbstractImmutableList<E> {
+    private final int offset;
+    private final int size;
+    private final Object[] array;
+
+    private RegularImmutableList(Object[] array, int offset, int size) {
+      this.offset = offset;
+      this.size = size;
+      this.array = array;
+    }
+    private RegularImmutableList(Object[] array) {
+      this(array, 0, array.length);
+    }
+    public int size() {
+      return size;
+    }
+    @Override
+    public Object[] toArray() {
+      final Object[] newArray = new Object[size()];
+      System.arraycopy(array, offset, newArray, 0, size);
+      return newArray;
+    }
+    @Override
+    public <T> T[] toArray(T[] other) {
+      if (other.length < size) {
+        other = newArray(other, size);
+      } else if (other.length > size) {
+        other[size] = null;
+      }
+      System.arraycopy(array, offset, other, 0, size);
+      return other;
+    }
+    // The fake cast to E is safe because the creation methods only allow E's
+    @SuppressWarnings("unchecked")
+    public E get(int index) {
+      if (index < 0 || index >= size) {
+        throw new IndexOutOfBoundsException(
+            "Invalid index: " + index + ", list size is " + size);
+      }
+      return (E) array[index + offset];
+    }
+    @Override
+    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+      if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
+        throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
+            + ".." + toIndex + ", list size is " + size);
+      }
+      return (fromIndex == toIndex)
+          ? ImmutableList.<E>of()
+          : new RegularImmutableList<E>(
+              array, offset + fromIndex, toIndex - fromIndex);
+    }
+  } // end class RegularImmutableList
+
+  /**
+   * {@inheritDoc}
+   * Ensures covariant subList type inferences works
+   */
+  public abstract ImmutableList<E> subList(int fromIndex, int toIndex);
 
   static abstract class AbstractImmutableList<E> extends ImmutableList<E> {
     // base implementation
@@ -995,7 +1053,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     public final void clear() {
       throw new UnsupportedOperationException();
     }
-    public abstract ImmutableList<E> subList(int fromIndex, int toIndex);
+    
     /* @Override */
     public Object[] toArray() {
       final Object[] newArray = new Object[size()];
@@ -1113,8 +1171,6 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
      */
     // Lifted from Apache Harmony
     final class FullListIterator extends SimpleListIterator implements ListIterator<E> {
-      // initial value is irrelevant
-      int lastPosition = -1;
       FullListIterator(int start) {
         super();
         if (begin() <= start && start <= end()) {
@@ -1127,7 +1183,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       public E next() {
         try {
           final E result = get(pos + 1);
-          lastPosition = ++pos;
+         ++pos;
           return result;
         } catch (IndexOutOfBoundsException e) {
           throw new NoSuchElementException();
@@ -1145,7 +1201,6 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       public E previous() {
         try {
           final E result = get(pos);
-          lastPosition = pos;
           pos--;
           return result;
         } catch (IndexOutOfBoundsException e) {
