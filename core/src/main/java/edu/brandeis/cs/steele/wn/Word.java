@@ -40,8 +40,6 @@ import java.util.Iterator;
  * @see Synset
  * @see WordSense
  * @see Pointer
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Word.class.getName());

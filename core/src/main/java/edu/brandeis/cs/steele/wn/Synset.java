@@ -34,8 +34,6 @@ import java.util.logging.*;
  *
  * @see WordSense
  * @see Pointer
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public final class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Synset.class.getName());

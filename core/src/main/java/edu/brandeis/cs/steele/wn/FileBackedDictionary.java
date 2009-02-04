@@ -40,8 +40,6 @@ import java.util.logging.*;
  * @see edu.brandeis.cs.steele.wn.DictionaryDatabase
  * @see edu.brandeis.cs.steele.util.Cache
  * @see edu.brandeis.cs.steele.util.LRUCache
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public class FileBackedDictionary implements DictionaryDatabase {
   private static final Logger log = Logger.getLogger(FileBackedDictionary.class.getName());

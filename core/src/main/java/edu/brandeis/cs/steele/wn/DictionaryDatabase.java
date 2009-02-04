@@ -25,8 +25,6 @@ package edu.brandeis.cs.steele.wn;
  * for objects that model WordNet lexical and semantic entities.
  *
  * @see FileBackedDictionary
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public interface DictionaryDatabase {
   /**

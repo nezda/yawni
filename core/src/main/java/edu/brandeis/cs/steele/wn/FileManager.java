@@ -40,9 +40,6 @@ import java.net.JarURLConnection;
  * <p>Instances of this class are guarded.  All operations are read-only, but
  * are synchronized per file to maintain state including the file pointer's
  * position.
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public class FileManager implements FileManagerInterface {
   //

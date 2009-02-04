@@ -35,8 +35,6 @@ import edu.brandeis.cs.steele.util.Utils;
  * @see Pointer
  * @see Synset
  * @see Word
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public final class WordSense implements PointerTarget, Comparable<WordSense> {
   /**

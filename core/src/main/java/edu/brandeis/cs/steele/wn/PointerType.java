@@ -23,7 +23,8 @@ package edu.brandeis.cs.steele.wn;
 import java.util.*;
 import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
 
-/** Instances of this class enumerate the possible WordNet pointer types, and
+/**
+ * Instances of this class enumerate the possible WordNet pointer types, and
  * are used to label {@link Pointer}s.
  * Each <code>PointerType</code> carries additional information including:
  * <ul>
@@ -38,8 +39,6 @@ import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
  * @see Pointer
  * @see POS
  * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN.html#sect4">WordNet Searches</a>
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public enum PointerType {
   // consider Unicde ellipsis: "…" instead of "..."

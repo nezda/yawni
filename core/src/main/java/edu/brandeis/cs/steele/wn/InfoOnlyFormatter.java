@@ -18,7 +18,6 @@ package edu.brandeis.cs.steele.wn;
 
 import java.util.logging.*;
 /**
- * @author Luke Nezda
  */
 class InfoOnlyFormatter extends SimpleFormatter {
   @Override public String format(final LogRecord record) {

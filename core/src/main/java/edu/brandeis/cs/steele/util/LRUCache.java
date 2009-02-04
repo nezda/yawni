@@ -22,11 +22,9 @@ package edu.brandeis.cs.steele.util;
 
 import java.util.*;
 
-/** A fixed-capacity <code>Cache</code> that stores the <var>n</var> values associate
+/**
+ * A fixed-capacity <code>Cache</code> that stores the <var>n</var> values associate
  * with the <var>n</var> most recently accessed keys.
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;

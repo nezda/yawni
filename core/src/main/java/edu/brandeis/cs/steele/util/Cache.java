@@ -25,9 +25,6 @@ package edu.brandeis.cs.steele.util;
 /**
  * A <code>Cache</code> is a collection of values that are indexed by keys and that are stored for an
  * unspecified amount of time (which the implementor of <code>Cache</code> may further specify).
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public interface Cache<K, V> {
   /** Store <var>value</var> in the cache, indexed by <var>key</var>.  This operation makes

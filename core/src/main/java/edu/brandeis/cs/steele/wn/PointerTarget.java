@@ -27,8 +27,6 @@ package edu.brandeis.cs.steele.wn;
  * @see Pointer
  * @see Synset
  * @see WordSense
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public interface PointerTarget extends Iterable<WordSense> {
   public POS getPOS();

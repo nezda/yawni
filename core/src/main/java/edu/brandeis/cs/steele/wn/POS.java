@@ -21,12 +21,10 @@
 package edu.brandeis.cs.steele.wn;
 import java.util.NoSuchElementException;
 
-/** Represents the major syntactic categories, or <b>p</b>arts <b>o</b>f
+/**
+ * Represents the major syntactic categories, or <b>p</b>arts <b>o</b>f
  * <b>s</b>peech used in WordNet.  Each <code>POS</code> has a human-readable
  * label that can be used to print it, and a key by which it can be looked up.
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public enum POS {
   //

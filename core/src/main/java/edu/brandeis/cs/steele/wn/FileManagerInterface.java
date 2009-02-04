@@ -53,9 +53,6 @@ import java.rmi.RemoteException;
  * a file.  The implementor of <code>FileManagerInterface</code> can cache the file position before and
  * after <code>readLineAt</code> in order to eliminate the redundant IO activity that a naive implementation
  * of these methods would necessitate.
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public interface FileManagerInterface extends java.rmi.Remote {
   /**

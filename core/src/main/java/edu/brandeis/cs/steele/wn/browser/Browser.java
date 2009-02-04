@@ -45,9 +45,6 @@ import java.util.prefs.*;
  *   <li> <code>java edu.brandeis.cs.steele.wn.Browser <var>dir</dir></code><br>
  *        To invoke a browser on a local database stored at <tt>dir</tt>. </li>
  * </ul>
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public class Browser extends JFrame {
   private static final Logger log = Logger.getLogger(Browser.class.getName());

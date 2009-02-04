@@ -66,9 +66,6 @@ import java.util.*;
  *   }
  *}
  *}</pre>
- *
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 
 // alternate exception-free impl

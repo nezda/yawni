@@ -20,7 +20,8 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-/** A <code>Pointer</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
+/**
+ * A <code>Pointer</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
  * Relationships are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
  * Relationships are <i>typed</i>: the type of a relationship is a {@link PointerType}, and can
@@ -28,8 +29,6 @@ package edu.brandeis.cs.steele.wn;
  *
  * @see Synset
  * @see WordSense
- * @author Oliver Steele, steele@cs.brandeis.edu
- * @version 1.0
  */
 public class Pointer implements Comparable<Pointer> {
   /** These target* fields are used to avoid paging in the target before it is
