@@ -146,8 +146,34 @@ public class ImmutableListTest {
     Integer e4 = elements[4];
     List<Integer> expResult = Collections.unmodifiableList(Arrays.asList(e0, e1, e2, e3, e4));
     ImmutableList<Integer> result = ImmutableList.of(expResult);
-    // copmile test for covariant subList
+    // compile test for covariant subList
     ImmutableList<Integer> immutableSubList = result.subList(0, 1);
+    assertTrue(result instanceof ImmutableList.Quintupleton);
+    listTest(expResult, result);
+  }
+  @Test
+  public void commonOverloads() {
+    System.out.println("commonOverloads()");
+    List<List<Integer>> elements = new ArrayList<List<Integer>>();
+    elements.add(Arrays.asList(0));
+    elements.add(Arrays.asList(1));
+    elements.add(Arrays.asList(2));
+    elements.add(Arrays.asList(3));
+    elements.add(Arrays.asList(4));
+    List<Integer> e0 = elements.get(0);
+    List<Integer> e1 = elements.get(1);
+    List<Integer> e2 = elements.get(2);
+    List<Integer> e3 = elements.get(3);
+    List<Integer> e4 = elements.get(4);
+
+    final List<List<Integer>> expResult = Collections.unmodifiableList(elements);
+    @SuppressWarnings("unchecked") // Arrays.asList complains when making list of parameterized types
+    final List<List<Integer>> altExpResult = Arrays.asList(e0, e1, e2, e3, e4);
+    // ImmutableList provides overloads for up to 5 arguments, and only for 6+ will
+    // if fall back to pure varargs
+    final ImmutableList<List<Integer>> result = ImmutableList.of(e0, e1, e2, e3, e4);
+    // compile test for covariant subList
+    //ImmutableList<Integer> immutableSubList = result.subList(0, 1);
     assertTrue(result instanceof ImmutableList.Quintupleton);
     listTest(expResult, result);
   }
