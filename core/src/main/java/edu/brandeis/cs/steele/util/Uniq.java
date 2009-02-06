@@ -20,11 +20,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Derive a new <code>Iterable</code> by removing adjacent duplicates
- * of the provided <i>sortable</i> <code>Iterable</code>s.
+ * Derive a new {@code Iterable} by removing adjacent duplicates
+ * of the provided <em>sortable</em> {@code Iterable}>s.
  * <p>Much like the STL version below:<br> 
- * <code>std::unique_copy(c.begin(), c.end(),  
- *   std::ostream_iterator<c::type>(std::cout, " "));</code>
+ * {@ode std::unique_copy(c.begin(), c.end(),
+ *   std::ostream_iterator<c::type>(std::cout, " "));}
  */
 class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
@@ -83,6 +83,7 @@ class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T> {
         // store curr value of top
         // find next value of top discarding any that are equal to currTop
         // or setting top to SENTINEL to mark eos
+        @SuppressWarnings("unchecked")
         T currTop = (T)top;
         Object nextTop = SENTINEL;
         while (base.hasNext()) {
