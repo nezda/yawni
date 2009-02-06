@@ -222,7 +222,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
 
   public String getDescription(final boolean verbose) {
     final StringBuilder buffer = new StringBuilder();
-    buffer.append("{");
+    buffer.append('{');
     for (int i = 0; i < wordSenses.length; i++) {
       if (i > 0) {
         buffer.append(", ");
@@ -233,7 +233,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
         buffer.append(wordSenses[i].getLemma());
       }
     }
-    buffer.append("}");
+    buffer.append('}');
     return buffer.toString();
   }
 
@@ -248,7 +248,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
       description.
         append(" -- (").
         append(gloss).
-        append(")");
+        append(')');
     }
     return description.toString();
   }
@@ -323,14 +323,14 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   public String toString() {
     return new StringBuilder("[Synset ").
       append(offset).
-      append("@").
+      append('@').
       append(getPOS()).
-      append("<").
-      append("#").
+      append('<').
+      append('#').
       append(lexfilenum()).
       append("::").
       append(getLexCategory()).
-      append(">").
+      append('>').
       append(": \"").
       append(getDescription()).
       append("\"]").toString();
@@ -342,7 +342,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   public int compareTo(final Synset that) {
     int result;
     result = this.getPOS().compareTo(that.getPOS());
-    if(result == 0) {
+    if (result == 0) {
       result = this.offset - that.offset;
     }
     return result;
