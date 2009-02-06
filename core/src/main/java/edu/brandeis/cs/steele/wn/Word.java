@@ -264,7 +264,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   public String toString() {
     return new StringBuilder("[Word ").
       append(offset).
-      append("@").
+      append('@').
       append(getPOS().getLabel()).
       append(": \"").
       append(getLemma()).
