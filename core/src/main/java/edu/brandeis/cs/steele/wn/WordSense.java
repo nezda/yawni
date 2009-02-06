@@ -117,16 +117,16 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   String flagsToString() {
-    if(flags == 0) {
+    if (flags == 0) {
       return "NONE";
     }
     final StringBuilder flagString = new StringBuilder();
-    if(AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
+    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
       flagString.append("predicative");
     }
     if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
       if (flagString.length() != 0) {
-        flagString.append(",");
+        flagString.append(',');
       }
       // synonymous with attributive - WordNet browser seems to use this
       // while the database files seem to indicate it as attributive
@@ -134,7 +134,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     }
     if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
       if (flagString.length() != 0) {
-        flagString.append(",");
+        flagString.append(',');
       }
       flagString.append("immediate_postnominal");
     }
@@ -213,25 +213,25 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       for (int i = 0, n = getLemma().length(); i != n; ++i) {
         senseKey.append(Character.toLowerCase(getLemma().charAt(i)));
       }
-      senseKey.append("%");
+      senseKey.append('%');
       senseKey.append(POS.SAT_ADJ.getWordNetCode());
-      senseKey.append(":");
+      senseKey.append(':');
       if (lex_filenum < 10) {
-        senseKey.append("0");
+        senseKey.append('0');
       }
       senseKey.append(lex_filenum);
-      senseKey.append(":");
+      senseKey.append(':');
       if (lexid < 10) {
-        senseKey.append("0");
+        senseKey.append('0');
       }
       senseKey.append(lexid);
-      senseKey.append(":");
+      senseKey.append(':');
       for (int i = 0, n = searchWord.length(); i != n; ++i) {
         senseKey.append(Character.toLowerCase(searchWord.charAt(i)));
       }
-      senseKey.append(":");
+      senseKey.append(':');
       if (headSense < 10) {
-        senseKey.append("0");
+        senseKey.append('0');
       }
       senseKey.append(headSense);
       //assert oldAdjClusterSenseKey(searchWord, headSense).contentEquals(senseKey);
@@ -250,16 +250,16 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       for (int i = 0, n = getLemma().length(); i != n; ++i) {
         senseKey.append(Character.toLowerCase(getLemma().charAt(i)));
       }
-      senseKey.append("%");
+      senseKey.append('%');
       senseKey.append(getPOS().getWordNetCode());
-      senseKey.append(":");
+      senseKey.append(':');
       if (lex_filenum < 10) {
-        senseKey.append("0");
+        senseKey.append('0');
       }
       senseKey.append(lex_filenum);
-      senseKey.append(":");
+      senseKey.append(':');
       if (lexid < 10) {
-        senseKey.append("0");
+        senseKey.append('0');
       }
       senseKey.append(lexid);
       senseKey.append("::");
@@ -304,7 +304,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     if (line != null) {
       // cntlist.rev line format:
       // <sense_key>  <sense_number>  tag_cnt
-      final int lastSpace = line.lastIndexOf(" ");
+      final int lastSpace = line.lastIndexOf(' ');
       assert lastSpace > 0;
       count = CharSequenceTokenizer.parseInt(line, lastSpace + 1, line.length());
       // sanity check final int firstSpace = line.indexOf(" ");
@@ -387,12 +387,12 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       //TODO consider substibuting in lemma for "%s" in each
       //FIXME this logic is a bit too complex/duplicated!!
       int s = 0;
-      int e = sentenceNumbers.indexOf(",");
+      int e = sentenceNumbers.indexOf(',');
       final int n = sentenceNumbers.length();
       e = e > 0 ? e : n;
       for ( ; s < n;
         // e = next comma OR if no more commas, e = n
-        s = e + 1, e = sentenceNumbers.indexOf(",", s), e = e > 0 ? e : n) {
+        s = e + 1, e = sentenceNumbers.indexOf(',', s), e = e > 0 ? e : n) {
         final String sentNum = sentenceNumbers.substring(s, e);
         final String sentence = dictionary.lookupVerbSentence(sentNum);
         assert sentence != null;
@@ -438,9 +438,9 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     }
     final StringBuilder description = new StringBuilder(lemma);
     if (flags != 0) {
-      description.append("(");
+      description.append('(');
       description.append(flagsToString());
-      description.append(")");
+      description.append(')');
     }
     final PointerTarget[] targets = getTargets(PointerType.ANTONYM);
     if (targets.length > 0) {
@@ -449,7 +449,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
         description.append(" (vs. ");
         final WordSense antonym = (WordSense)target;
         description.append(antonym.getLemma());
-        description.append(")");
+        description.append(')');
       }
     }
     return description.toString();
@@ -467,15 +467,15 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     //}
     buffer.append(getLemma());
     if (flags != 0) {
-      buffer.append("(");
+      buffer.append('(');
       buffer.append(flagsToString());
-      buffer.append(")");
+      buffer.append(')');
     }
     final String gloss = getSynset().getGloss();
     if (gloss != null) {
       buffer.append(" -- (");
       buffer.append(gloss);
-      buffer.append(")");
+      buffer.append(')');
     }
     return buffer.toString();
   }
@@ -538,13 +538,13 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
   public String toString() {
     return new StringBuilder("[WordSense ").
       append(synset.getOffset()).
-      append("@").
+      append('@').
       append(synset.getPOS()).
       append(":\"").
       append(getLemma()).
       append("\"#").
       append(getSenseNumber()).
-      append("]").toString();
+      append(']').toString();
   }
 
   /**
