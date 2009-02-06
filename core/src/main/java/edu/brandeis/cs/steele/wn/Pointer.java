@@ -33,10 +33,10 @@ package edu.brandeis.cs.steele.wn;
 public class Pointer implements Comparable<Pointer> {
   /** These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
-   * once the target has been queried.  The first time they are used, they acts as
-   * an external key; subsequent uses, in conjunction with {@link
-   * FileBackedDictionary}'s caching mechanism, can be thought of as a {@link
-   * java.lang.ref.WeakReference}.
+   * once the target has been queried.  The first time they are used, they act as
+   * an external key; subsequent uses, in conjunction with 
+   * {@link FileBackedDictionary}'s caching mechanism, can be thought of as a
+   * {@link java.lang.ref.WeakReference}.
    * //FIXME or is it SoftReference?
    */
   private final int targetOffset;
@@ -59,7 +59,7 @@ public class Pointer implements Comparable<Pointer> {
   //
   Pointer(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
     this.index = index;
-    this.pointerTypeOrdinal = (byte)PointerType.parseKey(tokenizer.nextToken()).ordinal();
+    this.pointerTypeOrdinal = (byte) PointerType.parseKey(tokenizer.nextToken()).ordinal();
 
     this.targetOffset = tokenizer.nextInt();
 
@@ -131,7 +131,7 @@ public class Pointer implements Comparable<Pointer> {
   @Override
   public String toString() {
     return new StringBuilder("[Pointer").
-      append(" ").
+      append(' ').
       append(getType().name()).
       //append("#").
       //append(index).
@@ -141,7 +141,7 @@ public class Pointer implements Comparable<Pointer> {
       //append(" → ").
       append(" to ").
       append(getTarget()).
-      append("]").toString();
+      append(']').toString();
   }
 
   /** {@inheritDoc} */
