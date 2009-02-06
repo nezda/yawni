@@ -20,22 +20,22 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Flattens an <code>Iterable</code> of an <code>Iterable</code> of <code>T</code> into
- * an <code>Iterable</code> of <code>T</code>.
+ * Flattens an {@code Iterable} of an {@code Iterable} of {@code T} into
+ * an {@code Iterable} of {@code T}.
  */
 public class MultiLevelIterable<T> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
-
-  private final Iterable<? extends Iterable<T>> base;
-
-  public MultiLevelIterable(final Iterable<? extends Iterable<T>> base) {
-    this.base = base;
-  }
 
   /** Primary factory method which deduces template parameters. */
   public static <T>
     Iterable<T> of(final Iterable<? extends Iterable<T>> base) {
       return new MultiLevelIterable<T>(base);
+  }
+
+  private final Iterable<? extends Iterable<T>> base;
+
+  MultiLevelIterable(final Iterable<? extends Iterable<T>> base) {
+    this.base = base;
   }
 
   /** {@inheritDoc} */
@@ -66,6 +66,7 @@ public class MultiLevelIterable<T> implements Iterable<T> {
         // drained
         throw new NoSuchElementException();
       } else {
+        @SuppressWarnings("unchecked")
         final Iterator<T> topIt = (Iterator<T>)top;
         if(init == false && topIt.hasNext()) {
           // loaded
@@ -89,6 +90,7 @@ public class MultiLevelIterable<T> implements Iterable<T> {
       if (top == SENTINEL) {
         throw new NoSuchElementException();
       } else {
+        @SuppressWarnings("unchecked")
         final T toReturn = ((Iterator<T>)top).next();
         chamber(false);
         return toReturn;
