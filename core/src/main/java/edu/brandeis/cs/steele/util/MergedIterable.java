@@ -20,26 +20,57 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Derive a new <code>Iterable</code> by merge sorting the items
- * in each of the provided mutually <i>sortable</i> <code>Iterable</code>s
- * whose traversal order <i>is</i> sorted.
+ * Derive a new {@code Iterable} by merge sorting the items
+ * in each of the provided mutually <i>sortable</i> {@code Iterable}s
+ * whose traversal order <em>is</em> sorted.
  */
 public class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
 
-  private final Iterable<T>[] bases;
-
-  public MergedIterable(final Iterable<T>... bases) {
-    this(false, bases);
+  public static <T extends Object & Comparable<? super T>>
+    Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1 };
+      return merge(false, bases);
   }
 
-  public MergedIterable(final boolean validateSort, final Iterable<T>... bases) {
-    if (bases.length == 0) {
-      throw new IllegalArgumentException();
-    }
-    validateSort(validateSort, bases);
-    //TODO at least warn if any of the given 'bases' are equal to one another
-    this.bases = bases;
+  public static <T extends Object & Comparable<? super T>>
+    Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1, final Iterable<T> base2) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2 };
+      return merge(false, bases);
+  }
+
+  public static <T extends Object & Comparable<? super T>>
+    Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1,
+                      final Iterable<T> base2, final Iterable<T> base3) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3 };
+      return merge(false, bases);
+  }
+
+  public static <T extends Object & Comparable<? super T>>
+    Iterable<T> merge(final boolean validateSort, final Iterable<T> base0, final Iterable<T> base1) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1 };
+      return merge(validateSort, bases);
+  }
+
+  public static <T extends Object & Comparable<? super T>>
+    Iterable<T> merge(final boolean validateSort,
+                      final Iterable<T> base0, final Iterable<T> base1, final Iterable<T> base2) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2 };
+      return merge(validateSort, bases);
+  }
+
+  public static <T extends Object & Comparable<? super T>>
+    Iterable<T> merge(final boolean validateSort,
+                      final Iterable<T> base0, final Iterable<T> base1,
+                      final Iterable<T> base2, final Iterable<T> base3) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3 };
+      return merge(validateSort, bases);
   }
 
   /** Primary factory method so template parameters are deduced. */
@@ -52,6 +83,21 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final Iterable<T>... bases) {
       return new MergedIterable<T>(validateSort, bases);
+  }
+
+  private final Iterable<T>[] bases;
+
+  MergedIterable(final Iterable<T>... bases) {
+    this(false, bases);
+  }
+
+  MergedIterable(final boolean validateSort, final Iterable<T>... bases) {
+    if (bases.length == 0) {
+      throw new IllegalArgumentException();
+    }
+    validateSort(validateSort, bases);
+    //TODO at least warn if any of the given 'bases' are equal to one another
+    this.bases = bases;
   }
 
   /** {@inheritDoc} */
@@ -74,17 +120,17 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
 
   /**
    * Implements simple k-way merge sort logic and presents logic as an
-   * <code>Iterator</code>.  Look at the 'top' of each base
-   * <code>Iterator</code> caching these <tt>n</tt> values.
-   * <code>next()</code> will return the minimum of these values.
+   * {@code Iterator}.  Look at the 'top' of each base
+   * {@code Iterator} caching these <tt>n</tt> values.
+   * {@code next()} will return the minimum of these values.
    *
    * <h4>Running Time</h4>
-   * Let <tt>k</tt> be the number of <code>Iterable</code> sequences to merge
+   * Let <tt>k</tt> be the number of {@code Iterable} sequences to merge
    * (which themselves are presented in sorted order).  Let <tt>n</tt> be the
    * sum of the number of items in all <tt>k</tt> sequences.  The running time
-   * of this algorithm is <tt>O(n * k)</tt>.  Optimal running time would be
-   * <tt>O(n * lg k)</tt> if the sequence heads were stored in a priority
-   * queue which will not be beneficial for small <tt>k</tt> (e.g. <tt>k < 10</tt>).
+   * of this algorithm is {@code O(n * k)}.  Optimal running time would be
+   * {@code O(n * lg k)} if the sequence heads were stored in a priority
+   * queue which will not be beneficial for small <tt>k</tt> (e.g. {@code k < 10}).
    *
    * <h4>TODO</h4>
    * - support remove()
@@ -94,8 +140,11 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
     private static final Object SENTINEL = new Object();
 
     private final Iterator<T>[] bases;
+    // really T's except for the SENTINEL which forces us to
+    // use Object[]
     private final Object[] tops;
 
+    @SuppressWarnings("unchecked")
     MergedIterator(final Iterable<T>... bases) {
       this.bases = (Iterator<T>[]) new Iterator[bases.length];
       this.tops = new Object[bases.length];
@@ -121,9 +170,11 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
           if (tops[min] == SENTINEL) {
             min = i;
           } else {
-            final Comparable minObj = (Comparable)tops[min];
-            final Comparable currObj = (Comparable)tops[i];
-            if(minObj.compareTo(currObj) > 0) {
+            @SuppressWarnings("unchecked") // only SENTINEL is not a T
+            final T minObj = (T)tops[min];
+            @SuppressWarnings("unchecked")  // only SENTINEL is not a T
+            final T currObj = (T)tops[i];
+            if (minObj.compareTo(currObj) > 0) {
               min = i;
             }
           }
@@ -132,6 +183,7 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
       if (tops[min] == SENTINEL) {
         throw new NoSuchElementException();
       } else {
+        @SuppressWarnings("unchecked") // only SENTINEL is not a T
         final T t = (T)tops[min];
         if (bases[min].hasNext()) {
           tops[min] = bases[min].next();
