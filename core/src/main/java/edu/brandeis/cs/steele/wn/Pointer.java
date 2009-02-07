@@ -30,14 +30,13 @@ package edu.brandeis.cs.steele.wn;
  * @see Synset
  * @see WordSense
  */
-public class Pointer implements Comparable<Pointer> {
+public final class Pointer implements Comparable<Pointer> {
   /** These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
    * once the target has been queried.  The first time they are used, they act as
    * an external key; subsequent uses, in conjunction with 
    * {@link FileBackedDictionary}'s caching mechanism, can be thought of as a
    * {@link java.lang.ref.WeakReference}.
-   * //FIXME or is it SoftReference?
    */
   private final int targetOffset;
   private final int targetIndex;
