@@ -52,7 +52,7 @@ import java.util.*;
  * }</pre>
  *
  * <p>An <code>Iterator</code> that generates the natural numbers below the first with
- * that satisfy predicate <var>p</var> can be written thusly:
+ * that satisfy predicate {@code p} can be written thusly:
  * <pre>{@code
  * new LookAheadIterator<Integer>(new Iterator<Integer>() {
  *   int n = 0;
