@@ -31,7 +31,8 @@ package edu.brandeis.cs.steele.wn;
  * @see WordSense
  */
 public final class Pointer implements Comparable<Pointer> {
-  /** These target* fields are used to avoid paging in the target before it is
+  /**
+   * These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
    * once the target has been queried.  The first time they are used, they act as
    * an external key; subsequent uses, in conjunction with 
@@ -46,7 +47,8 @@ public final class Pointer implements Comparable<Pointer> {
   // Instance variables
   //
 
-  /** The index of this Pointer within the array of Pointer's in the source Synset.
+  /**
+   * The index of this Pointer within the array of Pointer's in the source Synset.
    * Used in <code>equals</code>.
    */
   private final int index;
