@@ -21,10 +21,10 @@ import java.util.NoSuchElementException;
 
 /**
  * Derive a new {@code Iterable} by merge sorting the items
- * in each of the provided mutually <i>sortable</i> {@code Iterable}s
+ * in each of the provided <em>mutually sortable</em> {@code Iterable}s
  * whose traversal order <em>is</em> sorted.
  */
-public class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
+public final class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
 
   public static <T extends Object & Comparable<? super T>>
@@ -130,7 +130,7 @@ public class MergedIterable<T extends Object & Comparable<? super T>> implements
    * sum of the number of items in all <tt>k</tt> sequences.  The running time
    * of this algorithm is {@code O(n * k)}.  Optimal running time would be
    * {@code O(n * lg k)} if the sequence heads were stored in a priority
-   * queue which will not be beneficial for small <tt>k</tt> (e.g. {@code k < 10}).
+   * queue which will not be beneficial for small <tt>k</tt> (e.g., {@code k < 10}).
    *
    * <h4>TODO</h4>
    * - support remove()
