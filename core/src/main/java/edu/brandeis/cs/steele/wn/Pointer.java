@@ -20,6 +20,8 @@
  */
 package edu.brandeis.cs.steele.wn;
 
+import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
+
 /**
  * A <code>Pointer</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
