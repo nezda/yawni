@@ -16,9 +16,10 @@
  */
 package edu.brandeis.cs.steele.util;
 
-import java.nio.CharBuffer;
 import org.junit.*;
 import static org.junit.Assert.*;
+
+import java.nio.CharBuffer;
 import java.util.*;
 
 public class UtilsTest {
@@ -68,8 +69,8 @@ public class UtilsTest {
   
   @Test
   public void testStartsWith() {
-    assertTrue(Utils.startsWith("'hood", "'ho"));
-    assertFalse(Utils.startsWith("'ho", "'hood"));
+    assertTrue(CharSequences.startsWith("'hood", "'ho"));
+    assertFalse(CharSequences.startsWith("'ho", "'hood"));
   }
 
   @Test
@@ -100,13 +101,5 @@ public class UtilsTest {
     // respect to equals() AND hashCode()
     assertFalse(s.equals(cb));
     assertTrue(s.hashCode() != cb.hashCode());
-  }
-
-  private static <T> List<T> asList(final Iterable<T> iterable) {
-    final List<T> list = new ArrayList<T>();
-    for(final T t : iterable) {
-      list.add(t);
-    }
-    return list;
   }
 }
