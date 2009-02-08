@@ -20,13 +20,14 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import edu.brandeis.cs.steele.util.ImmutableList;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
+import edu.brandeis.cs.steele.util.ImmutableList;
 
 /**
  * A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet {@code pos}<code>.data</code> file.
