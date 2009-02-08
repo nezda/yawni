@@ -177,7 +177,7 @@ public class IterationTest {
     final Word first = nounIndexWords.iterator().next();
     //System.err.println("first: "+first);
     // to get these offsets with gvim, open the data file, put the cursor on
-    // the first char of the line you expect (e.g. first content line, last
+    // the first char of the line you expect (e.g., first content line, last
     // line), and g CTRL-g will report "Byte n of m" -- n is a 1 based file
     // offset - Word offsets are zero based so you would expect n-1
     assertEquals(1740, first.getOffset());
@@ -254,7 +254,6 @@ public class IterationTest {
   //@Ignore // this test is kinda slow
   @Test
   public void sequentialIterationTest() {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     // iterate through Synset's of dictionary
     int n = 2;
     System.err.println("starting "+n+" full iterations...");
@@ -271,7 +270,7 @@ public class IterationTest {
               iterationGlossLetters += synset.getGloss().length();
             }
             ++iterationIndexWordsVisited;
-            final EnumSet<PointerType> pointerTypes = word.getPointerTypes();
+            final Set<PointerType> pointerTypes = word.getPointerTypes();
             if (pointerTypes.contains(PointerType.ATTRIBUTE)) {
               //System.err.println("found ATTRIBUTE for word: "+word);
             }
@@ -389,15 +388,15 @@ public class IterationTest {
   @Test
   public void lookupSynsetsTest() {
     for (final Word word : dictionary.words(POS.ALL)) {
-      String str = word.getLemma();
+      final String str = word.getLemma();
       // exhaustive -- all POS
-      for(POS pos : POS.CATS) {
-        Synset[] syns = dictionary.lookupSynsets(str, pos);
-        if(pos == word.getPOS()) {
-          assertTrue("loopback failure", syns.length > 0);
+      for (final POS pos : POS.CATS) {
+        List<Synset> syns = dictionary.lookupSynsets(str, pos);
+        if (pos == word.getPOS()) {
+          assertTrue("loopback failure", syns.isEmpty() == false);
         }
       }
-      // just our source POS
+    // just our source POS
       //Synset[] syns = dictionary.lookupSynsets(word.getPOS(), str);
       //if (syns.length == 0) {
       //  System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
