@@ -18,7 +18,10 @@ package edu.brandeis.cs.steele.wn;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+
 import java.util.*;
+
+import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
 
 /** 
  * By far most complex features involve multi-words, esp those containing
