@@ -20,6 +20,8 @@
  */
 package edu.brandeis.cs.steele.wn;
 
+import edu.brandeis.cs.steele.util.CharSequences;
+
 import java.util.*;
 import java.util.logging.*;
 import java.nio.*;
@@ -102,7 +104,7 @@ public class FileManager implements FileManagerInterface {
     this(getWNSearchDir());
   }
 
-  /** Construct a file manager backed by a set of files contained in <var>searchDirectory</var>. */
+  /** Construct a file manager backed by a set of files contained in {@code searchDirectory}. */
   public FileManager(String searchDirectory) {
     this.searchDirectory = searchDirectory;
   }
@@ -172,7 +174,7 @@ public class FileManager implements FileManagerInterface {
     }
     /**
      * Treat file contents like an array of lines and return the zero-based,
-     * inclusive line corresponding to <var>linenum</var>
+     * inclusive line corresponding to {@code linenum}
      */
     String readLineNumber(int linenum) throws IOException {
       //TODO when creating the CharStream, add option to "index"/cache these results as either String[] OR String[][]
@@ -539,7 +541,7 @@ public class FileManager implements FileManagerInterface {
       len = conn.getContentLength();
     }
     final InputStream input = conn.getInputStream();
-    // fast CharStream created from InputStream (e.g. could be read from jar file)
+    // fast CharStream created from InputStream (e.g., could be read from jar file)
     return new InputStreamCharStream(resourcename, input, len);
   }
 
@@ -641,7 +643,7 @@ public class FileManager implements FileManagerInterface {
       // invert -(o - 1)
       final int moffset = -(foffset + 1);
       final String aline = readLineAt(moffset, filename);
-      if (aline == null || false == Utils.startsWith(aline, prefix)) {
+      if (aline == null || false == CharSequences.startsWith(aline, prefix)) {
         zoffset = foffset;
       } else {
         zoffset = moffset;
@@ -673,7 +675,7 @@ public class FileManager implements FileManagerInterface {
           return -1;
         }
         nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
-        if (Utils.startsWith(word, prefix)) {
+        if (CharSequences.startsWith(word, prefix)) {
           if (false == checkPrefixBinarySearch(prefix, origOffset, filename)) {
             throw new IllegalStateException("search failed for prefix: "+prefix+" filename: "+filename);
           }
@@ -713,7 +715,7 @@ public class FileManager implements FileManagerInterface {
     //  System.err.println("offset < 0: "+(offset < 0)+" prefix: \""+prefix+"\"");
     //}
     //System.err.println();
-    return aline != null && Utils.startsWith(aline, prefix);
+    return aline != null && CharSequences.startsWith(aline, prefix);
   }
 
   /**
