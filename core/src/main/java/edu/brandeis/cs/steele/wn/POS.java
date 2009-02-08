@@ -118,8 +118,8 @@ public enum POS {
     return wnCode;
   }
 
-  /** Return the <code>POS</code> whose key matches <var>key</var>.
-   * @exception NoSuchElementException If <var>key</var> doesn't name any <code>POS</code>.
+  /** Return the <code>POS</code> whose key matches {@code key}.
+   * @exception NoSuchElementException If {@code key} doesn't name any <code>POS</code>.
    */
   public static POS lookup(final CharSequence key) {
     for (final POS pos : CATS) {
