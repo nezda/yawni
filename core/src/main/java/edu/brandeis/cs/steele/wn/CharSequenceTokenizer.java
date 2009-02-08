@@ -14,18 +14,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package edu.brandeis.cs.steele.wn;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static edu.brandeis.cs.steele.util.CharSequences.*;
+
 /**
- * XXX borrowed from Apache Harmony java.util.StringTokenizer<br><br>
- *
  * <code>CharSequenceTokenizer</code> is used to break a string apart into tokens.  Lighter
  * than a {@link java.util.Scanner}, more features than {@link java.util.StringTokenizer}, with full
  * support for {@link CharSequence}s.
+ *
+ * <p>Borrowed some code from Apache Harmony java.util.StringTokenizer
  */
 public class CharSequenceTokenizer implements Iterator<CharSequence> {
   private final CharSequence string;
@@ -33,7 +34,7 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   private int position;
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for <var>string</var> using whitespace as
+   * Constructs a new <code>CharSequenceTokenizer</code> for {@code string} using whitespace as
    * the delimiter.
    *
    * @param string the CharSequence to be tokenized
@@ -43,8 +44,8 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   }
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for <var>string</var> using the specified
-   * <var>delimiters</var> and returning delimiters as tokens when specified.
+   * Constructs a new <code>CharSequenceTokenizer</code> for {@code string} using the specified
+   * {@code delimiters} and returning delimiters as tokens when specified.
    *
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
@@ -70,8 +71,8 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   }
 
   /**
-   * Returns the number of tokens in <var>string</var> separated by
-   * <var>delimiters</var> starting at <var>position</var>.
+   * Returns the number of tokens in {@code string} separated by
+   * {@code delimiters} starting at {@code position}.
    *
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
@@ -83,8 +84,8 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
   }
 
   /**
-   * Returns the number of tokens in <var>string</var> separated by
-   * <var>delimiters</var> starting at <var>position</var>.
+   * Returns the number of tokens in {@code string} separated by
+   * {@code delimiters} starting at {@code position}.
    *
    * @param string the string to be tokenized
    * @param position in string
@@ -227,13 +228,13 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
     return nextToken();
   }
 
-  //public int nextByte() {
-  //  return Byte.parseByte(nextToken());
-  //}
+//  public byte nextByte() {
+//    return Byte.parseByte(nextToken());
+//  }
 
-  //public int nextShort() {
-  //  return Short.parseShort(nextToken());
-  //}
+//  public int nextShort() {
+//    return Short.parseShort(nextToken());
+//  }
 
   public int nextInt() {
     return nextInt(10);
@@ -253,133 +254,5 @@ public class CharSequenceTokenizer implements Iterator<CharSequence> {
     final int s = scanToTokenStart();
     final int e = scanToTokenEnd();
     return parseLong(string, s, e, 10);
-  }
-
-  //TODO move to a new CharSequenceUtils class - is there one of these in Commons?
-
-  /**
-   * XXX borrowed from Apache Harmony
-   * Parses the string argument as if it was an int value and returns the
-   * result. Throws NumberFormatException if the string does not represent an
-   * int quantity. The second argument specifies the radix to use when parsing
-   * the value.
-   *
-   * @param string a string representation of an int quantity.
-   * @param radix the base to use for conversion.
-   * @return int the value represented by the argument
-   * @throws NumberFormatException
-   *                if the argument could not be parsed as an int quantity.
-   */
-  static int parseInt(final CharSequence string, final int radix)
-    throws NumberFormatException {
-      return parseInt(string, 0, string.length(), radix);
-    }
-
-  static int parseInt(final CharSequence string, int offset,
-      final int end) {
-    return parseInt(string, offset, end, 10);
-  }
-
-  // XXX borrowed from Apache Harmony
-  static int parseInt(final CharSequence string, int offset,
-      final int end, final int radix) {
-    final int start = offset;
-    if (string == null || radix < Character.MIN_RADIX
-        || radix > Character.MAX_RADIX) {
-      throw new NumberFormatException();
-    }
-    if (start >= end) {
-      throw new NumberFormatException(toString(string, start, end));
-    }
-    final boolean negative = string.charAt(offset) == '-';
-    if (negative && ++offset == end) {
-      throw new NumberFormatException(toString(string, start, end));
-    }
-
-    final int max = Integer.MIN_VALUE / radix;
-    int result = 0;
-    while (offset < end) {
-      final int digit = Character.digit(string.charAt(offset++), radix);
-      if (digit == -1) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-      if (max > result) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-      final int next = result * radix - digit;
-      if (next > result) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-      result = next;
-    }
-    if (!negative) {
-      result = -result;
-      if (result < 0) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * XXX borrowed from Apache Harmony
-   * Parses the string argument as if it was a long value and returns the
-   * result. Throws NumberFormatException if the string does not represent a
-   * long quantity. The second argument specifies the radix to use when
-   * parsing the value.
-   * @param string a string representation of an long quantity.
-   * @param radix the base to use for conversion.
-   * @return long the value represented by the argument
-   * @throws NumberFormatException
-   *                if the argument could not be parsed as a long quantity.
-   */
-  private static long parseLong(final CharSequence string, final int radix)
-    throws NumberFormatException {
-      return parseLong(string, 0, string.length(), radix);
-    }
-
-  // XXX borrowed from Apache Harmony
-  private static long parseLong(final CharSequence string, int offset,
-      final int end, final int radix) {
-    final int start = offset;
-    if (string == null || radix < Character.MIN_RADIX
-        || radix > Character.MAX_RADIX) {
-      throw new NumberFormatException();
-    }
-    if (start >= end) {
-      throw new NumberFormatException(toString(string, start, end));
-    }
-    final boolean negative = string.charAt(offset) == '-';
-    if (negative && ++offset == end) {
-      throw new NumberFormatException(toString(string, start, end));
-    }
-    final long max = Long.MIN_VALUE / radix;
-    long result = 0;
-    while (offset < end) {
-      final int digit = Character.digit(string.charAt(offset++), radix);
-      if (digit == -1) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-      if (max > result) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-      final long next = result * radix - digit;
-      if (next > result) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-      result = next;
-    }
-    if (!negative) {
-      result = -result;
-      if (result < 0) {
-        throw new NumberFormatException(toString(string, start, end));
-      }
-    }
-    return result;
-  }
-
-  private static String toString(final CharSequence charSequence,
-      final int offset, final int end) {
-    return charSequence.subSequence(offset, end).toString();
   }
 }
