@@ -22,8 +22,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * A fixed-capacity <code>Cache</code> that stores the <var>n</var> values associate
- * with the <var>n</var> most recently accessed keys.  Backed by an {@link ConcurrentMap}.
+ * A fixed-capacity <code>Cache</code> that stores the {@code n} values associate
+ * with the {@code n} most recently accessed keys.  Backed by an {@link ConcurrentMap}.
  * FIXME currently totally broken and incomplete
  */
 public class ConcurrentLRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
@@ -37,18 +37,22 @@ public class ConcurrentLRUCache<K, V> extends LinkedHashMap<K, V> implements Cac
     this.backingMap = new ConcurrentHashMap<K, V>();
   }
 
+  @Override
   public V put(K key, V value) {
     return super.put(key, value);
   }
 
+  @Override
   public V get(Object key) {
     return super.get(key);
   }
 
+  @Override
   public void clear() {
     super.clear();
   }
 
+  @Override
   protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
     // Return true to cause the oldest elm to be removed
     return size() > capacity;
