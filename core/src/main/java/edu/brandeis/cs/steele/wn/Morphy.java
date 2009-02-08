@@ -141,7 +141,7 @@ class Morphy {
       if (isOnlySpaces(origstr)) {
         return "_";
       }
-      // strip edge underscores (e.g. "_slovaks_" -> "slovaks")
+      // strip edge underscores (e.g., "_slovaks_" -> "slovaks")
       //TODO consider compiling this regex
       origstr = origstr.replaceAll("^[_ -]+", "");
       origstr = origstr.replaceAll("[_ -]+$", "");
@@ -188,7 +188,7 @@ class Morphy {
    * - else if no variants found yet
    *     for each word in the collocation, build up search string with
    *     that word's stem if it has one, or the original string splicing
-   *     the provided token separators back in (e.g. "_", "-")
+   *     the provided token separators back in (e.g., "_", "-")
    *     - add any defined variants
    *
    * TODO simplify this code - is a brute force port from tricky C code.
@@ -231,7 +231,7 @@ class Morphy {
       svcnt = 1;
       // add variants from exception list
       // verb.exc line "saw see"
-      //  e.g. input: "saw" output: "see", "saw"
+      //  e.g., input: "saw" output: "see", "saw"
       //ONLY root: toReturn.add(underScoreToSpace(tmp[1]));
       for (int i = tmp.size() - 1; i >= 0; --i) {
         toReturn.add(underScoreToSpace(tmp.get(i)));
