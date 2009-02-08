@@ -20,6 +20,8 @@
  */
 package edu.brandeis.cs.steele.wn;
 
+import java.util.List;
+
 /** A <code>PointerTarget</code> is the <i>source</i> or <i>target</i> of a {@link Pointer}.
  * The target of a <b>semantic</b> <code>PointerTarget</code> is a {@link Synset};
  * the target of a <b>lexical</b> <code>PointerTarget</code> is a {@link WordSense}.
@@ -45,18 +47,18 @@ public interface PointerTarget extends Iterable<WordSense> {
   /** Returns the outgoing <code>Pointer</code>s from this target -- those
    * <code>Pointer</code>s that have this object as their source.
    */
-  public Pointer[] getPointers();
+  public List<Pointer> getPointers();
 
-  /** Returns the outgoing <code>Pointer</code>s of type <var>type</var>. */
-  public Pointer[] getPointers(PointerType type);
+  /** Returns the outgoing <code>Pointer</code>s of type {@code type}. */
+  public List<Pointer> getPointers(PointerType type);
 
   /** Returns the targets of the outgoing <code>Pointer</code>s. */
-  public PointerTarget[] getTargets();
+  public List<PointerTarget> getTargets();
 
   /** Returns the targets of the outgoing <code>Pointer</code>s that have type
-   * <var>type</var>.
+   * {@code type}.
    */
-  public PointerTarget[] getTargets(PointerType type);
+  public List<PointerTarget> getTargets(PointerType type);
 
   /** LN Added */
   public Synset getSynset();
