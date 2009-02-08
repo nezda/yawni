@@ -20,10 +20,13 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import edu.brandeis.cs.steele.util.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
+
+import edu.brandeis.cs.steele.util.*;
+import static edu.brandeis.cs.steele.util.MergedIterable.merge;
+import static edu.brandeis.cs.steele.util.Utils.uniq;
 
 /** A <code>DictionaryDatabase</code> that retrieves objects from the text files in the WordNet distribution
  * directory (typically <tt><i>$WNHOME</i>/dict/</tt>).
@@ -83,7 +86,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** Construct a dictionary backed by a set of files contained in
-   * <var>search directory</var>.
+   * {@code search directory}.
    */
   FileBackedDictionary(final String searchDirectory) {
     this(new FileManager(searchDirectory));
@@ -106,7 +109,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** Factory method to get <i>the</i> dictionary backed by a set of files contained
-   * in <var>searchDirectory</var>.
+   * in {@code searchDirectory}.
    */
   //FIXME ignores passed in searchDirectory reference
   public static FileBackedDictionary getInstance(final String searchDirectory) {
@@ -180,7 +183,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
     @Override
     public int hashCode() {
-      return posOrdinal ^ Utils.hashCode(key);
+      return posOrdinal ^ CharSequences.hashCode(key);
     }
   } // end class StringPOSDatabaseKey
 
@@ -330,7 +333,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
     return getSynsetAt(pos, offset, null);
   }
 
-
   //
   // Lookup functions
   //
@@ -343,6 +345,8 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Word lookupWord(final CharSequence lemma, final POS pos) {
+    // POS.ALL never makes sense here as the result
+    // would no longer be unique
     checkValidPOS(pos);
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
@@ -393,45 +397,32 @@ public class FileBackedDictionary implements DictionaryDatabase {
   //}
 
   /** {@inheritDoc} */
-  public String[] lookupBaseForms(final String someString, final POS pos) {
+  public List<String> lookupBaseForms(final String someString, final POS pos) {
     // TODO use getindex() too ?
     final List<String> morphs;
     if (pos == POS.ALL) {
-      final Iterable<String> baseForms = Utils.uniq(
-          MergedIterable.merge(
-              morphy.morphstr(someString, POS.NOUN),
-              morphy.morphstr(someString, POS.VERB),
-              morphy.morphstr(someString, POS.ADJ),
-              morphy.morphstr(someString, POS.ADV)
-              ));
-      morphs = new ArrayList<String>();
-      for (final String baseForm : baseForms) {
-        morphs.add(baseForm);
-      }
+      return ImmutableList.of(uniq(merge(
+        morphy.morphstr(someString, POS.NOUN),
+        morphy.morphstr(someString, POS.VERB),
+        morphy.morphstr(someString, POS.ADJ),
+        morphy.morphstr(someString, POS.ADV))));
     } else {
-      morphs = morphy.morphstr(someString, pos);
+      return morphy.morphstr(someString, pos);
     }
-    if (morphs.isEmpty()) {
-        return NO_STRINGS;
-    }
-    final String[] toReturn = morphs.toArray(new String[morphs.size()]);
-    return toReturn;
   }
 
-  private static final Synset[] NO_SYNSETS = new Synset[0];
-
   /** {@inheritDoc} */
-  public Synset[] lookupSynsets(final String someString, final POS pos) {
+  public List<Synset> lookupSynsets(final String someString, final POS pos) {
     checkValidPOS(pos);
     // TODO support POS.ALL - NOTE: don't modify morphs directly as this
     // will damage the Morphy cache
     // TODO use getindex() too ?
-    final List<String> morphs = morphy.morphstr(someString, pos);
-    if (morphs == null || morphs.isEmpty()) {
-      return NO_SYNSETS;
+    final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
+    if (morphs.isEmpty()) {
+      return ImmutableList.of();
     }
-    // 0. if we have morphs, we will have syns
-    // 1. get all the Words (usually 1)
+    // 0. if we have morphs, we will usually have syns
+    // 1. get all the Words (usually 1, except for exceptional forms (e.g., 'geese'))
     // 2. merge all their Synsets
     final ArrayList<Synset> syns = new ArrayList<Synset>();
     int morphNum = -1;
@@ -442,7 +433,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         // some morphstr() values will not be defined words (lemmas).
         continue;
       }
-      syns.ensureCapacity(syns.size() + word.getSynsets().length);
+      syns.ensureCapacity(syns.size() + word.getSynsets().size());
       for (final Synset syn : word.getSynsets()) {
         syns.add(syn);
       }
@@ -451,14 +442,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
     // FIXME really, its kind of annoying that morphy sometimes returns undefined variants
     if (morphs.isEmpty() == false && syns.isEmpty()) {
       //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
-      return NO_SYNSETS;
+      return ImmutableList.of();
     }
     // TODO dedup this ?
-    return syns.toArray(new Synset[syns.size()]);
+    return ImmutableList.of(syns);
   }
 
   private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = new LRUCache<DatabaseKey, ImmutableList<String>>(DEFAULT_CACHE_CAPACITY);
-  //private final Cache exceptionsCache = new LRUCache(0);
 
   /**
    * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given <param>pos</param>.
@@ -578,7 +568,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /**
    * @return verb sentence numbers as a comma separated list with no spaces
-   *         (e.g. "15,16")
+   *         (e.g., "15,16")
    */
   String lookupVerbSentencesNumbers(final CharSequence verbSenseKey) {
     String line = null;
@@ -653,8 +643,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   }
 
-  private static final String[] NO_STRINGS = new String[0];
-
   //
   // Iterators
   //
@@ -705,14 +693,11 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** {@inheritDoc} */
   public Iterable<Word> words(final POS pos) {
     if (pos == POS.ALL) {
-      final Iterable<Word> allWords =
-          MergedIterable.merge(
-              words(POS.NOUN),
-              words(POS.VERB),
-              words(POS.ADJ),
-              words(POS.ADV)
-              );
-      return allWords;
+      return merge(
+        words(POS.NOUN),
+        words(POS.VERB),
+        words(POS.ADJ),
+        words(POS.ADV));
     } else {
       return new Iterable<Word>() {
         public Iterator<Word> iterator() {
@@ -723,7 +708,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#searchWords
+   * @see DictionaryDatabase#searchBySubstring
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchBySubstringIterator implements Iterator<Word> {
@@ -762,16 +747,23 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos) {
-    checkValidPOS(pos);
-    return new Iterable<Word>() {
-      public Iterator<Word> iterator() {
-        return new LookAheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
-      }
-    };
+    if (pos == POS.ALL) {
+      return merge(
+          searchBySubstring(substring, POS.NOUN),
+          searchBySubstring(substring, POS.VERB),
+          searchBySubstring(substring, POS.ADJ),
+          searchBySubstring(substring, POS.ADV));
+    } else {
+      return new Iterable<Word>() {
+        public Iterator<Word> iterator() {
+          return new LookAheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
+        }
+      };
+    }
   }
 
   /**
-   * @see DictionaryDatabase#searchIndexBeginning
+   * @see DictionaryDatabase#searchByPrefix
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchByPrefixIterator implements Iterator<Word> {
@@ -812,12 +804,47 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos) {
-    checkValidPOS(pos);
-    return new Iterable<Word>() {
-      public Iterator<Word> iterator() {
-        return new LookAheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
-      }
-    };
+    if (pos == POS.ALL) {
+      return merge(
+        searchByPrefix(prefix, POS.NOUN),
+        searchByPrefix(prefix, POS.VERB),
+        searchByPrefix(prefix, POS.ADJ),
+        searchByPrefix(prefix, POS.ADV));
+    } else {
+      return new Iterable<Word>() {
+        public Iterator<Word> iterator() {
+          return new LookAheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
+        }
+      };
+    }
+  }
+
+  /**
+   * @see DictionaryDatabase#searchGlossBySubstring
+   */
+  //TODO don't do this throw NoSuchElementException iterator stuff
+  private class SearchGlossBySubstringIterator implements Iterator<Synset> {
+    private final POS pos;
+    private final CharSequence substring;
+
+    SearchGlossBySubstringIterator(final POS pos, final CharSequence substring) {
+      this.pos = pos;
+      this.substring = Morphy.searchNormalize(substring.toString());
+    }
+    public boolean hasNext() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+    public Synset next() {
+      throw new UnsupportedOperationException("Not yet implemented");
+    }
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  } // end class SearchGlossBySubstringIterator
+  
+  /** {@inheritDoc} */
+  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
+    throw new UnsupportedOperationException("Not yet implemented");
   }
 
   /**
@@ -863,12 +890,19 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Synset> synsets(final POS pos) {
-    checkValidPOS(pos);
-    return new Iterable<Synset> () {
-      public Iterator<Synset> iterator() {
-        return new LookAheadIterator<Synset>(new POSSynsetsIterator(pos));
-      }
-    };
+    if (pos == POS.ALL) {
+      return merge(
+        synsets(POS.NOUN),
+        synsets(POS.VERB),
+        synsets(POS.ADJ),
+        synsets(POS.ADV));
+    } else {
+      return new Iterable<Synset> () {
+        public Iterator<Synset> iterator() {
+          return new LookAheadIterator<Synset>(new POSSynsetsIterator(pos));
+        }
+      };
+    }
   }
 
   /**
@@ -896,12 +930,19 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<WordSense> wordSenses(final POS pos) {
-    checkValidPOS(pos);
-    return new Iterable<WordSense> () {
-      public Iterator<WordSense> iterator() {
-        return new POSWordSensesIterator(pos);
-      }
-    };
+    if (pos == POS.ALL) {
+      return merge(
+        wordSenses(POS.NOUN),
+        wordSenses(POS.VERB),
+        wordSenses(POS.ADJ),
+        wordSenses(POS.ADV));
+    } else {
+      return new Iterable<WordSense> () {
+        public Iterator<WordSense> iterator() {
+          return new POSWordSensesIterator(pos);
+        }
+      };
+    }
   }
 
   /**
@@ -932,9 +973,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
     @Override
     public List<Pointer> apply(final Synset synset) {
       if (pointerType == null) {
-        return Arrays.asList(synset.getPointers());
+        return synset.getPointers();
       } else {
-        return Arrays.asList(synset.getPointers(pointerType));
+        return synset.getPointers(pointerType);
       }
     }
   } // end class SynsetsToPointers
@@ -946,12 +987,18 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Pointer> pointers(final PointerType pointerType, final POS pos) {
-    checkValidPOS(pos);
-    // null pointerType interpretted as all PointerTypes
-    return new Iterable<Pointer> () {
-      public Iterator<Pointer> iterator() {
-        return new POSPointersIterator(pos, pointerType);
-      }
-    };
+    if (pos == POS.ALL) {
+      return merge(
+        pointers(pointerType, POS.NOUN),
+        pointers(pointerType, POS.VERB),
+        pointers(pointerType, POS.ADJ),
+        pointers(pointerType, POS.ADV));
+    } else {
+      return new Iterable<Pointer> () {
+        public Iterator<Pointer> iterator() {
+          return new POSPointersIterator(pos, pointerType);
+        }
+      };
+    }
   }
 }
