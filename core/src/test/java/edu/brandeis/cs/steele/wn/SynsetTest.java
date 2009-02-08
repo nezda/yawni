@@ -18,7 +18,6 @@ package edu.brandeis.cs.steele.wn;
 
 import org.junit.*;
 import static org.junit.Assert.*;
-import java.util.*;
 
 public class SynsetTest {
   private static DictionaryDatabase dictionary;
@@ -29,9 +28,9 @@ public class SynsetTest {
 
   @Test
   public void testDescriptions() {
-    for(final POS pos : POS.CATS) {
+    for (final POS pos : POS.CATS) {
       int count = 0;
-      for(final Synset synset : dictionary.synsets(pos)) {
+      for (final Synset synset : dictionary.synsets(pos)) {
         ++count;
         //if(++count > 10) break;
         // exercise toString() and getGloss()
@@ -57,9 +56,9 @@ public class SynsetTest {
     final PointerType[] pointerTypes = new PointerType[]{ 
       /*PointerType.DOMAIN, PointerType.MEMBER_OF_TOPIC_DOMAIN,*/ PointerType.DOMAIN_OF_TOPIC, //PointerType.MEMBER_OF_THIS_DOMAIN_TOPIC
     };
-    for(final PointerType pointerType : pointerTypes) {
-      for(final PointerTarget target : word.getSense(7).getSynset().getTargets(pointerType)) {
-        System.err.println(pointerType+" target: "+target);
+    for (final PointerType pointerType : pointerTypes) {
+      for (final PointerTarget target : word.getSense(7).getSynset().getTargets(pointerType)) {
+        System.err.println(pointerType + " target: " + target);
       }
     }
   }
@@ -75,8 +74,8 @@ public class SynsetTest {
     final PointerType[] pointerTypes = new PointerType[] { 
       PointerType.ATTRIBUTE, 
     };
-    for(final PointerType pointerType : pointerTypes) {
-      for(final PointerTarget target : word.getSense(1).getSynset().getTargets(pointerType)) {
+    for (final PointerType pointerType : pointerTypes) {
+      for (final PointerTarget target : word.getSense(1).getSynset().getTargets(pointerType)) {
         System.err.println("  "+pointerType+" target: "+target);
       }
     }
@@ -94,9 +93,9 @@ public class SynsetTest {
       PointerType.HYPERNYM, 
       PointerType.INSTANCE_HYPERNYM,
     };
-    for(final PointerType pointerType : pointerTypes) {
-      for(final PointerTarget target : word.getSense(1).getSynset().getTargets(pointerType)) {
-        System.err.println("  "+pointerType+" target: "+target);
+    for (final PointerType pointerType : pointerTypes) {
+      for (final PointerTarget target : word.getSense(1).getSynset().getTargets(pointerType)) {
+        System.err.println("  " + pointerType + " target: " + target);
       }
     }
   }
