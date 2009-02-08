@@ -117,7 +117,9 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   }
   public static <E> ImmutableList<E> of(final Iterable<? extends E> elements) {
     if (elements instanceof ImmutableList) {
-      return (ImmutableList<E>) elements;
+      @SuppressWarnings("unchecked")
+      final ImmutableList<E> elementsAsImmutableList = (ImmutableList<E>) elements;
+      return elementsAsImmutableList;
     } else if (elements instanceof Collection) {
       @SuppressWarnings("unchecked")
       final Collection<E> elementsAsCollection = (Collection<E>) elements;
@@ -199,11 +201,11 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     public int size() {
       return 0;
     }
-    /* @Override */
+    @Override
     public boolean isEmpty() {
       return true;
     }
-    /* @Override */
+    @Override
     public boolean contains(Object obj) {
       return false;
     }
@@ -211,23 +213,23 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     public boolean containsAll(Collection<?> needles) {
       return needles.isEmpty();
     }
-    /* @Override */
+    @Override
     public int indexOf(Object e) {
       return -1;
     }
-    /* @Override */
+    @Override
     public int lastIndexOf(Object e) {
       return -1;
     }
-    /* @Override */
+    @Override
     public Iterator<E> iterator() {
       return Collections.<E>emptyList().iterator();
     }
-    /* @Override */
+    @Override
     public ListIterator<E> listIterator() {
       return Collections.<E>emptyList().listIterator();
     }
-    /* @Override */
+    @Override
     public ListIterator<E> listIterator(int index) {
       return Collections.<E>emptyList().listIterator(index);
     }
@@ -239,11 +241,11 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       }
       return this;
     }
-    /* @Override */
+    @Override
     public Object[] toArray() {
       return EMPTY_OBJECT_ARRAY;
     }
-    /* @Override */
+    @Override
     public <T> T[] toArray(T[] a) {
       if (a.length > 0) {
         a[0] = null;
@@ -287,17 +289,17 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     public int size() {
       return 1;
     }
-    /* @Override */
+    @Override
     public boolean contains(Object obj) {
       // zero allocation vs. AbstractCollection impl
       return eq(obj, e0);
     }
-    /* @Override */
+    @Override
     public int indexOf(Object e) {
       // zero allocation vs. AbstractCollection impl
       return contains(e) ? 0 : -1;
     }
-    /* @Override */
+    @Override
     public int lastIndexOf(Object e) {
       // zero allocation vs. AbstractCollection impl
       return contains(e) ? 0 : -1;
@@ -708,10 +710,12 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   } // end class Quintupleton
 
   /**
+   * <h3> Broken subList impl! Do not use </h3>
    * Classic {@code ArrayList}-style implementation.  Implementation liberally copied
    * from GoogleCollections ImmutableList.RegularImmutableList
    * @param <E>
    */
+  @Deprecated
   static class Restleton<E> extends AbstractImmutableList<E> {
     private final Object[] items;
     Restleton(E[] all) {
@@ -814,9 +818,11 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       public int size() {
         return end - begin;
       }
+      @Override
       public Object[] toArray() {
         throw new UnsupportedOperationException("Not supported yet.");
       }
+      @Override
       public <T> T[] toArray(T[] a) {
         throw new UnsupportedOperationException("Not supported yet.");
       }
@@ -1112,7 +1118,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       final StringBuilder buffer = new StringBuilder(size() * 16);
       buffer.append('[').append(get(begin()));
       for (int i = begin() + 1, n = end(); i < n; i++) {
-        System.out.println("begin(): "+begin()+" end(): "+end()+" size(): "+size());
+        //System.out.println("begin(): "+begin()+" end(): "+end()+" size(): "+size());
         final E next = get(i);
         buffer.append(", ");
         // there is no way to have an ImmutableList which contains itself
