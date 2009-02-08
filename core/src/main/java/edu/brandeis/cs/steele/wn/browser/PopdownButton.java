@@ -198,6 +198,8 @@ public class PopdownButton extends JButton {
   // snipped from Apache Harmony JComboBox
   // selectWithKeyChar()
   class DefaultKeySelectionManager implements JComboBox.KeySelectionManager, Serializable {
+    private static final long serialVersionUID = 1L;
+    
     public int selectionForKey(char aKey, final ComboBoxModel aModel) {
       int currentSelection = -1;
       final Object selectedItem = aModel.getSelectedItem();
@@ -235,5 +237,5 @@ public class PopdownButton extends JButton {
       }
       return -1;
     }
-  }
+  } // end class DefaultKeySelectionManager
 }
