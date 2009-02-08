@@ -19,11 +19,17 @@
  * the copyright notice and this restriction, and label your changes.
  */
 package edu.brandeis.cs.steele.wn;
-import java.util.*;
-import java.util.logging.*;
+
+import edu.brandeis.cs.steele.util.ImmutableList;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <var>pos</var><code>.data</code> file.
+ * A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet {@code pos}<code>.data</code> file.
  * A <code>Synset</code> represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
  * that names that concept (and each of which is therefore synonymous with the other <code>WordSense</code>s in the
  * <code>Synset</code>).
@@ -42,11 +48,11 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   //
   /** package private for use by WordSense */
   final FileBackedDictionary fileBackedDictionary;
-  /** offset in <code>data.</code><var>pos</var> file */
+  /** offset in <code>data.</code>{@code pos} file */
   private final int offset;
-  private final WordSense[] wordSenses;
-  private final Pointer[] pointers;
-  //TODO make this a byte[]
+  private final ImmutableList<WordSense> wordSenses;
+  private final ImmutableList<Pointer> pointers;
+  //TODO make this a byte[] - not often accessed ?
   private final char[] gloss;
   private final byte posOrdinal;
   private final byte lexfilenum;
@@ -76,12 +82,12 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
     this.posOrdinal = (byte) POS.lookup(ss_type).ordinal();
 
     final int wordCount = tokenizer.nextHexInt();
-    this.wordSenses = new WordSense[wordCount];
+    final WordSense[] localWordSenses = new WordSense[wordCount];
     for (int i = 0; i < wordCount; i++) {
       String lemma = tokenizer.nextToken().toString();
       final int lexid = tokenizer.nextHexInt();
       int flags = 0;
-      // strip the syntactic marker, e.g. "(a)" || "(ip)" || ...
+      // strip the syntactic marker, e.g., "(a)" || "(ip)" || ...
       final int lparenIdx;
       if (lemma.charAt(lemma.length() - 1) == ')' && 
         (lparenIdx = lemma.lastIndexOf('(')) > 0) {
@@ -100,14 +106,16 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
           throw new RuntimeException("unknown syntactic marker " + marker);
         }
       }
-      this.wordSenses[i] = new WordSense(this, lemma.replace('_', ' '), lexid, flags);
+      localWordSenses[i] = new WordSense(this, lemma.replace('_', ' '), lexid, flags);
     }
+    this.wordSenses = ImmutableList.of(localWordSenses);
 
     final int pointerCount = tokenizer.nextInt();
-    this.pointers = new Pointer[pointerCount];
+    final Pointer[] localPointers = new Pointer[pointerCount];
     for (int i = 0; i < pointerCount; i++) {
-      this.pointers[i] = new Pointer(this, i, tokenizer);
+      localPointers[i] = new Pointer(this, i, tokenizer);
     }
+    this.pointers = ImmutableList.of(localPointers);
 
     if (posOrdinal == POS.VERB.ordinal()) {
       final int f_cnt = tokenizer.nextInt();
@@ -117,10 +125,10 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
         final int f_num = tokenizer.nextInt();
         final int w_num = tokenizer.nextHexInt();
         if (w_num > 0) {
-          this.wordSenses[w_num - 1].setVerbFrameFlag(f_num);
+          this.wordSenses.get(w_num - 1).setVerbFrameFlag(f_num);
         } else {
-          for (int j = 0; j < wordSenses.length; j++) {
-            this.wordSenses[j].setVerbFrameFlag(f_num);
+          for (int j = 0; j < localWordSenses.length; j++) {
+            this.wordSenses.get(j).setVerbFrameFlag(f_num);
           }
         }
       }
@@ -141,14 +149,14 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
       final int finalLen = (incEnd + 1) - (index + 2);
       if (finalLen > 0) {
         this.gloss = new char[finalLen];
-        assert gloss.length == finalLen: "gloss.length: "+gloss.length+" finalLen: "+finalLen;
+        assert gloss.length == finalLen : "gloss.length: "+gloss.length+" finalLen: "+finalLen;
         line.getChars(index + 2, incEnd + 1, gloss, 0);
       } else {
         // synset with no gloss (support generated WordNets)
         this.gloss = new char[0];
       }
     } else {
-      log.log(Level.SEVERE, "Synset has no gloss?:\n" + line);
+      log.log(Level.INFO, "Synset has no gloss?:\n" + line);
       this.gloss = null;
     }
   }
@@ -171,7 +179,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   /**
    * Provides access to the 'lexicographer category' of this <code>Synset</code>.  This
    * is variously called the 'lexname' or 'supersense'.
-   * @return the lexname this <code>Synset</code> is a member of, e.g. "noun.quantity"
+   * @return the lexname this <code>Synset</code> is a member of, e.g., "noun.quantity"
    * @see <a href="http://wordnet.princeton.edu/man/lexnames.5WN">http://wordnet.princeton.edu/man/lexnames.5WN</a>
    */
   public String getLexCategory() {
@@ -182,12 +190,12 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
     return new String(gloss);
   }
 
-  public WordSense[] getWordSenses() {
+  public List<WordSense> getWordSenses() {
     return wordSenses;
   }
 
   /**
-   * If <var>word</var> is a member of this <code>Synset</code>, return the
+   * If {@code word} is a member of this <code>Synset</code>, return the
    *  <code>WordSense</code> it implies, else return <code>null</code>.
    */
   public WordSense getWordSense(final Word word) {
@@ -201,7 +209,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
 
   /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
-    return Arrays.asList(wordSenses).iterator();
+    return wordSenses.iterator();
   }
 
   int getOffset() {
@@ -209,7 +217,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   }
 
   WordSense getWordSense(final int index) {
-    return wordSenses[index];
+    return wordSenses.get(index);
   }
 
   //
@@ -223,14 +231,14 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   public String getDescription(final boolean verbose) {
     final StringBuilder buffer = new StringBuilder();
     buffer.append('{');
-    for (int i = 0; i < wordSenses.length; i++) {
+    for (int i = 0, n = wordSenses.size(); i < n; i++) {
       if (i > 0) {
         buffer.append(", ");
       }
       if (verbose) {
-        buffer.append(wordSenses[i].getDescription());
+        buffer.append(wordSenses.get(i).getDescription());
       } else {
-        buffer.append(wordSenses[i].getLemma());
+        buffer.append(wordSenses.get(i).getLemma());
       }
     }
     buffer.append('}');
@@ -257,44 +265,42 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   //
   // Pointers
   //
-  static PointerTarget[] collectTargets(final Pointer[] pointers) {
-    final PointerTarget[] targets = new PointerTarget[pointers.length];
-    for (int i = 0; i < pointers.length; i++) {
-      targets[i] = pointers[i].getTarget();
+  static List<PointerTarget> collectTargets(final List<Pointer> pointers) {
+    final PointerTarget[] targets = new PointerTarget[pointers.size()];
+    for (int i = 0, n = pointers.size(); i < n; i++) {
+      targets[i] = pointers.get(i).getTarget();
     }
-    return targets;
+    return ImmutableList.of(targets);
   }
 
-  public Pointer[] getPointers() {
+  public List<Pointer> getPointers() {
     return pointers;
   }
 
-  private static final Pointer[] NO_POINTERS = new Pointer[0];
-
-  public Pointer[] getPointers(final PointerType type) {
-    List<Pointer> vector = null;
+  public List<Pointer> getPointers(final PointerType type) {
+    List<Pointer> list = null;
     //TODO
     // if superTypes exist, search them, then current type
     // if current type exists, search it, then if subTypes exist, search them
     for (final Pointer pointer : pointers) {
       if (pointer.getType() == type) {
-        if (vector == null) {
-          vector = new ArrayList<Pointer>();
+        if (list == null) {
+          list = new ArrayList<Pointer>();
         }
-        vector.add(pointer);
+        list.add(pointer);
       }
     }
-    if (vector == null) {
-      return NO_POINTERS;
+    if (list == null) {
+      return ImmutableList.of();
     }
-    return vector.toArray(new Pointer[vector.size()]);
+    return ImmutableList.of(list);
   }
 
-  public PointerTarget[] getTargets() {
+  public List<PointerTarget> getTargets() {
     return collectTargets(getPointers());
   }
 
-  public PointerTarget[] getTargets(final PointerType type) {
+  public List<PointerTarget> getTargets(final PointerType type) {
     return collectTargets(getPointers(type));
   }
 
@@ -315,7 +321,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
 
   @Override
   public int hashCode() {
-    // times 10 shifts right by 1 decimal place
+    // times 10 shifts left by 1 decimal place
     return (offset * 10) + getPOS().hashCode();
   }
 
