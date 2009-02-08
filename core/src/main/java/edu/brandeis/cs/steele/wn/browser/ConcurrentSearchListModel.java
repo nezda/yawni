@@ -51,7 +51,7 @@ import edu.brandeis.cs.steele.util.*;
  * (<code>SwingUtilities.invokeLater</code>).
  *
  * <p><b>fireXxx() methods must only be called from the event thread
- * (JCiP, pp. 195) (e.g. via SwingUtilities.invokeAndWait() or
+ * (JCiP, pp. 195) (e.g., via SwingUtilities.invokeAndWait() or
  * SwingUtilities.invokeLater().</b>
  *
  * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
@@ -165,7 +165,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     //
     // If a redisplay() is currently running (in loop below), cancel it at the next opportunity
     // and start new refliter().  Easiest way to accomplish this is to fire partial change events
-    // e.g. when first n filtered items are modified, fireContentsChanged(0, n)
+    // e.g., when first n filtered items are modified, fireContentsChanged(0, n)
     // then as each batch of n changes fire contents changes for that range
     // - fancy responsiveness opti - use these
     //   - getFirstVisibleIndex()
