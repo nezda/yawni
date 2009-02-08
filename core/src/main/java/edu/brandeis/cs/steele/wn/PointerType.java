@@ -21,6 +21,8 @@
 package edu.brandeis.cs.steele.wn;
 
 import java.util.*;
+
+import edu.brandeis.cs.steele.util.ImmutableList;
 import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
 
 /**
@@ -29,7 +31,7 @@ import static edu.brandeis.cs.steele.wn.PointerTypeFlag.*;
  * Each <code>PointerType</code> carries additional information including:
  * <ul>
  *   <li> a human-readable label </li>
- *   <li> an optional symmetric (i.e. reflexive) type that labels links pointing the opposite direction </li>
+ *   <li> an optional symmetric (i.e., reflexive) type that labels links pointing the opposite direction </li>
  *   <li> an encoding of parts-of-speech that it applies to </li>
  *   <li> a short string that represents it in the dictionary files </li>
  * </ul>
@@ -242,30 +244,30 @@ public enum PointerType {
      *
      * Axioms
      * - if ∃ x, y s.t. InstanceHyponym(x, y), then InstanceHypernym(y, z) (symmetric)
-     *   e.g. x=GW, y=PofUS
-     *   - "inflection point" ? InstanceHyponym is root-tip (e.g. opposite of leaf) in ontology,
+     *   e.g., x=GW, y=PofUS
+     *   - "inflection point" ? InstanceHyponym is root-tip (e.g., opposite of leaf) in ontology,
      *     while InstanceHypernym is leaf (living tree-sense, top/edgemost)
      * - if ∃ x, y s.t. InstanceHypernym(x, y), then ∃ z s.t. Hypernym(y, z)
-     *   e.g. x=GW, y=PofUS, z=person
+     *   e.g., x=GW, y=PofUS, z=person
      *   - "inheritance" ?
      */
 
-    // e.g. "Bill Clinton" has instance hypernym "president"#2
+    // e.g., "Bill Clinton" has instance hypernym "president"#2
     // which in turn has normal hypernyms
-    HYPERNYM.superTypes = Arrays.asList(INSTANCE_HYPERNYM);
-    // e.g. "president"#2 (* the Synset) has instance hyponyms ("George Washington", ...) AND
+    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
+    // e.g., "president"#2 (* the Synset) has instance hyponyms ("George Washington", ...) AND
     // normal hyponyms ("chief of state", ...).  Note that while "president"#2 also
     // has normal hyponyms, "President of the United States" does NOT since
     // it is more lexically specified.
     // FIXME this example seems to show a bad, unneeded asymmetry
-    HYPONYM.subTypes = Arrays.asList(INSTANCE_HYPONYM);
+    HYPONYM.subTypes = ImmutableList.of(INSTANCE_HYPONYM);
 
-    MERONYM.subTypes = Arrays.asList(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
+    MERONYM.subTypes = ImmutableList.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
     // don't assign superTypes since MERONYM is pure-virtual
-    HOLONYM.subTypes = Arrays.asList(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
+    HOLONYM.subTypes = ImmutableList.of(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
     // don't assign superTypes since HOLONYM is pure-virtual
 
-    DOMAIN.subTypes = Arrays.asList(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
+    DOMAIN.subTypes = ImmutableList.of(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
     // don't assign superTypes since DOMAIN is pure-virtual
   }
 
@@ -276,8 +278,8 @@ public enum PointerType {
   }
 
   /**
-   * @return the <code>PointerType</code> whose key matches <var>key</var>.
-   * @exception NoSuchElementException If <var>key</var> doesn't name any <code>PointerType</code>.
+   * @return the <code>PointerType</code> whose key matches {@code key}.
+   * @exception NoSuchElementException If {@code key} doesn't name any <code>PointerType</code>.
    */
   public static PointerType parseKey(final CharSequence key) {
     for (final PointerType pType : VALUES) {
@@ -299,8 +301,8 @@ public enum PointerType {
   private final int flags;
   private final String toString;
   private PointerType symmetricType;
-  private List<PointerType> subTypes;
-  private List<PointerType> superTypes;
+  private ImmutableList<PointerType> subTypes;
+  private ImmutableList<PointerType> superTypes;
 
   PointerType(final String label, final String key, final int value, final int flags) {
     this(label, key, value, flags, null, null);
@@ -330,8 +332,8 @@ public enum PointerType {
         this.longVerbLabel = label;
       }
     }
-    this.superTypes = Collections.emptyList();
-    this.subTypes = Collections.emptyList();
+    this.superTypes = ImmutableList.of();
+    this.subTypes = ImmutableList.of();
     //XXX System.err.println(this+" longNounLabel: "+this.longNounLabel+" longVerbLabel: "+this.longVerbLabel+" label: "+this.label);
   }
 
