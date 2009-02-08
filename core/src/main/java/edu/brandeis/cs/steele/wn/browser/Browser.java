@@ -42,7 +42,7 @@ import java.util.prefs.*;
  *   <li> <code>java edu.brandeis.cs.steele.wn.Browser</code><br>
  *        To invoke a browser on the local database. </li>
  *
- *   <li> <code>java edu.brandeis.cs.steele.wn.Browser <var>dir</dir></code><br>
+ *   <li> <code>java edu.brandeis.cs.steele.wn.Browser {@code dir</dir></code><br>
  *        To invoke a browser on a local database stored at <tt>dir</tt>. </li>
  * </ul>
  */
