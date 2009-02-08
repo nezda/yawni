@@ -23,8 +23,8 @@ package edu.brandeis.cs.steele.util;
 import java.util.*;
 
 /**
- * A fixed-capacity <code>Cache</code> that stores the <var>n</var> values associate
- * with the <var>n</var> most recently accessed keys.
+ * A fixed-capacity <code>Cache</code> that stores the {@code n} values associate
+ * with the {@code n} most recently accessed keys.
  */
 public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
