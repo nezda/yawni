@@ -20,15 +20,16 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import edu.brandeis.cs.steele.util.ImmutableList;
-import edu.brandeis.cs.steele.util.Utils;
-
 import java.util.logging.*;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
+import edu.brandeis.cs.steele.util.ImmutableList;
+import edu.brandeis.cs.steele.util.Utils;
 
 /**
  * A <code>Word</code> represents a line of a WordNet <code>index.<em>pos</em></code> file.
