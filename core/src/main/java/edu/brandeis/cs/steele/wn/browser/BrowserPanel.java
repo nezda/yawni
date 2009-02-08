@@ -20,15 +20,34 @@
  */
 package edu.brandeis.cs.steele.wn.browser;
 
+import edu.brandeis.cs.steele.util.ImmutableList;
 import edu.brandeis.cs.steele.wn.*;
 import edu.brandeis.cs.steele.util.Utils;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.geom.*;
 import java.awt.font.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -480,7 +499,7 @@ public class BrowserPanel extends JPanel {
 
   void wireToFrame(final Browser browser) {
     assert browser.isFocusCycleRoot();
-    final java.util.List<Component> components = new ArrayList<Component>();
+    final List<Component> components = new ArrayList<Component>();
     components.add(this.searchField);
     components.addAll(this.posBoxes.values());
     //for(final PointerTypeComboBox box : this.posBoxes.values()) {
@@ -784,10 +803,10 @@ public class BrowserPanel extends JPanel {
       final String inputString = BrowserPanel.this.searchField.getText().trim();
       Word word = BrowserPanel.this.dictionary().lookupWord(inputString, pos);
       if (word == null) {
-        final String[] forms = dictionary().lookupBaseForms(inputString, pos);
-        assert forms.length > 0 : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary().lookupWord(forms[0], pos);
-        assert forms.length > 0;
+        final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
+        assert forms.isEmpty() == false : "searchField contents must have changed";
+        word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), pos);
+        assert forms.isEmpty() == false;
       }
       if (pointerType == null) {
         //FIXME bad form to use stderr
@@ -814,10 +833,10 @@ public class BrowserPanel extends JPanel {
       final String inputString = BrowserPanel.this.searchField.getText().trim();
       Word word = BrowserPanel.this.dictionary().lookupWord(inputString, POS.VERB);
       if (word == null) {
-        final String[] forms = dictionary().lookupBaseForms(inputString, POS.VERB);
-        assert forms.length > 0 : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary().lookupWord(forms[0], POS.VERB);
-        assert forms.length > 0;
+        final List<String> forms = dictionary().lookupBaseForms(inputString, POS.VERB);
+        assert forms.isEmpty() == false : "searchField contents must have changed";
+        word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), POS.VERB);
+        assert forms.isEmpty() == false;
       }
       displayVerbFrames(word);
     }
@@ -855,7 +874,7 @@ public class BrowserPanel extends JPanel {
         // Note: lookupWord() only touches index.<pos> files
         final String inputString = "clear";
         for (final POS pos : POS.CATS) {
-          String[] forms = dictionary().lookupBaseForms(inputString, pos);
+          final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
           for (final String form : forms) {
             final Word word = dictionary().lookupWord(form, pos);
             word.toString();
@@ -887,9 +906,9 @@ public class BrowserPanel extends JPanel {
     final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
-      String[] forms = dictionary().lookupBaseForms(inputString, pos);
+      List<String> forms = dictionary().lookupBaseForms(inputString, pos);
       if (forms == null) {
-        forms = new String[]{inputString};
+        forms = ImmutableList.of(inputString);
       } else {
         //XXX debug crap
         boolean found = false;
@@ -899,9 +918,9 @@ public class BrowserPanel extends JPanel {
             break;
           }
         }
-        if (forms.length > 0 && found == false) {
+        if (forms.isEmpty() == false && found == false) {
           System.err.println("    BrowserPanel inputString: \"" + inputString +
-            "\" not found in forms: " + Arrays.toString(forms));
+            "\" not found in forms: " + forms);
         }
       }
       boolean enabled = false;
@@ -972,7 +991,7 @@ public class BrowserPanel extends JPanel {
     }
   } // end enum Status
 
-  // TODO For PointerType searches, show same text as combo box (e.g. "running"
+  // TODO For PointerType searches, show same text as combo box (e.g., "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
     this.statusLabel.setText(status.get(args));
@@ -997,10 +1016,10 @@ public class BrowserPanel extends JPanel {
    */
   private void appendSenses(final Word word, final StringBuilder buffer, final boolean verbose) {
     if (word != null) {
-      final Synset[] senses = word.getSynsets();
+      final List<Synset> senses = word.getSynsets();
       final int taggedCount = word.getTaggedSenseCount();
       buffer.append("The " + word.getPOS().getLabel() + " <b>" +
-        word.getLemma() + "</b> has " + senses.length + " sense" + (senses.length == 1 ? "" : "s") + " ");
+        word.getLemma() + "</b> has " + senses.size() + " sense" + (senses.size() == 1 ? "" : "s") + " ");
       buffer.append("(");
       if (taggedCount == 0) {
         buffer.append("no senses from tagged texts");
@@ -1032,8 +1051,8 @@ public class BrowserPanel extends JPanel {
         //  "if searchstr is in a head synset, all of the head synset's satellites"
         buffer.append(sense.getLongDescription(verbose));
         if (verbose) {
-          final PointerTarget[] similar = sense.getTargets(PointerType.SIMILAR_TO);
-          if (similar.length > 0) {
+          final List<PointerTarget> similar = sense.getTargets(PointerType.SIMILAR_TO);
+          if (similar.isEmpty() == false) {
             if (verbose) {
               buffer.append("<br>\n");
               buffer.append("Similar to:");
@@ -1048,9 +1067,9 @@ public class BrowserPanel extends JPanel {
             buffer.append("</ul>\n");
           }
 
-          final PointerTarget[] targets = sense.getTargets(PointerType.SEE_ALSO);
-          if (targets.length > 0) {
-            if (similar.length == 0) {
+          final List<PointerTarget> targets = sense.getTargets(PointerType.SEE_ALSO);
+          if (targets.isEmpty() == false) {
+            if (similar.isEmpty()) {
               buffer.append("<br>");
             }
             buffer.append("Also see: ");
@@ -1080,19 +1099,19 @@ public class BrowserPanel extends JPanel {
   private void displaySenseChain(final Word word, final PointerType pointerType) {
     updateStatusBar(Status.POINTER, pointerType, word.getPOS(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
-    final Synset[] senses = word.getSynsets();
+    final List<Synset> senses = word.getSynsets();
     // count number of senses pointerType applies to
     int numApplicableSenses = 0;
-    for (int i = 0; i < senses.length; ++i) {
-      if (senses[i].getTargets(pointerType).length > 0) {
+    for (int i = 0, n = senses.size(); i < n; ++i) {
+      if (senses.get(i).getTargets(pointerType).isEmpty() == false) {
         numApplicableSenses++;
       }
     }
-    buffer.append("Applies to " + numApplicableSenses + " of the " + senses.length + " senses" +
+    buffer.append("Applies to " + numApplicableSenses + " of the " + senses.size() + " senses" +
       //(senses.length > 1 ? "s" : "")+
       " of <b>" + word.getLemma() + "</b>\n");
-    for (int i = 0; i < senses.length; ++i) {
-      if (senses[i].getTargets(pointerType).length > 0) {
+    for (int i = 0, n = senses.size(); i < n; i++) {
+      if (senses.get(i).getTargets(pointerType).isEmpty() == false) {
         buffer.append("<br><br>Sense " + (i + 1) + "\n");
 
         PointerType inheritanceType = PointerType.HYPERNYM;
@@ -1104,7 +1123,7 @@ public class BrowserPanel extends JPanel {
         }
         System.err.println(word + " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
         buffer.append("<ul>\n");
-        appendSenseChain(buffer, senses[i].getWordSense(word), senses[i], inheritanceType, attributeType);
+        appendSenseChain(buffer, senses.get(i).getWordSense(word), senses.get(i), inheritanceType, attributeType);
         buffer.append("</ul>\n");
       }
     }
@@ -1201,16 +1220,16 @@ public class BrowserPanel extends JPanel {
   private void displayVerbFrames(final Word word) {
     updateStatusBar(Status.VERB_FRAMES, word.getLemma());
     final StringBuilder buffer = new StringBuilder();
-    final Synset[] senses = word.getSynsets();
-    buffer.append(senses.length + " sense" +
-      (senses.length > 1 ? "s" : "") +
+    final List<Synset> senses = word.getSynsets();
+    buffer.append(senses.size() + " sense" +
+      (senses.size() > 1 ? "s" : "") +
       " of <b>" + word.getLemma() + "</b>\n");
-    for (int i = 0; i < senses.length; ++i) {
-      if (senses[i].getWordSense(word).getVerbFrames().isEmpty() == false) {
+    for (int i = 0, n = senses.size(); i < n; i++) {
+      if (senses.get(i).getWordSense(word).getVerbFrames().isEmpty() == false) {
         buffer.append("<br><br>Sense " + (i + 1) + "\n");
         //TODO show the synset ?
         buffer.append("<ul>\n");
-        for (final String frame : senses[i].getWordSense(word).getVerbFrames()) {
+        for (final String frame : senses.get(i).getWordSense(word).getVerbFrames()) {
           buffer.append(listOpen());
           buffer.append(frame);
           buffer.append("</li>\n");
