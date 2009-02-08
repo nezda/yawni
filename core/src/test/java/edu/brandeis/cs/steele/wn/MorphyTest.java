@@ -50,7 +50,7 @@ public class MorphyTest {
   }
 
   private static List<String> stem(final String someString, final POS pos) {
-    return Arrays.asList(dictionary.lookupBaseForms(someString, pos));
+    return dictionary.lookupBaseForms(someString, pos);
   }
 
   //TODO consider moving to Utils
@@ -269,12 +269,12 @@ public class MorphyTest {
 
   @Test
   public void testWordSense() {
-    assertEquals(42, dictionary.lookupWord("dog", POS.NOUN).getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(2, dictionary.lookupWord("dog", POS.VERB).getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(3, dictionary.lookupWord("cardinal", POS.ADJ).getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(0, dictionary.lookupWord("cardinal", POS.ADJ).getSenses()[1].getSensesTaggedFrequency());
-    assertEquals(9, dictionary.lookupWord("concrete", POS.ADJ).getSenses()[0].getSensesTaggedFrequency());
-    assertEquals(1, dictionary.lookupWord("dogmatic", POS.ADJ).getSenses()[0].getSensesTaggedFrequency());
+    assertEquals(42, dictionary.lookupWord("dog", POS.NOUN).getSenses().get(0).getSensesTaggedFrequency());
+    assertEquals(2, dictionary.lookupWord("dog", POS.VERB).getSenses().get(0).getSensesTaggedFrequency());
+    assertEquals(3, dictionary.lookupWord("cardinal", POS.ADJ).getSenses().get(0).getSensesTaggedFrequency());
+    assertEquals(0, dictionary.lookupWord("cardinal", POS.ADJ).getSenses().get(1).getSensesTaggedFrequency());
+    assertEquals(9, dictionary.lookupWord("concrete", POS.ADJ).getSenses().get(0).getSensesTaggedFrequency());
+    assertEquals(1, dictionary.lookupWord("dogmatic", POS.ADJ).getSenses().get(0).getSensesTaggedFrequency());
   }
 
   @Test
@@ -382,7 +382,7 @@ public class MorphyTest {
   //          // TODO implement getindex() and then activate this test
   //          // search for this lemma in other POS
   //          // see if we can find lexical ambiguity
-  //          // e.g. NOUN("long time")
+  //          // e.g., NOUN("long time")
   //          // ADJ("longtime)
   //        }
   //        //XXX final List<String> restems = stem(lemma, pos);
