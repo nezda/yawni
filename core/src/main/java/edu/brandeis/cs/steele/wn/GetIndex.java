@@ -66,13 +66,16 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     throw new UnsupportedOperationException();
   }
   // note this is part of the CharSequence interface
+  @Override
   public String toString() {
     throw new UnsupportedOperationException();
   }
-  public boolean equals() {
+  @Override
+  public int hashCode() {
     throw new UnsupportedOperationException();
   }
-  public int hashCode() {
+  @Override
+  public boolean equals(Object that) {
     throw new UnsupportedOperationException();
   }
 
@@ -191,7 +194,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     //   a dash and each dash is switched to an underscore (space)
     //   in turn to create ALL possible variants
     //   - numDashes * numUnderscores variants
-    //  * def do "X.[^_]" -> "X. " (e.g. "F.D." -> "F. D.")
+    //  * def do "X.[^_]" -> "X. " (e.g., "F.D." -> "F. D.")
     //  * consider similar for periods so "U.S.A." produces "U.S.A"
     // ? consider implementing algorithm as a series of modifcations of
     //   a single StringBuilder:
