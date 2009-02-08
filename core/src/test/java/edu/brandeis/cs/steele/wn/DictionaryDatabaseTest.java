@@ -43,10 +43,10 @@ public class DictionaryDatabaseTest {
   //@Ignore
   @Test
   public void test() {
-    final String[] tanks = dictionary.lookupBaseForms("tank", POS.ALL);
-    System.err.println("tanks: "+Arrays.toString(tanks));
-    final String[] geese = dictionary.lookupBaseForms("geese", POS.ALL);
-    System.err.println("geese: "+Arrays.toString(geese));
+    final List<String> tanks = dictionary.lookupBaseForms("tank", POS.ALL);
+    System.err.println("tanks: "+tanks);
+    final List<String> geese = dictionary.lookupBaseForms("geese", POS.ALL);
+    System.err.println("geese: "+geese);
   }
 
   /**
@@ -75,8 +75,8 @@ public class DictionaryDatabaseTest {
     //  Synset[] syns = dictionary.lookupSynsets(pos, str);
     //}
     // just our source POS
-    Synset[] syns = dictionary.lookupSynsets(str, pos);
-    if (syns.length == 0) {
+    List<Synset> syns = dictionary.lookupSynsets(str, pos);
+    if (syns.isEmpty()) {
       System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
     }
     //System.err.println(str+": "+Arrays.toString(syns));
