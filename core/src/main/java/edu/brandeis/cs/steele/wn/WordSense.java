@@ -20,9 +20,13 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import java.util.*;
-import edu.brandeis.cs.steele.util.Utils;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import edu.brandeis.cs.steele.util.CharSequences;
+import edu.brandeis.cs.steele.util.ImmutableList;
+import edu.brandeis.cs.steele.util.Utils;
 
 /**
  * A <code>WordSense</code> represents the lexical information related to a specific sense of a {@link Word}.
@@ -113,7 +117,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
 
   /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
-    return Collections.singleton(this).iterator();
+    return ImmutableList.of(this).iterator();
   }
 
   String flagsToString() {
@@ -151,17 +155,17 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       // Get Word and scan this WordSense's Synsets and 
       // find the one with this Synset
       final Word word = getWord();
-      int senseNumber = 0;
+      int localSenseNumber = 0;
       for (final Synset syn : word.getSynsets()) {
-        senseNumber--;
+        localSenseNumber--;
         if (syn.equals(synset)) {
-          senseNumber = -senseNumber;
+          localSenseNumber = -localSenseNumber;
           break;
         }
       }
-      assert senseNumber > 0 : "Word lemma: "+lemma+" "+getPOS();
-      assert senseNumber < Short.MAX_VALUE;
-      this.senseNumber = (short)senseNumber;
+      assert localSenseNumber > 0 : "Word lemma: "+lemma+" "+getPOS();
+      assert localSenseNumber < Short.MAX_VALUE;
+      this.senseNumber = (short)localSenseNumber;
     }
     return senseNumber;
   }
@@ -183,14 +187,14 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     final String searchWord;
     final int headSense;
     if (getSynset().isAdjectiveCluster()) {
-      final PointerTarget[] adjsses = getSynset().getTargets(PointerType.SIMILAR_TO);
-      assert adjsses.length == 1;
-      final Synset adjss = (Synset)adjsses[0];
+      final List<PointerTarget> adjsses = getSynset().getTargets(PointerType.SIMILAR_TO);
+      assert adjsses.size() == 1;
+      final Synset adjss = (Synset) adjsses.get(0);
       // if satellite, key lemma in cntlist.rev
       // is adjss's first word (no case) and
       // adjss's lexid (aka lexfilenum) otherwise
-      searchWord = adjss.getWordSenses()[0].getLemma();
-      headSense = adjss.getWordSenses()[0].lexid;
+      searchWord = adjss.getWordSenses().get(0).getLemma();
+      headSense = adjss.getWordSenses().get(0).lexid;
     } else {
       searchWord = getLemma();
       headSense = lexid;
@@ -306,7 +310,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       // <sense_key>  <sense_number>  tag_cnt
       final int lastSpace = line.lastIndexOf(' ');
       assert lastSpace > 0;
-      count = CharSequenceTokenizer.parseInt(line, lastSpace + 1, line.length());
+      count = CharSequences.parseInt(line, lastSpace + 1, line.length());
       // sanity check final int firstSpace = line.indexOf(" ");
       // sanity check assert firstSpace > 0 && firstSpace != lastSpace;
       // sanity check final int mySenseNumber = getSenseNumber();
@@ -375,12 +379,12 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
    */
   public List<String> getVerbFrames() {
     if (getPOS() != POS.VERB) {
-      return Collections.emptyList();
+      return ImmutableList.of();
     }
     final CharSequence senseKey = getSenseKey();
     final FileBackedDictionary dictionary = synset.fileBackedDictionary;
     final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
-    List<String> frames = Collections.emptyList();
+    List<String> frames = ImmutableList.of();
     if (sentenceNumbers != null) {
       frames = new ArrayList<String>();
       // fetch the illustrative sentences indicated in sentenceNumbers
@@ -429,7 +433,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
         }
       }
     }
-    return frames;
+    return ImmutableList.of(frames);
   }
 
   public String getDescription() {
@@ -442,9 +446,9 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       description.append(flagsToString());
       description.append(')');
     }
-    final PointerTarget[] targets = getTargets(PointerType.ANTONYM);
-    if (targets.length > 0) {
-      // adj acidic has more than 1 antonym (alkaline and amphoteric)
+    final List<PointerTarget> targets = getTargets(PointerType.ANTONYM);
+    if (targets.isEmpty() == false) {
+      // adj 'acidic' has more than 1 antonym ('alkaline' and 'amphoteric')
       for (final PointerTarget target : targets) {
         description.append(" (vs. ");
         final WordSense antonym = (WordSense)target;
@@ -483,39 +487,37 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
   //
   // Pointers
   //
-  private Pointer[] restrictPointers(final Pointer[] source) {
-    List<Pointer> vector = null;
-    for (int i = 0; i < source.length; ++i) {
-      final Pointer pointer = source[i];
+  private List<Pointer> restrictPointers(final List<Pointer> source) {
+    List<Pointer> list = null;
+    for (int i = 0, n = source.size(); i < n; ++i) {
+      final Pointer pointer = source.get(i);
       if (pointer.getSource().equals(this)) {
         assert pointer.getSource() == this;
-        if (vector == null) {
-          vector = new ArrayList<Pointer>();
+        if (list == null) {
+          list = new ArrayList<Pointer>();
         }
-        vector.add(pointer);
+        list.add(pointer);
       }
     }
-    if (vector == null) {
-      return NO_POINTERS;
+    if (list == null) {
+      return ImmutableList.of();
     }
-    return vector.toArray(new Pointer[vector.size()]);
+    return ImmutableList.of(list);
   }
 
-  private static final Pointer[] NO_POINTERS = new Pointer[0];
-
-  public Pointer[] getPointers() {
+  public List<Pointer> getPointers() {
     return restrictPointers(synset.getPointers());
   }
 
-  public Pointer[] getPointers(final PointerType type) {
+  public List<Pointer> getPointers(final PointerType type) {
     return restrictPointers(synset.getPointers(type));
   }
 
-  public PointerTarget[] getTargets() {
+  public List<PointerTarget> getTargets() {
     return Synset.collectTargets(getPointers());
   }
 
-  public PointerTarget[] getTargets(final PointerType type) {
+  public List<PointerTarget> getTargets(final PointerType type) {
     return Synset.collectTargets(getPointers(type));
   }
 
