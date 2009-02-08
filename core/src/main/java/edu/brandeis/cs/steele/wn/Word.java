@@ -20,12 +20,15 @@
  */
 package edu.brandeis.cs.steele.wn;
 
+import edu.brandeis.cs.steele.util.ImmutableList;
 import edu.brandeis.cs.steele.util.Utils;
 
 import java.util.logging.*;
 import java.util.EnumSet;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A <code>Word</code> represents a line of a WordNet <code>index.<em>pos</em></code> file.
@@ -45,7 +48,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Word.class.getName());
 
   private final FileBackedDictionary fileBackedDictionary;
-  /** offset in <var>pos</var><code>.index</code> file */
+  /** offset in {@code pos}<code>.index</code> file */
   private final int offset;
   /** No case "lemma". Each {@link WordSense} has at least 1 true case lemma
    * (could vary by POS).
@@ -58,7 +61,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   private Object synsets;
 
-  private EnumSet<PointerType> ptrTypes;
+  private Set<PointerType> ptrTypes;
   private final byte posOrdinal;
   //
   // Constructor
@@ -132,7 +135,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * The pointer types available for this word.  May not apply to all
    * senses of the word.
    */
-  public EnumSet<PointerType> getPointerTypes() {
+  public Set<PointerType> getPointerTypes() {
     if (ptrTypes == null) {
       // these are not always correct
       // PointerType.INSTANCE_HYPERNYM
@@ -146,7 +149,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
           localPtrTypes.add(ptrType);
         }
       }
-      this.ptrTypes = localPtrTypes;
+      this.ptrTypes = Collections.unmodifiableSet(localPtrTypes);
     }
     return ptrTypes;
   }
@@ -156,7 +159,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * representation, for example <tt>"dog"</tt> or <tt>"get up"</tt>
    * or <tt>"u.s.a."</tt>.
    * <p>Note that different senses of this word may have different lemmas - this
-   * is the canonical one (e.g. "cd" for "Cd", "CD", "cd").
+   * is the canonical one (e.g., "cd" for "Cd", "CD", "cd").
    */
   public String getLemma() {
     return lemma;
@@ -190,10 +193,10 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
 
   /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
-    return Arrays.asList(getSenses()).iterator();
+    return getSenses().iterator();
   }
 
-  public Synset[] getSynsets() {
+  public List<Synset> getSynsets() {
     // careful with this.synsets
     synchronized(this) {
       if (this.synsets instanceof int[]) {
@@ -207,16 +210,16 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
           syns[i] = fileBackedDictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
           assert syns[i] != null : "null Synset at index "+i+" of "+this;
         }
-        this.synsets = syns;
+        this.synsets = ImmutableList.of(syns);
       }
       // else assert this.synsets instanceof Synset[] already
-      return (Synset[])this.synsets;
+      return (List<Synset>)this.synsets;
     }
   }
 
-  public WordSense[] getSenses() {
+  public List<WordSense> getSenses() {
     //TODO consider caching senses - we are Iterable on it and getSense would also be much cheaper
-    final WordSense[] senses = new WordSense[getSynsets().length];
+    final WordSense[] senses = new WordSense[getSynsets().size()];
     int senseNumberMinusOne = 0;
     for (final Synset synset : getSynsets()) {
       final WordSense wordSense = synset.getWordSense(this);
@@ -225,7 +228,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         this+" null WordSense at senseNumberMinusOne: "+senseNumberMinusOne;
       senseNumberMinusOne++;
     }
-    return senses;
+    return ImmutableList.of(senses);
   }
 
   /** Note, <param>senseNumber</param> is a <em>1</em>-indexed value. */
@@ -233,11 +236,11 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     if (senseNumber <= 0) {
       throw new IllegalArgumentException("Invalid senseNumber "+senseNumber+" requested");
     }
-    final Synset[] localSynsets = getSynsets();
-    if (senseNumber >= localSynsets.length) {
-      throw new IllegalArgumentException(this+" only has "+localSynsets.length+" senses");
+    final List<Synset> localSynsets = getSynsets();
+    if (senseNumber >= localSynsets.size()) {
+      throw new IllegalArgumentException(this+" only has "+localSynsets.size()+" senses");
     }
-    return localSynsets[senseNumber - 1].getWordSense(this);
+    return localSynsets.get(senseNumber - 1).getWordSense(this);
   }
 
   int getOffset() {
