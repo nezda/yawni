@@ -27,19 +27,19 @@ package edu.brandeis.cs.steele.util;
  * unspecified amount of time (which the implementor of <code>Cache</code> may further specify).
  */
 public interface Cache<K, V> {
-  /** Store <var>value</var> in the cache, indexed by <var>key</var>.  This operation makes
+  /** Store {@code value} in the cache, indexed by {@code key}.  This operation makes
    * it likely, although not certain, that a subsquent call to <code>get</code> with the
    * same (<code>equals</code>) key will retrieve the same (<code>==</code>) value.
    *
-   * <P>Multiple calls to <code>put</code> with the same <var>key</var> and <var>value</var>
-   * are idempotent.  A set of calls to <code>put</code> with the same <var>key</var> but
-   * different <var>value</var>s has only the affect of the last call (assuming there were
+   * <P>Multiple calls to <code>put</code> with the same {@code key} and {@code value}
+   * are idempotent.  A set of calls to <code>put</code> with the same {@code key} but
+   * different {@code value}s has only the affect of the last call (assuming there were
    * no intervening calls to <code>get</code>).
    */
   public Object put(K key, V value);
 
-  /** If <var>key</var> was used in a previous call to <code>put</code>, this call may
-   * return the <var>value</var> of that call.  Otherwise it returns <code>null</code>.
+  /** If {@code key} was used in a previous call to <code>put</code>, this call may
+   * return the {@code value} of that call.  Otherwise it returns <code>null</code>.
    */
   public V get(Object key);
 
