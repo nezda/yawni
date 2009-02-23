@@ -29,11 +29,10 @@ import javax.swing.event.*;
  * <p>Key features:
  * <ul>
  *   <li> popup width is as wide as the contents, button width is only wide enough to accomodate label and
- *   icon across platforms
- *   <li> down arrow indicates combobox-like behavior
- *   <li> looks good across look & feels
- *   <li> activation by keyboard (spacebar and Enter) and mouse click support
- * </ul>
+ *   icon across platforms </li>
+ *   <li> down arrow indicates combobox-like behavior </li>
+ *   <li> looks good across look & feels </li>
+ *   <li> activation by keyboard (spacebar and Enter) and mouse click support </li>
  * <br> TODO tab / shift+tab navigation from menu - maybe arrows too?
  * <br> TODO type-to-navigate popup menu (like JComboBox - code can be copied from there)
  */
