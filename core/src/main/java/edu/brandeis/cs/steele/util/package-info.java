@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 /**
- * Key package for all JWordNet classes.
+ * Utility classes of data structures and algorithms used throughout JWordNet.
  */
 package edu.brandeis.cs.steele.util;
 
