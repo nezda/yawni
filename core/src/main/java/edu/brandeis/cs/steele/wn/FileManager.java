@@ -27,7 +27,7 @@ import java.util.logging.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.io.*;
-import edu.brandeis.cs.steele.util.Utils;
+import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.JarURLConnection;
@@ -64,7 +64,8 @@ public class FileManager implements FileManagerInterface {
     private int previous;
     private int next;
 
-    /** synchronization keeps this consistent since multiple filename's may call
+    /**
+     * synchronization keeps this consistent since multiple filename's may call
      * this at the same time
      */
     synchronized void setNextLineOffset(final String filename, final int previous, final int next) {
@@ -73,7 +74,8 @@ public class FileManager implements FileManagerInterface {
       this.next = next;
     }
 
-    /** synchronization keeps this consistent since multiple filename's may call
+    /**
+     * synchronization keeps this consistent since multiple filename's may call
      * this at the same time
      */
     synchronized int matchingOffset(final String filename, final int offset) {
@@ -190,6 +192,9 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class CharStream
 
+  /**
+   * {@link RandomAccessFile} {@code CharStream} implementation.
+   */
   static class RAFCharStream extends CharStream {
     private final RandomAccessFile raf;
     RAFCharStream(final String filename, final RandomAccessFile raf) {
@@ -219,6 +224,9 @@ public class FileManager implements FileManagerInterface {
     }
   } // end class RAFCharStream
 
+  /**
+   * {@link ByteBuffer} {@code CharStream} implementation.
+   */
   private static class NIOCharStream extends CharStream {
     //FIXME position seems redundant (ByteCharBuffer has position())
     private int position;
@@ -809,7 +817,7 @@ public class FileManager implements FileManagerInterface {
 
   private static int compare(final CharSequence s1, final CharSequence s2) {
     // caseless searches rely on this
-    return Utils.WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(s1, s2);
+    return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(s1, s2);
     //return Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(s1, s2);
   }
 }
