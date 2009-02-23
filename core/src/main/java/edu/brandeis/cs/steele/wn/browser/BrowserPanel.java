@@ -57,7 +57,7 @@ import javax.swing.undo.*;
 import java.util.prefs.*;
 
 /**
- *
+ * The main panel of browser.
  */
 public class BrowserPanel extends JPanel {
   private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
@@ -962,7 +962,7 @@ public class BrowserPanel extends JPanel {
    * Function object used to show status of user interaction as text at the bottom
    * of the main window.
    */
-  private static enum Status {
+  private enum Status {
     INTRO("Enter search word and press return"),
     OVERVIEW("Overview of %s"),
     SEARCHING("Searching..."),
