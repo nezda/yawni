@@ -30,15 +30,16 @@ import java.util.Set;
 import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
 import edu.brandeis.cs.steele.util.ImmutableList;
 import edu.brandeis.cs.steele.util.Utils;
+import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
 
 /**
- * A <code>Word</code> represents a line of a WordNet <code>index.<em>pos</em></code> file.
- * A <code>Word</code> is retrieved via {@link DictionaryDatabase#lookupWord},
+ * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file.
+ * A {@code Word} is retrieved via {@link DictionaryDatabase#lookupWord},
  * and has a <i>lemma</i>, a <i>part of speech (POS)</i>, and a set of <i>senses</i>, which are of type {@link Synset}.
  *
- * XXX<p>Debatable what the type of each sense is - Steele said Synset, i'd say WordSense.
+ * XXX<p> Debatable what the type of each sense is - Steele said Synset, i'd say WordSense.
  *
- * <p>Note this class used to be called <tt>IndexWord</tt> which arguably makes more sense from the
+ * <p> Note this class used to be called {@code IndexWord} which arguably makes more sense from the
  * WordNet perspective.
  *
  * @see Synset
@@ -49,15 +50,17 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = Logger.getLogger(Word.class.getName());
 
   private final FileBackedDictionary fileBackedDictionary;
-  /** offset in {@code pos}<code>.index</code> file */
+  /** offset in {@code <pos>.index} file */
   private final int offset;
-  /** No case "lemma". Each {@link WordSense} has at least 1 true case lemma
+  /**
+   * Lowercase form of lemma. Each {@link WordSense} has at least 1 true case lemma
    * (could vary by POS).
    */
-  private final String lemma;
+  private final String lowerCasedLemma;
   // number of senses with counts in sense tagged corpora
   private final int taggedSenseCount;
-  /** Synsets are initially stored as offsets, and paged in on demand
+  /**
+   * Synsets are initially stored as offsets, and paged in on demand
    * of the first call of {@link #getSynsets()}.
    */
   private Object synsets;
@@ -72,7 +75,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     try {
       log.log(Level.FINEST, "parsing line: {0}", line);
       final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
-      this.lemma = tokenizer.nextToken().toString().replace('_', ' ');
+      this.lowerCasedLemma = tokenizer.nextToken().toString().replace('_', ' ');
       this.posOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
 
       tokenizer.skipNextToken(); // poly_cnt
@@ -156,27 +159,28 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * Returns the <code>Word</code>'s lowercased <i>lemma</i>.  Its lemma is its orthographic
-   * representation, for example <tt>"dog"</tt> or <tt>"get up"</tt>
-   * or <tt>"u.s.a."</tt>.
-   * <p>Note that different senses of this word may have different lemmas - this
+   * Returns the {@code Word}'s lowercased lemma.  Its <em>lemma</em> is its orthographic
+   * representation, for example "<tt>dog</tt>" or "<tt>get up</tt>"
+   * or "<tt>u.s.a.</tt>".
+   * 
+   * <p> Note that different senses of this word may have different lemmas - this
    * is the canonical one (e.g., "cd" for "Cd", "CD", "cd").
    */
   public String getLemma() {
-    return lemma;
+    return lowerCasedLemma;
   }
 
   /**
-   * Number of "words" (aka "tokens") in this <tt>Word</tt>'s lemma.
+   * Number of "words" (aka "tokens") in this {@code Word}'s lemma.
    */
   public int getWordCount() {
     // Morphy.counts() default implementation already counts
     // space (' ') and underscore ('_') separated words
-    return Morphy.countWords(lemma, '-');
+    return Morphy.countWords(lowerCasedLemma, '-');
   }
 
   /**
-   * @return true if this <tt>Word</tt>'s {@code {@link #getWordCount()} > 1}.
+   * @return true if this {@code Word}'s {@link #getWordCount()} > 1}.
    */
   public boolean isCollocation() {
     return getWordCount() > 1;
@@ -213,8 +217,10 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         }
         this.synsets = ImmutableList.of(syns);
       }
-      // else assert this.synsets instanceof Synset[] already
-      return (List<Synset>)this.synsets;
+      // else assert this.synsets instanceof List<Synset> already
+      @SuppressWarnings("unchecked")
+      List<Synset> toReturn = (List<Synset>)this.synsets;
+      return toReturn;
     }
   }
 
@@ -238,10 +244,19 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       throw new IllegalArgumentException("Invalid senseNumber "+senseNumber+" requested");
     }
     final List<Synset> localSynsets = getSynsets();
-    if (senseNumber >= localSynsets.size()) {
-      throw new IllegalArgumentException(this+" only has "+localSynsets.size()+" senses");
+    if (senseNumber > localSynsets.size()) {
+      throw new IllegalArgumentException(this + " only has "+simplePluralizer(localSynsets.size(), "sense"));
     }
     return localSynsets.get(senseNumber - 1).getWordSense(this);
+  }
+
+  private static String simplePluralizer(int count, final String itemWord) {
+    assert count >= 1;
+    if (count == 1) {
+      return count + " " + itemWord;
+    } else {
+      return count + " " + itemWord + 's';
+    }
   }
 
   int getOffset() {
@@ -281,7 +296,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   public int compareTo(final Word that) {
     // if these ' ' -> '_' replaces aren't done resulting sort will not match
     // index files.
-    int result = Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLemma(), that.getLemma());
+    int result = WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLemma(), that.getLemma());
     if (result == 0) {
       result = this.getPOS().compareTo(that.getPOS());
     }
