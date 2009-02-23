@@ -18,7 +18,7 @@
  */
 package edu.brandeis.cs.steele.util;
 
-import java.io.Serializable;
+//import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,41 +30,60 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 /**
- * Particularly useful when {@code E} is immutable (end.g., {@code String}, {@code Integer}) which is
- * sometimes referred to as "deeply immutable".  
+ * This implementation is particularly useful when {@code E} is immutable (e.g., {@code String}, {@code Integer})
+ * (aka "deeply immutable").
  * Strives for performance and memory characteristics of a C99 const array, especially for
- * small sizes (0-5).  "unrolled", "inside out" implementation for small sizes sacrifices verbosity for space.
+ * small sizes (0-5).  "unrolled", "inside out" implementation for small sizes sacrifices 
+ * verbosity for space (and probably asks more of the compiler, but who cares).
  *
  * Uses cases:
- * - when would you have millions of List<T> ? especially short ones
+ * - especially useful when you have millions of short {@ code List<T>}s
+ *   - ImmutableMultimap
+ *   - caches like JWordNet uses all the time - impossible to "poison" :)
  *   ? XML parsing / parse tree (read-only JDOM? would be fun to template that anyway if JAXB isn't already far superior)
  *   ? graph / tree data structures
  *   ? ML data structures
- *   - caches like JWordNet uses all the time - impossible to "poison" :) which we leave to chance now
  *   - Web-2.0 tags
- *   - ImmutableMultimap
  *
  * @param <E>
+ *
+ * TODO
+ * - make this class package private and move it accordingly ?  just an implementation detail for now
+ * - take another crack at Restleton
+ * - run Google Collections 0.9 test suite on it
+ * - copy Serializable functionality
+ *
+ * <p> Random notes
+ * <ul>
+ *   <li> Using {@code Iterator}s is slow compared to {@link ImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
+ *        Unfortunately, the new {@code foreach} syntax is so convenient.
+ *   </li>
+ *   <li> speed: inefficiencies in most implementations of base {@link Collection} classes ({@link AbstractCollection},
+ *        {@link AbstractList}, etc.) in the form of {@link Iterator}-based implementations of key methods
+ *         (e.g., {@link #equals}) </li>
+ * </ul>
  */
 
 // Comparison to Google Collections version
 // + uses less memory
+//   + much less for many common cases (i.e., sizes (1-5))
+//   * trades some "extra" code for memory
 //   + doesn't use offset, length impl (or even Object[] ref and instance for some sizes)
 //     * subList impl sorda justifies this
-//   + much less for many common cases (i.end., sizes (1-5))
-//   * trades some "extra" code for memory
 // + supports null elements
 //   * this is of dubious value - why did they do this? block errors ? speed up impl ?
-//   * null has some legit uses
+//   * null has a some legit uses
 // * their equals() and hashCode() are optimized for comparing instances to one another which could be very good
 //   - this impl is only optimized for comparing to RandomAccess List, but still has get() and null-check overhead
-// + uses Iterators internally for fewer methods (end.g., contains()) - less transient allocation
+//     but is still a step up from typical Collections implementations
+// + uses Iterators internally for fewer methods (e.g., contains()) - less transient allocation
 // - doesn't specialize serialization
 //   * they do this very well ("explicit serialized forms, though readReplace() and writeReplace() are slower)
 // - doesn't use general utility impls
 //   - Nullable, Iterators, ImmutableCollection, Collections2
 //   - very clean slick, comprehensive use of covariant return types
-// - no "bonus" APIs (end.g., copyOf())
+// - no "bonus" APIs (e.g., copyOf())
+//   - maybe i like this ?
 
 // maximally optimized methods
 // - get(i), isEmpty(), contains(), subList (for small sizes)
@@ -73,6 +92,11 @@ import java.util.RandomAccess;
 //
 // - hopefully compiler won't have problems with deeply nested implementation classes
 //   ImmutableList -> AbstractList -> Singleton -> Doubleton -> ...
+//
+// - ImmutableList should be an interface
+//   - ideally above List, but for compat has to be
+//     below it and therefore we can't remove methods from it
+//   - could be sneaky and duplicate the methods, but this kinda sucks too
 
 public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   @SuppressWarnings("unchecked")
@@ -161,19 +185,6 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   // lifted from Google Collections
   private static Object[] copyIntoArray(Object... items) {
     final Object[] array = new Object[items.length];
-    int index = 0;
-    for (final Object element : items) {
-//      if (element == null) {
-//        throw new NullPointerException("at index " + index);
-//      }
-      array[index++] = element;
-    }
-    return array;
-  }
-
-  // lifted from Google Collections
-  private static Object[] copyIntoArray(Iterable<?> items, int size) {
-    final Object[] array = new Object[size];
     int index = 0;
     for (final Object element : items) {
 //      if (element == null) {
@@ -307,8 +318,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     /* @Override */
     @SuppressWarnings("fallthrough")
     public ImmutableList<E> subList(int fromIndex, int toIndex) {
-      // fromIndex = {0,1}
-      // toIndex = {0,1}
+      // valid indices = {0,1}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
@@ -375,8 +385,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     @Override
     @SuppressWarnings("fallthrough")
     public ImmutableList<E> subList(int fromIndex, int toIndex) {
-      // fromIndex = {0,1,2}
-      // toIndex = {0,1,2}
+      // valid indices = {0,1,2}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
@@ -456,8 +465,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     @Override
     @SuppressWarnings("fallthrough")
     public ImmutableList<E> subList(int fromIndex, int toIndex) {
-      // fromIndex = {0,1,2,3}
-      // toIndex = {0,1,2,3}
+      // valid indices = {0,1,2,3}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
@@ -551,8 +559,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     @Override
     @SuppressWarnings("fallthrough")
     public ImmutableList<E> subList(int fromIndex, int toIndex) {
-      // fromIndex = {0,1,2,3,4}
-      // toIndex = {0,1,2,3,4}
+      // valid indices = {0,1,2,3,4}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
@@ -661,8 +668,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     @Override
     @SuppressWarnings("fallthrough")
     public ImmutableList<E> subList(int fromIndex, int toIndex) {
-      // fromIndex = {0,1,2,3,4,5}
-      // toIndex = {0,1,2,3,4,5}
+      // valid indices = {0,1,2,3,4,5}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
@@ -710,9 +716,10 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   } // end class Quintupleton
 
   /**
-   * <h3> Broken subList impl! Do not use </h3>
-   * Classic {@code ArrayList}-style implementation.  Implementation liberally copied
-   * from GoogleCollections ImmutableList.RegularImmutableList
+   * <h3> Broken (subList, etc.) impl! Do not use </h3>
+   * Classic {@code ArrayList}-style implementation.
+   * <p> Goal is to minimize memery requirements by avoiding begin/end fields for
+   * common cases.
    * @param <E>
    */
   @Deprecated
@@ -927,7 +934,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
 
   /**
    * {@inheritDoc}
-   * Ensures covariant subList type inferences works
+   * Makes covariant subList type inference work.
    */
   public abstract ImmutableList<E> subList(int fromIndex, int toIndex);
 
@@ -1141,12 +1148,11 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
 
     /**
-     * Stating the obvious: this is a on-static class so instances
+     * Stating the obvious: this is a non-static class so instances
      * have implicit {@code AbstractImmutableList.this} reference.
      */
     // Lifted from Apache Harmony
     class SimpleListIterator implements Iterator<E> {
-      // initial value is carefully chosen
       int pos = begin() - 1;
       /* @Override */
       public final boolean hasNext() {
@@ -1172,15 +1178,15 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     } // end class SimpleListIterator
 
     /**
-     * Stating the obvious: this is a on-static class so instances
+     * Stating the obvious: this is a non-static class so instances
      * have implicit {@code AbstractImmutableList.this} reference.
      */
     // Lifted from Apache Harmony
     final class FullListIterator extends SimpleListIterator implements ListIterator<E> {
-      FullListIterator(int start) {
+      FullListIterator(int begin) {
         super();
-        if (begin() <= start && start <= end()) {
-          pos = start - 1;
+        if (begin() <= begin && begin <= end()) {
+          pos = begin - 1;
         } else {
           throw new IndexOutOfBoundsException();
         }
@@ -1233,15 +1239,4 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       }
     } // end clss FullListIterator
   } // end class AbstractImmutableList
-
-  /**
-   * Random notes
-   * <ul>
-   *   <li> <b> Using {@code Iterator}s is slow compared to {@link ImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
-   *        Unfortunately, the new {@code foreach} syntax is so convenient.
-   *   </li>
-   *   <li> speed: inefficiencies in most implementations of base classes ({@link AbstractCollection},
-   *        {@link AbstractList}) in the form of {@link Iterator}-based implementations of key methods (end.g., {@link #equals}) </li>
-   * </ul>
-   */
 }
