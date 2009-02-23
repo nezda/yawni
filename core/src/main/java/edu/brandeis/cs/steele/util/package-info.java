@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 /**
- * Utility classes of data structures and algorithms used throughout JWordNet.
+ * Utility classes containing general data structures and algorithms used throughout JWordNet.
  */
 package edu.brandeis.cs.steele.util;
 
