@@ -23,8 +23,8 @@ package edu.brandeis.cs.steele.wn;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
 import edu.brandeis.cs.steele.util.ImmutableList;
@@ -43,7 +43,7 @@ import edu.brandeis.cs.steele.util.ImmutableList;
  * @see Pointer
  */
 public final class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
-  private static final Logger log = Logger.getLogger(Synset.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Synset.class.getName());
   //
   // Instance implementation
   //
@@ -157,7 +157,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
         this.gloss = new char[0];
       }
     } else {
-      log.log(Level.INFO, "Synset has no gloss?:\n" + line);
+      log.warn("Synset has no gloss?:\n" + line);
       this.gloss = null;
     }
   }
