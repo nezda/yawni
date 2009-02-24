@@ -180,7 +180,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   /**
    * Provides access to the 'lexicographer category' of this <code>Synset</code>.  This
    * is variously called the 'lexname' or 'supersense'.
-   * @return the lexname this <code>Synset</code> is a member of, e.g., "noun.quantity"
+   * @return the <em>lexname</em> this <code>Synset</code> is a member of, e.g., "noun.quantity"
    * @see <a href="http://wordnet.princeton.edu/man/lexnames.5WN">http://wordnet.princeton.edu/man/lexnames.5WN</a>
    */
   public String getLexCategory() {
