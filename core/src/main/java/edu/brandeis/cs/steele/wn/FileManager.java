@@ -23,7 +23,8 @@ package edu.brandeis.cs.steele.wn;
 import edu.brandeis.cs.steele.util.CharSequences;
 
 import java.util.*;
-import java.util.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.nio.*;
 import java.nio.channels.*;
 import java.io.*;
@@ -48,7 +49,7 @@ public class FileManager implements FileManagerInterface {
   // Class variables
   //
   //intentionally using FileBackedDictionary's logger (for now)
-  private static final Logger log = Logger.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
+  private static final Logger log = LoggerFactory.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
 
   /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
   public static final String VERSION = "2.0.0";
@@ -122,7 +123,7 @@ public class FileManager implements FileManagerInterface {
         return home;
       }
     }
-    //log.log(Level.SEVERE, "WNHOME is not defined correctly as either a Java system property or environment variable. "+
+    //log.error("WNHOME is not defined correctly as either a Java system property or environment variable. "+
     //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
     //throw new IllegalStateException("WNHOME is not defined correctly as either a Java system property or environment variable. "+
     //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
@@ -249,7 +250,7 @@ public class FileManager implements FileManagerInterface {
       // size /= 2;
       final MappedByteBuffer mmap = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
       // this buffer isDirect()
-      //log.log(Level.FINE, "mmap.fine(): {0}", mmap.isDirect());
+      //log.debug("mmap.fine(): {}", mmap.isDirect());
       //this.bbuff = new ByteCharBuffer(mmap, false);
       return mmap;
     }
@@ -747,8 +748,8 @@ public class FileManager implements FileManagerInterface {
     if (target.length() == 0) {
       return -1;
     }
-    if (log.isLoggable(Level.FINEST)) {
-      log.finest("target: "+target+" filename: "+filename);
+    if (log.isTraceEnabled()) {
+      log.trace("target: "+target+" filename: "+filename);
     }
     final CharStream stream = getFileStream(filename, filenameWnRelative);
     if (stream == null) {
@@ -762,8 +763,8 @@ public class FileManager implements FileManagerInterface {
         stream.seek(midpoint);
         stream.skipLine();
         final int offset = stream.position();
-        if (log.isLoggable(Level.FINEST)) {
-          log.finest("  "+start+", "+midpoint+", "+stop+" -> "+offset);
+        if (log.isTraceEnabled()) {
+          log.trace("  "+start+", "+midpoint+", "+stop+" -> "+offset);
         }
         if (offset == start) {
           // cannot be a match here - would be zero width
@@ -775,8 +776,8 @@ public class FileManager implements FileManagerInterface {
           } else {
             stream.seek(start);
           }
-          if (log.isLoggable(Level.FINEST)) {
-            log.finest(". "+stream.position());
+          if (log.isTraceEnabled()) {
+            log.trace(". "+stream.position());
           }
           //FIXME why is this a while() loop and not an if?
           // - scan through short lines?
@@ -784,8 +785,8 @@ public class FileManager implements FileManagerInterface {
             final int result = stream.position();
             // note the spaces of this 'word' are underscores
             final CharSequence word = stream.readLineWord();
-            if (log.isLoggable(Level.FINEST)) {
-              log.finest("  . \""+word+"\" -> "+(0 == compare(target, word)));
+            if (log.isTraceEnabled()) {
+              log.trace("  . \""+word+"\" -> "+(0 == compare(target, word)));
             }
             final int compare = compare(target, word);
             if (compare == 0) {
@@ -799,8 +800,8 @@ public class FileManager implements FileManagerInterface {
         final int result = stream.position();
         final CharSequence word = stream.readLineWord();
         final int compare = compare(target, word);
-        if (log.isLoggable(Level.FINEST)) {
-          log.finest(word + ": " + compare);
+        if (log.isTraceEnabled()) {
+          log.trace(word + ": " + compare);
         }
         if (compare == 0) {
           return result;
