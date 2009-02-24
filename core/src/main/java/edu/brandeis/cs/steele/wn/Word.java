@@ -20,7 +20,8 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import java.util.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.Iterator;
@@ -44,7 +45,7 @@ import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
  * @see Pointer
  */
 public final class Word implements Comparable<Word>, Iterable<WordSense> {
-  private static final Logger log = Logger.getLogger(Word.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Word.class.getName());
 
   private final FileBackedDictionary fileBackedDictionary;
   /** offset in {@code <pos>.index} file */
@@ -70,7 +71,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   Word(final CharSequence line, final int offset, final FileBackedDictionary fileBackedDictionary) {
     this.fileBackedDictionary = fileBackedDictionary;
     try {
-      log.log(Level.FINEST, "parsing line: {0}", line);
+      log.trace("parsing line: {}", line);
       final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
       this.lowerCasedLemma = tokenizer.nextToken().toString().replace('_', ' ');
       this.posOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
@@ -112,15 +113,15 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       //// in ptrTypes, NOT actualPtrTypes
       //final EnumSet<PointerType> extra = EnumSet.copyOf(ptrTypes); extra.removeAll(actualPtrTypes);
       //if(false == missing.isEmpty()) {
-      //  //log.log(Level.SEVERE, "missing: {0}", missing);
+      //  //log.error("missing: {}", missing);
       //}
       //if(false == extra.isEmpty()) {
-      //  //log.log(Level.SEVERE, "extra: {0}", extra);
+      //  //log.error("extra: {}", extra);
       //}
     } catch (final RuntimeException e) {
-      log.log(Level.SEVERE, "Word parse error on offset: {0} line:\n\"{1}\"",
+      log.error("Word parse error on offset: {} line:\n\"{1}\"",
           new Object[]{ offset, line });
-      log.log(Level.SEVERE, "",  e);
+      log.error("",  e);
       throw e;
     }
   }
