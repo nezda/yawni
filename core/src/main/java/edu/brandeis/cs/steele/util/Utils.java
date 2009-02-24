@@ -265,7 +265,7 @@ public class Utils {
    * contains no {@code null} elements and is "short" (brute force algorithm).
    */
   public static <T> List<T> dedup(List<T> list) {
-    //log.warning("input list: "+list+" list.size(): "+list.size());
+    //log.warn("input list: "+list+" list.size(): "+list.size());
     if (list == null || list.size() <= 1) {
       return list;
     }
@@ -289,7 +289,7 @@ public class Utils {
       list = list.subList(0, n);
     }
     //final Set<T> set = new HashSet<T>(list);
-    //log.warning("output list: "+list+" list.size(): "+list.size());
+    //log.warn("output list: "+list+" list.size(): "+list.size());
     return list;
   }
 
