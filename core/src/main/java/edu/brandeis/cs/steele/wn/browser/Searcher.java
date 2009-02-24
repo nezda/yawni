@@ -40,6 +40,9 @@ import javax.xml.transform.stream.*;
 Try to use http://www.w3.org/TR/wordnet-rdf/
 - note odd Word/Collocation distinction - seems like this should be optional
 
+Consider XStream (thoughtworks)
+- supports JSON (REST)
+
 WordNetQueryResult
   queryTerm:"foo",
   queryPOS:"NOUN",
@@ -176,11 +179,11 @@ public class Searcher {
       for (final String lemma : dictionary.lookupBaseForms(word, pos)) {
         if (posShown == false) {
           output.append(pos.name());
-          output.append(" ");
+          output.append(' ');
           posShown = true;
         }
         output.append(lemma);
-        output.append(" ");
+        output.append(' ');
       }
     }
     // using POS.ALL - slightly more efficient, but can't know POS of stem
@@ -191,6 +194,10 @@ public class Searcher {
   }
 
   // TODO torture test: recursively get all hypernyms / hyponyms -- see if caches blow out memory
+  
+  // Goal: make a Hypernyms Iterator
+  // - emit the Pointers (source + PointerType + target)
+  // Goal2: make any-of-Set<PointerType> Iterator
 
   public static void main(String[] args) throws Exception {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
@@ -199,9 +206,9 @@ public class Searcher {
     while (scanner.hasNext()) {
       final String word = scanner.next();
       output.append(word);
-      output.append(" ");
+      output.append(' ');
       lemmatize(dictionary, word, output);
-      output.append("\n");
+      output.append('\n');
     }
   }
 }
