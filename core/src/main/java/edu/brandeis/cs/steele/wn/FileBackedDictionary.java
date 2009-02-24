@@ -22,7 +22,8 @@ package edu.brandeis.cs.steele.wn;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.brandeis.cs.steele.util.*;
 import static edu.brandeis.cs.steele.util.MergedIterable.merge;
@@ -45,19 +46,7 @@ import static edu.brandeis.cs.steele.util.Utils.uniq;
  * @see edu.brandeis.cs.steele.util.LRUCache
  */
 public class FileBackedDictionary implements DictionaryDatabase {
-  private static final Logger log = Logger.getLogger(FileBackedDictionary.class.getName());
-  static {
-    //log.setLevel(Level.SEVERE);
-    log.setLevel(Level.WARNING);
-    //log.setLevel(Level.FINER);
-  }
-
-  static {
-    final Handler handler = new ConsoleHandler();
-    handler.setLevel(Level.FINEST);
-    handler.setFormatter(new InfoOnlyFormatter());
-    log.addHandler(handler);
-  }
+  private static final Logger log = LoggerFactory.getLogger(FileBackedDictionary.class.getName());
 
   private final FileManagerInterface db;
   final Morphy morphy;
