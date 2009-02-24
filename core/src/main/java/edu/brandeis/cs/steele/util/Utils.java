@@ -17,11 +17,14 @@
 package edu.brandeis.cs.steele.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Comparator;
+import java.util.RandomAccess;
 
 /**
+ * Predicates and functions for {@code Iterable}s and {@code List}s.
  */
 public class Utils {
   private Utils() { }
@@ -34,11 +37,13 @@ public class Utils {
   }
 
   /**
-   * Returns the absolute offset <i>into {@code l1}</i> where the elements
+   * Returns the absolute offset <em>into {@code l1}</em> where the elements
    * of sequences {@code l1} and {@code l2} (with {@code l1} starting
    * at {@code l1s} and {@code l2} starting at {@code l2s}) are <u>first</u>
-   * not <code>equals()</code> or {@code l1e} if no such offset exists.
-   * Modeled after STL function by the same name, but assumes "random access iterators".
+   * not {@code equals()} or {@code l1e} if no such offset exists.
+   * 
+   * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/mismtatch.html">mismatch</a>,
+   * but assumes "random access iterators".
    */
   public static int mismatch(final List<?> l1, int l1s, final int l1e,
       final List<?> l2, int l2s) {
@@ -55,14 +60,26 @@ public class Utils {
    * Equivalent to the STL function by the same name except the
    * <code>first</code> and <code>last</code> are implied to select the entire
    * contents of {@code iterable}.
-   * @see <a href="http://www.sgi.com/tech/stl/distance.html">distane</a>
+   * 
+   * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/distance.html">distance</a>
    */
   public static long distance(final Iterable<?> iterable) {
-    long distance = 0;
-    for (final Object obj : iterable) {
-      distance++;
+    if (iterable instanceof Collection) {
+      return ((Collection) iterable).size();
+    } else {
+      long distance = 0;
+      for (final Object obj : iterable) {
+        distance++;
+      }
+      return distance;
     }
-    return distance;
+  }
+
+  /**
+   * Alias for {@link #distance(java.lang.Iterable)}
+   */
+  public static long size(final Iterable<?> iterable) {
+    return distance(iterable);
   }
 
   /**
@@ -103,7 +120,7 @@ public class Utils {
    * if {@code iterator} isn't sorted
    * @return whether or not the naturally <code>Comparable</code> elements
    * emitted by {@code iterator} are produced in sorted order.
-   * @throws IllegalArgumentException with informative message if {@code infoException{@code 
+   * @throws IllegalArgumentException with informative message if {@code infoException}
    * and <em>not</em> sorted.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -126,12 +143,40 @@ public class Utils {
       return true;
     }
 
+  /**
+   * Determines how pairs of items are determined to be distinct / interchangable.
+   */
   public enum UniqueMode {
-    EQUALITY,
-    EQUALS
+    /** Equal with respect to {@link Object#equals(java.lang.Object)} */
+    EQUALS,
+    /**
+     * Only references to the same {@code Object} are the same.
+     * Not yet implemented.
+     */
+    IDENTITY,
+    /** Equivalent with respect to some {@link Comparator}. */
+    EQUIVALENT,
   } // end enum UniqueMode
 
-  private static final UniqueMode DEFAULT_UNIQUE_MODE = UniqueMode.EQUALITY;
+// erasure causes ambiguity
+//  /**
+//   * Note: relies on equals and hashCode to be correct.
+//   */
+//  public static <T> boolean isUnique(final Collection<T> items) {
+//    return isUnique(items, UniqueMode.EQUALS);
+//  }
+//
+//  public static <T> boolean isUnique(final Collection<T> items, final UniqueMode mode) {
+//    switch (mode) {
+//      case EQUALS:
+//        // don't optimize with (items instanceof Set ||) because this has a different meaning
+//        return items.size() == new HashSet<T>(items).size();
+//      //case IDENTITY: return items.size() == new IdentityHashSet<T>(items).size();
+//      default: throw new UnsupportedOperationException("Unsupported mode "+mode);
+//    }
+//  }
+
+  private static final UniqueMode DEFAULT_UNIQUE_MODE = UniqueMode.EQUIVALENT;
 
   public static <T extends Object & Comparable<? super T>>
     boolean isUnique(final Iterable<? extends T> iterable) {
@@ -155,6 +200,15 @@ public class Utils {
    * <code>Comparable</code>/<code>Comparator</code>s -- add an enum.
    */
 
+  /**
+   * @param iterator sequence to inspect
+   * @param infoException if {@code true}, throws a descriptive exception if the sequence contains adjacent duplicates.
+   * @param uniqueMode
+   * @return {@code true} if {@code iterator} contains no adjacent duplicates, as determined by
+   * the {@code uniqueMode}.
+   * @throws IllegalArgumentException with informative message if {@code infoException}
+   * and contains adjacent duplicates.
+   */
   public static <T extends Object & Comparable<? super T>>
     boolean isUnique(final Iterator<? extends T> iterator, final boolean infoException, final UniqueMode uniqueMode) {
       if (iterator.hasNext()) {
@@ -163,7 +217,7 @@ public class Utils {
           final T curr = iterator.next();
           final boolean constraintViolated;
           switch (uniqueMode) {
-            case EQUALITY:
+            case EQUIVALENT:
               constraintViolated =  prev.compareTo(curr) == 0;
               break;
             case EQUALS:
@@ -197,16 +251,18 @@ public class Utils {
       return uniq(false, base);
   }
 
-  /** Validating factory method so template parameters are deduced. */
+  /** 
+   * Validating form of {@link Utils#uniq(java.lang.Iterable)}.
+   */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> uniq(final boolean validateSort, final Iterable<T> base) {
       return new Uniq<T>(validateSort, base);
   }
 
   /**
-   * Removes duplicates from {@code list}.  Does <i>not</i> require
+   * Removes duplicates from {@code list}.  Does <em>not</em> require
    * {@code list} be sorted but does assume {@code list}
-   * contains no null elements and is short (brute force algorithm).
+   * contains no {@code null} elements and is "short" (brute force algorithm).
    */
   public static <T> List<T> dedup(List<T> list) {
     //log.warning("input list: "+list+" list.size(): "+list.size());
@@ -241,61 +297,17 @@ public class Utils {
     return iterable.iterator().hasNext() == false;
   }
 
+  public static <T> boolean isEmpty(final Iterator<T> iterator) {
+    return iterator.hasNext() == false;
+  }
+
   /**
-   * <code>null</code>-tolerant version of {@link Object#equals}
+   * {@code null}-tolerant version of {@link Object#equals}
    */
   public static boolean equals(final Object o1, final Object o2) {
     return o1 == o2 || (o1 != null && o1.equals(o2));
   }
 
-  public static final class WordNetLexicalComparator implements Comparator<CharSequence> {
-    // for use with Word lemmas which are all lowercased
-    public static final WordNetLexicalComparator GIVEN_CASE_INSTANCE = new WordNetLexicalComparator(false);
-    // for use with WordSense lemmas which include natural case information
-    public static final WordNetLexicalComparator TO_LOWERCASE_INSTANCE = new WordNetLexicalComparator(true);
-
-    private final boolean lowerCase;
-    private WordNetLexicalComparator(final boolean lowerCase) {
-      this.lowerCase = lowerCase;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int compare(final CharSequence s1, final CharSequence s2) {
-      final int s1Len = s1.length();
-      final int s2Len = s2.length();
-
-      int o1 = 0, o2 = 0, result;
-      final int end = s1Len < s2Len ? s1Len : s2Len;
-      char c1, c2;
-      while (o1 < end) {
-        c1 = s1.charAt(o1++);
-        c2 = s2.charAt(o2++);
-        c1 = c1 == ' ' ? '_' : c1;
-        c2 = c2 == ' ' ? '_' : c2;
-        if (c1 == c2) {
-          continue;
-        }
-        if (lowerCase) {
-          c1 = Character.toLowerCase(c1);
-          c2 = Character.toLowerCase(c2);
-        }
-        if ((result = c1 - c2) != 0) {
-          return result;
-        }
-      }
-      return s1Len - s2Len;
-    }
-
-    @Override
-    public boolean equals(Object that) {
-      // this is a singleton
-      return this == that;
-    }
-  } // end class WordNetLexicalComparator
-
-  
   public static <T> List<T> asList(final Iterable<T> iterable) {
     final List<T> list = new ArrayList<T>();
     for (final T t : iterable) {
@@ -303,12 +315,32 @@ public class Utils {
     }
     return list;
   }
-  
-  public static <T> T last(final List<T> ts) {
-    if (ts == null || ts.isEmpty()) {
+
+  /**
+   * @return the first item from {@code iterable} if it is not empty, or {@code null}
+   */
+  public static <T> T first(final Iterable<T> iterable) {
+    if (iterable == null) {
+      return null;
+    } else if (iterable instanceof RandomAccess) {
+      // zero allocation for Lists
+      final List<T> list = (List<T>) iterable;
+      return list.isEmpty() ? null : list.get(0);
+    } else {
+      // fall back to Iterator
+      final Iterator<T> it = iterable.iterator();
+      return isEmpty(it) ? null : it.next();
+    }
+  }
+
+  /**
+   * @return the last item from {@code list} if it is not empty, or {@code null}
+   */
+  public static <T> T last(final List<T> list) {
+    if (list == null || list.isEmpty()) {
       return null;
     } else {
-      return ts.get(ts.size() - 1);
+      return list.get(list.size() - 1);
     }
   }
 }
