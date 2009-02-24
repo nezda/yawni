@@ -69,7 +69,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** Construct a {@link DictionaryDatabase} that retrieves file data from
    * <code>fileManager</code>.  A client can use this to create a
    * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
-   * @see RemoteFileManager
    */
   FileBackedDictionary(final FileManagerInterface fileManager) {
     this.db = fileManager;
@@ -550,8 +549,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
       //<number>
       //<framenum>[ ]+<frame string>
 
+      //TODO make this a util method indexOfNonSpace(CharSequence)
       // skip leading digits, skip spaces, rest is frame text
-      int idx = line.indexOf(" ");
+      int idx = line.indexOf(' ');
       assert idx >= 0;
       for (int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
         idx++;
@@ -819,17 +819,20 @@ public class FileBackedDictionary implements DictionaryDatabase {
     }
   }
 
+  // XXX implementation strategy
+  // filter synsets(POS)
   /**
    * @see DictionaryDatabase#searchGlossBySubstring
    */
   //TODO don't do this throw NoSuchElementException iterator stuff
   private class SearchGlossBySubstringIterator implements Iterator<Synset> {
-    private final POS pos;
+    private final Iterator<Synset> syns;
     private final CharSequence substring;
 
     SearchGlossBySubstringIterator(final POS pos, final CharSequence substring) {
-      this.pos = pos;
-      this.substring = Morphy.searchNormalize(substring.toString());
+      this.syns = synsets(pos).iterator();
+      //XXX this.substring = Morphy.searchNormalize(substring.toString());
+      this.substring = substring.toString();
     }
     public boolean hasNext() {
       throw new UnsupportedOperationException("Not supported yet.");
