@@ -51,11 +51,13 @@ class SearchFrame extends JFrame {
   private SearchType searchType;
   //private static final String LONGEST_WORD = "blood-oxygenation level dependent functional magnetic resonance imaging";
 
-  private static final POS[] CATS = {POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.ALL};
+  private static final POS[] CATS = { POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.ALL };
 
   enum SearchType {
-    SUBSTRING,
-    PREFIX
+    SUBSTRING, // operates on lemmas (Word)
+    PREFIX, // operates on lemmas (Word)
+    GLOSS_SUBSTRING, // operates on glosses (Synset)
+    //TODO regex - could be used to search lemmas or glosses
   };
 
   SearchFrame(final Browser browser, final BrowserPanel browserPanel) {
@@ -190,7 +192,6 @@ class SearchFrame extends JFrame {
     c = new GridBagConstraints();
     c.gridx = 1;
     c.gridy = 0;
-    c.gridy = 0;
     c.gridwidth = GridBagConstraints.REMAINDER;
     this.searchPanel.add(this.posChoice, c);
     this.addConstraintButtons(this.searchPanel);
@@ -204,7 +205,7 @@ class SearchFrame extends JFrame {
       public Iterable search(final String query) {
         // performs the actual search
         final Iterable<Word> searchResults;
-        switch(searchType) {
+        switch (searchType) {
           case SUBSTRING:
             if (pos != POS.ALL) {
               searchResults = browserPanel.dictionary().searchBySubstring(query, pos);
@@ -227,15 +228,22 @@ class SearchFrame extends JFrame {
                   browserPanel.dictionary().searchByPrefix(query, POS.ADV));
             }
             break;
+//          case GLOSS_SUBSTRING:
+//            searchResults = MergedIterable.merge(
+//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.NOUN),
+//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.VERB),
+//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.ADJ),
+//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.ADV));
+//            break;
           default:
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("unsupported SearchType "+searchType);
         }
         return Utils.uniq(new WordToLemma(searchResults));
       }
       @Override
       public void searchDone(final String query, final int numHits) {
         if (numHits != 0) {
-          if(numHits != 1) {
+          if (numHits != 1) {
             //updateStatusBar(Status.SUMMARY, numHits, searchType, pos);
             updateStatusBar(Status.SUMMARY, numHits);
           } else {
@@ -401,11 +409,11 @@ class SearchFrame extends JFrame {
       public void mouseClicked(final MouseEvent evt) {
         //System.err.printf("evt.getClickCount(): %3d when: %,d ms\n", 
         //  evt.getClickCount(), evt.getWhen());
-        //for(MouseListener ml : searchField.getMouseListeners()) {
+        //for (MouseListener ml : searchField.getMouseListeners()) {
         //  System.err.println("ml: "+ml+" "+ml.getClass());
         //}
-        if(evt.getClickCount() > 3) {
-          if(evt.getComponent() == searchField) {
+        if (evt.getClickCount() > 3) {
+          if (evt.getComponent() == searchField) {
             //System.err.println("multi-select");
             searchField.selectAll();
           }
@@ -418,7 +426,7 @@ class SearchFrame extends JFrame {
    * Function object used to show status of user interaction as text at the bottom
    * of the main window.
    */
-  private static enum Status {
+  private enum Status {
     NO_SEARCH("\u00A0"),
     ONE_HIT("1 result"),
     //SUMMARY("%,d results for %s as %s"),
@@ -479,8 +487,22 @@ class SearchFrame extends JFrame {
         reissueSearch();
       }
     } // end class PrefixAction
+    class GlossSubstringAction extends AbstractAction {
+      private static final long serialVersionUID = 1L;
+      GlossSubstringAction() {
+        super("Gloss Substring");
+      }
+      public void actionPerformed(final ActionEvent evt) {
+        searchType = SearchType.GLOSS_SUBSTRING;
+        prefs.put("searchType", SearchType.GLOSS_SUBSTRING.name());
+        reissueSearch();
+      }
+    } // end class GlossSubstringAction
+
     final Action substring = new SubstringAction();
     final Action prefix = new PrefixAction();
+    final Action gloss = new GlossSubstringAction();
+
     final JRadioButton substringButton = new JRadioButton(substring);
     substringButton.putClientProperty("JComponent.sizeVariant", "small");
     //XXX substringButton.setFont(substringButton.getFont().deriveFont(substringButton.getFont().getSize()-2f));
@@ -491,31 +513,52 @@ class SearchFrame extends JFrame {
     //XXX prefixButton.setFont(prefixButton.getFont().deriveFont(prefixButton.getFont().getSize()-2f));
     prefixButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
     prefixButton.setFocusable(false);
+    final JRadioButton glossButton = new JRadioButton(gloss);
+    glossButton.putClientProperty("JComponent.sizeVariant", "small");
+    //XXX glossButton.setFont(prefixButton.getFont().deriveFont(prefixButton.getFont().getSize()-2f));
+    glossButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+    glossButton.setFocusable(false);
+
     group.add(substringButton);
     group.add(prefixButton);
+//    group.add(glossButton);
+
     final GridBagConstraints c = new GridBagConstraints();
+
     c.gridx = 1;
     c.gridy = 1;
     c.ipady = 3;
     c.fill = java.awt.GridBagConstraints.HORIZONTAL;
     c.anchor = java.awt.GridBagConstraints.EAST;
     constraintPanel.add(substringButton, c);
+
     c.gridx = 2;
     c.gridy = 1;
     c.fill = java.awt.GridBagConstraints.HORIZONTAL;
     c.anchor = java.awt.GridBagConstraints.EAST;
     constraintPanel.add(prefixButton, c);
-    switch(searchType) {
-      case SUBSTRING: substringButton.setSelected(true); break;
-      case PREFIX: prefixButton.setSelected(true); break;
-      default: throw new IllegalStateException("Unknown SearchType "+searchType);
+
+    c.gridx = 1;
+    c.gridy = 2;
+    c.ipady = 0;
+    c.fill = java.awt.GridBagConstraints.NONE;
+    c.gridwidth = GridBagConstraints.REMAINDER;
+    c.anchor = java.awt.GridBagConstraints.CENTER;
+    //c.anchor = java.awt.GridBagConstraints.WEST;
+//    constraintPanel.add(glossButton, c);
+    
+    switch (searchType) {
+      case SUBSTRING : substringButton.setSelected(true); break;
+      case PREFIX : prefixButton.setSelected(true); break;
+      case GLOSS_SUBSTRING : glossButton.setSelected(true); break;
+      default : throw new IllegalStateException("Unsupported SearchType "+searchType);
     }
   }
 
   @Override
   public void setVisible(final boolean visible) {
     super.setVisible(visible);
-    if(visible) {
+    if (visible) {
       searchField.requestFocusInWindow();
     }
   }
