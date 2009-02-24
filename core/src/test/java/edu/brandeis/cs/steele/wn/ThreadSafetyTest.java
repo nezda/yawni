@@ -58,22 +58,20 @@ public class ThreadSafetyTest {
       System.err.println(Thread.currentThread()+" starting...");
       final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
       try {
-        for (final POS pos : POS.CATS) {
-          for (final Word word : dictionary.words(pos)) {
-            ++wordsVisited;
-            for (final WordSense wordSense : word.getSenses()) {
-              final String lemma = wordSense.getLemma();
-              final Synset synset = wordSense.getSynset();
-              String msg = id+" "+wordSense;
-              //System.err.println(msg);
-              ++wordSensesVisited;
-            }
-            for (final Synset synset : word.getSynsets()) {
-              for (final Pointer pointer : synset.getPointers()) {
-                pointer.getTarget();
-                // note these are not unique - they are visited from both sides
-                ++pointersVisited;
-              }
+        for (final Word word : dictionary.words(POS.ALL)) {
+          ++wordsVisited;
+          for (final WordSense wordSense : word.getSenses()) {
+            final String lemma = wordSense.getLemma();
+            final Synset synset = wordSense.getSynset();
+            String msg = id + " " + wordSense;
+            //System.err.println(msg);
+            ++wordSensesVisited;
+          }
+          for (final Synset synset : word.getSynsets()) {
+            for (final Pointer pointer : synset.getPointers()) {
+              pointer.getTarget();
+              // note these are not unique - they are visited from both sides
+              ++pointersVisited;
             }
           }
         }
@@ -82,7 +80,8 @@ public class ThreadSafetyTest {
       }
     }
 
-    @Override public void run() {
+    @Override
+    public void run() {
       try {
         antagonize();
       } finally {
@@ -93,6 +92,9 @@ public class ThreadSafetyTest {
 
   @Test
   public void test1() {
+    String time;
+    time = String.format("%1$tH:%1$tM:%1$tS:%1$tL", System.currentTimeMillis());
+    System.err.printf("%-30s %s\n", "threadSafe", time);
     // synchronization strategy: CountDownLatch implemented with Semaphore
     // acquire 1 - n permits
     // start n threads
@@ -117,6 +119,7 @@ public class ThreadSafetyTest {
     for (int i = 1; i < numAntagonizers; i++) {
       assertTrue(antagonizers[0].sameCounts(antagonizers[i]));
     }
-    System.err.println("done");
+    time = String.format("%1$tH:%1$tM:%1$tS:%1$tL", System.currentTimeMillis());
+    System.err.printf("%-30s %s\n", "done", time);
   }
 }
