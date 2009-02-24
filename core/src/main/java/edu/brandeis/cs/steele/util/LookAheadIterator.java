@@ -20,7 +20,7 @@
  */
 package edu.brandeis.cs.steele.util;
 import java.util.*;
-
+//TODO replace with Google Collections PeekableIterator ?
 /**
  * A wrapper for objects that are declared as <code>Iterator</code>s but don't fully implement
  * <code>hasNext</code>, to bring them into conformance with the specification of that
