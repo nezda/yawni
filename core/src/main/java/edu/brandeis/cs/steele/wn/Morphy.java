@@ -19,7 +19,8 @@ package edu.brandeis.cs.steele.wn;
 
 import java.util.*;
 import java.util.regex.*;
-import java.util.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.brandeis.cs.steele.util.*;
 import static edu.brandeis.cs.steele.util.Utils.last;
 import edu.brandeis.cs.steele.wn.FileBackedDictionary.DatabaseKey;
@@ -29,26 +30,7 @@ import edu.brandeis.cs.steele.wn.FileBackedDictionary.DatabaseKey;
  * code morphological processing functions.
  */
 class Morphy {
-  private static final Logger log = Logger.getLogger(Morphy.class.getName());
-  static {
-    Level level = Level.SEVERE;
-    final String altLevel = System.getProperty("edu.brandeis.cs.steele.wn.Morphy.level");
-    if (altLevel != null) {
-      level = Level.parse(altLevel);
-    }
-    log.setLevel(level);
-  }
-
-  static {
-    final Handler handler = new ConsoleHandler();
-    handler.setLevel(Level.FINEST);
-    handler.setFormatter(new InfoOnlyFormatter());
-    //final Handler[] handlers = log.getHandlers();
-    //for(final Handler existingHandler : handlers) {
-    //  log.removeHandler(existingHandler);
-    //}
-    log.addHandler(handler);
-  }
+  private static final Logger log = LoggerFactory.getLogger(Morphy.class.getName());
 
   private static final String SUFX[] = {
     // Noun suffixes
@@ -126,8 +108,8 @@ class Morphy {
    * {@link FileBackedDictionary.StartsWithSearchIterator}.
    */
   static String searchNormalize(String origstr) {
-    if (log.isLoggable(Level.FINEST)) {
-      log.log(Level.FINEST, "origstr: "+origstr);
+    if (log.isTraceEnabled()) {
+      log.trace("origstr: {}", origstr);
     }
     final int underscore = origstr.indexOf('_');
     final int dash = origstr.indexOf('-');
@@ -212,8 +194,8 @@ class Morphy {
       return ImmutableList.of();
     }
     int wordCount = countWords(str, '_');
-    if (log.isLoggable(Level.FINEST)) {
-      log.finest("origstr: "+origstr+" wordCount: "+wordCount);
+    if (log.isTraceEnabled()) {
+      log.trace("origstr: "+origstr+" wordCount: "+wordCount);
     }
     //XXX what does 'svcnt' stand for? state variable...count...
     //XXX what does 'svprep' stand for? state variable...preposition...
@@ -244,8 +226,8 @@ class Morphy {
         pos != POS.VERB &&
         false == (tmp = morphword(str, pos)).isEmpty() &&
         tmp.get(0).equals(str) == false) {
-      if (log.isLoggable(Level.FINER)) {
-        log.finer("Morphy hit str: "+str+" tmp.get(0): "+tmp.get(0)+
+      if (log.isDebugEnabled()) {
+        log.debug("Morphy hit str: "+str+" tmp.get(0): "+tmp.get(0)+
             " tmp.size(): "+tmp.size()+" tmp: "+tmp);
       }
       // use this knowledge and base forms to add all case variants
@@ -269,8 +251,8 @@ class Morphy {
       svprep = prep;
       final String tmp1 = morphprep(str);
       if (tmp1 != null) {
-        if (log.isLoggable(Level.FINER)) {
-          log.finer("origstr: "+origstr+" tmp1: "+tmp1);
+        if (log.isDebugEnabled()) {
+          log.debug("origstr: "+origstr+" tmp1: "+tmp1);
         }
         toReturn.add(underScoreToSpace(tmp1));
       }
@@ -278,8 +260,8 @@ class Morphy {
       //FIXME "if verb has a preposition, then no more morphs"
     } else if (phase1Done == false) {
       svcnt = wordCount = countWords(str, '-');
-      if (log.isLoggable(Level.FINER)) {
-        log.finer("origstr: \""+origstr+
+      if (log.isDebugEnabled()) {
+        log.debug("origstr: \""+origstr+
             "\" str: \""+str+"\" wordCount: "+wordCount+" "+pos);
       }
       int st_idx = 0;
@@ -320,8 +302,8 @@ class Morphy {
           break;
         }
         wordStr = str.substring(st_idx, end_idx);
-        if (log.isLoggable(Level.FINER)) {
-          log.finer("word: \""+wordStr+"\" str: \""+str+"\" wordCount: "+wordCount);
+        if (log.isDebugEnabled()) {
+          log.debug("word: \""+wordStr+"\" str: \""+str+"\" wordCount: "+wordCount);
         }
 
         tmp = morphword(wordStr, pos);
@@ -329,8 +311,8 @@ class Morphy {
           checkLosingVariants(tmp, "morphstr() losing colloc word variant?");
           searchstr += tmp.get(0);
         } else {
-          if (log.isLoggable(Level.FINER)) {
-            log.log(Level.FINER, "word: \""+wordStr+"\", "+pos+" returned null. searchstr: \""+searchstr+"\"");
+          if (log.isDebugEnabled()) {
+            log.debug("word: \""+wordStr+"\", "+pos+" returned null. searchstr: \""+searchstr+"\"");
           }
           assert wordStr != null;
           searchstr += wordStr;
@@ -347,8 +329,8 @@ class Morphy {
         wordStr = "";
       }
 
-      if (log.isLoggable(Level.FINER)) {
-        log.log(Level.FINER, "word: \""+wordStr+"\" str.substring(st_idx): \""+
+      if (log.isDebugEnabled()) {
+        log.debug("word: \""+wordStr+"\" str.substring(st_idx): \""+
             str.substring(st_idx)+"\" st_idx: "+st_idx+" "+pos);
       }
 
@@ -421,8 +403,8 @@ class Morphy {
     }
     final ImmutableList<String> uniqed = ImmutableList.of(Utils.dedup(toReturn));
     morphyCache.put(cacheKey, uniqed);
-    if (log.isLoggable(Level.FINER)) {
-      log.finer("returning "+toReturn+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
+    if (log.isDebugEnabled()) {
+      log.debug("returning "+toReturn+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
     }
     return uniqed;
   }
@@ -512,8 +494,8 @@ class Morphy {
           final List<String> appended = new ArrayList<String>(toReturn);
           appended.add(nextWord);
           toReturn = ImmutableList.of(appended);
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("returning: \""+retval+"\"");
+          if (log.isDebugEnabled()) {
+            log.debug("returning: \""+retval+"\"");
           }
         }
         return ImmutableList.of(retval + end);
@@ -526,8 +508,8 @@ class Morphy {
    * Port of {@code morph.c wordbase()}.
    */
   private String wordbase(final String word, final int enderIdx) {
-    if (log.isLoggable(Level.FINEST)) {
-      log.finest("word: "+word+" enderIdx: "+enderIdx);
+    if (log.isTraceEnabled()) {
+      log.trace("word: "+word+" enderIdx: "+enderIdx);
     }
     if (word.endsWith(SUFX[enderIdx])) {
       return word.substring(0, word.length() - SUFX[enderIdx].length()) + ADDR[enderIdx];
@@ -541,8 +523,8 @@ class Morphy {
    * Port of {@code morph.c hasprep()}.
    */
   private int hasprep(final String s, final int wdcnt) {
-    if (log.isLoggable(Level.FINER)) {
-      log.finer("s: "+s+" wdcnt: "+wdcnt);
+    if (log.isDebugEnabled()) {
+      log.debug("s: "+s+" wdcnt: "+wdcnt);
     }
     for (int wdnum = 2; wdnum <= wdcnt; ++wdnum) {
       int startIdx = s.indexOf('_');
@@ -554,14 +536,14 @@ class Morphy {
             (startIdx + prep.length() == s.length() ||
              s.charAt(startIdx + prep.length()) == '_')
            ) {
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("s: "+s+" has prep \""+prep+"\" @ word "+wdnum);
+          if (log.isDebugEnabled()) {
+            log.debug("s: "+s+" has prep \""+prep+"\" @ word "+wdnum);
           }
           return wdnum;
         }
       }
     }
-    log.log(Level.FINER, "s {0} contains no prep", s);
+    log.debug("s {} contains no prep", s);
     return 0;
   }
 
@@ -597,31 +579,31 @@ class Morphy {
     // the exception list
 
     final ImmutableList<String> exc_words = dictionary.getExceptions(firstWord, POS.VERB);
-    if (log.isLoggable(Level.FINER) &&
+    if (log.isDebugEnabled() &&
         exc_words.isEmpty() == false && exc_words.get(1).equals(firstWord) == false) {
-      log.finer("exc_words " + exc_words +
+      log.debug("exc_words " + exc_words +
           " found for firstWord \"" + firstWord + "\" but exc_words[1] != firstWord");
     }
     String retval = null;
     if (exc_words.isEmpty() == false && exc_words.get(1).equals(firstWord) == false) {
       if (exc_words.size() != 2) {
-        if (log.isLoggable(Level.WARNING)) {
-          log.warning("losing exception list variant(s)?!: "+exc_words);
+        if (log.isWarnEnabled()) {
+          log.warn("losing exception list variant(s)?!: "+exc_words);
         }
       }
       retval = exc_words.get(1) + s.substring(rest);
       Word word;
       if (null != (word = is_defined(retval, POS.VERB))) {
-        if (log.isLoggable(Level.FINER)) {
-          log.finer("returning "+word);
+        if (log.isDebugEnabled()) {
+          log.debug("returning "+word);
         }
         return retval;
       } else if (lastwd != null) {
         assert end != null;
         retval = exc_words.get(1) + end;
         if (null != (word = is_defined(retval, POS.VERB))) {
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("returning "+word);
+          if (log.isDebugEnabled()) {
+            log.debug("returning "+word);
           }
           return retval;
         }
@@ -635,20 +617,20 @@ class Morphy {
       if (exc_word != null && exc_word.equals(firstWord) == false) {
         // ending is different
         retval = exc_word + s.substring(rest);
-        if (log.isLoggable(Level.FINER)) {
-          log.finer("test retval "+retval);
+        if (log.isDebugEnabled()) {
+          log.debug("test retval "+retval);
         }
         Word word;
         if (null != (word = is_defined(retval, POS.VERB))) {
-          if (log.isLoggable(Level.FINER)) {
-            log.finer("returning "+word);
+          if (log.isDebugEnabled()) {
+            log.debug("returning "+word);
           }
           return retval;
         } else if (lastwd != null) {
           retval = exc_word + end;
           if (null != (word = is_defined(retval, POS.VERB))) {
-            if (log.isLoggable(Level.FINER)) {
-              log.finer("returning "+word);
+            if (log.isDebugEnabled()) {
+              log.debug("returning "+word);
             }
             return retval;
           }
@@ -671,8 +653,8 @@ class Morphy {
 
   private void checkLosingVariants(final ImmutableList<String> words, final String message) {
     if (words.size() != 1) {
-      if (log.isLoggable(Level.WARNING)) {
-        log.warning(message+" losing variants!: "+words);
+      if (log.isWarnEnabled()) {
+        log.warn(message+" losing variants!: "+words);
       }
     }
   }
