@@ -46,29 +46,34 @@ import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
  * TODO consider proper Parameterized tests
  */
 public class MorphyTest {
-  private static DictionaryDatabase dictionary;
-  @BeforeClass
-  public static void init() {
+  private DictionaryDatabase dictionary;
+  @Before
+  public void init() {
     dictionary = FileBackedDictionary.getInstance();
   }
 
-  private static List<String> stem(final String someString, final POS pos) {
+  private List<String> stem(final String someString, final POS pos) {
     return dictionary.lookupBaseForms(someString, pos);
   }
 
+  // note this relies on equals() and hashCode()
+  private static <T> boolean areUnique(final Collection<T> items) {
+    return items.size() == new HashSet<T>(items).size();
+  }
+
   //TODO consider moving to Utils
-  private static boolean containsIgnoreCase(final String needle, final List<String> haystack) {
-    for(final String item : haystack) {
-      if(item.equalsIgnoreCase(needle)) {
+  private static boolean containsIgnoreCase(final String needle, final Iterable<String> haystack) {
+    for (final String item : haystack) {
+      if (item.equalsIgnoreCase(needle)) {
         return true;
       }
     }
     return false;
   }
 
-  private static boolean baseFormContainsUnderScore(final List<String> baseForms) {
-    for(final String baseForm : baseForms) {
-      if(baseForm.indexOf("_") >= 0) {
+  private static boolean baseFormContainsUnderScore(final Iterable<String> baseForms) {
+    for (final String baseForm : baseForms) {
+      if (baseForm.indexOf('_') >= 0) {
         return true;
       }
     }
@@ -184,6 +189,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "armful", "armful" },
       { POS.NOUN.name(), "attorneys general", "attorney general" },
       { POS.NOUN.name(), "axes", "ax", "axis", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
+      { POS.NOUN.name(), "bases", "basis", "basis" },
       { POS.NOUN.name(), "boxesful", "boxful" },
       //{ POS.NOUN.name(), "bachelor of art", "Bachelor of Arts" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
       { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" }, 
@@ -204,7 +210,7 @@ public class MorphyTest {
       { POS.VERB.name(), "asking for it", "ask for it" },
       { POS.VERB.name(), "asked for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
-      { POS.VERB.name(), "was", "be", "was" },
+      { POS.VERB.name(), "was", "be", "was" }, // 2 "stems", 1 baseform
       { POS.NOUN.name(), "was", "WA" }, // weird- de-pluralizing Washington state abbr
       { POS.VERB.name(), "cannonball along", "cannonball along" },
       //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, // WN doesn't get this
@@ -244,7 +250,7 @@ public class MorphyTest {
         // note this considers case variants distinct
         System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
       }
-      assertTrue(isUnique(baseForms));
+      assertTrue(areUnique(baseForms));
 
       final List<String> upperBaseForms = stem(unstemmed.toUpperCase(), pos);
       msg = "UPPER unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+upperBaseForms;
@@ -254,30 +260,30 @@ public class MorphyTest {
 
   @Test
   public void testLookupWord() {
-    assertEquals(null, dictionary.lookupWord("", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("dog", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("DOG", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("ad blitz", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("ad_blitz", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("AD BLITZ", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("wild-goose chase", POS.NOUN));
-    assertTrue(null != dictionary.lookupWord("wild-goose_chase", POS.NOUN));
+    assertNull(dictionary.lookupWord("", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("dog", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("DOG", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("ad blitz", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("ad_blitz", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("AD BLITZ", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("wild-goose chase", POS.NOUN));
+    assertNotNull(dictionary.lookupWord("wild-goose_chase", POS.NOUN));
   }
 
   // could add explicit checks for this in API methods but that's pretty tedious
   @Test(expected=NullPointerException.class)
   public void testNullLookupWord() {
-    assertEquals(null, dictionary.lookupWord(null, POS.NOUN));
+    assertNull(dictionary.lookupWord(null, POS.NOUN));
   }
 
   @Test
   public void testWordSense() {
-    assertEquals(42, dictionary.lookupWord("dog", POS.NOUN).getSenses().get(0).getSensesTaggedFrequency());
-    assertEquals(2, dictionary.lookupWord("dog", POS.VERB).getSenses().get(0).getSensesTaggedFrequency());
-    assertEquals(3, dictionary.lookupWord("cardinal", POS.ADJ).getSenses().get(0).getSensesTaggedFrequency());
-    assertEquals(0, dictionary.lookupWord("cardinal", POS.ADJ).getSenses().get(1).getSensesTaggedFrequency());
-    assertEquals(9, dictionary.lookupWord("concrete", POS.ADJ).getSenses().get(0).getSensesTaggedFrequency());
-    assertEquals(1, dictionary.lookupWord("dogmatic", POS.ADJ).getSenses().get(0).getSensesTaggedFrequency());
+    assertEquals(42, dictionary.lookupWord("dog", POS.NOUN).getSense(1).getSensesTaggedFrequency());
+    assertEquals(2, dictionary.lookupWord("dog", POS.VERB).getSense(1).getSensesTaggedFrequency());
+    assertEquals(3, dictionary.lookupWord("cardinal", POS.ADJ).getSense(1).getSensesTaggedFrequency());
+    assertEquals(0, dictionary.lookupWord("cardinal", POS.ADJ).getSense(2).getSensesTaggedFrequency());
+    assertEquals(9, dictionary.lookupWord("concrete", POS.ADJ).getSense(1).getSensesTaggedFrequency());
+    assertEquals(1, dictionary.lookupWord("dogmatic", POS.ADJ).getSense(1).getSensesTaggedFrequency());
   }
 
   @Test
@@ -307,16 +313,11 @@ public class MorphyTest {
           }
           assertTrue(msg, restems.contains(lemma));
           // note this considers case variants distinct
-          assertTrue(isUnique(restems));
+          assertTrue(areUnique(restems));
         }
       }
     }
     IterationTest.printMemoryUsage();
-  }
-
-  //TODO consider moving to Utils
-  private static <T> boolean isUnique(final List<T> items) {
-    return items.size() == new HashSet<T>(items).size();
   }
 
   @Test
@@ -340,14 +341,14 @@ public class MorphyTest {
     for (final POS pos : POS.CATS) {
       for (final Word word : dictionary.words(pos)) {
         final String lemma = word.getLemma();
-        if (lemma.indexOf("-") > 0) {
+        if (lemma.indexOf('-') > 0) {
           dash++;
           final String noDash = lemma.replace("-", "");
           if (null != dictionary.lookupWord(noDash, pos)) {
             dashNoDash++;
             //System.err.println("lemma: "+lemma+" dashNoDash "+dashNoDash);
           }
-          final String dashToSpace = lemma.replace("-", " ");
+          final String dashToSpace = lemma.replace('-', ' ');
           if (null != dictionary.lookupWord(dashToSpace, pos)) {
             dashSpace++;
             //System.err.println("lemma: "+lemma+" dashSpace "+dashSpace);
@@ -356,7 +357,7 @@ public class MorphyTest {
             //System.err.println("lemma: "+lemma+" dashNotSpace "+dashNotSpace);
           }
         }
-        if (lemma.indexOf(" ") > 0) {
+        if (lemma.indexOf(' ') > 0) {
           space++;
         }
       }
