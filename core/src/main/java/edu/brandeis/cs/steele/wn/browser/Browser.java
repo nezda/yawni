@@ -20,10 +20,6 @@
  */
 package edu.brandeis.cs.steele.wn.browser;
 
-//import edu.brandeis.cs.steele.wn.DictionaryDatabase;
-//import edu.brandeis.cs.steele.wn.RemoteFileManager;
-//import edu.brandeis.cs.steele.wn.FileBackedDictionary;
-
 import java.util.logging.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -35,15 +31,15 @@ import java.util.prefs.*;
 /**
  * A graphical interface to the WordNet online lexical database.
  *
- * <p>The GUI is loosely based on the interface to the Tcl/Tk version by David Slomin.
+ * <p> The GUI is loosely based on the interface to the Tcl/Tk version by David Slomin.
  *
- * <p>The browser can be invoked as follows:
+ * <p> The browser can be invoked as follows:
  * <ul>
- *   <li> <code>java edu.brandeis.cs.steele.wn.Browser</code><br>
+ *   <li> {@code java edu.brandeis.cs.steele.wn.Browser}<br>
  *        To invoke a browser on the local database. </li>
  *
- *   <li> <code>java edu.brandeis.cs.steele.wn.Browser {@code dir</dir></code><br>
- *        To invoke a browser on a local database stored at <tt>dir</tt>. </li>
+ *   <li> {@code java edu.brandeis.cs.steele.wn.Browser <dir>}<br>
+ *        To invoke a browser on a local database stored at {@code <dir>}. </li>
  * </ul>
  */
 public class Browser extends JFrame {
@@ -78,7 +74,7 @@ public class Browser extends JFrame {
   private final Border textAreaBorder;
 
   public Browser() {
-    super(Application.getInstance().getName()+" Browser");
+    super(Application.getInstance().getName() + " Browser");
     // ⌾ \u233e APL FUNCTIONAL SYMBOL CIRCLE JOT
     // ⊚ \u229a CIRCLED RING OPERATOR
     // ◎ \u25ce BULLSEYE
