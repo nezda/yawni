@@ -18,22 +18,37 @@ package edu.brandeis.cs.steele.wn;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+//import static org.hamcrest.CoreMatchers.*;
+import static edu.brandeis.cs.steele.wn.HasLemma.*;
+
 import java.util.*;
 import java.lang.management.*;
 
 import edu.brandeis.cs.steele.util.Utils;
+import static edu.brandeis.cs.steele.util.Utils.first;
+import static edu.brandeis.cs.steele.util.Utils.isEmpty;
 import edu.brandeis.cs.steele.util.MergedIterable;
 
 /**
  * Goal: verify various iteration methods of dictionary behave as expected.
  */
 public class IterationTest {
-  private static DictionaryDatabase dictionary;
-  private static Random rand;
-  @BeforeClass
-  public static void init() {
+  private DictionaryDatabase dictionary;
+  private Random rand;
+  
+  @Before
+  public void init() {
     dictionary = FileBackedDictionary.getInstance();
+    // keep the test deterministic
     rand = new Random(0);
+  }
+
+  void logTest(final String methodName) {
+    //System.err.printf("%s %tT\n", methodName, System.currentTimeMillis());
+    //System.err.printf("%s %tT\n", methodName, Calendar.getInstance());
+    //System.err.printf("%s %1$tT%1$tT\n", methodName, Calendar.getInstance());
+    final String time = String.format("%1$tH:%1$tM:%1$tS:%1$tL", System.currentTimeMillis());
+    System.err.printf("%-30s %s\n", methodName, time);
   }
 
   /** 
@@ -43,7 +58,8 @@ public class IterationTest {
    * <b>Parts of this test uses hard coded values for WordNet 3.0</b> 
    */
   @Test
-  public void testSearchIterators() {
+  public void searchIteratorBoundaryCases() {
+    logTest("searchIteratorBoundaryCases");
     // plan
     // + search for first word
     // + search for first word's prefix
@@ -54,32 +70,32 @@ public class IterationTest {
     // + iterate over words, iterate over prefixes
     //   + assert containsLemma(Iterable<Word> matches)
     final Iterable<Word> firstWord = dictionary.searchByPrefix("'hood", POS.NOUN);
-    final Word first = firstWord.iterator().next();
-    assertEquals("'hood", first.getLemma());
+    final Word first = first(firstWord);
+    assertThat("'hood", isLemmaOf(first));
     final Iterable<Word> firstWordPrefix = dictionary.searchByPrefix("'hoo", POS.NOUN);
-    final Word firstPrefix = firstWordPrefix.iterator().next();
-    assertEquals("'hood", firstPrefix.getLemma());
+    final Word firstPrefix = first(firstWordPrefix);
+    assertThat("'hood", isLemmaOf(firstPrefix));
     final Iterable<Word> preFirstWord = dictionary.searchByPrefix("''", POS.NOUN);
-    assertFalse(preFirstWord.iterator().hasNext());
+    assertTrue(isEmpty(preFirstWord));
 
     final Iterable<Word> lastWord = dictionary.searchByPrefix("zyrian", POS.NOUN);
-    final Word last = lastWord.iterator().next();
-    assertEquals("zyrian", last.getLemma());
+    final Word last = first(lastWord);
+    assertThat("zyrian", isLemmaOf(last));
     final Iterable<Word> lastWordPrefix = dictionary.searchByPrefix("zyria", POS.NOUN);
-    final Word lastPrefix = lastWordPrefix.iterator().next();
-    assertEquals("zyrian", lastPrefix.getLemma());
+    final Word lastPrefix = first(lastWordPrefix);
+    assertThat("zyrian", isLemmaOf(lastPrefix));
     final Iterable<Word> postLastWordPrefix = dictionary.searchByPrefix("zz", POS.NOUN);
-    assertFalse(postLastWordPrefix.iterator().hasNext());
+    assertTrue(isEmpty(postLastWordPrefix));
 
     for (final POS pos : POS.CATS) {
       final Iterable<Word> leadingDashPrefix = dictionary.searchByPrefix("-", pos);
-      assertFalse(leadingDashPrefix.iterator().hasNext());
+      assertTrue(isEmpty(leadingDashPrefix));
       final Iterable<String> leadingDashPrefixLemma = new WordToLemma(dictionary.searchByPrefix("-", pos));
-      assertFalse(leadingDashPrefixLemma.iterator().hasNext());
+      assertTrue(isEmpty(leadingDashPrefixLemma));
       final Iterable<Word> leadingSpacePrefix = dictionary.searchByPrefix(" ", pos);
-      assertFalse(leadingSpacePrefix.iterator().hasNext());
+      assertTrue(isEmpty(leadingSpacePrefix));
       final Iterable<Word> emptyPrefix = dictionary.searchByPrefix("", pos);
-      assertFalse(leadingSpacePrefix.iterator().hasNext());
+      assertTrue(isEmpty(emptyPrefix));
     }
 
     final Iterable<Word> anyEmptyPrefix = MergedIterable.merge(true,
@@ -87,21 +103,21 @@ public class IterationTest {
         dictionary.searchByPrefix("-", POS.VERB),
         dictionary.searchByPrefix("-", POS.ADJ),
         dictionary.searchByPrefix("-", POS.ADV));
-    assertFalse(anyEmptyPrefix.iterator().hasNext());
+    assertTrue(isEmpty(anyEmptyPrefix));
     
     final Iterable<Word> anyNonExistantPrefix = MergedIterable.merge(true,
         dictionary.searchByPrefix("lllllll", POS.NOUN),
         dictionary.searchByPrefix("lllllll", POS.VERB),
         dictionary.searchByPrefix("lllllll", POS.ADJ),
         dictionary.searchByPrefix("lllllll", POS.ADV));
-    assertFalse(anyNonExistantPrefix.iterator().hasNext());
+    assertTrue(isEmpty(anyNonExistantPrefix));
 
     final Iterable<Word> anyLeadingDashPrefix = MergedIterable.merge(true,
         dictionary.searchByPrefix("", POS.NOUN),
         dictionary.searchByPrefix("", POS.VERB),
         dictionary.searchByPrefix("", POS.ADJ),
         dictionary.searchByPrefix("", POS.ADV));
-    assertFalse(anyEmptyPrefix.iterator().hasNext());
+    assertTrue(isEmpty(anyLeadingDashPrefix));
 
     final Iterable<String> runs = Utils.uniq(
         new WordToLemma(MergedIterable.merge(true,
@@ -109,10 +125,24 @@ public class IterationTest {
             dictionary.searchByPrefix("run", POS.VERB))));
     assertTrue(Utils.isUnique(runs, true));
 
-    // this is sped up by only searching for randomized prefixes
-    // only for randomized terms, but keep it deterministic
-    // with a fixed randomizer seed
-    final float prefixDitchProportion = 0.9f;
+    final Iterable<Word> spaceWords = dictionary.searchBySubstring(" ", POS.NOUN);
+    assertFalse(isEmpty(spaceWords));
+
+    final Iterable<Word> anyNonExistantSubstring = MergedIterable.merge(true,
+        dictionary.searchBySubstring("lllllll", POS.NOUN),
+        dictionary.searchBySubstring("lllllll", POS.VERB),
+        dictionary.searchBySubstring("lllllll", POS.ADJ),
+        dictionary.searchBySubstring("lllllll", POS.ADV));
+    assertTrue(isEmpty(anyNonExistantSubstring));
+  }
+
+  // speed this test up by only searching for prefixes of
+  // random sample of terms
+  private final float prefixDitchProportion = 0.9995f; // 0.9999f
+
+  @Test
+  public void prefixSearch() {
+    logTest("prefixSearch");
     int numPrefixTests = 0;
     final POS pos = POS.NOUN;
     for (final Word word : dictionary.words(pos)) {
@@ -122,26 +152,23 @@ public class IterationTest {
       final String lemma = word.getLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
-        final Iterable<Word> matches = dictionary.searchByPrefix(lemma, pos);
+        final Iterable<Word> matches = dictionary.searchByPrefix(prefix, pos);
         numPrefixTests++;
         assertTrue(containsLemma(matches, lemma));
       }
     }
-    //System.err.println("numPrefixTests: "+numPrefixTests);
+    System.err.printf("  %20s %d\n", "numPrefixTests:", numPrefixTests);
+  }
 
-    final Iterable<Word> spaceWords = dictionary.searchBySubstring(" ", POS.NOUN);
-    assertTrue(spaceWords.iterator().hasNext());
+  // speed this test up by only searching for substrings of
+  // random sample of terms
+  final float substringDitchProportion = 0.9999f; // 0.9999f
 
-    final Iterable<Word> anyNonExistantSubstring = MergedIterable.merge(true,
-        dictionary.searchBySubstring("lllllll", POS.NOUN),
-        dictionary.searchBySubstring("lllllll", POS.VERB),
-        dictionary.searchBySubstring("lllllll", POS.ADJ),
-        dictionary.searchBySubstring("lllllll", POS.ADV));
-    assertFalse(anyNonExistantSubstring.iterator().hasNext());
-
-    final float substringDitchProportion = 0.9999f;
+  @Test
+  public void substringSearch() {
+    logTest("substringSearch");
     int numSubstringTests = 0;
-    //final POS pos = POS.NOUN;
+    final POS pos = POS.NOUN;
     for (final Word word : dictionary.words(pos)) {
       if (rand.nextFloat() < substringDitchProportion) {
         continue;
@@ -149,13 +176,13 @@ public class IterationTest {
       final String lemma = word.getLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
-        final Iterable<Word> matches = dictionary.searchBySubstring(lemma, pos);
+        final Iterable<Word> matches = dictionary.searchBySubstring(prefix, pos);
         numSubstringTests++;
         assertTrue(containsLemma(matches, lemma));
         //System.err.println("numSubstringTests: "+numSubstringTests);
       }
     }
-    //System.err.println("numSubstringTests: "+numSubstringTests);
+    System.err.printf("  %20s %d\n", "numSubstringTests:", numSubstringTests);
   }
 
   private static boolean containsLemma(final Iterable<Word> words, final String lemma) {
@@ -169,36 +196,37 @@ public class IterationTest {
 
   /** <b>Parts of this test uses hard coded values for WordNet 3.0</b> */
   @Test
-  public void wordIterationBoundaryTests() {
+  public void wordIterationBoundary() {
+    logTest("wordIterationBoundary");
     // check if iteration returns first AND last item (boundary cases) 
     // - look at data files manually ($WNHOME/dict/index.<pos>)
     // TODO check this for all POS
     final Iterable<Word> nounIndexWords = dictionary.words(POS.NOUN);
-    final Word first = nounIndexWords.iterator().next();
+    final Word first = first(nounIndexWords);
     //System.err.println("first: "+first);
     // to get these offsets with gvim, open the data file, put the cursor on
     // the first char of the line you expect (e.g., first content line, last
     // line), and g CTRL-g will report "Byte n of m" -- n is a 1 based file
     // offset - Word offsets are zero based so you would expect n-1
     assertEquals(1740, first.getOffset());
-    assertEquals("'hood", first.getLemma());
+    assertThat("'hood", isLemmaOf(first));
     Word last = null;
     for (final Word word : nounIndexWords) {
       last = word;
     }
     //System.err.println("last: "+last);
     assertEquals(4786625, last.getOffset());
-    assertEquals("zyrian", last.getLemma());
+    assertThat("zyrian", isLemmaOf(last));
 
-    assertEquals(first, nounIndexWords.iterator().next()); 
+    assertEquals(first, first(nounIndexWords));
     // IF iteration used caching, this might or might not be the case
-    assertTrue("not distinct objects?", first != nounIndexWords.iterator().next()); 
+    assertTrue("not distinct objects?", first != first(nounIndexWords));
   }
 
-  //@Ignore
+  @Ignore // coverd by other tests
   @Test
   public void exoticPOS() {
-    System.err.println("exoticPOS()");
+    logTest("exoticPOS");
     //for(final Word word : dictionary.words(POS.SAT_ADJ)) {
     //  System.err.println(word);
     //}
@@ -208,14 +236,14 @@ public class IterationTest {
         continue;
       }
       final long num = Utils.distance(dictionary.words(pos));
-      System.err.printf("%s num: %,d\n", pos, num);
+      //System.err.printf("%s num: %,d\n", pos, num);
     }
   }
 
   //@Ignore
   @Test
-  public void allPOSAllIterationsSortUniqueTests() {
-    System.err.println("allPOSAllIterationsSortUniqueTests()");
+  public void sortUnique() {
+    logTest("sortUnique");
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" words isSorted");
       assertTrue(pos+" words not sorted?", Utils.isSorted(dictionary.words(pos)));
@@ -253,7 +281,8 @@ public class IterationTest {
 
   //@Ignore // this test is kinda slow
   @Test
-  public void sequentialIterationTest() {
+  public void sequentialIterations() {
+    logTest("sequentialIterations");
     // iterate through Synset's of dictionary
     int n = 2;
     System.err.println("starting "+n+" full iterations...");
@@ -300,11 +329,11 @@ public class IterationTest {
           }
         }
         printMemoryUsage();
-        System.err.println("iterationIndexWordsVisited: "+iterationIndexWordsVisited+
-            " iteration_total_p_cnt: "+iteration_total_p_cnt+
-            " avg p_cnt: "+(((double)iteration_total_p_cnt)/iterationIndexWordsVisited));
-        System.err.println("iterationGlossLetters: "+iterationGlossLetters);
-        assertEquals((i+1) * iterationWordsVisited, totalWordsVisited);
+        System.err.println("iterationIndexWordsVisited: " + iterationIndexWordsVisited+
+            " iteration_total_p_cnt: " + iteration_total_p_cnt+
+            " avg p_cnt: " + (((double)iteration_total_p_cnt)/iterationIndexWordsVisited));
+        System.err.println("iterationGlossLetters: " + iterationGlossLetters);
+        assertEquals((i + 1) * iterationWordsVisited, totalWordsVisited);
       }
     } finally {
       System.err.println("done with "+n+" full iterations.  totalWordsVisited: "+totalWordsVisited);
@@ -332,12 +361,8 @@ public class IterationTest {
   //@Ignore
   @Test
   public void words() {
-    System.err.println("allPOSWordsTest()");
-    for (final Word word : MergedIterable.merge(true,
-          dictionary.words(POS.NOUN),
-          dictionary.words(POS.VERB),
-          dictionary.words(POS.ADJ),
-          dictionary.words(POS.ADV))) {
+    logTest("words");
+    for (final Word word : dictionary.words(POS.ALL)) {
       final String s = word.toString();
       //System.err.println(s);
     }
@@ -345,12 +370,8 @@ public class IterationTest {
   //@Ignore
   @Test
   public void synsets() {
-    System.err.println("allPOSSynsetsTest()");
-    for (final Synset synset : MergedIterable.merge(true,
-          dictionary.synsets(POS.NOUN),
-          dictionary.synsets(POS.VERB),
-          dictionary.synsets(POS.ADJ),
-          dictionary.synsets(POS.ADV))) {
+    logTest("synsets");
+    for (final Synset synset : dictionary.synsets(POS.ALL)) {
       String s = synset.toString();
       //System.err.println(s);
     }
@@ -358,12 +379,8 @@ public class IterationTest {
   //@Ignore
   @Test
   public void wordSenses() {
-    System.err.println("allPOSWordSensesTest()");
-    for (final WordSense wordSense : MergedIterable.merge(true,
-          dictionary.wordSenses(POS.NOUN),
-          dictionary.wordSenses(POS.VERB),
-          dictionary.wordSenses(POS.ADJ),
-          dictionary.wordSenses(POS.ADV))) {
+    logTest("wordSenses");
+    for (final WordSense wordSense : dictionary.wordSenses(POS.ALL)) {
       final String s = wordSense.toString();
       //System.err.println(s);
     }
@@ -371,12 +388,8 @@ public class IterationTest {
   //@Ignore
   @Test
   public void pointers() {
-    System.err.println("allPOSPointersTest()");
-    for (final Pointer pointer : MergedIterable.merge(true,
-          dictionary.pointers(POS.NOUN),
-          dictionary.pointers(POS.VERB),
-          dictionary.pointers(POS.ADJ),
-          dictionary.pointers(POS.ADV))) {
+    logTest("pointers");
+    for (final Pointer pointer : dictionary.pointers(POS.ALL)) {
       final String s = pointer.toString();
       //System.err.println(s);
     }
@@ -386,7 +399,8 @@ public class IterationTest {
    * Look for warning issues with lookupSynsets()
    */
   @Test
-  public void lookupSynsetsTest() {
+  public void lookupSynsets() {
+    logTest("lookupSynsets");
     for (final Word word : dictionary.words(POS.ALL)) {
       final String str = word.getLemma();
       // exhaustive -- all POS
@@ -396,7 +410,7 @@ public class IterationTest {
           assertTrue("loopback failure", syns.isEmpty() == false);
         }
       }
-    // just our source POS
+      // just our source POS
       //Synset[] syns = dictionary.lookupSynsets(word.getPOS(), str);
       //if (syns.length == 0) {
       //  System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
