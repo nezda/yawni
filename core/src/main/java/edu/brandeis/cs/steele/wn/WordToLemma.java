@@ -14,12 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package edu.brandeis.cs.steele.wn;
 
 import edu.brandeis.cs.steele.util.MutatedIterable;
 
-public class WordToLemma extends MutatedIterable<Word, String> {
+public final class WordToLemma extends MutatedIterable<Word, String> {
   public WordToLemma(final Iterable<Word> iterable) {
     super(iterable);
   }
