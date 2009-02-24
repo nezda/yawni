@@ -20,7 +20,8 @@
  */
 package edu.brandeis.cs.steele.wn.browser;
 
-import java.util.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -43,7 +44,7 @@ import java.util.prefs.*;
  * </ul>
  */
 public class Browser extends JFrame {
-  private static final Logger log = Logger.getLogger(Browser.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Browser.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(Browser.class);
   static {
     setSystemProperties();
