@@ -36,8 +36,8 @@ import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
  * {@link WordSense#getTargets WordSense.getTargets()} retrieves the targets of these links, and
  * {@link WordSense#getPointers WordSense.getPointers()} retrieves the pointers themselves.
  *
- * <p> Each {@code WordSense} has exactly one associtated {@link Word} (however a given {@code Word} may have one
- * or more {@code WordSense}s with different orthographic case (e.g., the nouns "CD" vs. "Cd").
+ * <p> Each {@code WordSense} has exactly one associated {@link Word} (however a given {@code Word} may have one
+ * or more {@code WordSense}s with different orthographic case (e.g., the nouns "CD" vs. "Cd")).
  *
  * @see Pointer
  * @see Synset
@@ -154,7 +154,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
    * 1-indexed value.  Note that this value often varies across WordNet versions.
    * For those senses which never occured in sense tagged corpora, it is
    * arbitrarily chosen.
-   * @see <a href="http://wordnet.princeton.edu/man/cntlist.5WN#toc4">'NOTES' in cntlist WordNet documentation</a
+   * @see <a href="http://wordnet.princeton.edu/man/cntlist.5WN#toc4">'NOTES' in cntlist WordNet documentation</a>
    */
   public int getSenseNumber() {
     if (senseNumber < 1) {
