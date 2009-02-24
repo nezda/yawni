@@ -27,14 +27,14 @@ import java.io.IOException;
  * <code>FileBackedDictionary</code> invokes methods from this interface to retrieve lines of text from the
  * WordNet data files.
  *
- * <p>Methods in this interface take filenames as arguments.  The filename is the name of
+ * <p> Methods in this interface take filenames as arguments.  The filename is the name of
  * a WordNet file, and is relative to the database directory (e.g., <code>data.noun</code>, not
  * <code>dict/data.noun</code>).
  *
- * <p>Methods in this interface operate on and return pointers, which are indices into the
+ * <p> Methods in this interface operate on and return pointers, which are indices into the
  * file named by filename.
  *
- * <p><code>FileManagerInterface</code> was originally designed to work efficiently across a network.  To this end, it obeys
+ * <p> <code>FileManagerInterface</code> was originally designed to work efficiently across a network.  To this end, it obeys
  * two design principles:  it uses only primitive types (including <code>String</code>) as argument and return types,
  * and operations that search a file for a line with a specific property are provided by the
  * server.  The first principle ensures that scanning a database won't create a large number of remote objects that
@@ -42,11 +42,11 @@ import java.io.IOException;
  * principle avoids paging an entire database file across the network in order to search for
  * an entry.
  *
- * <p>Making <code>FileBackedDictionary</code> XXX MISSING WORD Serializable? XXX would violate the first of these properties
+ * <p> Making <code>FileBackedDictionary</code> XXX MISSING WORD Serializable? XXX would violate the first of these properties
  * (it would require that {@link WordSense}, {@link Synset}, {@link POS}, etc. be supported as remote objects);
  * a generic remote file system interface would violate the second.
  *
- * <p>A third design principle is that sessions are stateless -- this simplifies the
+ * <p> A third design principle is that sessions are stateless -- this simplifies the
  * implementation of the server.  A consequence of this
  * principle together with the restriction of return values to primitives is that pairs
  * of operations such as <code>getNextLinePointer</code>/<code>readLineAt</code> are required in order to step through
