@@ -48,7 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -60,7 +61,7 @@ import java.util.prefs.*;
  * The main panel of browser.
  */
 public class BrowserPanel extends JPanel {
-  private static final Logger log = Logger.getLogger(BrowserPanel.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
   private static final long serialVersionUID = 1L;
   private DictionaryDatabase dictionary;
