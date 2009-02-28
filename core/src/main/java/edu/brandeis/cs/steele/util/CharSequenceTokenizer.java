@@ -22,11 +22,11 @@ import java.util.NoSuchElementException;
 import static edu.brandeis.cs.steele.util.CharSequences.*;
 
 /**
- * <code>CharSequenceTokenizer</code> is used to break a string apart into tokens.  Lighter
+ * {@code CharSequenceTokenizer} is used to break a string apart into tokens.  Lighter
  * than a {@link java.util.Scanner}, more features than {@link java.util.StringTokenizer}, with full
  * support for {@link CharSequence}s.
  *
- * <p>Borrowed some code from Apache Harmony java.util.StringTokenizer
+ * <p> Borrowed some code from Apache Harmony java.util.StringTokenizer
  */
 public final class CharSequenceTokenizer implements Iterator<CharSequence> {
   private final CharSequence string;
