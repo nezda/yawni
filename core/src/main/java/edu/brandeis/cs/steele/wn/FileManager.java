@@ -22,41 +22,38 @@ package edu.brandeis.cs.steele.wn;
 
 import edu.brandeis.cs.steele.util.CharSequences;
 
-import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.nio.*;
-import java.nio.channels.*;
-import java.io.*;
-import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.JarURLConnection;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * An implementation of <code>FileManagerInterface</code> that reads files
- * from the local file system.  A file  <code>FileManager</code> caches the
- * file position before and after {@link FileManagerInterface#readLineAt
- * FileManagerInterface.readLineAt()} in order to eliminate the redundant IO
- * activity that a naive implementation of these methods would necessitate.
+ * An implementation of {@code FileManagerInterface} that reads files
+ * from the local file system.  A {@code FileManager} caches the
+ * file position before and after {@link FileManagerInterface#readLineAt()}
+ * in order to eliminate the redundant IO activity that a naïve implementation
+ * of these methods would necessitate.
  *
- * <p>Instances of this class are guarded.  All operations are read-only, but
- * are synchronized per file to maintain state including the file pointer's
+ * <p> Instances of this class are guarded.  All operations are read-only, but
+ * are synchronized per file to maintain state including the file pointers's
  * position.
  */
-public class FileManager implements FileManagerInterface {
-  //
-  // Class variables
-  //
-  //intentionally using FileBackedDictionary's logger (for now)
+public final class FileManager implements FileManagerInterface {
+  // intentionally using FileBackedDictionary's logger (for now)
   private static final Logger log = LoggerFactory.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
 
-  /** The API version, used by <code>RemoteFileManager</code> for constructing a binding name. */
-  public static final String VERSION = "2.0.0";
-
-  //
-  // Instance variables
-  //
   private String searchDirectory;
   private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
@@ -97,58 +94,69 @@ public class FileManager implements FileManagerInterface {
   // Constructors
   //
   /** FIXME
-   * Construct a file manager backed by a set of files contained in the default WordNet search directory.
-   * The default search directory is the location named by the system property WNSEARCHDIR; or, if this
-   * is undefined, by the directory named WNHOME/Database (under MacOS) or WNHOME/dict (otherwise);
-   * or, if the WNHOME is undefined, the current directory (under MacOS), "C:\wn16" (Windows),
-   * or "/usr/local/wordnet1.6" (otherwise).
+   * Construct a {@code FileManager} backed by a set of files contained in the default WordNet search directory.
+   * The default search directory is the location named by the system property {@code $WNSEARCHDIR}; or, if this
+   * is undefined, by the directory named {@code $WNHOME/dict}.
    */
   public FileManager() {
     this(getWNSearchDir());
   }
 
-  /** Construct a file manager backed by a set of files contained in {@code searchDirectory}. */
-  public FileManager(String searchDirectory) {
+  /** 
+   * Construct a {@code FileManager} backed by a set of files contained in
+   * {@code searchDirectory}.
+   */
+  public FileManager(final String searchDirectory) {
     this.searchDirectory = searchDirectory;
   }
 
-  static String getWNHome() {
-    //FIXME see notes in getWNSearchDir()
-    String home = System.getProperty("WNHOME");
-    if (home != null && new File(home).exists()) {
-      return home;
+  private static String getWNHome() {
+    return getValidatedPathNamed("WNHOME");
+  }
+
+  private static String getWNSearchDir() {
+    //FIXME unify logic for this (getWNSearchDir()) and getWNHome()
+    String searchDir = getValidatedPathNamed("WNSEARCHDIR");
+    if (searchDir != null) {
+      // FIXME searchDir better have our files in it or we're screwed
+      // even if WNHOME is correct!
+      return searchDir;
+    }
+    //FIXME should check that /dict is readable too!
+    return getWNHome() + File.separator + "dict/";
+  }
+
+  static String getValidatedPathNamed(final String propName) {
+    String path = System.getProperty(propName);
+    if (isReadableFile(path)) {
+      return path;
     } else {
-      home = System.getenv("WNHOME");
-      if (home != null && new File(home).exists()) {
-        return home;
+      path = System.getenv(propName);
+      if (isReadableFile(path)) {
+        return path;
       }
     }
-    //log.error("WNHOME is not defined correctly as either a Java system property or environment variable. "+
+    //log.error(propName+" is not defined correctly as either a Java system property or environment variable. "+
     //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
     //throw new IllegalStateException("WNHOME is not defined correctly as either a Java system property or environment variable. "+
     //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
     return null;
   }
 
-  static String getWNSearchDir() {
-    //FIXME unify logic for this (getWNSearchDir()) and getWNHome() to try both
-    //system property AND environment variables and check readable
-    String searchDir = System.getProperty("WNSEARCHDIR");
-    if (searchDir != null && new File(searchDir).exists()) {
-      return searchDir;
-    }
-    searchDir = System.getenv("WNSEARCHDIR");
-    if (searchDir != null && new File(searchDir).exists()) {
-      return searchDir;
-    }
-    return getWNHome() + File.separator + "dict";
+  static boolean isReadableFile(String path) {
+    File file;
+    return path != null &&
+      (file = new File(path)).exists() &&
+      file.canRead();
   }
 
   //
   // IO primitives
   //
 
-  // NOTE: CharStream is not thread-safe
+  /** 
+   * NOTE: CharStream is stateful (i.e., not thread-safe)
+   */
   static abstract class CharStream {
     protected final String filename;
     /** Force subclasses to call this */
@@ -159,8 +167,9 @@ public class FileManager implements FileManagerInterface {
     abstract int position() throws IOException;
     abstract char charAt(int position) throws IOException;
     abstract int length() throws IOException;
-    /** This works just like {@link RandomAccessFile#readLine} -- doesn't
-     * support Unicode
+    /**
+     * This works just like {@link RandomAccessFile#readLine} -- doesn't
+     * support Unicode.
      */
     abstract String readLine() throws IOException;
     void skipLine() throws IOException {
@@ -194,7 +203,8 @@ public class FileManager implements FileManagerInterface {
   } // end class CharStream
 
   /**
-   * {@link RandomAccessFile} {@code CharStream} implementation.
+   * {@link RandomAccessFile}-backed {@code CharStream} implementation.  This {@code CharStream}
+   * has the minimum boot time (and the slowest access times).
    */
   static class RAFCharStream extends CharStream {
     private final RandomAccessFile raf;
@@ -227,6 +237,10 @@ public class FileManager implements FileManagerInterface {
 
   /**
    * {@link ByteBuffer} {@code CharStream} implementation.
+   * This {@code CharStream} is has boots very quickly (little slower than
+   * ({@code RAFCharStream}) and provides very fast access times, however it
+   * requires a {@code ByteBuffer} which is usually most eaily derived
+   * from an {@code FileChannel}. aka {@code mmap CharStream}
    */
   private static class NIOCharStream extends CharStream {
     //FIXME position seems redundant (ByteCharBuffer has position())
@@ -356,8 +370,9 @@ public class FileManager implements FileManagerInterface {
   } // end class NIOCharStream
 
   /**
-   * Fast CharStream created from InputStream (eg could be read from jar file)
-   * backed by a byte[].
+   * Fast {@code CharStream} created from InputStream (e.g., can be read from jar file)
+   * backed by a byte[].  This {@code CharStream} is slowest to boot
+   * but provides very fast access times.
    */
   private static class InputStreamCharStream extends NIOCharStream {
     /**
@@ -399,9 +414,9 @@ public class FileManager implements FileManagerInterface {
   } // end class InputStreamCharStream
 
   /**
+   * <h3> CURRENTLY NOT USED </h3>
    * Like a read-only {@link CharBuffer} made from a {@link ByteBuffer} with a
    * stride of 1 instead of 2.
-   * CURRENTLY NOT USED
    */
   private static class ByteCharBuffer implements CharSequence {
     private final ByteBuffer bb;
@@ -461,15 +476,15 @@ public class FileManager implements FileManagerInterface {
   }
 
   // used in multi-threaded load initialization timing tests
-  private long streamInitTime;
+  //private long streamInitTime;
 
   /**
    * @param filename
    * @param filenameWnRelative is a boolean which indicates that <param>filename</param>
-   * is relative (or absolute).  This facilitates testing and reuse.
+   * is relative (else, its absolute).  This facilitates testing and reuse.
    * @return CharStream representing <param>filename</param> or null if no such file exists.
    */
-  synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
+  private synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
       // currently, if getWNHome() fails, the program crashes
@@ -506,7 +521,7 @@ public class FileManager implements FileManagerInterface {
       //System.err.println("searchDirectory: "+searchDirectory);
       //System.err.println("filename: "+filename);
 
-      final long start = System.nanoTime();
+      //final long start = System.nanoTime();
       final File file = new File(pathname);
       //System.err.printf("pathname: "+file+"\n");
       if (file.exists() && file.canRead()) {
@@ -519,8 +534,8 @@ public class FileManager implements FileManagerInterface {
         stream = getURLStream(filename);
         //System.err.printf("URLCharStream\n");
       }
-      final long duration = System.nanoTime() - start;
-      final long total = streamInitTime += duration;
+      //final long duration = System.nanoTime() - start;
+      //final long total = streamInitTime += duration;
       //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
       assert stream != null;
       filenameCache.put(filename, stream);
@@ -573,8 +588,8 @@ public class FileManager implements FileManagerInterface {
 
   /**
    * {@inheritDoc}
+   * Core search routine.  Only called from within synchronized blocks.
    */
-  // Core search routine.  Only called from within synchronized blocks.
   public String readLineAt(final int offset, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
@@ -592,8 +607,8 @@ public class FileManager implements FileManagerInterface {
 
   /**
    * {@inheritDoc}
+   * Core search routine.  Only called from within synchronized blocks.
    */
-  // Core search routine.  Only called from within synchronized blocks.
   public int getNextLinePointer(final int offset, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
     synchronized (stream) {
@@ -816,9 +831,14 @@ public class FileManager implements FileManagerInterface {
     }
   }
 
-  private static int compare(final CharSequence s1, final CharSequence s2) {
+  /** {@inheritDoc} */
+  public WordNetLexicalComparator comparator() {
     // caseless searches rely on this
-    return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(s1, s2);
-    //return Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(s1, s2);
+    return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE;
+    //return Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE;
+  }
+
+  private int compare(final CharSequence s1, final CharSequence s2) {
+    return comparator().compare(s1, s2);
   }
 }
