@@ -19,7 +19,7 @@ package edu.brandeis.cs.steele.util;
 /**
  * Utility methods for {@link CharSequence}s.
  * 
- * <p> Borrowed some code from Apache Harmony java.util.StringTokenizer
+ * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer}
  */
 public class CharSequences {
   private CharSequences() {}
@@ -43,7 +43,7 @@ public class CharSequences {
     return hash;
   }
 
-    /**
+  /**
    * @see java.lang.String#equals
    */
   public static boolean equals(final CharSequence s1, final CharSequence s2) {
@@ -133,33 +133,36 @@ public class CharSequences {
     throw new UnsupportedOperationException("IMPLEMENT ME");
   }
 
-  //static class CharSequenceComparator implements Comparator<CharSequence>, Serializable {
-  //  private static final long serialVersionUID = 1L;
-  //
-  //  /** {@inheritDoc} */
-  //  public int compare(final CharSequence s1, final CharSequence s2) {
-  //    int i = 0;
-  //    int n = Math.min(s1.length(), s2.length());
-  //    while (n-- != 0) {
-  //      final char c1 = s1.charAt(i);
-  //      final char c2 = s2.charAt(i++);
-  //      if (c1 != c2) {
-  //        return c1 - c2;
-  //      }
-  //    }
-  //    return s1.length() - s2.length();
-  //  }
-  //  /** {@inheritDoc} */
-  //  public boolean equals(final Object obj) {
-  //    return obj instanceof CharSequenceComparator;
-  //  }
-  //  public static final CharSequenceComparator INSTANCE = new CharSequenceComparator();
-  //} // end class CharSequenceComparator
+  // what could be done to make this work for String, StringBuilder, StringBuffer, ...
+  // interchangably ? could turn out tricky due to #equals()
+//  static class CharSequenceComparator implements Comparator<CharSequence> {
+//    private static final long serialVersionUID = 1L;
+//
+//    /** {@inheritDoc} */
+//    public int compare(final CharSequence s1, final CharSequence s2) {
+//      int i = 0;
+//      int n = Math.min(s1.length(), s2.length());
+//      while (n-- != 0) {
+//        final char c1 = s1.charAt(i);
+//        final char c2 = s2.charAt(i++);
+//        if (c1 != c2) {
+//          return c1 - c2;
+//        }
+//      }
+//      return s1.length() - s2.length();
+//    }
+//    /** {@inheritDoc} */
+//    @Override
+//    public boolean equals(final Object obj) {
+//      return obj instanceof CharSequenceComparator;
+//    }
+//    public static final CharSequenceComparator INSTANCE = new CharSequenceComparator();
+//  } // end class CharSequenceComparator
 
   /**
-   * Parses the string argument as if it was an int value and returns the
-   * result. Throws NumberFormatException if the string does not represent an
-   * int quantity. The second argument specifies the radix to use when parsing
+   * Parses the {@code string} argument as if it was an {@code int} value and returns the
+   * result. Throws {@linkplain NumberFormatException} if the string does not represent an
+   * {@code int} quantity. {@code radix} is the radix to use when parsing
    * the value.
    *
    * @param string a string representation of an int quantity.
@@ -173,6 +176,18 @@ public class CharSequences {
     return parseInt(string, 0, string.length(), radix);
   }
 
+  /**
+   * Parses the {@code string} argument as if it was an {@code int} value and returns the
+   * result. Throws {@linkplain NumberFormatException} if the string does not represent an
+   * {@code int} quantity.
+   *
+   * @param string a string representation of an int quantity.
+   * @param offset
+   * @param end
+   * @return int the value represented by the argument
+   * @throws NumberFormatException
+   *                if the argument could not be parsed as an int quantity.
+   */
   public static int parseInt(final CharSequence string, int offset,
       final int end) {
     return parseInt(string, offset, end, 10);
@@ -209,7 +224,7 @@ public class CharSequences {
       }
       result = next;
     }
-    if (!negative) {
+    if (! negative) {
       result = -result;
       if (result < 0) {
         throw new NumberFormatException(toString(string, start, end));
@@ -219,13 +234,13 @@ public class CharSequences {
   }
 
   /**
-   * Parses the string argument as if it was a long value and returns the
-   * result. Throws NumberFormatException if the string does not represent a
-   * long quantity. The second argument specifies the radix to use when
-   * parsing the value.
-   * @param string a string representation of an long quantity.
+   * Parses the {@code string} argument as if it was a {@code long} value and returns the
+   * result. Throws {@linkplain NumberFormatException} if the string does not represent a
+   * {@code long} quantity.
+   *
+   * @param string a string representation of an {@code long} quantity.
    * @param radix the base to use for conversion.
-   * @return long the value represented by the argument
+   * @return {@code long} the value represented by the argument
    * @throws NumberFormatException
    *                if the argument could not be parsed as a long quantity.
    */
@@ -234,6 +249,19 @@ public class CharSequences {
       return parseLong(string, 0, string.length(), radix);
     }
 
+  /**
+   * Parses the {@code string} argument as if it was a {@code long} value and returns the
+   * result. Throws {@linkplain NumberFormatException} if the string does not represent a
+   * {@code long} quantity.
+   * 
+   * @param string a string representation of an {@code long} quantity.
+   * @param offset
+   * @param end
+   * @param radix the base to use for conversion.
+   * @return {@code long} the value represented by the argument
+   * @throws NumberFormatException
+   *                if the argument could not be parsed as a long quantity.
+   */
   public static long parseLong(final CharSequence string, int offset,
       final int end, final int radix) {
     final int start = offset;
@@ -264,7 +292,7 @@ public class CharSequences {
       }
       result = next;
     }
-    if (!negative) {
+    if (! negative) {
       result = -result;
       if (result < 0) {
         throw new NumberFormatException(toString(string, start, end));
