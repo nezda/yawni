@@ -151,21 +151,94 @@ public class Browser extends JFrame {
         //putValue(Action.SMALL_ICON, BLANK_ICON);
         return 0;
       }
+      // configuration items represented as System Properties
+      private String nonStandardSystemProperties() {
+        StringBuilder buffer = new StringBuilder();
+        for (final Object key_: System.getProperties().keySet()) {
+          final String key = (String) key_;
+          if (key.startsWith("java.")) {
+            continue;
+          }
+          if (key.startsWith("user.")) {
+            continue;
+          }
+          if (key.startsWith("os.")) {
+            continue;
+          }
+          if (key.endsWith(".separator")) {
+            continue;
+          }
+          if (key.indexOf("awt.") >= 0) {
+            continue;
+          }
+          if (key.indexOf("sun.") >= 0) {
+            continue;
+          }
+          if (key.indexOf("apple.") >= 0) {
+            continue;
+          }
+          if (key.equals("gopherProxySet")) {
+            continue;
+          }
+          if (key.equals("file.encoding.pkg")) {
+            continue;
+          }
+          final String value = System.getProperty(key);
+          buffer.append(key);
+          buffer.append('=');
+          buffer.append(value);
+          buffer.append(";<br> ");
+        }
+        return buffer.toString();
+      }
+      private String systemProperties() {
+        final StringBuilder buffer = new StringBuilder();
+        //FIXME most of this logic should be in FileManager
+        // check WNHOME (env and System Property)
+        // check WNSEARCHDIR (env and System Property)
+        buffer.append("<br> ");
+        return buffer.toString();
+      }
       public void actionPerformed(final ActionEvent evt) {
-        final String[] options = new String[] { "Dismiss" };
-        JOptionPane.showOptionDialog(
-            Browser.this,
-            "<html>"+
+        final String description =
+           "<html>"+
             "<h2>JWordNet Browser</h2>"+
-            "A graphical interface to the<br>"+
-            "WordNet online lexical database.<br>"+
-            "<br>"+
-            "Version: "+app.getVersion()+" (Build "+app.getBuildNumber()+", "+app.getFormattedBuildDate()+")<br>"+
-            "<br>"+
+            "A graphical interface to the "+
+            "WordNet online lexical database.<br>"+ //TODO would be cool if this were a live hyperlink
+            "<br>" +
             "This Java version is by Luke Nezda and Oliver Steele.<br>"+
             "The GUI is loosely based on the Tcl/Tk interface<br>"+
-            "by David Slomin and Randee Tengi.",
-            "About JWordNet Browser",
+            "by David Slomin and Randee Tengi.<br>"+
+            "<br>";
+        // JLabel text cannot be selected with the mouse, so we use JEditorPane
+        final JEditorPane info = new JEditorPane("text/html",
+            "<table>"+
+            "<tr style=''><td>"+
+            "<b>Version:</b> "+app.getVersion()+" (Build "+app.getBuildNumber()+", "+app.getFormattedBuildDate()+")<br>"+
+            "<b>WNHOME:</b> "+System.getenv("WNHOME")+"<br>"+ //TODO turn red if this is set but doesn't exist
+            //TODO report WNSEARCHDIR (including red if set but doesn't exist like WNHOME)
+            //TODO indicate if we loaded the data from a jar
+            "<b>Java:</b> "+System.getProperty("java.version")+"; "+
+              System.getProperty("java.vm.name")+" "+System.getProperty("java.vm.version")+"<br>"+
+            "<b>System:</b> "+System.getProperty("os.name")+" version "+System.getProperty("os.version")+
+              " running on "+System.getProperty("os.arch")+"<br>"+
+            // CLASSPATH is typically really long - would require scroll capability
+//            "<b>Classpath:</b> "+System.getProperty("java.class.path")+"<br>"+
+              // which properties do we care about anyway?
+//            "<b>System properties:</b> "+nonStandardSystemProperties()+"<br>"+ // TODO almost justifies a JScrollPane
+            "<br>"+
+            "</td></td></table>"
+          );
+        info.setFont(new JLabel(" ").getFont());
+        info.setEditable(false);
+        info.setBackground(Color.WHITE);
+        info.setOpaque(true);
+        info.setBorder(BorderFactory.createEtchedBorder());
+        final String[] options = new String[] { "Dismiss" };
+          JOptionPane.showOptionDialog(
+            Browser.this,
+            new Object[] { description, info }, // message
+            "About", // title
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.PLAIN_MESSAGE,
             null,
