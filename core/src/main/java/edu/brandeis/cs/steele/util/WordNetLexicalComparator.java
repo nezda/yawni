@@ -3,10 +3,11 @@ package edu.brandeis.cs.steele.util;
 import java.util.Comparator;
 
 /**
- * {@link Comparator} for {@code CharSequences} which considers {@code ' '}
+ * {@link Comparator} for {@code CharSequence}s which considers {@code ' '}
  * and {@code '_'} the same and optionally lowercases the characters of both
  * arguments to {@link #compare(java.lang.CharSequence, java.lang.CharSequence) compare()}
- * ({@link #TO_LOWERCASE_INSTANCE}).
+ * ({@link #TO_LOWERCASE_INSTANCE}).  This encodes the natural sort order of
+ * the {@link Word}s of WordNet <code>index.<em>pos</em></code> files.
  */
 public final class WordNetLexicalComparator implements Comparator<CharSequence> {
   /**
