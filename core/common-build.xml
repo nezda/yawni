@@ -27,7 +27,7 @@
 
   <!-- Give user a chance to override without editing this file
       (and without typing -D each time it compiles it -->
-  <property file="${user.home}/jwordnet.build.properties"/>
+  <property file="${user.home}/yawni.build.properties"/>
   <property file="${user.home}/build.properties"/>
   <property file="${basedir}/build.properties"/>
   <property file="${common.dir}/build.properties"/>
@@ -40,11 +40,11 @@
   </tstamp>
 
   <property name="name" value="${ant.project.name}"/>
-  <property name="Name" value="JWordNet"/>
+  <property name="Name" value="Yawni"/>
   <property name="version" value="1.5.6-dev"/>
   <property name="spec.version" value="${version}"/>    
   <property name="year" value="2007-${current.year}"/>
-  <property name="final.name" value="jwordnet-${name}-${version}"/>
+  <property name="final.name" value="yawni-${name}-${version}"/>
 
   <!-- <property name="junit.jar" value="junit-3.8.2.jar"/> -->
   <property name="junit.jar" value="junit-4.4.jar"/>
@@ -138,7 +138,7 @@
         <manifest>
           <attribute name="Built-By" value="${user.name}"/>
           <manifest-attributes/>
-          <attribute name="Main-Class" value="edu.brandeis.cs.steele.wn.browser.Browser"/>
+          <attribute name="Main-Class" value="org.yawni.wn.browser.Browser"/>
         </manifest>
         <metainf dir="${common.dir}">
           <include name="LICENSE.txt"/>
@@ -186,7 +186,7 @@
       <!-- <jvmarg value="-Xrunhprof:cpu=samples,depth=20,interval=10,monitor=y,thread=y"/> -->
       <!-- <jvmarg value="-Xrunhprof:cpu=times,depth=20,interval=10,monitor=y,thread=y"/> -->
       <assertions>
-        <enable package="edu.brandeis.cs.steele.wn"/>
+        <enable package="org.yawni.wn"/>
       </assertions>
       
       <!-- propagate system property WNHOME to junit test JVM -->
@@ -274,7 +274,7 @@
     <attribute name="title" default="${Name} ${version} API"/>
     <sequential>
       <javadoc
-          packagenames="edu.brandeis.cs.steele.*"
+          packagenames="org.yawni.*"
           destdir="@{destdir}"
           access="${javadoc.access}"
           encoding="${build.encoding}"

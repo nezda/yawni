@@ -77,7 +77,7 @@
   </target>
 
   <target name="test-core" depends="common.test"
-          description="Runs unit tests for the core JWordNet code"
+          description="Runs unit tests for the core Yawni code"
   />
   <target name="test" depends="test-core"
           description="Runs all unit tests"
@@ -133,19 +133,19 @@
   <!--                                                                    -->
   <!-- ================================================================== -->
   <target name="package-zip" depends="package"
-    description="--> Generates the JWordNet distribution as .zip">
+    description="--> Generates the Yawni distribution as .zip">
 
-    <delete file="${dist.dir}/jwordnet-${version}.zip"/>
-    <zip destfile="${dist.dir}/jwordnet-${version}.zip">
-      <zipfileset prefix="jwordnet-${version}" dir=".">
+    <delete file="${dist.dir}/yawni-${version}.zip"/>
+    <zip destfile="${dist.dir}/yawni-${version}.zip">
+      <zipfileset prefix="yawni-${version}" dir=".">
         <patternset refid="binary.root.dist.patterns"/>
       </zipfileset>
-      <zipfileset dir="${build.dir}" includes="build-demo.xml" fullpath="jwordnet-${version}/build.xml"/>
-      <zipfileset prefix="jwordnet-${version}" dir="${build.dir}">
+      <zipfileset dir="${build.dir}" includes="build-demo.xml" fullpath="yawni-${version}/build.xml"/>
+      <zipfileset prefix="yawni-${version}" dir="${build.dir}">
         <patternset refid="binary.build.dist.patterns"/>
       </zipfileset>
     </zip>
-    <jwordnet-checksum file="${dist.dir}/jwordnet-${version}.zip"/>
+    <yawni-checksum file="${dist.dir}/yawni-${version}.zip"/>
   </target>
 
   <!-- ================================================================== -->
@@ -154,24 +154,24 @@
   <!--                                                                    -->
   <!-- ================================================================== -->
   <target name="package-tgz" depends="package"
-    description="--> Generates the JWordNet distribution as .tar.gz">
+    description="--> Generates the Yawni distribution as .tar.gz">
 
-    <delete file="${build.dir}/jwordnet-${version}.tar"/>
-    <delete file="${dist.dir}/jwordnet-${version}.tar.gz"/>
-    <tar tarfile="${build.dir}/jwordnet-${version}.tar">
-      <tarfileset prefix="jwordnet-${version}" dir=".">
+    <delete file="${build.dir}/yawni-${version}.tar"/>
+    <delete file="${dist.dir}/yawni-${version}.tar.gz"/>
+    <tar tarfile="${build.dir}/yawni-${version}.tar">
+      <tarfileset prefix="yawni-${version}" dir=".">
         <patternset refid="binary.root.dist.patterns"/>
       </tarfileset>
-      <tarfileset dir="${build.dir}" includes="build-demo.xml" fullpath="jwordnet-${version}/build.xml"/>
-      <tarfileset prefix="jwordnet-${version}" dir="${build.dir}">
+      <tarfileset dir="${build.dir}" includes="build-demo.xml" fullpath="yawni-${version}/build.xml"/>
+      <tarfileset prefix="yawni-${version}" dir="${build.dir}">
         <patternset refid="binary.build.dist.patterns"/>
       </tarfileset>
     </tar>
 
-    <gzip zipfile="${dist.dir}/jwordnet-${version}.tar.gz"
-      src="${build.dir}/jwordnet-${version}.tar"
+    <gzip zipfile="${dist.dir}/yawni-${version}.tar.gz"
+      src="${build.dir}/yawni-${version}.tar"
       />
-	<jwordnet-checksum file="${dist.dir}/jwordnet-${version}.tar.gz"/>
+	<yawni-checksum file="${dist.dir}/yawni-${version}.tar.gz"/>
   </target>
 
   <!-- ================================================================== -->
@@ -204,13 +204,13 @@
   <!--                                                                    -->
   <!-- ================================================================== -->
   <target name="package-zip-src" depends="init, init-dist"
-    description="--> Generates the JWordNet sources as .zip">
-    <zip destfile="${dist.dir}/jwordnet-${version}-src.zip">
-      <zipfileset prefix="jwordnet-${version}" dir=".">
+    description="--> Generates the Yawni sources as .zip">
+    <zip destfile="${dist.dir}/yawni-${version}-src.zip">
+      <zipfileset prefix="yawni-${version}" dir=".">
         <patternset refid="src.dist.patterns"/>
       </zipfileset>
     </zip>
-    <jwordnet-checksum file="${dist.dir}/jwordnet-${version}-src.zip"/>
+    <yawni-checksum file="${dist.dir}/yawni-${version}-src.zip"/>
   </target>
 
   <!-- ================================================================== -->
@@ -219,20 +219,20 @@
   <!--                                                                    -->
   <!-- ================================================================== -->
   <target name="package-tgz-src" depends="init, init-dist"
-    description="--> Generates the JWordNet distribution as .tar.gz">
+    description="--> Generates the Yawni distribution as .tar.gz">
 
-    <delete file="${build.dir}/jwordnet-${version}-src.tar"/>
-    <delete file="${dist.dir}/jwordnet-${version}-src.tar.gz"/>
-    <tar tarfile="${build.dir}/jwordnet-${version}-src.tar">
-      <tarfileset prefix="jwordnet-${version}" dir=".">
+    <delete file="${build.dir}/yawni-${version}-src.tar"/>
+    <delete file="${dist.dir}/yawni-${version}-src.tar.gz"/>
+    <tar tarfile="${build.dir}/yawni-${version}-src.tar">
+      <tarfileset prefix="yawni-${version}" dir=".">
         <patternset refid="src.dist.patterns"/>
       </tarfileset>
     </tar>
 
-    <gzip zipfile="${dist.dir}/jwordnet-${version}-src.tar.gz"
-          src="${build.dir}/jwordnet-${version}-src.tar"
+    <gzip zipfile="${dist.dir}/yawni-${version}-src.tar.gz"
+          src="${build.dir}/yawni-${version}-src.tar"
     />
-	<jwordnet-checksum file="${dist.dir}/jwordnet-${version}-src.tar.gz"/>
+	<yawni-checksum file="${dist.dir}/yawni-${version}-src.tar.gz"/>
   </target>
 
   <!-- ================================================================== -->
@@ -252,7 +252,7 @@
 
   <target name="dist-all" depends="dist, dist-src"/>
 
-  <macrodef name="jwordnet-checksum">
+  <macrodef name="yawni-checksum">
     <attribute name="file"/>
     <!-- NOTE: we use the value of @{file} in the names any properties
          set because macro's don't have variables, and otherwise we
