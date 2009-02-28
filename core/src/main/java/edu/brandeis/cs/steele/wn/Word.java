@@ -30,12 +30,11 @@ import java.util.Set;
 
 import edu.brandeis.cs.steele.util.CharSequenceTokenizer;
 import edu.brandeis.cs.steele.util.ImmutableList;
-import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
 
 /**
  * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file.
  * A {@code Word} is retrieved via {@link DictionaryDatabase#lookupWord},
- * and has a <i>lemma</i>, a <i>part of speech ({@link POS})</i>, and a set of <i>senses</i> ({@link WordSense}s).
+ * and has a <em>lemma</em>, a <em>part of speech ({@link POS})</em>, and a set of <em>senses</em> ({@link WordSense}s).
  *
  * <p> Note this class used to be called {@code IndexWord} which arguably makes more sense from the
  * WordNet perspective.
