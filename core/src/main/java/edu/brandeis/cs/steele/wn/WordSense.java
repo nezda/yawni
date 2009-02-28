@@ -26,7 +26,6 @@ import java.util.List;
 
 import edu.brandeis.cs.steele.util.CharSequences;
 import edu.brandeis.cs.steele.util.ImmutableList;
-import edu.brandeis.cs.steele.util.WordNetLexicalComparator;
 
 /**
  * A {@code WordSense} represents the precise lexical information related to a specific sense of a {@link Word}.
@@ -80,6 +79,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
   // represents up to 64 different verb frames are possible (as of now, 35 exist)
   private long verbFrameFlags;
   private short senseNumber;
+  private short sensesTaggedFrequency;
   // only needs to be a byte since there are only 3 bits of flag values
   private final byte flags;
 
@@ -93,6 +93,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     assert flags < Byte.MAX_VALUE;
     this.flags = (byte) flags;
     this.senseNumber = -1;
+    this.sensesTaggedFrequency = -1;
   }
 
   void setVerbFrameFlag(final int fnum) {
@@ -309,37 +310,43 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
    * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html"><tt>cntlist</tt></a>
    */
   public int getSensesTaggedFrequency() {
-    // TODO cache this value: requires minimal memory, provides a lot of value
-    // (high-level and eliminating redundant work)
-    // TODO we could use this Word's getTaggedSenseCount() to determine if
-    // there were any tagged senses for *any* sense of it (including this one)
-    // and really we wouldn't need to look at sense (numbers) exceeding that value
-    // as an optimization
-    final CharSequence senseKey = getSenseKey();
-    final FileBackedDictionary dictionary = synset.fileBackedDictionary;
-    final String line = dictionary.lookupCntlistDotRevLine(senseKey);
-    int count = 0;
-    if (line != null) {
-      // cntlist.rev line format:
-      // <sense_key>  <sense_number>  tag_cnt
-      final int lastSpace = line.lastIndexOf(' ');
-      assert lastSpace > 0;
-      count = CharSequences.parseInt(line, lastSpace + 1, line.length());
-      // sanity check final int firstSpace = line.indexOf(" ");
-      // sanity check assert firstSpace > 0 && firstSpace != lastSpace;
-      // sanity check final int mySenseNumber = getSenseNumber();
-      // sanity check final int foundSenseNumber =
-      // sanity check   CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
-      // sanity check if (mySenseNumber != foundSenseNumber) {
-      // sanity check   System.err.println(this+" foundSenseNumber: "+foundSenseNumber+" count: "+count);
-      // sanity check } else {
-      // sanity check   //System.err.println(this+" OK");
-      // sanity check }
-      //[WordSense 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
-      //assert getSenseNumber() ==
-      //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+    if (sensesTaggedFrequency < 0) {
+      // caching sensesTaggedFrequency requires minimal memory and provides a lot of value
+      // (high-level and eliminating redundant work)
+      // TODO we could use this Word's getTaggedSenseCount() to determine if
+      // there were any tagged senses for *any* sense of it (including this one)
+      // and really we wouldn't need to look at sense (numbers) exceeding that value
+      // as an optimization
+      final CharSequence senseKey = getSenseKey();
+      final FileBackedDictionary dictionary = synset.fileBackedDictionary;
+      final String line = dictionary.lookupCntlistDotRevLine(senseKey);
+      int count = 0;
+      if (line != null) {
+        // cntlist.rev line format:
+        // <sense_key>  <sense_number>  tag_cnt
+        final int lastSpace = line.lastIndexOf(' ');
+        assert lastSpace > 0;
+        count = CharSequences.parseInt(line, lastSpace + 1, line.length());
+        // sanity check final int firstSpace = line.indexOf(" ");
+        // sanity check assert firstSpace > 0 && firstSpace != lastSpace;
+        // sanity check final int mySenseNumber = getSenseNumber();
+        // sanity check final int foundSenseNumber =
+        // sanity check   CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+        // sanity check if (mySenseNumber != foundSenseNumber) {
+        // sanity check   System.err.println(this+" foundSenseNumber: "+foundSenseNumber+" count: "+count);
+        // sanity check } else {
+        // sanity check   //System.err.println(this+" OK");
+        // sanity check }
+        //[WordSense 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
+        //assert getSenseNumber() ==
+        //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+        assert count <= Short.MAX_VALUE;
+        sensesTaggedFrequency = (short) count;
+      } else {
+        sensesTaggedFrequency = 0;
+      }
     }
-    return count;
+    return sensesTaggedFrequency;
   }
 
   /**
