@@ -54,9 +54,12 @@ class SearchFrame extends JFrame {
   private static final POS[] CATS = { POS.NOUN, POS.VERB, POS.ADJ, POS.ADV, POS.ALL };
 
   enum SearchType {
-    SUBSTRING, // operates on lemmas (Word)
-    PREFIX, // operates on lemmas (Word)
-    GLOSS_SUBSTRING, // operates on glosses (Synset)
+    /**  operates on lemmas (Word) */
+    SUBSTRING,
+    /** operates on lemmas (Word) */
+    PREFIX,
+    /** operates on glosses (Synset) */
+    GLOSS_SUBSTRING,
     //TODO regex - could be used to search lemmas or glosses
   };
 
@@ -65,7 +68,7 @@ class SearchFrame extends JFrame {
     this.browser = browser;
     this.browserPanel = browserPanel;
     this.setVisible(false);
-    this.pos = POS.valueOf(prefs.get("searchPOS", POS.NOUN.name()));
+    this.pos = POS.valueOf(prefs.get("searchPOS", POS.ALL.name()));
     this.searchType = SearchType.valueOf(prefs.get("searchType", SearchType.SUBSTRING.name()));
 
     // Command+W
