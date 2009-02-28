@@ -20,32 +20,48 @@
  */
 package edu.brandeis.cs.steele.wn;
 
-import java.io.*;
-import java.util.*;
+import static edu.brandeis.cs.steele.util.MergedIterable.merge;
+import static edu.brandeis.cs.steele.util.Utils.uniq;
+import edu.brandeis.cs.steele.util.Cache;
+import edu.brandeis.cs.steele.util.CharSequences;
+import edu.brandeis.cs.steele.util.ImmutableList;
+import edu.brandeis.cs.steele.util.LRUCache;
+import edu.brandeis.cs.steele.util.LookAheadIterator;
+import edu.brandeis.cs.steele.util.MultiLevelIterable;
+import edu.brandeis.cs.steele.util.MutatedIterable;
+import edu.brandeis.cs.steele.util.Utils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.brandeis.cs.steele.util.*;
-import static edu.brandeis.cs.steele.util.MergedIterable.merge;
-import static edu.brandeis.cs.steele.util.Utils.uniq;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
-/** A <code>DictionaryDatabase</code> that retrieves objects from the text files in the WordNet distribution
- * directory (typically <tt><i>$WNHOME</i>/dict/</tt>).
+/** 
+ * A {@code DictionaryDatabase} that retrieves objects from the text files in the WordNet distribution
+ * directory (typically <tt><em>$WNHOME</em>/dict/</tt>).
  *
- * <p>A <code>FileBackedDictionary</code> has an <i>entity cache</i>.  The entity cache is used to resolve multiple
+ * <p> A {@code FileBackedDictionary} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
- * calls to <code>lookupWord</code> with the same parameters would return the same value
- * (<code>==</code> as well as <code>equals</code>), as would traversal of two <code>Pointer</code>s
+ * calls to {@code lookupWord} with the same parameters would return the same value
+ * ({@code ==} as well as {@code equals}), as would traversal of two {@code Pointer}s
  * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
  * two different objects to represent the same entity, if their retrieval is separated by other
- * database operations.  FIXME revisit this comment FIXME <i>The LRU cache will be replaced by a
+ * database operations.
+ *
+ * FIXME revisit this comment FIXME <i>The LRU cache will be replaced by a
  * cache based on WeakHashMap, once JDK 1.2 becomes more widely available.</i>
  *
- * @see edu.brandeis.cs.steele.wn.DictionaryDatabase
- * @see edu.brandeis.cs.steele.util.Cache
- * @see edu.brandeis.cs.steele.util.LRUCache
+ * @see DictionaryDatabase
+ * @see Cache
+ * @see LRUCache
  */
-public class FileBackedDictionary implements DictionaryDatabase {
+public final class FileBackedDictionary implements DictionaryDatabase {
   private static final Logger log = LoggerFactory.getLogger(FileBackedDictionary.class.getName());
 
   private final FileManagerInterface db;
@@ -55,16 +71,18 @@ public class FileBackedDictionary implements DictionaryDatabase {
   // Constructors
   //
 
-  /** Construct a {@link DictionaryDatabase} that retrieves file data from
-   * <code>fileManager</code>.  A client can use this to create a
+  /**
+   * Construct a {@link DictionaryDatabase} that retrieves file data from
+   * {@code fileManager}.  A client can use this to create a
    * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
    */
-  FileBackedDictionary(final FileManagerInterface fileManager) {
+  private FileBackedDictionary(final FileManagerInterface fileManager) {
     this.db = fileManager;
     this.morphy = new Morphy(this);
   }
 
-  /** Construct a dictionary backed by a set of files contained in the default
+  /**
+   * Construct a dictionary backed by a set of files contained in the default
    * WordNet search directory.
    * @see FileManager for a description of the location of the default
    * WordNet search directory (<code>$WNSEARCHDIR</code>).
@@ -73,12 +91,13 @@ public class FileBackedDictionary implements DictionaryDatabase {
     this(new FileManager());
   }
 
-  /** Construct a dictionary backed by a set of files contained in
+  /**
+   * Construct a dictionary backed by a set of files contained in
    * {@code search directory}.
    */
-  FileBackedDictionary(final String searchDirectory) {
-    this(new FileManager(searchDirectory));
-  }
+//  FileBackedDictionary(final String searchDirectory) {
+//    this(new FileManager(searchDirectory));
+//  }
 
   // thread-safe singleton trick from:
   // http://tech.puredanger.com/2007/06/15/double-checked-locking/
@@ -87,33 +106,35 @@ public class FileBackedDictionary implements DictionaryDatabase {
     static final FileBackedDictionary instance = new FileBackedDictionary();
   } // end class InstanceHolder
 
-  /** Factory method to get <i>the</i> dictionary backed by a set of files contained
+  /**
+   * Factory method to get <em>the</em> dictionary backed by a set of files contained
    * in the default WordNet search directory.
    * @see FileManager for a description of the location of the default
-   * WordNet search directory (<code>$WNSEARCHDIR</code>).
+   * WordNet search directory ({@code $WNSEARCHDIR}).
    */
   public static FileBackedDictionary getInstance() {
     return InstanceHolder.instance;
   }
 
-  /** Factory method to get <i>the</i> dictionary backed by a set of files contained
+  /**
+   * Factory method to get <em>the</em> dictionary backed by a set of files contained
    * in {@code searchDirectory}.
    */
   //FIXME ignores passed in searchDirectory reference
-  public static FileBackedDictionary getInstance(final String searchDirectory) {
-    return InstanceHolder.instance;
-  }
+//  public static FileBackedDictionary getInstance(final String searchDirectory) {
+//    return InstanceHolder.instance;
+//  }
 
-  /** Factory method to get <i>the</i> {@link DictionaryDatabase} that retrieves file data from
-   * <code>fileManager</code>.  A client can use this to create a
+  /**
+   * Factory method to get <em>the</em> {@link DictionaryDatabase} that retrieves file data from
+   * {@code fileManager}.  A client can use this to create a
    * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
    * @see RemoteFileManager
    */
   //FIXME ignores passed in fileManager reference
-  public static FileBackedDictionary getInstance(final FileManagerInterface fileManager) {
-    return InstanceHolder.instance;
-  }
-
+//  public static FileBackedDictionary getInstance(final FileManagerInterface fileManager) {
+//    return InstanceHolder.instance;
+//  }
 
   //
   // Entity lookup caching
@@ -171,6 +192,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
     @Override
     public int hashCode() {
+      // FIXME crap hashCode ?
       return posOrdinal ^ CharSequences.hashCode(key);
     }
   } // end class StringPOSDatabaseKey
@@ -191,7 +213,9 @@ public class FileBackedDictionary implements DictionaryDatabase {
 
   /** NOTE: Called at most once per POS */
   private static String getDatabaseSuffixName(final POS pos) {
-    assert POS_TO_FILENAME_ROOT.containsKey(pos) : "no filename for pos "+pos;
+    if (false == POS_TO_FILENAME_ROOT.containsKey(pos)) {
+      throw new IllegalArgumentException("no filename for pos "+pos);
+    }
     return POS_TO_FILENAME_ROOT.get(pos);
   }
 
@@ -329,7 +353,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
   static int lookupIndexWordCacheHit = 0;
   static int weirdLookupIndexWordCacheMiss = 0;
 
-  private static Object NULL_INDEX_WORD = new Object();
+  private static final Object NULL_INDEX_WORD = new Object();
 
   /** {@inheritDoc} */
   public Word lookupWord(final CharSequence lemma, final POS pos) {
@@ -387,7 +411,6 @@ public class FileBackedDictionary implements DictionaryDatabase {
   /** {@inheritDoc} */
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     // TODO use getindex() too ?
-    final List<String> morphs;
     if (pos == POS.ALL) {
       return ImmutableList.of(uniq(merge(
         morphy.morphstr(someString, POS.NOUN),
@@ -459,6 +482,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
       final int offset = db.getIndexedLinePointer(someString, filename);
       if (offset >= 0) {
         final String line = db.readLineAt(offset, filename);
+        //FIXME slow regex split
         final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
         assert toReturn.size() >= 2;
         exceptionsCache.put(cacheKey, toReturn);
@@ -473,15 +497,15 @@ public class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * <i>looks up</i> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a>
-   * in the <code>cntlist.rev</code> file and returns the matching line (or
-   * <code>null</code>).  Informationally equivalent to searching
-   * <code>index.sense</code> (or <code>sense.idx</code> on older Windows
-   * releases).  Differences are that <code>cntlist.rev</code> includes defunct
+   * <em>looks up</em> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a>
+   * in the {@code cntlist.rev} file and returns the matching line (or
+   * {@code null}).  Informationally equivalent to searching
+   * {@code index.sense} (or {@code sense.idx} on older Windows
+   * releases).  Differences are that {@code cntlist.rev} includes defunct
    * sense information (does no harm though because it isn't referenced in its
    * WordNet), doesn't include entries for items with zero counts, doesn't
    * include synset offset, and formats adjective sense keys correctly (including
-   * <code>WordSense.AdjPosition</code> information).
+   * {@code WordSense.AdjPosition} information).
    */
   String lookupCntlistDotRevLine(final CharSequence senseKey) {
     //TODO add caching
@@ -571,7 +595,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         //<framenum>[ ]+<frame string>
 
         // skip leading digits, skip spaces, rest is frame text
-        int idx = line.indexOf(" ");
+        int idx = line.indexOf(' ');
         assert idx >= 0;
         for (int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
           idx++;
@@ -609,7 +633,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
         //<sentenceNumber>[ ]+<sentence string>
 
         // skip leading digits, skip spaces, rest is sentence text
-        int idx = line.indexOf(" ");
+        int idx = line.indexOf(' ');
         assert idx >= 0;
         for (int i = idx + 1, n = line.length(); i < n && line.charAt(i) == ' '; i++) {
           idx++;
@@ -645,6 +669,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
     private final String filename;
     private int nextOffset = 0;
     private int offset = -1;
+    private static final String TWO_SPACES = "  ";
 
     WordIterator(final POS pos) {
       this.pos = pos;
@@ -663,7 +688,7 @@ public class FileBackedDictionary implements DictionaryDatabase {
             throw new NoSuchElementException();
           }
           nextOffset = db.getNextLinePointer(nextOffset, filename);
-        } while (line.startsWith("  ")); // first few lines start with "  "
+        } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
         //FIXME something seems wrong with this
         return new Word(line, offset, FileBackedDictionary.this);
       } catch (final IOException e) {
