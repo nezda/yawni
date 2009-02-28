@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 /**
- * Key package for all JWordNet classes.
+ * Key package for all Yawni classes.
  */
 package org.yawni.wn;
 

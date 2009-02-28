@@ -36,10 +36,10 @@ import java.util.prefs.*;
  *
  * <p> The browser can be invoked as follows:
  * <ul>
- *   <li> {@code java edu.brandeis.cs.steele.wn.Browser}<br>
+ *   <li> {@code java org.yawni.wn.Browser}<br>
  *        To invoke a browser on the local database. </li>
  *
- *   <li> {@code java edu.brandeis.cs.steele.wn.Browser <dir>}<br>
+ *   <li> {@code java org.yawni.wn.Browser <dir>}<br>
  *        To invoke a browser on a local database stored at {@code <dir>}. </li>
  * </ul>
  */
@@ -202,7 +202,7 @@ public class Browser extends JFrame {
       public void actionPerformed(final ActionEvent evt) {
         final String description =
            "<html>"+
-            "<h2>JWordNet Browser</h2>"+
+            "<h2>Yawni Browser</h2>"+
             "A graphical interface to the "+
             "WordNet online lexical database.<br>"+ //TODO would be cool if this were a live hyperlink
             "<br>" +

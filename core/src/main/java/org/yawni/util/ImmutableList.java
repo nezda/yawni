@@ -39,7 +39,7 @@ import java.util.RandomAccess;
  * Uses cases:
  * - especially useful when you have millions of short {@ code List<T>}s
  *   - ImmutableMultimap
- *   - caches like JWordNet uses all the time - impossible to "poison" :)
+ *   - caches like Yawni uses all the time - impossible to "poison" :)
  *   ? XML parsing / parse tree (read-only JDOM? would be fun to template that anyway if JAXB isn't already far superior)
  *   ? graph / tree data structures
  *   ? ML data structures

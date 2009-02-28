@@ -4,7 +4,7 @@
 <preferences EXTERNAL_XML_VERSION="1.0"> 
   <root type="user"> 
   <map/> 
-  <node name="edu/brandeis/cs/steele/wn"> 
+  <node name="org/yawni/wn"> 
   <map>
     <!-- TODO add OS specific defaults -->
     <entry key="WNHOME" value=""/> 

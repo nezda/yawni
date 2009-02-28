@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 /**
- * Utility classes containing general data structures and algorithms used throughout JWordNet.
+ * Utility classes containing general data structures and algorithms used throughout Yawni.
  */
 package org.yawni.util;
 

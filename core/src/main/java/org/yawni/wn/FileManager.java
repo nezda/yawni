@@ -52,7 +52,7 @@ import java.util.Map;
  */
 public final class FileManager implements FileManagerInterface {
   // intentionally using FileBackedDictionary's logger (for now)
-  private static final Logger log = LoggerFactory.getLogger("edu.brandeis.cs.steele.wn.FileBackedDictionary");
+  private static final Logger log = LoggerFactory.getLogger("org.yawni.wn.FileBackedDictionary");
 
   private String searchDirectory;
   private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
@@ -491,7 +491,7 @@ public final class FileManager implements FileManagerInterface {
       // getWNSearchDir() uses getWNHome()
       //
       // new:
-      // if JWORDNET_USE_JAR, try the jar
+      // if YAWNI_USE_JAR, try the jar
       // - XXX sys prop to guaruntee using the jar to prevent weird
       //   application-level WN data version mismatches
       //   - sysprops and environment variables create security issues

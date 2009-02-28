@@ -187,7 +187,7 @@ class PreferencesManager implements AWTEventListener {
         //System.err.println("closing event: " + evt);
         final JFrame frame = (JFrame)cev.getComponent();
         final String name = frame.getName();
-        if (name.startsWith("edu.brandeis.cs.steele.wn.browser") == false) {
+        if (name.startsWith("org.yawni.wn.browser") == false) {
           return;
         }
         //XXX saveSettings(frame);
@@ -200,7 +200,7 @@ class PreferencesManager implements AWTEventListener {
         //System.err.println("closing event: " + evt);
         final JFrame frame = (JFrame)cev.getComponent();
         final String name = frame.getName();
-        if (name.startsWith("edu.brandeis.cs.steele.wn.browser") == false) {
+        if (name.startsWith("org.yawni.wn.browser") == false) {
           return;
         }
         loadSettings(frame);

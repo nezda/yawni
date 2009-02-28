@@ -29,7 +29,7 @@ using namespace __gnu_cxx;
 // the term in every POS.  Includes optional "true case" to get the lemmas in
 // their actual case (e.g. "U.S.A.", not "u.s.a.").
 //
-// Created to compare development effort and speed to jwordnet.
+// Created to compare development effort and speed to yawni.
 //
 // Comparing Performance
 // - cat the UNIX words list through this program
