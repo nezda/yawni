@@ -26,7 +26,11 @@ import java.util.NoSuchElementException;
 public class MultiLevelIterable<T> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
 
-  /** Primary factory method which deduces template parameters. */
+  /** 
+   * Primary factory method which deduces template parameters.
+   * @param base of approixmate type {@code Iterable<Iterable<T>>}
+   * @return {@code Iterable<T>}
+   */
   public static <T>
     Iterable<T> of(final Iterable<? extends Iterable<T>> base) {
       return new MultiLevelIterable<T>(base);
