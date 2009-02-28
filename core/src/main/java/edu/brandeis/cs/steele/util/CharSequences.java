@@ -19,7 +19,7 @@ package edu.brandeis.cs.steele.util;
 /**
  * Utility methods for {@link CharSequence}s.
  * 
- * <p>Borrowed some code from Apache Harmony java.util.StringTokenizer
+ * <p> Borrowed some code from Apache Harmony java.util.StringTokenizer
  */
 public class CharSequences {
   private CharSequences() {}
