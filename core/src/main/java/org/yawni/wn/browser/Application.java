@@ -21,10 +21,11 @@ import java.io.*;
 
 /** 
  * Reads a properties file (target/classes/) containing the
- * of the buildnumber-maven-plugin.
+ * output of the buildnumber-maven-plugin.
  */
-class Application {
+final class Application {
   private final String applicationName;
+  private final String moduleName;
   private final String artifactId;
   private final String applicationVersion;
   private final String buildNumber;
@@ -34,23 +35,23 @@ class Application {
     try {
       final Properties props = new Properties();
       final InputStream in = getClass().getClassLoader().getResourceAsStream(
-        getPackagePath()+"/"+"application.properties");
+        getPackagePath() + "/" + "application.properties");
       if(in == null) {
         throw new RuntimeException("resource not found");
       }
       props.load(in);
       in.close();
       this.applicationName = (String) props.get("application.name");
+      this.moduleName = (String) props.get("application.moduleName");
       this.artifactId = (String) props.get("application.artifactId");
       this.applicationVersion = (String) props.get("application.version");
       this.buildNumber = (String) props.get("application.buildNumber");
       final String buildDateString = (String) props.get("application.buildDate");
       this.buildDate = new Date(Long.valueOf(buildDateString));
-
       //System.err.println("getPackage(): "+getPackagePath());
       //System.err.println("props: "+props);
       //System.err.println(this);
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
   }
@@ -66,6 +67,10 @@ class Application {
 
   public String getName() {
     return applicationName;
+  }
+
+  public String getModuleName() {
+    return moduleName;
   }
 
   public String getArtifactId() {
@@ -88,23 +93,24 @@ class Application {
     return String.format("%tY-%tm-%td", getBuildDate(), getBuildDate(), getBuildDate());
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return new StringBuilder().
-      append("[").
+      append('[').
       append(getName()).
-      //append(" ").
+      //append(' ').
       //append(getArtifactId()).
-      append(" ").
+      append(' ').
       append(getVersion()).
-      append(" ").
+      append(' ').
       append(getBuildNumber()).
-      append(" ").
+      append(' ').
       append(getFormattedBuildDate()).
-      append("]").
+      append(']').
       toString();
   }
 
   private String getPackagePath() {
-    return getClass().getPackage().getName().replace(".", "/");
+    return getClass().getPackage().getName().replace('.', '/');
   }
 }
