@@ -52,7 +52,7 @@ public class Browser extends JFrame {
 
   private static final long serialVersionUID = 1L;
   // Check that we are on Mac OS X.  This is crucial to loading and using the OSXAdapter class.
-  static final boolean MAC_OS_X = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
+  static final boolean IS_MAC_OS_X = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
   static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
   private final Application app = Application.getInstance();
@@ -202,7 +202,7 @@ public class Browser extends JFrame {
       public void actionPerformed(final ActionEvent evt) {
         final String description =
            "<html>"+
-            "<h2>Yawni Browser</h2>"+
+            "<h2>"+app.getName()+" Browser</h2>"+
             "A graphical interface to the "+
             "WordNet online lexical database.<br>"+ //TODO would be cool if this were a live hyperlink
             "<br>" +
