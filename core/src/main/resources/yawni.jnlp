@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
   <!-- FIXME make the codebase path a param -->
-  <jnlp spec="1.0+" codebase="file:///home/luke/code/java/yawni/jnlp/">
-  <!-- <jnlp spec="1.0+" codebase="http://www.fatbread.com/"> -->
+  <!-- <jnlp spec="1.0+" codebase="file:///home/luke/code/java/yawni/jnlp/"> -->
+  <jnlp spec="1.0+" codebase="http://www.fatbread.com/">
   <information>
     <title>Yawni Browser</title>
     <vendor>Luke Nezda</vendor>
@@ -25,7 +25,7 @@
     <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
     <!-- <jar href="yawni-2.0.0-SNAPSHOT.jar"/> -->
     <jar href="${pom.artifactId}-${pom.version}.jar"/>
-    <extension name="yawni-data" href="yawni-data.jnlp"/>
+    <!-- <extension name="yawni-data" href="yawni-data.jnlp"/> -->
     <!-- attempt to work around minor javaws bug
       http://lists.apple.com/archives/java-dev/2005/Mar/msg00426.html -->
     <property name="apple.awt.brushMetalLook" value="true"/>
@@ -37,14 +37,14 @@
 
   <!-- some platform specific WNHOME defaults -->
   <resources os="Mac OS X">
-    <!-- <property name="WNHOME" value="/usr/local/WordNet-3.0/"/> -->
+    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
   </resources>
 
   <resources os="Linux">
     <!-- default install location of Ubuntu install -->
     <property name="WNSEARCHDIR" value="/usr/share/wordnet/"/>
     <!-- default location of a Princeton install -->
-    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
+    <!-- <property name="WNHOME" value="/usr/local/WordNet-3.0/"/> -->
   </resources>
 
   <resources os="Windows">
