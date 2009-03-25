@@ -7,7 +7,7 @@
   <node name="org/yawni/wn"> 
   <map>
     <!-- TODO add OS specific defaults -->
-    <entry key="WNHOME" value=""/> 
+    <entry key="WNHOME" value=""/>
   </map>
     <node name="browser"> 
     <map>
