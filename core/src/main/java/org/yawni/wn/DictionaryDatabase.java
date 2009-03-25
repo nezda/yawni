@@ -83,6 +83,7 @@ public interface DictionaryDatabase {
    * @param substring The substring to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
+   * @see <a href="http://wordnet.princeton.edu/man/wn.1WN"><code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
    */
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
 
