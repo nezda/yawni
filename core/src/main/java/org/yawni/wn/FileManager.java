@@ -54,7 +54,7 @@ public final class FileManager implements FileManagerInterface {
   // intentionally using FileBackedDictionary's logger (for now)
   private static final Logger log = LoggerFactory.getLogger("org.yawni.wn.FileBackedDictionary");
 
-  private String searchDirectory;
+//  private String searchDirectory;
   private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
   static class NextLineOffsetCache {
@@ -99,39 +99,60 @@ public final class FileManager implements FileManagerInterface {
    * is undefined, by the directory named {@code $WNHOME/dict}.
    */
   public FileManager() {
-    this(getWNSearchDir());
+//    this(getWNSearchDir());
   }
 
   /** 
    * Construct a {@code FileManager} backed by a set of files contained in
    * {@code searchDirectory}.
    */
-  public FileManager(final String searchDirectory) {
-    this.searchDirectory = searchDirectory;
-  }
+//  public FileManager(final String searchDirectory) {
+//    this.searchDirectory = searchDirectory;
+//  }
 
+  /**
+   * Directory with subdirectory {@code dict/} which contains all
+   * of the WordNet data files.
+   */
   private static String getWNHome() {
     return getValidatedPathNamed("WNHOME");
   }
 
+  /**
+   * Directory which contains all WordNet data files defined by {@code $WNSEARCHDIR}.
+   * The {@code WNsearchDir} is typically {@code $WNHOME/dict}
+   */
   private static String getWNSearchDir() {
-    //FIXME unify logic for this (getWNSearchDir()) and getWNHome()
-    String searchDir = getValidatedPathNamed("WNSEARCHDIR");
+    final String searchDir = getValidatedPathNamed("WNSEARCHDIR");
     if (searchDir != null) {
-      // FIXME searchDir better have our files in it or we're screwed
-      // even if WNHOME is correct!
+      // searchDir better have our files in it or we're screwed
+      // even if $WNHOME is correct!
       return searchDir;
     }
-    //FIXME should check that /dict is readable too!
-    return getWNHome() + File.separator + "dict/";
+    // WNSEARCHDIR was not defined & readable - try generating it from WNHOME
+    final String wnHome = getWNHome();
+    String generatedSearchDir = null;
+    if (wnHome != null) {
+      generatedSearchDir = getWNHome() + File.separator + "dict/";
+      if (false == isReadableFile(generatedSearchDir)) {
+        generatedSearchDir = null;
+      }
+    }
+    return generatedSearchDir;
   }
 
+  /**
+   * Searches an environment variable and then a Java System Property 
+   * named {@code propname} and if its value refers to a readable file,
+   * returns that path, otherwise returns {@code null}.
+   */
   static String getValidatedPathNamed(final String propName) {
-    String path = System.getProperty(propName);
+    String path;
+    path = System.getenv(propName);
     if (isReadableFile(path)) {
       return path;
     } else {
-      path = System.getenv(propName);
+      path = System.getProperty(propName);
       if (isReadableFile(path)) {
         return path;
       }
@@ -515,7 +536,8 @@ public final class FileManager implements FileManagerInterface {
       // How can we test behavior in the sandboxed, high security environment?
       
       final String pathname =
-        filenameWnRelative ? searchDirectory + File.separator + filename :
+//        filenameWnRelative ? searchDirectory + File.separator + filename :
+        filenameWnRelative ? getWNSearchDir() + File.separator + filename :
         filename;
       //System.err.println("filenameWnRelative: "+filenameWnRelative);
       //System.err.println("searchDirectory: "+searchDirectory);
@@ -523,28 +545,31 @@ public final class FileManager implements FileManagerInterface {
 
       //final long start = System.nanoTime();
       final File file = new File(pathname);
-      //System.err.printf("pathname: "+file+"\n");
+      log.debug("pathname: {}", pathname);
       if (file.exists() && file.canRead()) {
         //slow CharStream
         //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
         //fast CharStream stream
         stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
-        //System.err.printf("FileCharStream\n");
+        log.trace("FileCharStream");
       } else {
         stream = getURLStream(filename);
-        //System.err.printf("URLCharStream\n");
+        log.trace("URLCharStream");
       }
       //final long duration = System.nanoTime() - start;
       //final long total = streamInitTime += duration;
       //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
-      assert stream != null;
+//      assert stream != null : "stream is still null";
+      if (stream == null) {
+        return null;
+      }
       filenameCache.put(filename, stream);
     }
     return stream;
   }
 
   /**
-   * Interpret resourcename as a classpath-relative URL.
+   * Interpret {@code resourcename} as a classpath-relative URL.
    * @param resourcename
    * @return CharStream corresponding to resourcename
    */
@@ -552,6 +577,10 @@ public final class FileManager implements FileManagerInterface {
     resourcename = "dict/" + resourcename;
     // assume WN dict/ is in the classpath
     final URL url = getClass().getClassLoader().getResource(resourcename);
+    if (url == null) {
+      log.error("resourcename: {} not found!", resourcename);
+      return null;
+    }
     final URLConnection conn = url.openConnection();
     // get resource length so we can avoid unnecessary buffer copies
     final int len;
@@ -831,7 +860,10 @@ public final class FileManager implements FileManagerInterface {
     }
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   * Note this is a covariant implementation of {@link Comparator<CharSequence>}
+   */
   public WordNetLexicalComparator comparator() {
     // caseless searches rely on this
     return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE;
