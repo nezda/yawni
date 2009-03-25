@@ -64,7 +64,7 @@ import java.util.NoSuchElementException;
 public final class FileBackedDictionary implements DictionaryDatabase {
   private static final Logger log = LoggerFactory.getLogger(FileBackedDictionary.class.getName());
 
-  private final FileManagerInterface db;
+  private final FileManagerInterface fileManager;
   final Morphy morphy;
 
   //
@@ -77,7 +77,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
    */
   private FileBackedDictionary(final FileManagerInterface fileManager) {
-    this.db = fileManager;
+    this.fileManager = fileManager;
     this.morphy = new Morphy(this);
   }
 
@@ -304,7 +304,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       final String filename = getIndexFilename(pos);
       final CharSequence line;
       try {
-        line = db.readLineAt(offset, filename);
+        line = fileManager.readLineAt(offset, filename);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -330,7 +330,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       if (line == null) {
         final String filename = getDataFilename(pos);
         try {
-          line = db.readLineAt(offset, filename);
+          line = fileManager.readLineAt(offset, filename);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -371,7 +371,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       final String filename = getIndexFilename(pos);
       final int offset;
       try {
-        offset = db.getIndexedLinePointer(lemma, filename);
+        offset = fileManager.getIndexedLinePointer(lemma, filename);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -479,9 +479,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     assert pos != null;
     final String filename = getExceptionsFilename(pos);
     try {
-      final int offset = db.getIndexedLinePointer(someString, filename);
+      final int offset = fileManager.getIndexedLinePointer(someString, filename);
       if (offset >= 0) {
-        final String line = db.readLineAt(offset, filename);
+        final String line = fileManager.readLineAt(offset, filename);
         //FIXME slow regex split
         final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
         assert toReturn.size() >= 2;
@@ -512,11 +512,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     final int offset;
     final String line;
     try {
-      offset = db.getIndexedLinePointer(senseKey, getCntlistDotRevFilename());
+      offset = fileManager.getIndexedLinePointer(senseKey, getCntlistDotRevFilename());
       if (offset < 0) {
         line = null;
       } else {
-        line = db.readLineAt(offset, getCntlistDotRevFilename());
+        line = fileManager.readLineAt(offset, getCntlistDotRevFilename());
       }
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
@@ -529,7 +529,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     assert lexnum >= 0;
     String line;
     try {
-      line = db.readLineNumber(lexnum, getLexnamesFilename());
+      line = fileManager.readLineNumber(lexnum, getLexnamesFilename());
       if (line != null) {
         // parse line. format example:
         //00	adj.all	3
@@ -556,7 +556,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     assert framenum >= 1;
     String line = null;
     try {
-      line = db.readLineNumber(framenum - 1, getGenericVerbFramesFilename());
+      line = fileManager.readLineNumber(framenum - 1, getGenericVerbFramesFilename());
       assert line != null : "framenum: "+framenum;
       // parse line. format example:
       //<number>
@@ -586,9 +586,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   String lookupVerbSentencesNumbers(final CharSequence verbSenseKey) {
     String line = null;
     try {
-      final int offset = db.getIndexedLinePointer(verbSenseKey, getVerbSentencesIndexFilename());
+      final int offset = fileManager.getIndexedLinePointer(verbSenseKey, getVerbSentencesIndexFilename());
       if (offset >= 0) {
-        line = db.readLineAt(offset, getVerbSentencesIndexFilename());
+        line = fileManager.readLineAt(offset, getVerbSentencesIndexFilename());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -624,9 +624,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   String lookupVerbSentence(final String verbSentenceNumber) {
     String line = null;
     try {
-      final int offset = db.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFilename());
+      final int offset = fileManager.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFilename());
       if (offset >= 0) {
-        line = db.readLineAt(offset, getVerbSentencesFilename());
+        line = fileManager.readLineAt(offset, getVerbSentencesFilename());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -683,11 +683,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
             throw new NoSuchElementException();
           }
           offset = nextOffset;
-          line = db.readLineAt(nextOffset, filename);
+          line = fileManager.readLineAt(nextOffset, filename);
           if (line == null) {
             throw new NoSuchElementException();
           }
-          nextOffset = db.getNextLinePointer(nextOffset, filename);
+          nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
         //FIXME something seems wrong with this
         return new Word(line, offset, FileBackedDictionary.this);
@@ -738,10 +738,10 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
     public Word next() {
       try {
-        final int offset = db.getMatchingLinePointer(nextOffset, substring, filename);
+        final int offset = fileManager.getMatchingLinePointer(nextOffset, substring, filename);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
-          nextOffset = db.getNextLinePointer(offset, filename);
+          nextOffset = fileManager.getNextLinePointer(offset, filename);
           return value;
         } else {
           throw new NoSuchElementException();
@@ -794,11 +794,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
     public Word next() {
       try {
-        final int offset = db.getPrefixMatchLinePointer(nextOffset, prefix, filename);
+        final int offset = fileManager.getPrefixMatchLinePointer(nextOffset, prefix, filename);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
           // setup for next element
-          nextOffset = db.getNextLinePointer(offset, filename);
+          nextOffset = fileManager.getNextLinePointer(offset, filename);
           return value;
         } else {
           throw new NoSuchElementException();
@@ -884,12 +884,12 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           if (nextOffset < 0) {
             throw new NoSuchElementException();
           }
-          line = db.readLineAt(nextOffset, filename);
+          line = fileManager.readLineAt(nextOffset, filename);
           offset = nextOffset;
           if (line == null) {
             throw new NoSuchElementException();
           }
-          nextOffset = db.getNextLinePointer(nextOffset, filename);
+          nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith("  ")); // first few lines start with "  "
         return getSynsetAt(pos, offset, line);
       } catch (IOException e) {
