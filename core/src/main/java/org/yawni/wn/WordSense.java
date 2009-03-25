@@ -193,7 +193,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
    * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt><br>
    * @see <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
    */
-  //TODO cache this ?does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
+  //TODO cache this ? does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
   // power users would be into this: https://sourceforge.net/tracker/index.php?func=detail&aid=2009619&group_id=33824&atid=409470
   CharSequence getSenseKey() {
     final String searchWord;
@@ -519,7 +519,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
   //
   private List<Pointer> restrictPointers(final List<Pointer> source) {
     List<Pointer> list = null;
-    for (int i = 0, n = source.size(); i < n; ++i) {
+    for (int i = 0, n = source.size(); i < n; i++) {
       final Pointer pointer = source.get(i);
       if (pointer.getSource().equals(this)) {
         assert pointer.getSource() == this;
