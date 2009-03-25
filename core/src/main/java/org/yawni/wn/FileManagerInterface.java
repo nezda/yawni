@@ -98,7 +98,7 @@ public interface FileManagerInterface {
   public int getNextLinePointer(final int offset, final String filename) throws IOException;
 
   /**
-   * Search for a line whose index word <i>contains</i> {@code substring}.
+   * Search for a line whose index word <em>contains</em> {@code substring}.
    * @return The file offset of the start of the matching line, or {@code -1} if
    *         no such line exists.
    * @throws IOException
@@ -106,7 +106,7 @@ public interface FileManagerInterface {
   public int getMatchingLinePointer(final int offset, final CharSequence substring, final String filename) throws IOException;
 
   /**
-   * Search for a line whose index word <i>begins with</i> {@code prefix}.
+   * Search for a line whose index word <em>begins with</em> {@code prefix}.
    * @return The file offset of the start of the matching line, or {@code -1} if
    *         no such line exists.
    * @throws IOException
