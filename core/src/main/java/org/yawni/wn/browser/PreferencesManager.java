@@ -25,10 +25,10 @@ import java.util.prefs.*;
 /**
  * Save window positions and all other persistent user preferences.
  * Doesn't use Properties (files), uses Preferences - no files or maps to manage.
- * TODO remove static methods -- go through getInstance()
- * TODO check if importPreferences() clobbers saved preferences - seems it would have to
- * TODO put WNHOME/WNSEARCHDIR per-OS defaults (same as those from .jnlp file) into preferences
- *      and reflect them into system properties
+ * @todo remove static methods -- go through getInstance()
+ * @todo check if importPreferences() clobbers saved preferences - seems it would have to
+ * @todo put WNHOME/WNSEARCHDIR per-OS defaults (same as those from .jnlp file) into preferences
+ *       and reflect them into system properties
  * @author http://www.oreilly.com/catalog/swinghks/
  */
 class PreferencesManager implements AWTEventListener {
@@ -77,9 +77,9 @@ class PreferencesManager implements AWTEventListener {
     try {
       Preferences.importPreferences(is);
       is.close();
-    } catch(InvalidPreferencesFormatException ipfe) {
+    } catch (InvalidPreferencesFormatException ipfe) {
       throw new RuntimeException(ipfe);
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
   }
@@ -90,7 +90,7 @@ class PreferencesManager implements AWTEventListener {
       public void set() {
         try {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch(Exception e) {
+        } catch (Exception e) {
           java.lang.System.err.println("Error setting LAF "+this+" " + e);
         }
       }
@@ -99,7 +99,7 @@ class PreferencesManager implements AWTEventListener {
       public void set() {
         try {
           UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch(Exception e) {
+        } catch (Exception e) {
           java.lang.System.err.println("Error setting LAF "+this+" " + e);
         }
       }
@@ -108,7 +108,7 @@ class PreferencesManager implements AWTEventListener {
       public void set() {
         try {
           UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-        } catch(Exception e) {
+        } catch (Exception e) {
           java.lang.System.err.println("Error setting LAF "+this+" " + e);
         }
       }
@@ -117,7 +117,7 @@ class PreferencesManager implements AWTEventListener {
       public void set() {
         try {
           UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-        } catch(Exception e) {
+        } catch (Exception e) {
           java.lang.System.err.println("Error setting LAF "+this+" " + e);
         }
       }
