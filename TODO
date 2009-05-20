@@ -1,0 +1,852 @@
+- WordNet supersenses (WNSS) (Ciaramita and Altun, 2006)
+  Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger
+    http://sourceforge.net/projects/supersensetag/
+    - accelerate C++ version
+      - use more const references
+      - map -> hash_map
+      - set -> hash_set
+      - Fs::equate() should be assign() or assignment operator =
+      - OS X Accelerate library - can this work with STL vector<T> ?
+    - consider porting to Java
+
+Bugs and Features
+  Conventions:
+    status: "-" means not done, "~" means in progress, "+" means done, "?" means not sure
+    type: "bug" means broken, "feature" means would be cool
+
+JWordNet Subprojects
+- core
+- data
+  - should there be 1 per WN version? (..., 2.1, 3.0, ..., etc.)
+- browser
+  - depends on core
+
+- count source lines (and comments, licenses, etc.)
+  ohcount core/
+
+- overhead of java.util.zip is significant source of lag
+  - if we don't compress the jar, loading the data takes 139ms
+  - if we compress the jar, loading the data takes 480ms
+
+Examples apps
+- Using the 'Alignment API' with Wordnet
+  http://alignapi.gforge.inria.fr/alignwn.html
+
+Bob Carpenter's Stemming Examples (http://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
+(reasonable precautions against RSI: )
+  * odious: odious ? probably means "odium" or could mean it has no further stem ?
+  * euphoria: euphoria (CELEX-2 stems “euphoric” to “euphoria”)
+  * OK mathematical: mathematics
+  * epidemiology: epidemic (CELEX: missing) (WordNet: epidemiologic, epidemiological, epidemiologist - no idea how to get to epidemic)
+  * hypocrisy: hypocrisy (CELEX: hypocrite) (WordNet: hypocritical)
+  * OK maximize: maximum 
+
+Affixes
+  * unmodernised: modernised (CELEX: missing) (? antonym)
+  * OK prearrangement: prearrange
+  * OK unlocking: unlock (CELEX: missing)
+  * OK incorrigible: corrigible (? antonym)
+  * OK disability: disable
+  * OK inconvenience: inconvenient (CELEX: convenient)
+  * OK resentencing: sentencing (CELEX: missing) (* tricky - "re-sentencing")
+  * overcollateralization: collateralization (CELEX: missing) 
+
+Compounds
+  * OK cockfighting: cockfight (CELEX: cock fighting) (gloss)
+  * SPACE headquarters: head quarters
+  * ultraleftist: ultra leftist (CELEX: missing)
+  * OK omnipotence: omnipotent
+  * steelmaking: steel making (CELEX: missing) (WordNet: steelmaker has gloss "...making steel")
+  * SPACE stockholder: stock holder
+  * signalmen: signalman (-)
+  * OK DASH weatherbeaten: weather beaten (CELEX: weather-beaten) (tricky: dash)
+  * SPACE supercomputer: super computer (CELEX: missing)
+  * newsgathering: news gathering (CELEX: missing) 
+
+Release TODOs
+- bug: when going back and forth between Search and Substring search
+- bug: "hypocrite" shows derivationally related forms menu option, but nothing shows up ?
+- feature: factor static, non-public inner classes out (simpler?)
+  - FileManager: *CharStream
+
+- doc: should we note that Substring search will NOT search inflected forms
+  in some kind of documentation?  maybe it should try these if it has no matches ?
+- "Pertainym" word/label not actually shown, meaning demonstrated via example, e.g.
+  "...are nouns related to viral"
+  ? maybe change "related to" to pertaining to"?
+
+? why does this web UI to WN 3.0 http://poets.notredame.ac.jp/cgi-bin/wn
+  show "microorganism" and "infectious agent" as 
+  Pertainyms of "viral" ?
+  - these are both immediate hypernyms of the derivationally related
+    source noun "virus" -- are derivationally related forms
+    of adjectives "Pertainyms" ?
+    - is this just for "sense context" ? -- appears so, just missing level of indent to show this
+
+- bug: java.io.BufferedReader mark/reset fails based on input size, NOT mark(size) due to int overflow
+  with NegativeArraySizeException
+
+- bug: what will the sanctioned means of getting a FileBackedDictionary be
+  ? getInstance() ?
+    - similar factory
+  ? new FileBackedDictionary() // use magic behind the scenes
+
+  com/jhlabs/math/
+  com/jhlabs/vecmath
+
+~ feature: informative (for debugging) About dialog
+  - colorize red if WNHOME not readable
+  - data-in-jar
+  - the core logic of this belongs in FileManager
+  
+  - lifecycle of objects
+    FileBackedDictionary.getInstance()
+      instance = new FileBackedDictionary()
+        new FileBackedDictionary(
+          this.FileManagerInterface = 
+            new FileManager()
+            )
+              getFileStream(...)
+
+      ? maybe expose the FileManagerInterface we're using ? might open up Thread safety issues ?
+- feature: implement Set<Word> interface ?
+  ? not that useful, except for maybe size() (dubious value)
+- feature: adapative compressed form - gradually parse to "preparsed" form
+- fun: MinMaxHeap - see http://alias-i.com/lingpipe/docs/api/com/aliasi/util/MinMaxHeap.html
+
+- bug: more unit tests
+  - searching examples (findRelationships() from JWNL)
+  - add torture test outlined in Searcher (resursive parents / children)
+- feature: use appassembler to generate scripts
+  - WNHOME
+  - JVM args
+~ bug: switch to slf4j (more library friendly?)
+  - still need to convert web start stuff (shaded jar)
+  - reference Lucene dev thread and slf4j list of projects for rationale
+- feature: howto for developing in NetBeans ?
++ feature: package-info.java / overview.html
++ bug: LICENSE.txt, NOTICE.txt, README -> README.txt
+- feature: consider GetLemma interface? 
+  - bug: rename Word.getLemma() -> getLowercasedLemma() - not the same
+- feature: add expert query modes
+  ? how can these be integrated into the main UI transparently ?
+  <POS>#<synset>
+  <sensekey>
+- feature: design a useful Visitor API and implement it with TreeIterator
+- bug: GTK theme: width of POS dropdowns is (much) different when there are no results for a given POS
+  * that's the only issues with that theme! :)
++ bug: address/check any closed bugs of JWNL
+- bug: remove junk trace output in GUI
+- bug: switch everything over to Command + F (in addition to slash '/') - document this change
+- bug: remove totally experimental crap from release (Scala, ...)
+- bug: SearchFrame POS popup not receiving any keyboard input 
+  - depending on how it is selected, input continues to go directly to searchField
+- bug: audit UI and functionality
+  - compare to wnb - color, history, help, redisplay overview button, specific-sense filter
+  - compare to WordNet online - color
+  - compare to OS X dictionary - history, color and font variation, font size buttons, right-click menus, option-click search from defintion
+- feature: show "generic frame number" in interface ? (these are for experts)
++ feature: cache WordSense getSensesTaggedFrequency()
+- feature: document that we don't do Serialization (use sense keys ?)
+- bug: words with more than 1 distinct baseform (e.g., "bases") (not to be confused with words with "more than 1 'stem'" (e.g., "was"))
+  - "bases" has 2 bases (aka baseforms): "base" and "basis" jwordnet shows "basis", then "base", but wnb shows the opposite
+    - "base" has 19 senses
+    - "basis" has 3 senses
+    * this order happens to be alphabetical
+    ? maybe wnb orders by decreasing polysemy ? (that'd be cool ?) alphabetical ? (likely)
+  - "wound" VERB
+    "wind" has 7 senses
+    "wound" has 4 senses
+    * this order happens to be alphabetical
+  - "axes" NOUN, "ax", "axis", "Axis"
+  - "saw" VERB, "see", "saw"
++ feature: Setup Trac (likCyberduck uses) as sourceforge "Hosted App"
+- feature: kill the forced singleton behavior (i.e., FileBackedDictionary.getInstance())
+- feature: implement & test GetIndex
+- feature: consider a "lexicon" class for simple uses (like stemming)
+- feature: consider test / example coverage
+  - Ruby WordNet has some decent looking "examples/" and tests (linguawordnet)
+    http://www.deveiate.org/projects/Ruby-WordNet/browser/trunk/examples
+    source:trunk/tests/wntestcase.rb
+    source:trunk/tests/linguawordnet.tests.rb
+    source:trunk/tests/synset.tests.rb
+    source:trunk/lib/wordnet/synset.rb
+    source:trunk/lib/wordnet/constants.rb
+    source:trunk/lib/wordnet.rb
+    source:trunk/examples/clothesWithCollars.rb
+    source:trunk/examples/clothesWithTongues.rb
+    source:trunk/examples/hyponymTree.rb
+    source:trunk/examples/holonymTree.rb
+    source:trunk/examples/meronymTree.rb
+    source:trunk/examples/domainTree.rb
+    source:trunk/examples/memberTree.rb
+    source:trunk/examples/addLacedBoots.rb
+    source:trunk/examples/distance.rb
+    source:trunk/examples/hypernymTree.rb
+    source:trunk/examples/gcs.rb
+~ feature: read data files from jar
+  ? what test cases remain?
+  + use subproject to build this (data only 11MB zipped!)
+  + URL+ByteArrayInputStream CharStream implementation 
+    - could create a ByteBuffer or a byte[] directly
+    - possible to lazy load like mmap ? Threaded load ?
+- bug: morphy shouldn't produce results which cannot be found in WN for that POS
+  + bug: (data bug) search failures? in lookupSynsets()
+    * contrast these to "geese" / "goose" which works
+      [fedayee, fedayeen] NOUN - backwards in exc file 
+      [aciculum, acicula] NOUN - search for "acicula" works, but "aciculum" fails?
+      [furculum, furcula] NOUN - backwards in exc file  
+    - also seems to happen for [cathar, cathari, Cathari] NOUN
+    * looked like multi-stemming bug (N wounds -> N wound -> N wind)
+  - bug: noisy, scary logging in lookupSynsets()
++ feature: T[] -> List<T> API improvement - use NetBeans to do this
+  - key here is ImmutableList<T>
+    - Collections.emptyList()
+    - Collections.singletonList(T) - more space efficient
+    - if this is an interface and all construction is limited to factories,
+      we can have consistent source for super-compact specializations (size 0,1,2,3)
+      - look at EnumSet API
+    - subclass ArrayList - override set(), remove(), clear()
+      - tiny memory inefficiency from AbstractList (or AbstractCollection?):
+        modCount field used for fail-fast not needed for immutable
+        * note, this is probably soaked up by Object padding anyway (goes in 8 B chunks)
+      - space usage for empty:
+        - 32-bit:
+          - Object: 8
+          - T[] ref: 4 (would be padded to 8, but for modCount)
+          - T[] object (sizes 0 and 1): 16 (sizes 2 and 3: 24, sizes 4 and 5: 32)
+          - int modCount: 4
+          * sum: 8 + 4 + 16 + 4 = 32 B
+        - 64-bit:
+          - Object: 16
+          - T[] ref: 8
+          - T[] object: 24
+          - int modCount: 4 (probably padded to 8)
+          * sum: 16 + 8 + 24 + 4 = 52 B (probably 56 B)
+    - minimal memory form 
+      * significant memory win - why didn't Google Collections do this ?
+      * similarly ImmutableSet could be made - brute force small sets, HashSet field the rest?
+      * TRICKY PART: make sure the hashCode(), equals(), and toString() methods match util.Collection
+      ? provides decent way to use arrays as HashSet keys ?
+      ? how can we create specialized form that is Comparable<T> iff T is Comparable ?
+      - 32-bit
+        - Object: 8 (therefore empty probably 8)
+        - 1 T ref: 4 (therefore, singleton probably 16 with padding)
+        - 2 T ref: 4 (therefore, doubleton 16
+        - 3 T ref: 4 (therefore, tripleton probably 24 with padding)
+        - 4 T ref: 4 (therefore, quadrupleton 24)
+    - ideally there'e be a marker interface like Immutable 
+      - org.apache.commons.collections.Unmodifiable
+      - note that Collections.unmodifiableList(list) can change IF list is changed elsewhere
+        - this could prove quite confusing!
+    - look at Google Collections impl - looks very simple - contains size and offset fields and 
+      disallows null members which seems crazy? (not general) forgot RandomAccess marker interface
+~ feature: make bullets look better 
+  - list-style: url... .gif
+  - anti-aliasing (doesn't fix size, but far less jaggy looking)
+~ feature: POS.ALL search support (esp for stems) - use Uniq to populate this
+- feature: POS.ALL support for exhaustive DictionaryDatabase iteration methods 
+  + words()
+  - wordSenses()
+  - synsets()
+  - searchByPrefix()
+  - searchBySubstring()
+- feature: add GUI unit tests with WindowLicker
+- feature: add generated unit tests with ScalaCheck
++ bug: fix wonky POS button menu behavior (behaves very differently across different LookAndFeels)
+  - consider making POS buttons toggle buttons - have window closing auto-toggle them
++ feature: refactor DictionaryDatabase methods to take String, POS rather
+  than POS, String - more natural - use Eclipse to do this
++ feature: POS.ALL support for DictionaryDatabase.words()
++ feature: version information in jar (and About dialog)
++ feature: up/down arrow navigation of search results from searchField
++ bug: multi-click behavior improvments
++ Need to create new key (with keytool) to sign the jar (with jarsigner via Maven)
+  and upload it with Cyberduck
+  keytool -genkey -alias "Luke Nezda" # password "secret", makes new keystore
+  keytool -selfcert -alias "Luke Nezda" # issue myself a new key
++ feature: update .jnlp file using pom.xml properties
+
+- Core
+  ~ feature: meta-pointers (e.g., Hypo/InstanceHypo)
+    - test cases:
+      - "head of state" hyponyms should include "Bill Clinton"
+        HYPONYM*, INSTANCE_HYPONYM
+      + "President of the United States" hyponyms "Bill Clinton"
+        HYPONYM*, INSTANCE_HYPONYM
+        * note PofUS has no actual HYPONYM
+        = in some sense, HYPONYM has subTypes INSTANCE_HYPONYM (postTypes?)
+          = in another sense, they could be considered equal types, although they never co-exist, they have very similar meanings
+        ? could it also be said that INSTANCE_HYPONYM has superTypes HYPONYM* ?
+        * ideally, we'd like to limit the number of PointerTypes which have auxiliary types to limit the extra
+          implied search "leniency"
+      - "Bill Clinton" hypernyms should include "President of the United States", "head of state", "person"
+        INSTANCE_HYPERNYM, HYPERNYM*
+        * note BC has no actual HYPERNYM 
+        = in some sense, INSTANCE_HYPERNYM has subtypes HYPERNYM* (postTypes?)
+      + "President of the United States" hypernyms "head of state"
+      - "President of the United States" hyponyms should NOT include its hypernyms (e.g., "head of state")
+        - but in current impl
+  ~ feature: performance (and correctness) comparison between jwordnet and Princeton C WordNet API
+    - compare to JWNL, JAWS
+      - doesn't even have build script
+    - add src/test/cpp/
+      * generate token-per-line file of something from Project Gutenburg
+        - doesn't test collocations!
+        ? tokenize with Lucene and create longest-match code
+      * currently testing with /usr/share/dict/words (near zero cacheing benefits)
+    - edu.brandeis.cs.steele.wn.browser.Searcher
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp target/jwordnet-core-2.0.0-SNAPSHOT.jar edu.brandeis.cs.steele.wn.browser.Searcher > /dev/null
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | src/test/cpp/wnlemmatizer > /dev/null
+    - optimization opportunities:
+      * IO methods most costly: readLineWord(), scanForwardToLineBreak(), scanToSpace()
+      + re-use StringBuilder (and ensureCapacity()) rather than making and tossing buffer every time
+      + rather than scan-then-fill, just scan & fill -- little uglier code, little less safe ?
+      - cache indices ('position') of line breaks - ideally want to populate this on the fly
+        could use BitSet where 1's are newlines but doesn't provide means of marking undecided 
+        bytes - could this be filled fast enough - background thread would certainly be fine
+    - results:
+                 C++ wnlemmatizer  jwordnet
+         'words' 5m1.875s          0m47.293s (6.3x)
+    War & Peace  23m21.491s        1m44.244s (13.4x)
+                 C++ wnlemmatizer
+                 w/o TrueCase
+         'words' 2m59.294s         0m47.293s (3.8x)
+    War & Peace  9m36.705s         1m44.244s (5.5x)
+                                   1m27.662s after Synset parsing optimization (6.5x)
+  - feature: remove singleton stuff ? (FileBackedDictionary.getInstance())
+  - feature: implement "sameLetterDigitSequence" in Utils
+    - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
+  ~ feature: getindex() impl
+    * These heuristics should be optional (config param or method param?)
+    * Goal: These heuristics should be strict enough to not make stupid mistakes ("I ran" -> "Iran", "be an" -> bean")
+      and loose enough to catch most reasonable variants ("wild goose chase" == "wild-goose chase",
+      "wide-screen" == "widescreen")
+    - search for "U.S." should match search for "U. S."
+      - requires removing space during lookup
+    - search for "n. y. stock exchange" should match search for "n.y. stock exchange"
+      - requires adding artificial space during lookup
+    - search for "internal combustion engine" should match "internal-combustion engine"
+      - requires replacing "-" with space during lookup
+    o search for "A.M." should match "AM"
+    x "U.S." should NOT match "us" - could filter on length ? maybe just a hot word cause its a common preposition ? could filter if has any vowels ? could enforce case ?
+    o "V.P." should match "VP"
+    o "widescreen" should match "wide-screen"
+    o "wild goose chase" should match "wild-goose chase"
+    o "f.d. roosevelt" -> "f. d. roosevelt" ->? "fd roosevelt"
+    o "a.k.a." -> "aka"
+    o "Dr." -> "Dr" (like "Mr." matches "Mr")
+    o "e.g." -> "e.g" ->? "eg"
+    o "et al" -> "et. al." -> "et al."
+    o "etc." -> "etc"
+    o "DOA" -> "d.o.a"
+    o "BTU" -> "b.t.u."
+    * many initials already have their period-free form in the data files
+  - feature: gloss grep (brute force, stemmed) -- little crazy as this
+    approaches a general IR problem (ie use Lucene)
+  - feature: create lemmatizing Lucene analyzer
+  ~ feature: add unit tests for FileManagerInterface routines utilizing toy files at
+    classpath-relative paths/URLs
+  - feature: load data files from InputStream(s) (jar) (loading from web via
+    web start would be sweet too)
+    - easiest way: read into byte[]
+    - could read into mmap-like ByteBuffer of the content
+    - final ReadableByteChannel channel = Channels.newChannel(Class.getResource().openStream());
+    - make this a separate jar file
+  - feature: POS.ALL support
+    - String[] lookupBaseForms(POS pos, String someString)
+    - Synset[] lookupSynsets(POS pos, String someString)
+    - (maybe) boolean isDefined(String)
+  - feature: nice interface to verb groups (http://wordnet.princeton.edu/man/wngroups.7WN)
+  ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on
+    class(es)? though could hide real bugs) 
+  - feature: document sort orders of Word, WordSense, Synset, and Pointer
+    - Word: 
+    - WordSense: xxx Synset (and then lemma for the few same-Synset ties (Doomsday, doomsday, Utopian, utopian)
+    - Synset: 
+    - Pointer:
+  - feature: document approximate runtime of various search algorithms
+  - feature: add search support for java.text.Collator / CollationKey to allow
+    searches for accented words to work (e.g. "resumé", "résumé", "résumés" to match "resume")
+    - to handle stemming in combination is a little harder - need custom RuleBasedCollator ?
+  - feature: interface to parse and cleanly represent (in code) glosstags corpus
+    - convert to lighter JSON or binary XML format ?
+    - delivered as 1 giant bzipped collection of XML files in directories
+    - only work with the 'merged' files (226MB unzipped!) - prime candidate for mmap
+      - merged.zip is only 31MB - maybe distribution should ship this way ?
+      - similar merged.tbz is only 20MB - nice win
+      ? I wonder how lzo would do ? (nice and fast)
+  - feature: reverse iteration
+  - feature: random item accessor (good for unit tests and performance tests)
+  - feature: implement ConcurrentLRUCache - cleaning eldest entries is the hard part ?
+  - feature: GUI ant target (and delete script) or use a local Java Web Start
+  - feature: convert CharStream interface to long's (from int's) to support huge files
+  - feature: make JList scroll-rate accelerate ? I swear I worked on this for
+    large result sets - maybe the difference is scrolling in terms of
+    JScrollBar or content ?
+  ~ feature: should be able to use WordNet 3.0 UNIX distribution dict/ files on Windows
+  + bug: fix always-singleton for WordSense.AdjPosition flags accessor
+  + bug: source files not being interpretted as UTF-8 -- uncommented line in pom.xml
+    + can be checked by looking for Unicode arrow as in RELATED TO → (verb) cat#1
+  + feature: implement "uniq" in Utils
+  + feature: update getIndexedLinePointer() to provide useful non-matching
+    return like java.lang.Arrays.binarySearch() (don't forget unit tests!)
+    + use this to make getPrefixMatchLinePointer() logarithmic instead of linear time
+  + feature: refactor FileManagerInterface to take non-file specifying arguments last
+    in order to allow cleaner optional arguments (use Eclipse to refactor)
+  + feature: (refactor) rename FileManagerInterface.getMatchingBeginningLinePointer()
+    to getPrefixMatchLinePointer()
+  + bug: checkstyle issue:
+    [WARNING] File encoding has not been set, using platform encoding MacRoman, i.e. build is platform dependent!
+  + feature: capability to substring search all pos at once 
+    + implemented MergedIterable (and unit tests)
+      / merge results with a CompositeComparator (Collator?)
+    + how to represent this in the API
+      + POS.ALL ? (like POS.SAT_ADJ - what the hell is this anyway ?)
+        (considered null (POS))
+      - merge string-equal multi-POS words for UI compactness?
+        - doesn't make selection ambiguous since Browser is built to handle display of multiple POS
+      - SearchFrame JList items should show all active POS 
+        - Kirill-style rendered icons? Noun, Verb, Adj, Adv - pretty long text-wise
+        - use background color swatches ?
+      virtual POS in SearchFrame menu only ? ("*" - kinda begs for a label for this combobox then though)
+      ? how many internal search routines would have to change to support this comprehensively ?
+        - zero (merge results with external mechanisms), all, some ???
+  + feature: rename "searchIndexBeginning" to "searchByPrefix"
+  + feature: rename "searchWords" to "searchBySubstring"
+    + tried to get Eclipse to work but moved files pissed it off bigtime
+  + feature: all atomic core types (ie all but Pointer) are Iterable<WordSense>
+  + feature: Word, Synset, WordSense, Pointer should implement Comparable
+  + bug: substring search for "-" (hyphenated words) not found
+    + would be cool to search for terms containing spaces too (collocation search)
+    ~ this means SearchFieldDocument needs to tolerate a leading word delimiters/"spacer"
+  + feature: mavenize project
+  + feature: AdjPositionFlags API (PREDICATIVE, ...)
+  + feature: lazy, correct getPointerTypes()
+  + feature: Word - memory optimization (only synset offsets OR synset objects, NOT both)
+  + feature: WordSense
+    + make verb frame info accessible
+    + make adjective positions an enum and make accessible by an EnumSet (only 7 possible combos?)
+
+- GUI
+  - bug: GTK LAF -- too many bugs to list: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6417110
+    + solution: for Windows and Mac, use native LAF, for Linux use CrossPlatform LAF
+    - Linux doesn't use anti-aliased fonts
+    - Linux and OS X + Java 5: preferred button size much smaller (esp on Linux)
+    - Linux and OS X + Java 5: fonts much smaller ⌘
+    - Linux and OS X + Java 6: font sizes OK, but File->"Substring Search" menu label overwritten by accelerator text "⌘+F"
+  ~ feature: find-as-type (at least in substring search)
+    - optimize re-fill, esp for short searches ('a')
+      - caching recent searches would be effective (lotsa RAM?)
+      - adding char to search string never increases the numbder of search hits
+        - unless it is inserted not at the end of the current search string
+      - results are always alphabetized - which conditions to adjacent searches
+        have common prefix/suffix hit sub-lists ?
+    - searching for space/dash in PREFIX mode should be more clearly disallowed
+      or the resulting search failure should be more clearly indicated
+      - e.g. Firefox Find turns red if there are NO hits
+    - make (*valid*) selected index stay synced to Browser
+      - enter key could sync to Browser ?
+    - consider alternate sorts for results (longest first, shortest first, "gloss-corpus" frequency ranked?)
+  - feature: make Browser statusbar exactly the same height as iTunes one (include re-sizer handle) (POLS: Principle of Least Surprise)
+  - feature: issue searches and generate output for multiple POS in parallel with pool of 4 worker threads
+    ? do this in library ? almost every search and search component could
+      be run against the POS DB files in parallel - trick is coalescing the results
+      without introducing too much contention - some kind of use either LinkedBlockingQueue 
+      ConcurrentLinkedQueue or PriorityBlockingQueue to aggregate results
+      - ExecutorService.invokeAll() will handle the work distribution but efficiently merging
+        the result set will have to be done via a shared queue as posited
+  - bug: content tree/DAG rendering issues
+    - switch from <li> to <table> - more flexible and better looking
+    - anti-alias <li> circles (currently using "*" for speed)
+    - general intermediate search result format to separate model and view would be
+      ideal solution here (e.g. JSON, DOM, XML)
+  - feature: stats tables in About dialog 
+    - number of nouns, verbs, ...
+    - # of length x words (histogram)
+    * fill in numbers matrix style for bonus points
+  - feature: highlight query word in red like wnb in HTML results ? (bold now)
+  - feature: make L&F preferences (default.xml) based
+  - bug: SearchFrame always takes text of BrowserPanel even if it was
+    indirectly, automatically populated via clicking on a SearchFrame list item
+    search result
+    - tricky because this field is used to store state used by POS PointerType menus
+    - perfect use for SnapBack
+  - feature: add Undo/Redo to SearchFrame's searchField like BrowserPanel
+  - feature: if browser is close to left edge of screen, align SearchFrame on
+    right edge of browser (instead of attempting to align it to the left edge)
+  - feature: save window positions across boots
+    - load default preferences (don't clobber pre-set ones?)
+      - what if defaults load itself fails? fail whole program or hard-code default also !?
+    - add button/commandline/environment/system variable to trigger reloading defaults.xml
+    - preferences modification screen ?
+    - Preferences API FTW: http://java.sun.com/j2se/1.4.2/docs/guide/lang/preferences.html
+      which is like a platform-independent Windows registry (note has KEY and
+      value size limitations so don't try to store serialized objects in there)
+      - how does this interact with Java Web Start ?
+    - write properties to jar file is a bad idea: 
+      http://forum.java.sun.com/thread.jspa?threadID=5207074&messageID=9830109
+      * risks corrupting the jar file (and invalidating its signature)
+    + load defaults.xml file from jar file (updated common-build.xml <jarify> macro)
+      + load defaults.xml from Class.getResourceAsStream();
+  - feature: save history across boots - Preferences API - people would love this,
+    - UndoManager will need to read these on app load (def in separate thread!)
+    * would need a UI element to clear the history as well!
+  - feature: content autocomplete in text fields (esp if there's only 1 completion left)
+  - bug: debug DropDownMenu on OS X using "show me *every* event" AWT thing
+    AbstractButton.isFocusPainted() may be useful
+    ? refactor using Swing Hacks DropDownMenu
+  + bug: double-click and triple-click annoying in Search field
+    * issue is JTextField only handles double and triple click, but a long
+      series of consecutive, temporally adjacent clicks results in getClickCount()s 
+      of 4,5,6,.. which are unhandled.
+      - could consume() 4+ events, clone them, and redispatch them as 3-click events
+    * Caret: 'dot' is the current position, 'mark' defines the other end of the selection
+    MouseEvent
+    MouseListener
+      mousePressed(MouseEvent)
+        MouseEvent
+          int getClickCount()
+          long getWhen()
+    - act directly on multi-clicks identified using a lastClickTime state variable 
+    - use javax.swing.Timer to act on single clicks which turn out NOT to be multi-clicks
+      http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=2&t=009927
+    AbstractButton.getMultiClickThreshhold() may be useful
+  - feature: generate the little Mac magnifying glass icon with Java2D and make it the
+    substring menu icon
+  - feature: what is the "standard" undo/redo icon ?
+    ~ macvim (7.1r27) ones look pretty official (includes the swishy orange undo arrow)
+      + emailed author and requested SVG version but he never responded
+    - just generate the OS X one ? (orange swishy arrow)
+    - http://tango.freedesktop.org/Image:Tango-feet.png
+    - http://java.sun.com/developer/techDocs/hi/repository/index.html
+    - xswingx /org/jdesktop/xswingx/demo/Search_SnapBack.png  
+  ~ feature: add Cmd++ / Cmd+- font scaling
+    - add more sizes and cycle through results
+    - add this capability to SearchFrame JList items
+    - associate with standard named Actions HTMLEditorKit.FONT_CHANGE_BIGGER / HTMLEditorKit.FONT_CHANGE_SMALLER
+    - Action.MNEMONIC_KEY - KeyEvent
+    + Action.ACCELERATOR_KEY - KeyStroke
+    + Action.SMALL_ICON - menu, toolbar icon
+    - Action.SHORT_DESCRIPTION - tooltip
+    + generate associated icons: simple anti-aliased small/large bold sans font "A" (mimics OS X icons))
+      http://weblogs.java.net/blog/kirillcool/archive/2005/07/how_to_create_s.html
+    + add menu options
+  ~ bug: anti-aliasing not settable via Java 1.5 web start (known web start
+    bug) - make a generic recursive function to set it on JComponent in an
+    application
+    ? what is swing.useSystemFontSettings (http://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html#application_desc)
+      which is a respected web start property
+  - bug: SearchFrame / Browser window switch on OS X has ugly, slow, visible repaint with BrushedMetal L&F
+    - possible fixes in:
+      http://developer.apple.com/technotes/tn2007/tn2196.html
+      - use Quartz rendering pipeline options ?
+  - bug: native Linux (GTK) L&F seems to work on lcc64 only ? java6 only ? 64-bit JVM only ?
+  - feature: hyperlink word senses in glosses using new http://wordnet.princeton.edu/glosstags
+  - feature: add font zoom buttons to BrowserPanel
+  - feature: add back/forward buttons to BrowserPanel (just trigger undo)
+  - feature: add edit menu and copy, paste, select all, +undo, +redo to it
+  - feature: in search fields, filter input and show history
+    - xswingx
+    - using Swing Hacks technique
+  - feature: make substring search a "drawer" or splitpane like PDF search in Apple Preview
+  ~ feature: history in text fields
+    + undo should trigger focus shift to searchField ? (currently does)
+  - feature: type/property search / filter
+    - regex search (checkbox / JRadioButton) in substring search
+    - lexname search filter in substring search
+    - AdjPosition
+    - PointerType
+  - feature: add regex search capability (roughly a filter over substring?)
+    ? add suffix search capability (makes interface too busy? -tion, -ing)
+  - feature: add WNHOME assumptions / prompt to splash screen OR installer to Web Start launcher
+    - could be as simple as prompting user if environment variable AND Java preference cannot be found
+  - feature: add nice high res icon (design one :)
+  - use set of BorderLayout's to prevent weird movement of POS combobox (its not that weird)
+  ~ feature: Java Web Start (aka JNLP)
+    - works under ideal conditions, but thread safe singleton and misconfiguration
+      means exceptions are wrapped in ExceptionInInitializer
+    ? where would the default installation location be on Windows ? (e.g. where did 2.1 go?)
+      <property name="WNHOME" value="c:\Program Files\WordNet\2.1\"/>
+    ? where would the default installation location be on Linux ?
+      - this only matters for the JWS version - using Ubuntu default WordNet package location
+        /usr/share/wordnet
+        for WNSEARCHDIR
+        and 
+        /usr/local/WordNet/3.0/dict
+        for WNHOME otherwise (default Princeton install path)
+    ? should we prompt to find it ? install it ?
+  + bug: "Bigger Font"/"Smaller Font" option lost on any content update of BrowserPanel
+    - load/store this as a preference and default it to large 
+    - wrap up the other font size variants
+  ~ feature: work on concurrency / snappiness
+    + make substring / prefix radiobutton switch re-issue search
+    + make substring results start coming back ASAP
+    + nice opportunity for CompositeComparator (ended up calling this MergedIterable
+      - still have to start from the prefix beginning
+    + Swing Hacks shows techniques for doing this easily for substring/prefix search
+  + feature: double click mouse listener for JList in case switch from SearchFrame to BrowserPanel,
+    clear / change search, then user expects clicking on list item to select it and
+    in turn redisplay that item in the BrowserPanel
+  + bug: "e-mail" All POS search had duplicate for "e-mail"
+    - same happens for "run" (easiest using to find using prefix search)
+    + these are string level collisions across different POS
+      - need to add de-duplicating wrapper (same "word" applies to all POS anyway)
+  + bug: fixed issues with reading / storing preferences
+  + feature: add statusbar to SearchFrame with search pos, text, and the number
+    of hits (maybe "n of m" too) or basic instructions like browser has
+    - substring Noun query "irone" has 1 hit - fix statusbar to say "1 result" (not "1 results")
+    + factor out common code ? - not enough to worry about
+  + feature: remember SearchFrame's radio-button position (Substring/Prefix) across
+    boots with Preferences
+  + bug: because of JList cell prototype, horizontal scrollbar is always
+    showing which is confusing
+  + bug: prevent crash on searchField content change
+  + bug: constrain search fields to non-junk
+    - too long, extra whitespace, ...
+  + bug: SearchFrame JList should always select at least row 0
+    and the selected row should reset when list contents reset
+    + clear selection on all new searches
+  + bug: SearchFrame JList needs mouse listener
+    + solution was just to use default list selection model and clearSelection()
+      when contents changed
+    - to reproduce, in browser search for ".22", Cmd+F, doube-click on first (highlighted match)
+    * can probably generalize with PropertyChangeListener ?
+  + feature: add insets/borders (pad) content text areas
+  + bug: OS X undo is Command+Shift+Z, not Command+Y
+  + feature: SearchFrame should always open in the same place relative to the browser
+    even if the user moves the browser
+  + bug: don't let text area get focus if it is empty!
+  + feature: set initial text in search window to current text of browser window
+  + bug: ensure posComboButton menu enable/disable is synced to search field
+  + feature: add capability to drag with mouse from any non-interactive part of Browser or SearchFrame
+  + feature: add Prefix search capability
+  + bug: set minimum and preferred sizes on SearchFrame and BrowserFrame
+  + feature: basic undo / redo support in the searchField
+  + fix to say "Applies to m of the n senses of <lexeme>"
+  + decrease padding between search field/label and pos comboboxes
+  + pretty nice HTML rendering of information
+    + make content font Sans Serif
+    + fixed huge amount of extra spaces in HTML lists
+  + odd tab/focus issue with JList in SearchFrame
+  + add Cmd+W to close Substring Search window on OS X
+  - add ? to close Substring Search window on Windows and Linux
+  + add hot key to open search too (Cmd+f)
+  + fix Quit in File menu
+  + on OSX, menus are "correct"
+  + always show horizontal and vertical scrollbars per OSX UI guidelines (avoids weird shift crap)
+  + capitalize POS labels (noun -> Noun)
+  + fixed numerous issues with Search Substring
+    * no limits on search (e.g. no "Error: search string less than 3 characters")
+  + simplified layout management
+  + dynamic combobox content based on per-POS search results
+  + combo boxes take size of their pos label
+  + partial fix for multi-stem issue (talks, talk)
+  + various state-fixes for status bar
+  + almost no indexed based loops now
+  + many more PointerType displays are correct now (Adj syns, etc)
+
++ add senses tagged frequency support
+  - 90% done - need more tests, caching, and cleanup
+  - add unit tests (esp for adj's)
+  + add senses tagged frequency to toString()
+    - put in Word.getLongDescription()
++ add lexfilename support
+  + have lexfilenum gtg (including "inline" copy)
+  + String getLexCategory()
++ rename Word -> WordSense, IndexWord -> Word
+  + use Eclipse refactor - much better Java support
+    + update docs, browser, example, tests
+  + made a proper XCode project
+    - probably would be easier with XCode ? - limited Java support
+    - still need to gather output of 'ant test' command
+      - would it update javadoc refs too ?
+~ revive browser
+  + get this to at least compile again
+  - where should this go ? 
+    * not needed for library to function, although adds no dependencies
+      very small increase in jar file size -- maybe who cares ??
+    -> who cares - add browser package
+    - add to a demo hierarchy ?
+    - add to contrib hierarchy ?
+- bug: clean up (especially FIXMEs (and TODOs))
+  - factor some inner classes into outter, non-public classes
+  - remove cruft / extra debug crap
+- consider taking CharSequence for search in interface to allow
+  use of mutable query "String"'s, etc (from user perspective, still
+  fully backwards compat with String (Java 1.5-wise)
+- where should examples go?
++ run code through various tools (God bless Maven)
+  + findbugs (http://findbugs.cs.umd.edu/demo/jnlp/findbugs.jnlp)
+  + CPD - looks good (http://pmd.sourceforge.net/cpd.jnlp)
++ make line ends native in files and svn
+~ work on Morphy
+  * add exact match in 1 spot
+  ? simplify various parallel arrays
+  - implement getindex()
+  - NEW fancy search options
+    - properly stem / find prefix variants
+    - guess to find missing items ("blogging")
+    - consider returning morphologically derived terms ?
+  - ensure symmetric search results
+    FAQ http://wordnet.princeton.edu/faq#morphology says "the morphological component of WordNet is unidirectional"
+    "long time" is a NOUN, "longtime" is an ADJ, both come up in searches for
+    "long time", but only the ADJ comes up in searches for "longtime"
+  - why doesn't "blogging" -> "blog" work ? (double g)
+    - seems "running" (double n) is considered an exception ($WNHOME/dict/verb.exc)
+    ? maybe morphy should just try this variant ?
+    - similar for removing e in shaking hands -> shake hands
+  - shootout test against Porter stemmer (copy from Lucene)
+    - many sublteties here - may stem incorrectly (???), may not (blogging->blog)
+  - stem special words: naieve - naXXXve
+  ~ add unit test to Lucene to ensure equality with Snowball generated Porter stemmer
+  - consider integration with Snowball ?
+- compare interface summary stats with those in:
+  $WNHOME/dict/log.grind.3.0
+  ? will this filename remain the same ?
+? how come Doomsday and Utopian came up as case ambiguous, but
+  Moon, moon didn't ?
+
+Measure memory requirements
+  - write program to generate report of each lexeme and relation
+  - estimate this value -- outline has many of the details
+  ? is there a tool to do this ?
+  - all IndexWords, Synsets, and Pointers 
+    - approximate this:
+  
+  * used 'hat' https://hat.dev.java.net/
+    Synset: 76
+    Word: 22
+    IndexWord: 29
+    Pointer: 20
+
+  - all caches full
+
+Features / Enhancements
+- phase in support for "ALLSENSES" (original WN libraries have this for 
+  core search routines (findtheinfo(...) and in_wn(...))
+- create bounded length longest match algorithm and run over documents
+- re-write grind in Java with jflex and/or javacc
+  - very old, suspect C code with scary comments in lex file in particular
+
+WordNet features (unexposed)
++ add support for cntlist.rev
+  - $WNHOME/dict/cntlist.rev
+  - is $WNHOME/dict/cntlist.rev - mappings to the previous versions senses ?
+  ? is this the same as index.sense / sense.idx on Windows ?
+    - cntlist.rev is a superset of index.sense
+      - their formats are similar
+      cut -d" " -f1,3,4 dict/index.sense > index.sense.no_offsets
+      egrep -v " 0\s*$" index.sense.no_offsets > index.sense.no_offsets.non_zero
+      wc -l dict/cntlist.rev index.sense.no_offsets.non_zero
+      
+      37387 dict/cntlist.rev
+      35478 index.sense.no_offsets.non_zero (-1909 - changed sense numbers, conflated/dropped senses, etc)
+      
++ add support for lexnames 
+  - $WNHOME/dict/lexnames
+  * already parses lexfilenum
+  - for now will only require a byte, but can show an int in the interface
++ verify this Tokenizer nextHexInt() crap - is that for real?
+  - all encountered thus far seem correct
+
+Performance
++ cache null values!!!
+  - complete ?
+- convert over to CharSequence and consider using ByteCharBuffer
+  - eliminates a lot of immediately discarded String objects
+  - eliminates backing char[] storage reqs of longer lived Strings
+- consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to
+  - 16,557,481 letters (about 32 MB as char so about 16 MB as byte)
+    chop the memory requirements in half for these large strings.
+- use WeakReference's/ WeakReference[]
+
+- look for synchronization / liveness opportunities
+- make amount of file to mmap configurable ?
+  - test smaller values!!
+- use of singleton's prevents comparing distinct instantiations of the DB
+  - would FileChannel's do this anyway ? (probably not)
+- caching AND mmaping together may use too much memory - consider
+  only one or the other or making this configurable
++ using long's for file offets seems like overkill - it's gonna be a while
+  till a plain-text WordNet uses up 4 bytes
+- are Cache's used in "idempotent" manner where synchrnoization isn't needed?
+  - fix Cache implementations to not extend LinkedHashMap/HashMap so their public
+    interface is smaller (don't make the Stack is-a Vector mistake)
+  - hash resize for example seems like it could be bad
+  - add "TrivialCache" which never remembers anything
+? according to hat, there are many instances of PointerType[] which makes no sense
+  - likely due to multiple ClassLoader's being used to run JUnit tests
+
+General Project Quality
++ run RAT to ensure licenses are all good (http://code.google.com/p/arat/)
++ test on Windows, Linux, Mac
+- add javadoc to all important methods
+  - remove dated/wrong comments regarding original impl
+  - remove LN comments ? maybe replace with @author for now ? use tool to compare APIs
+  - consider using prose from http://www.w3.org/TR/wordnet-rdf/
++ make sure there are no tab's
++ make sure line endings are all consistent (native and nailed down in svn)
+
+- massive efficiency overhaul
+  - store files as large char arrays and maintain offsets to newlines
+    - load takes longer ?
+    - maybe using CharSequences backed by CharBuffer is just as good as arrays ?
+    - uses more memory ?
+      - full caches big too?
+        - consider a "WeakReference" based cache
+          - if app needs memory for something else, let cache drain
+  - String vs ByteCharBuffer
+    String
+      int offset, int length, int hash, char[] ref and Object and char * length
+    Buffer
+   
+********************************************************************************
+   int capacity, limit, mark, position
+      ByteBuffer
+        Endianess ref
+        MappedByteBuffer
+          DirectByteBuffer ref, int mapMode, ...
+    * key here is re-use, not object size
+      - although, offset and length into ByteCharBuffer would be pretty darn compact
+  - PointerType[] vs EnumSet<PointerType>
+    - PointerType[]
+      - object, int length, length * 4 = 16+4*len
+    - EnumSet<PointerType>
+      - object, Class ref
+        MiniEnumSet: 12+4+4+4=24 (tie at len=2)
+          - size (int), E[] ref, long // could save 8+4=7 bytes
+            - size could even be computed
+            - E[] can be pulled from EnumSet.elementClass
+
+- ByteCharBuffer / CharSequence change
+  + backing char[] object and content eliminated in many places
+    + reduces memory required (large searches, caching, etc)
+    + reduces load on garbage collector
+  + a ByteCharBuffer is a partially changable CharSequence - its
+    position and limit can be changed resulting in it effectively
+    "being" a different CharSequence
+  - Thread saftey is more of an issue
+    - ideally, re-use the Buffer (position, limit)
+    - content is only going to be used read-only
+
+  - increased complexity
+  - ByteCharBuffer assumes WordNet is ASCII
+
+- selling points for JWordNet as an Apache project
+  - the ultimate English stemmer (for IR applications, e.g., Lucene)
+  - Apache dictionary / lexicon resource
+    - really, you need a stemmer to get maximum value out of it - could
+      integrate with Lucene's slick new JFlex stemmer as part of a more general
+      Apache NLP toolkit
+  ? integrate with UIMA project: 
+    - UIMA - various NLP apps (pos, pchunk, doc/phrase/sentence-similarity (dup filtering), clustering
+  - practical lexical semantic web resource
+    - synergies with other Apache technologies (W3C RDF/OWL Representation of WordNet)
+      http://www.w3.org/TR/wordnet-rdf/
+      WordNetRDF http://wordnet.princeton.edu/~agraves/
+    - candidate ISO lexicon standard: Lexical Markup Framework (LMF)
+  - makes WordNet much more approachable to developers
+  - super memory efficient and fast
+  - WordNet is an estabished project and no Apache licensed API exists
+    - no high quality, pure Java commercial friendly license exists
