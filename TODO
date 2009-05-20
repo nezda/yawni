@@ -14,7 +14,7 @@ Bugs and Features
     status: "-" means not done, "~" means in progress, "+" means done, "?" means not sure
     type: "bug" means broken, "feature" means would be cool
 
-JWordNet Subprojects
+Yawni Subprojects
 - core
 - data
   - should there be 1 per WN version? (..., 2.1, 3.0, ..., etc.)
@@ -149,7 +149,7 @@ Release TODOs
 + feature: cache WordSense getSensesTaggedFrequency()
 - feature: document that we don't do Serialization (use sense keys ?)
 - bug: words with more than 1 distinct baseform (e.g., "bases") (not to be confused with words with "more than 1 'stem'" (e.g., "was"))
-  - "bases" has 2 bases (aka baseforms): "base" and "basis" jwordnet shows "basis", then "base", but wnb shows the opposite
+  - "bases" has 2 bases (aka baseforms): "base" and "basis" yawni shows "basis", then "base", but wnb shows the opposite
     - "base" has 19 senses
     - "basis" has 3 senses
     * this order happens to be alphabetical
@@ -287,7 +287,7 @@ Release TODOs
       + "President of the United States" hypernyms "head of state"
       - "President of the United States" hyponyms should NOT include its hypernyms (e.g., "head of state")
         - but in current impl
-  ~ feature: performance (and correctness) comparison between jwordnet and Princeton C WordNet API
+  ~ feature: performance (and correctness) comparison between yawni and Princeton C WordNet API
     - compare to JWNL, JAWS
       - doesn't even have build script
     - add src/test/cpp/
@@ -296,7 +296,7 @@ Release TODOs
         ? tokenize with Lucene and create longest-match code
       * currently testing with /usr/share/dict/words (near zero cacheing benefits)
     - edu.brandeis.cs.steele.wn.browser.Searcher
-      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp target/jwordnet-core-2.0.0-SNAPSHOT.jar edu.brandeis.cs.steele.wn.browser.Searcher > /dev/null
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp target/yawni-core-2.0.0-SNAPSHOT.jar edu.brandeis.cs.steele.wn.browser.Searcher > /dev/null
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | src/test/cpp/wnlemmatizer > /dev/null
     - optimization opportunities:
       * IO methods most costly: readLineWord(), scanForwardToLineBreak(), scanToSpace()
@@ -306,7 +306,7 @@ Release TODOs
         could use BitSet where 1's are newlines but doesn't provide means of marking undecided 
         bytes - could this be filled fast enough - background thread would certainly be fine
     - results:
-                 C++ wnlemmatizer  jwordnet
+                 C++ wnlemmatizer  yawni
          'words' 5m1.875s          0m47.293s (6.3x)
     War & Peace  23m21.491s        1m44.244s (13.4x)
                  C++ wnlemmatizer
@@ -833,7 +833,7 @@ General Project Quality
   - increased complexity
   - ByteCharBuffer assumes WordNet is ASCII
 
-- selling points for JWordNet as an Apache project
+- selling points for Yawni as an Apache project
   - the ultimate English stemmer (for IR applications, e.g., Lucene)
   - Apache dictionary / lexicon resource
     - really, you need a stemmer to get maximum value out of it - could
