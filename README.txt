@@ -1,6 +1,33 @@
+WordNet is a graph.
+It is potentially invaluable resource for injecting knowledge into applications.
+
+WordNet consists of enough data to exceed the recommended capacity of Java Collections 
+(e.g., SortedMap<String, X>), but not enough to justify a full relational database.
+
+WordNet is probably the single most used NLP resource.
+It embodies one of the most fundamental of all NLP problems: "word sense disambiguation".
+XXX
+
+There are a lot of interfaces to WordNet.
+XXX list them and their license and URL
+
+Why Yawni ?
+- commercial-grade implementation
+  - small memory foot print
+  - efficient algorithms
+  - simple, intuitive, and well documented API
+  - easy Maven build with minimal dependencies
+  - extensive unit tests
+- includes refined GUI browser featuring
+  - user friendly, snappy
+  - incremental find
+  - good keyboard support
+  - cross-platform including zero-install version
+- commercial-friendly Apache license
+newvisionhomeremodeling
 Changes in 2.x versions
 
-- Extreme speed improvements: literally faster than the C version (benchmarks included)
+- Extreme speed improvements: literally faster than the C version (benchmark source included)
   - FileManager.CharStream and FileManager.NIOCharStream
   - XXX copious amounts of caching (bounded, LRU strategy)
   - re-implemented LRUCache in terms of LinkedHashMap (much more efficient)
@@ -8,10 +35,10 @@ Changes in 2.x versions
 - Major reduction in memory requirements
   - use of primitives where possible (hidden by API)
   - elimination of unused or unneeded fields
-- Implemented Morhpy stemming algorithms
+- Implemented Morphy stemming algorithms
 - Completely rewritten GUI browser in Java Swing featuring
-  - No limits on search
   - Incremental find
+  - No limits on search
 - Support for WordNet 3.0 data files (and all older formats)
 - Supports reading data files from JAR file
 - Many bug fixes
@@ -20,25 +47,32 @@ Changes in 2.x versions
   - iteration bugs and memory leaks
   - various thread safety bugs
 - Updated to leverage Java 1.5
-  - use built in java.util.logging.* for logging
-    XXX slf4j - more flexible, Apache standard
-  - added LookaheadIterator (analagous to old LookaheadEnumeration)
-  - re-implemented LRUCache in terms of LinkedHashMap (much more efficient)
   - generics
   - use of Enum, EnumSet, and EnumMap where apropos
+  - re-implemented LRUCache in terms of LinkedHashMap (much more efficient)
+  - uses maximally configurable slf4j logging system
+  - added LookaheadIterator (analagous to old LookaheadEnumeration)
 - New/changed API methods
   - renamed Word -> WordSense, IndexWord -> Word
     - easier to understand, matches W3C proposal (http://www.w3.org/TR/wordnet-rdf/)
   - WordSense.getSenseNumber()
   - WordSense.getTaggedSenseCount()
+  - WordSense.getAdjPosition()
+  - WordSense.getVerbFrames()
+  - Word.isCollocation()
+  - Word.getPointerTypes()
+  - Synset.getLexCategory()
+  - added PointerTarget.getSynset()
   - Word.getSenses() -> Word.getSynsets() and added List<WordSense> Word.getSenses()
-  - made DictionaryDatabase Iterator's Iterables for ease of use (e.g. for loops)
-  - all core types implement Comparable<T>
-  - all core types implement Iterable<WordSense>
+  - DictionaryDatabase iteration methods are Iterables for ease of use (e.g., for loops)
+  - all core classes implement Comparable<T>
+  - all core classes implement Iterable<WordSense>
   - added iteration for all WordSenses and all Pointers (and all of certain PointerType)
-  - added support for POS.ALL it makes sense
+  - added support for POS.ALL where apropos
+  - all major classes are final
+  - currently, no major classes are Serializable
   - removed RMI client / server capabities - deemed overkill 
-  - removed applet - didn't justify its maitenance burden
+  - removed applet - didn't justify its maintenance burden
 - Growing suite of unit tests
-- Automated all build infrastructure using Maven
+- Automated all build infrastructure using Apache Maven
 
