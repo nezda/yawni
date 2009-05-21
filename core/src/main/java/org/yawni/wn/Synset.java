@@ -251,12 +251,11 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   }
 
   public String getLongDescription(final boolean verbose) {
-    final StringBuilder description = new StringBuilder(this.getDescription(verbose));
-    final String gloss = this.getGloss();
-    if (gloss != null) {
+    final StringBuilder description = new StringBuilder(getDescription(verbose));
+    if (getGloss() != null) {
       description.
         append(" -- (").
-        append(gloss).
+        append(getGloss()).
         append(')');
     }
     return description.toString();
@@ -281,8 +280,9 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   public List<Pointer> getPointers(final PointerType type) {
     List<Pointer> list = null;
     //TODO
-    // if superTypes exist, search them, then current type
-    // if current type exists, search it, then if subTypes exist, search them
+    // if superTypes exist, search them
+    // if current type exists, search it
+    // if subTypes exist, search them
     for (final Pointer pointer : pointers) {
       if (pointer.getType() == type) {
         if (list == null) {
@@ -291,7 +291,15 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
         list.add(pointer);
       }
     }
+    // if list == null && type has auxType, recall this method with that auxtype
     if (list == null) {
+//      if (type.subTypes.isEmpty() == false) {
+//        System.err.println("going for it "+type+" this: "+this+" subType: "+type.subTypes.get(0));
+//        assert type.subTypes.size() == 1;
+//        return getPointers(type.subTypes.get(0));
+//      } else {
+//        //System.err.println("type "+type+" for "+this+" has no subTypes");
+//      }
       return ImmutableList.of();
     }
     return ImmutableList.of(list);
@@ -333,14 +341,14 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
       append('@').
       append(getPOS()).
       append('<').
-      append('#').
-      append(lexfilenum()).
-      append("::").
+      //append('#').
+      //append(lexfilenum()).
+      //append("::").
       append(getLexCategory()).
       append('>').
-      append(": \"").
+      //append(": ").
       append(getDescription()).
-      append("\"]").toString();
+      append("]").toString();
   }
 
   /**
