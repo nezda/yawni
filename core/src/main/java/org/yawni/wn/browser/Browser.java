@@ -211,25 +211,38 @@ public class Browser extends JFrame {
             "by David Slomin and Randee Tengi.<br>"+
             "<br>";
         // JLabel text cannot be selected with the mouse, so we use JEditorPane
+        // format with table mainly so copy + paste will include newlines between rows
+        // FIXME increase white space/padding around the edges
         final JEditorPane info = new JEditorPane("text/html",
-            "<table>"+
-            "<tr style=''><td>"+
-            "<b>Version:</b> "+app.getVersion()+" (Build "+app.getBuildNumber()+", "+app.getFormattedBuildDate()+")<br>"+
-            "<b>WNHOME:</b> "+System.getenv("WNHOME")+"<br>"+ //TODO turn red if this is set but doesn't exist
+            "<table cellpadding=\"1\">" +
+            "<tr><td>"+
+              "<b>Version:</b> "+app.getVersion()+" (Build "+app.getBuildNumber()+", "+app.getFormattedBuildDate()+")"+
+            "</td></tr>"+
+            "<tr><td>"+
+              "<b>WNHOME:</b> env: "+System.getenv("WNHOME")+
+              " prop: "+System.getProperty("WNHOME")+ //TODO turn red if this is set but doesn't exist
+            "</td></tr>"+
+            "<tr><td>"+
+              "<b>WNSEARCHDIR:</b> env: "+System.getenv("WNSEARCHDIR")+
+                " prop: "+System.getProperty("WNSEARCHDIR")+ //TODO turn red if this is set but doesn't exist
+            "</td></tr>"+
             //TODO report WNSEARCHDIR (including red if set but doesn't exist like WNHOME)
             //TODO indicate if we loaded the data from a jar
-            "<b>Java:</b> "+System.getProperty("java.version")+"; "+
-              System.getProperty("java.vm.name")+" "+System.getProperty("java.vm.version")+"<br>"+
-            "<b>System:</b> "+System.getProperty("os.name")+" version "+System.getProperty("os.version")+
-              " running on "+System.getProperty("os.arch")+"<br>"+
+            "<tr><td>"+
+              "<b>Java:</b> "+System.getProperty("java.version")+"; "+
+                System.getProperty("java.vm.name")+" "+System.getProperty("java.vm.version")+
+            "</td></tr>"+
+            "<tr><td>"+
+              "<b>System:</b> "+System.getProperty("os.name")+" version "+System.getProperty("os.version")+
+                " running on "+System.getProperty("os.arch")+
             // CLASSPATH is typically really long - would require scroll capability
 //            "<b>Classpath:</b> "+System.getProperty("java.class.path")+"<br>"+
               // which properties do we care about anyway?
 //            "<b>System properties:</b> "+nonStandardSystemProperties()+"<br>"+ // TODO almost justifies a JScrollPane
-            "<br>"+
-            "</td></td></table>"
+            "</td></td>"+
+            "</table>"
           );
-        info.setFont(new JLabel(" ").getFont());
+        //info.setFont(new JLabel(" ").getFont());
         info.setEditable(false);
         info.setBackground(Color.WHITE);
         info.setOpaque(true);
@@ -361,8 +374,4 @@ public class Browser extends JFrame {
       }
     });
   }
-
-  //static void displayUsageError() {
-  //  System.err.println("usage: Browser [searchDir]");
-  //}
 }
