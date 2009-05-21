@@ -21,8 +21,19 @@
 package org.yawni.wn.browser;
 
 import org.yawni.util.ImmutableList;
-import org.yawni.wn.*;
 import org.yawni.util.Utils;
+import org.yawni.wn.DictionaryDatabase;
+import org.yawni.wn.FileBackedDictionary;
+import org.yawni.wn.POS;
+import org.yawni.wn.Pointer;
+import org.yawni.wn.PointerTarget;
+import org.yawni.wn.PointerType;
+import org.yawni.wn.Synset;
+import org.yawni.wn.Word;
+import org.yawni.wn.WordSense;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -40,6 +51,10 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.geom.*;
 import java.awt.font.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -48,8 +63,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -350,15 +363,19 @@ public class BrowserPanel extends JPanel {
     preload();
   }
 
-  static Icon createUndoIcon() {
-    return new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
+  private static Icon createUndoIcon() {
+    final Icon icon = new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
+    assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
+    return icon;
   }
 
-  static Icon createRedoIcon() {
-    return new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
+  private static Icon createRedoIcon() {
+    final Icon icon = new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
+    assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
+    return icon;
   }
 
-  static Icon createFontScaleIcon(final int dimension, final boolean bold) {
+  private static Icon createFontScaleIcon(final int dimension, final boolean bold) {
     return new ImageIcon(createFontScaleImage(dimension, bold));
   }
 
@@ -643,7 +660,7 @@ public class BrowserPanel extends JPanel {
 
         private int init() {
           putValue(Action.SMALL_ICON, createFontScaleIcon(16, true));
-          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK));
+          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK));
           return 0;
         }
 
@@ -660,7 +677,7 @@ public class BrowserPanel extends JPanel {
 
         private int init() {
           putValue(Action.SMALL_ICON, createFontScaleIcon(16, false));
-          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK));
+          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK));
           return 0;
         }
 
@@ -686,7 +703,8 @@ public class BrowserPanel extends JPanel {
       styleSheet.addRule("body {font-size: " + fontSize + ";}");
     }
 
-    @Override protected HTMLEditorKit createDefaultEditorKit() {
+    @Override
+    protected HTMLEditorKit createDefaultEditorKit() {
       final HTMLEditorKit kit = new HTMLEditorKit();
       final StyleSheet styleSheet = kit.getStyleSheet();
       // add a CSS rule to force body tags to use the default label font
@@ -998,7 +1016,7 @@ public class BrowserPanel extends JPanel {
     this.statusLabel.setText(status.get(args));
   }
 
-  /** Overview for single pos+word */
+  /** Overview for single {@code Word} */
   private synchronized void displaySenses(final Word word) {
     updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
@@ -1008,7 +1026,9 @@ public class BrowserPanel extends JPanel {
   }
 
   /**
-   * Core search routine which renders its results as HTML.
+   * Core search routine; renders all information about {@code Word} into {@code buffer}
+   * as HTML.
+   * 
    * TODO
    * Factor out this logic into a result data structure like findtheinfo_ds() does
    * to separate logic from presentation.
@@ -1016,85 +1036,87 @@ public class BrowserPanel extends JPanel {
    * and this traditional GUI application.
    */
   private void appendSenses(final Word word, final StringBuilder buffer, final boolean verbose) {
-    if (word != null) {
-      final List<Synset> senses = word.getSynsets();
-      final int taggedCount = word.getTaggedSenseCount();
-      buffer.append("The " + word.getPOS().getLabel() + " <b>" +
-        word.getLemma() + "</b> has " + senses.size() + " sense" + (senses.size() == 1 ? "" : "s") + " ");
-      buffer.append("(");
-      if (taggedCount == 0) {
-        buffer.append("no senses from tagged texts");
-      } else {
-        buffer.append("first " + taggedCount + " from tagged texts");
-      }
-      buffer.append(")<br>\n");
-      buffer.append("<ol>\n");
-      for (final Synset sense : senses) {
-        buffer.append("<li>");
-        final int cnt = sense.getWordSense(word).getSensesTaggedFrequency();
-        if (cnt != 0) {
-          buffer.append("(");
-          buffer.append(cnt);
-          buffer.append(") ");
-        }
-        if (word.getPOS() != POS.ADJ) {
-          buffer.append("&lt;");
-          // strip POS off of lex cat (up to first period)
-          String posFreeLexCat = sense.getLexCategory();
-          final int periodIdx = posFreeLexCat.indexOf(".");
-          assert periodIdx > 0;
-          posFreeLexCat = posFreeLexCat.substring(periodIdx + 1);
-          buffer.append(posFreeLexCat);
-          buffer.append("&gt; ");
-        }
-        //XXX how do you get to/from the satellite
-        //from http://wordnet.princeton.edu/man/wn.1WN:
-        //  "if searchstr is in a head synset, all of the head synset's satellites"
-        buffer.append(sense.getLongDescription(verbose));
-        if (verbose) {
-          final List<PointerTarget> similar = sense.getTargets(PointerType.SIMILAR_TO);
-          if (similar.isEmpty() == false) {
-            if (verbose) {
-              buffer.append("<br>\n");
-              buffer.append("Similar to:");
-            }
-            buffer.append("<ul>\n");
-            for (final PointerTarget target : similar) {
-              buffer.append(listOpen());
-              final Synset targetSynset = (Synset) target;
-              buffer.append(targetSynset.getLongDescription(verbose));
-              buffer.append("</li>\n");
-            }
-            buffer.append("</ul>\n");
-          }
-
-          final List<PointerTarget> targets = sense.getTargets(PointerType.SEE_ALSO);
-          if (targets.isEmpty() == false) {
-            if (similar.isEmpty()) {
-              buffer.append("<br>");
-            }
-            buffer.append("Also see: ");
-            int seeAlsoNum = 0;
-            for (final PointerTarget seeAlso : targets) {
-              buffer.append(seeAlso.getDescription());
-              for (final WordSense wordSense : seeAlso) {
-                buffer.append("#");
-                buffer.append(wordSense.getSenseNumber());
-              }
-              if (seeAlsoNum == 0) {
-                buffer.append("; ");
-              }
-              seeAlsoNum++;
-            }
-          }
-        }
-        buffer.append("</li>\n");
-      }
-      buffer.append("</ol>\n");
+    if (word == null) {
+      return;
     }
+    final List<Synset> senses = word.getSynsets();
+    final int taggedCount = word.getTaggedSenseCount();
+    buffer.append("The ").append(word.getPOS().getLabel()).
+      append(" <b>").append(word.getLemma()).append("</b> has ").
+      append(senses.size()).append(" sense").append(senses.size() == 1 ? "" : "s").
+      append(' ').
+      append('(');
+    if (taggedCount == 0) {
+      buffer.append("no senses from tagged texts");
+    } else {
+      buffer.append("first ").append(taggedCount).append(" from tagged texts");
+    }
+    buffer.append(")<br>\n");
+    buffer.append("<ol>\n");
+    for (final Synset sense : senses) {
+      buffer.append("<li>");
+      final int cnt = sense.getWordSense(word).getSensesTaggedFrequency();
+      if (cnt != 0) {
+        buffer.append('(');
+        buffer.append(cnt);
+        buffer.append(") ");
+      }
+      if (word.getPOS() != POS.ADJ) {
+        buffer.append("&lt;");
+        // strip POS off of lex cat (up to first period)
+        String posFreeLexCat = sense.getLexCategory();
+        final int periodIdx = posFreeLexCat.indexOf('.');
+        assert periodIdx > 0;
+        posFreeLexCat = posFreeLexCat.substring(periodIdx + 1);
+        buffer.append(posFreeLexCat);
+        buffer.append("&gt; ");
+      }
+      //XXX how do you get to/from the satellite
+      //from http://wordnet.princeton.edu/man/wn.1WN:
+      //  "if searchstr is in a head synset, all of the head synset's satellites"
+      buffer.append(sense.getLongDescription(verbose));
+      if (verbose) {
+        final List<PointerTarget> similarTos = sense.getTargets(PointerType.SIMILAR_TO);
+        if (similarTos.isEmpty() == false) {
+          buffer.append("<br>\n");
+          buffer.append("Similar to:");
+          buffer.append("<ul>\n");
+          for (final PointerTarget similarTo : similarTos) {
+            buffer.append(listOpen());
+            final Synset targetSynset = (Synset) similarTo;
+            buffer.append(targetSynset.getLongDescription(verbose));
+            buffer.append("</li>\n");
+          }
+          buffer.append("</ul>\n");
+        }
+
+        final List<PointerTarget> seeAlsos = sense.getTargets(PointerType.SEE_ALSO);
+        if (seeAlsos.isEmpty() == false) {
+          if (similarTos.isEmpty()) {
+            buffer.append("<br>");
+          }
+          buffer.append("Also see: ");
+          int seeAlsoNum = 0;
+          for (final PointerTarget seeAlso : seeAlsos) {
+            buffer.append(seeAlso.getDescription());
+            for (final WordSense wordSense : seeAlso) {
+              buffer.append('#');
+              buffer.append(wordSense.getSenseNumber());
+            }
+            if (seeAlsoNum == 0) {
+              buffer.append("; ");
+            }
+            seeAlsoNum++;
+          }
+        }
+      }
+      buffer.append("</li>\n");
+    }
+    buffer.append("</ol>\n");
   }
 
-  /** Render single Word + PointerType.  Calls recursive appendSenseChain() method for
+  /**
+   * Renders single {@code Word + PointerType}.  Calls recursive {@linkplain #appSenseChain()} method for
    * each applicable sense.
    */
   private void displaySenseChain(final Word word, final PointerType pointerType) {
@@ -1103,26 +1125,55 @@ public class BrowserPanel extends JPanel {
     final List<Synset> senses = word.getSynsets();
     // count number of senses pointerType applies to
     int numApplicableSenses = 0;
-    for (int i = 0, n = senses.size(); i < n; ++i) {
+    for (int i = 0, n = senses.size(); i < n; i++) {
       if (senses.get(i).getTargets(pointerType).isEmpty() == false) {
         numApplicableSenses++;
       }
     }
-    buffer.append("Applies to " + numApplicableSenses + " of the " + senses.size() + " senses" +
-      //(senses.length > 1 ? "s" : "")+
-      " of <b>" + word.getLemma() + "</b>\n");
+    buffer.append("Applies to ").append(numApplicableSenses).append(" of the ").
+      append(senses.size()).append(" senses").//(senses.length > 1 ? "s" : "")+
+      append(" of <b>").append(word.getLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
       if (senses.get(i).getTargets(pointerType).isEmpty() == false) {
-        buffer.append("<br><br>Sense " + (i + 1) + "\n");
+        buffer.append("<br><br>Sense ").append(i + 1).append('\n');
 
+        // honestly, I don't even know why there are 2 PointerTypes here ??
+//        PointerType inheritanceType = PointerType.HYPERNYM;
+//        PointerType attributeType = pointerType;
+//
+//        if (pointerType.equals(inheritanceType) || pointerType.isSymmetricTo(inheritanceType)) {
+//          // either pointerType == PointerType.HYPERNYM
+//          // or pointerType is isSymmetricTo(PointerType.HYPERNYM) currently is only HYPONYM
+//          inheritanceType = pointerType;
+//          attributeType = null;
+//        }
+        // else inheritanceType remains hypernym and the sought type remains attributeType
+        // maybe this is wrong if sought pointerType is
+        // PointerType.INSTANCE_HYPONYM or PointerType.INSTANCE_HYPERNYM ??
+        // neither of these are recursive
+
+        //input: HYPONYM
+        //inheritanceType: HYPONYM
+        //attributeType: null
+
+        //input: INSTANCE_HYPERNYM
+        //inheritanceType:  * ideally, this would become HYPERNYM?
+        //attributeType: null
+
+        //take2
         PointerType inheritanceType = PointerType.HYPERNYM;
         PointerType attributeType = pointerType;
-
-        if (pointerType.equals(inheritanceType) || pointerType.symmetricTo(inheritanceType)) {
-          inheritanceType = pointerType;
-          attributeType = null;
+        switch (pointerType) {
+          case HYPONYM:
+          //case INSTANCE_HYPONYM:
+          case HYPERNYM:
+          //case INSTANCE_HYPERNYM:
+            inheritanceType = pointerType;
+            attributeType = null;
         }
-        System.err.println(word + " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
+
+        System.err.println(word + " inheritanceType: " + inheritanceType + 
+          " attributeType: " + attributeType + " pointerType: " + pointerType);
         buffer.append("<ul>\n");
         appendSenseChain(buffer, senses.get(i).getWordSense(word), senses.get(i), inheritanceType, attributeType);
         buffer.append("</ul>\n");
@@ -1132,8 +1183,9 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
-  /** Add information from pointers.  Base method signature of recursive method
-   * appendSenseChain().
+  /**
+   * Adds information from {@code Pointer}s.  Base method signature of recursive method
+   * {@linkplain #appendSenseChain()}.
    */
   void appendSenseChain(
     final StringBuilder buffer,
@@ -1151,7 +1203,8 @@ public class BrowserPanel extends JPanel {
   //XXX return "<li>* ";
   }
 
-  /** Add information from pointers (recursive)
+  /**
+   * Recursivly adds information from {@code Pointer}s.
    */
   void appendSenseChain(
     final StringBuilder buffer,
@@ -1185,7 +1238,8 @@ public class BrowserPanel extends JPanel {
           assert pointer.isLexical();
           final WordSense wordSense = (WordSense) target;
           //FIXME RELATED TO label below only right for DERIVATIONALLY_RELATED
-          buffer.append("RELATED TO → (" + wordSense.getPOS().getLabel() + ") " + wordSense.getLemma() + "#" + wordSense.getSenseNumber());
+          buffer.append("RELATED TO → (").append(wordSense.getPOS().getLabel()).
+            append(") ").append(wordSense.getLemma()).append('#').append(wordSense.getSenseNumber());
           //ANTONYM example:
           //Antonym of dissociate (Sense 2)
           buffer.append("<br>\n");
@@ -1195,20 +1249,24 @@ public class BrowserPanel extends JPanel {
         buffer.append(target.getSynset().getLongDescription());
         buffer.append("</li>\n");
       }
-    }
-    if (attributeType != null) {
+
       // Don't get ancestors for these relationships.
       if (NON_RECURSIVE_POINTER_TYPES.contains(attributeType)) {
+        System.err.println("NON_RECURSIVE_POINTER_TYPES "+attributeType);
         return;
       }
     }
     if (ancestors == null || ancestors.contains(sense) == false) {
+      System.err.println("ancestors == null || does not contain sense "+sense+
+        " "+attributeType+" ancestors: "+ancestors);
       ancestors = new Link(sense, ancestors);
       for (final PointerTarget parent : sense.getTargets(inheritanceType)) {
         buffer.append("<ul>\n");
         appendSenseChain(buffer, rootWordSense, parent, inheritanceType, attributeType, tab + 1, ancestors);
         buffer.append("</ul>\n");
       }
+    } else {
+      System.err.println("ancestors != null || contains sense "+sense+" "+attributeType);
     }
   }
   //FIXME red DERIVATIONALLY_RELATED shows Sense 2 which has no links!?
@@ -1222,12 +1280,11 @@ public class BrowserPanel extends JPanel {
     updateStatusBar(Status.VERB_FRAMES, word.getLemma());
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
-    buffer.append(senses.size() + " sense" +
-      (senses.size() > 1 ? "s" : "") +
-      " of <b>" + word.getLemma() + "</b>\n");
+    buffer.append(senses.size()).append(" sense").append((senses.size() > 1 ? "s" : "")).
+      append(" of <b>").append(word.getLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
       if (senses.get(i).getWordSense(word).getVerbFrames().isEmpty() == false) {
-        buffer.append("<br><br>Sense " + (i + 1) + "\n");
+        buffer.append("<br><br>Sense ").append(i + 1).append('\n');
         //TODO show the synset ?
         buffer.append("<ul>\n");
         for (final String frame : senses.get(i).getWordSense(word).getVerbFrames()) {
@@ -1242,19 +1299,19 @@ public class BrowserPanel extends JPanel {
     resultEditorPane.setCaretPosition(0); // scroll to top
   }
 
-  //FIXME this seems pretty damn old-fashioned.  List ? LinkedList ?
+  //FIXME pretty old-fashioned and error prone.  List ? LinkedList ?
   private static class Link {
-    private final Object object;
+    private final PointerTarget pointerTarget;
     private final Link link;
 
-    Link(final Object object, final Link link) {
-      this.object = object;
+    Link(final PointerTarget pointerTarget, final Link link) {
+      this.pointerTarget = pointerTarget;
       this.link = link;
     }
 
-    boolean contains(Object object) {
+    boolean contains(final PointerTarget object) {
       for (Link head = this; head != null; head = head.link) {
-        if (head.object.equals(object)) {
+        if (head.pointerTarget.equals(object)) {
           return true;
         }
       }
