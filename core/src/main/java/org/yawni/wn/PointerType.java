@@ -28,7 +28,7 @@ import static org.yawni.wn.PointerTypeFlag.*;
 /**
  * Instances of this class enumerate the possible WordNet pointer types, and
  * are used to label {@link Pointer}s.
- * Each <code>PointerType</code> carries additional information including:
+ * Each {@code PointerType} carries additional information including:
  * <ul>
  *   <li> a human-readable label </li>
  *   <li> an optional symmetric (i.e., reflexive) type that labels links pointing the opposite direction </li>
@@ -46,9 +46,14 @@ public enum PointerType {
   // consider Unicde ellipsis: "…" instead of "..."
 
   // Nouns and Verbs
+  /** "a word that is <em>more generic</em> than a given word" */
   HYPERNYM("hypernym", "@", 2, N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
-  /** aka "instance of" */
+  /** aka "instance of" or just "instance" */
   INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N | V, "Instance Hypernyms (%s is an instance of ...)"),
+  /**
+   * "a word that is <em>more specific</em> than a given word"
+   * aka "troponym" for verbs.
+   */
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   /** aka "instances" */
   INSTANCE_HYPONYM("instance hyponym", "~i", 39, N | V, "Instance Hyponyms (... is an instance of %s)"),
@@ -63,14 +68,17 @@ public enum PointerType {
   SEE_ALSO("also see", "^", 16, N | ADJ | LEXICAL),
 
   // Verbs
+  
   ENTAILMENT("entailment", "*", 4, V, "%s entails doing ..."),
-  /** aka "cause to" */
+  /** aka "'cause to'" */
   CAUSE("cause", ">", 14, V, null, "%s causes ..."),
+  /** */
   VERB_GROUP("verb group", "$", 19, V),
 
   // Nouns
+  
   /**
-   * A word that names a part of a larger whole, aka "part name".
+   * A word that names a part of a larger whole, aka "part name".<br>
    * Pure-virtual PointerType.
    * @see PointerType#MEMBER_MERONYM
    * @see PointerType#SUBSTANCE_MERONYM
@@ -85,7 +93,7 @@ public enum PointerType {
   PART_MERONYM("part meronym", "#p", 8, N, "Part Meronyms (... are parts of %s)"),
 
   /**
-   * A word that names the whole of which a given word is a part.
+   * A word that names the whole of which a given word is a part.<br>
    * Pure-virtual PointerType.
    * @see PointerType#MEMBER_HOLONYM
    * @see PointerType#SUBSTANCE_HOLONYM
@@ -103,20 +111,24 @@ public enum PointerType {
   MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N),
   /** aka "usage term" */
   MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N),
-  /** aka "regiona term" */
+  /** aka "regional term" */
   MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N),
 
   // Adjectives
+  
   SIMILAR_TO("similar to", "&", 5, ADJ),
   PARTICIPLE_OF("participle of", "<", 15, ADJ | LEXICAL),
   /** aka "pertains to noun" */
   PERTAINYM("pertainym", "\\", 17, ADJ | LEXICAL, "... are nouns related to %s"),
 
   // Adverbs
+  
   /** aka "derived from adjective" */
   DERIVED("derived from", "\\", 17, ADV), // from adjective
 
   // All parts of speech
+  
+  /** opposite word */
   ANTONYM("antonym", "!", 1, N | V | ADJ | ADV | LEXICAL, "Antonyms (... is the opposite of %s)"),
   /** aka "a topic/domain" */
   DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV),
@@ -145,8 +157,12 @@ public enum PointerType {
 
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
 
-  /** A list of all <code>PointerType</code>s. */
-  public static final EnumSet<PointerType> TYPES = EnumSet.of(
+  /**
+   * A list of all {@code PointerType}s.
+   * Don't want to export this mutable, easily derived information.
+   * @see PointerType#values()
+   */
+  private static final EnumSet<PointerType> TYPES = EnumSet.of(
     ANTONYM, HYPERNYM, HYPONYM, ATTRIBUTE, SEE_ALSO,
     ENTAILMENT, CAUSE, VERB_GROUP,
     MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
@@ -160,26 +176,30 @@ public enum PointerType {
 
   //XXX this seems to indicate DOMAIN implies DOMAIN_PART
   //XXX SAT_ADJ seems to be an index-only POS
-  public static final Set<PointerType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
+  private static final Set<PointerType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
 
   static {
+    // checks for completeness of these 2 lists (TYPES and INDEX_ONLY = all the types)
     assert EnumSet.complementOf(TYPES).equals(INDEX_ONLY);
   }
 
-  static private void setSymmetric(final PointerType a, final PointerType b) {
-    a.symmetricType = b;
-    b.symmetricType = a;
-  }
-
   /**
-   * A "pure-virtual" concept (ie one that cannot be directly instantiated).
+   * A "pure-virtual" concept (i.e., one that cannot be directly instantiated).
    * Index-only pointer types are used only for parsing index file records.
-   * <code>isIndexOnly</code> <code>PointerType</code>s are not used to determine relationships between words.
+   * {@code isIndexOnly} {@code PointerType}s are not used to determine relationships between words.
    * @param pointerType
-   * @return <code>true</code> if the <code>pointerType</code> is an index-only pointer type, otherwise <code>false</code>.
+   * @return {@code true} if the {@code pointerType} is an index-only pointer type, otherwise {@code false}.
    */
   public static boolean isIndexOnly(final PointerType pointerType) {
     return INDEX_ONLY.contains(pointerType);
+  }
+
+  /**
+   * i.e., {@code HYPERNYM.isSymmetricTo(HYPONYM)}
+   */
+  private static void setSymmetric(final PointerType a, final PointerType b) {
+    a.symmetricType = b;
+    b.symmetricType = a;
   }
 
   static {
@@ -201,74 +221,86 @@ public enum PointerType {
     setSymmetric(VERB_GROUP, VERB_GROUP);
 
     /**
-     * Some PointerTypes are "abstract/virtual/meta", though most are concrete.<br>
-     * "virtual" means has superTypes and/or subTypes.<br>
+     * Some {@code PointerType}s are "abstract/virtual/meta", though most are concrete.<br>
+     * "Virtual" means has super-types and/or sub-types.<br>
      * Compare to "concrete" (isolated) and "pure virtual" (incomplete) types.<br>
-     * It does not make sense to search for a pure-virtual type.<br>
-     * <br>
-     * virtual:
+     * It does not make sense to search for a pure-virtual type.
+     * <h4>Virtual:</h4>
      * <ul>
      *   <li> Hyponym, Instance </li>
      *   <li> Hypernym, Instance </li>
      * </ul>
-     * <br>
-     * pure-virtual:
+     * <h4>Pure-virtual:</h4>
      * <ul>
      *   <li> Holonym:: Part, Member, Substance </li>
      *   <li> Meronym:: Part, Member, Substance </li>
      *
-     *   <li> Domain:: {Member, Domain} X {Topic, Region, Usage} </li>
+     *   <li> Domain:: { Member, Domain } ⨯ { Topic, Region, Usage } </li>
      * </ul>
      *
-     * Adjective - not sure how this fits in
+     * Adjective - not sure how these fit in
      *   Similar To
      *
      *   Also see -- verb only ?
-     */
-
-    /**
-     * Usage of types, subTypes and superTypes:
+     *
+     * <p>
+     * Usage of types, {@code subTypes}, and {@code superTypes}:
      * <ul>
-     *   <li> if superTypes exist, search them, then current type </li>
-     *   <li> if current type exists, search it, then if subTypes exist, search them </li>
+     *   <li> if {@code superTypes} exist, search them, then search current type </li>
+     *   <li> if current type exists, search it, then if {@code subTypes} exist, search them </li>
      * </ul>
      *
+     * Notation:
+     *   { X } --has relation instance--> { Y }
+     *   should be read "Synset X has relation instance to Synset Y
+     *
      * Example 1:
-     * { George Bush } --instance hyper--> { President of the United States }
-     * George Bush, <i>the instance</i>, does not particpate in any other hyper/hypo relationships.
+     * { Bill Clinton } --instance hypernym--> { President of the United States }
+     * Bill Clinton, <em>the instance</em>, does not particpate in any other hypernym/hyponym relationships.
      * That said, how does he get linked to hypernym { person } ?
      *
-     * MORE GENERAL:  { President of the United States } --hyper--> { head of state } --hyper-->
-     *                { representative } ... hyper--> ... { person } ...
-     * MORE_SPECIFIC: { President of the United States } --instance hypo--> { George Bush, ... }
+     * MORE GENERAL:  { President of the United States } --hypernym--> { head of state } --hypernym-->
+     *                { representative } ... --hypernym--> ... { person } ...
+     * MORE_SPECIFIC: { President of the United States } --instance hyponym--> { Bill Clinton, ... }
      *
      * Axioms
-     * - if ∃ x, y s.t. InstanceHyponym(x, y), then InstanceHypernym(y, z) (symmetric)
-     *   e.g., x=GW, y=PofUS
+     * - if ∃ x, y s.t. InstanceHyponym(x, y), then InstanceHypernym(y, x) (symmetric)
+     *   e.g., x=BC, y=PofUS
      *   - "inflection point" ? InstanceHyponym is root-tip (e.g., opposite of leaf) in ontology,
      *     while InstanceHypernym is leaf (living tree-sense, top/edgemost)
      * - if ∃ x, y s.t. InstanceHypernym(x, y), then ∃ z s.t. Hypernym(y, z)
-     *   e.g., x=GW, y=PofUS, z=person
+     *   e.g., x=BC, y=PofUS, z=person
      *   - "inheritance" ?
      */
 
-    // e.g., "Bill Clinton" has instance hypernym "president"#2
-    // which in turn has normal hypernyms
-    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
-    // e.g., "president"#2 (* the Synset) has instance hyponyms ("George Washington", ...) AND
-    // normal hyponyms ("chief of state", ...).  Note that while "president"#2 also
-    // has normal hyponyms, "President of the United States" does NOT since
-    // it is more lexically specified.
-    // FIXME this example seems to show a bad, unneeded asymmetry
+    /**
+     * e.g., { Bill Clinton } (* the Synset) --instance hypernym--> { President of the United States }
+     * which in turn has (normal) hypernyms
+     */
+//    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
+//    INSTANCE_HYPERNYM.superTypes = ImmutableList.of(HYPERNYM);
+    INSTANCE_HYPERNYM.subTypes = ImmutableList.of(HYPERNYM);
+    /**
+     * e.g., { President of the United States } (* the Synset) --instance hyponyms--> ({ Bill Clinton }, ...) AND
+     * (normal) hyponyms ({ chief of state }, ...).  Note that while { President of the United States } also
+     * has (normal) hyponyms, { President of the United States } does NOT since
+     * it is more lexically specified.
+     * FIXME this example seems to show a bad, unneeded asymmetry
+     */
     HYPONYM.subTypes = ImmutableList.of(INSTANCE_HYPONYM);
+//    HYPONYM.superTypes = ImmutableList.of(INSTANCE_HYPONYM);
 
-    MERONYM.subTypes = ImmutableList.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
+//    MERONYM.subTypes = ImmutableList.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
     // don't assign superTypes since MERONYM is pure-virtual
-    HOLONYM.subTypes = ImmutableList.of(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
+//    HOLONYM.subTypes = ImmutableList.of(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
     // don't assign superTypes since HOLONYM is pure-virtual
 
-    DOMAIN.subTypes = ImmutableList.of(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
+//    DOMAIN.subTypes = ImmutableList.of(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
     // don't assign superTypes since DOMAIN is pure-virtual
+
+    //TODO check sanity conditions
+    //- type should never be its own supertype
+    //- type should never be its own subtype
   }
 
   private static final PointerType[] VALUES = values();
@@ -278,8 +310,8 @@ public enum PointerType {
   }
 
   /**
-   * @return the <code>PointerType</code> whose key matches {@code key}.
-   * @exception NoSuchElementException If {@code key} doesn't name any <code>PointerType</code>.
+   * @return the {@code PointerType} whose key matches {@code key}.
+   * @exception NoSuchElementException If {@code key} doesn't name any {@code PointerType}.
    */
   public static PointerType parseKey(final CharSequence key) {
     for (final PointerType pType : VALUES) {
@@ -290,9 +322,9 @@ public enum PointerType {
     throw new NoSuchElementException("unknown link type " + key);
   }
 
-  /*
-   * Instance Interface
-   */
+  //
+  // Instance Interface
+  //
   private final String label;
   private final String longNounLabel;
   private final String longVerbLabel;
@@ -301,7 +333,8 @@ public enum PointerType {
   private final int flags;
   private final String toString;
   private PointerType symmetricType;
-  private ImmutableList<PointerType> subTypes;
+  // experimental fields
+  ImmutableList<PointerType> subTypes;
   private ImmutableList<PointerType> superTypes;
 
   PointerType(final String label, final String key, final int value, final int flags) {
@@ -317,7 +350,7 @@ public enum PointerType {
     this.key = key;
     this.value = value;
     this.flags = flags;
-    this.toString = getLabel()+" "+getKey();
+    this.toString = getLabel() + " " + getKey();
     if (longNounLabel != null) {
       this.longNounLabel = longNounLabel;
     } else {
@@ -343,18 +376,18 @@ public enum PointerType {
   }
 
   /**
-   * @return human-readable label.
+   * @return human-readable label, e.g. {@code PointerType.HYPERNYM.getLabel() == "hypernym"}
    */
   public String getLabel() {
     return label;
   }
 
   /**
-   * @return labels with <code>"%s"</code> variables which can be substituted
+   * @return labels with {@code "%s"} variables which can be substituted
    * for to create textual content of WordNet interfaces.
    */
   public String getFormatLabel(final POS pos) {
-    switch(pos) {
+    switch (pos) {
       case NOUN: return longNounLabel;
       case VERB: return longVerbLabel;
       default: return longNounLabel;
@@ -366,17 +399,18 @@ public enum PointerType {
   }
 
   /**
-   * Some <code>PointerType</code>s only apply to certain {@link POS}.
+   * Some {@code PointerType}s only apply to certain {@link POS}.
    */
   public boolean appliesTo(final POS pos) {
     return (flags & POS_MASK[pos.ordinal()]) != 0;
   }
 
   /**
-   * <code>type</code> is the opposite concept of <code>this</code>.
-   * For example <code>{@link PointerType#HYPERNYM}.symmetricTo({@link PointerType#HYPONYM}<code>).
+   * {@code type} is the opposite concept of {@code this}.
+   * For example <code>{@link PointerType#HYPERNYM}.isSymmetricTo({@link PointerType#HYPONYM}<code>).
+   * {@code isInverseOf} might've been a better name.
    */
-  public boolean symmetricTo(final PointerType type) {
+  public boolean isSymmetricTo(final PointerType type) {
     return symmetricType != null && symmetricType.equals(type);
   }
 
@@ -387,7 +421,7 @@ public enum PointerType {
   public List<PointerType> getSubTypes() {
     return this.subTypes;
   }
-}
+} // end enum PointerType
 
 /**
  * Flags for tagging a pointer type with the POS types it apples to.
@@ -399,7 +433,9 @@ class PointerTypeFlag {
   static final int ADJ = 4;
   static final int ADV = 8;
   static final int SAT_ADJ = 16;
-  // special case indicator for lexical relations (those connecting specific WordSenses)
-  // rather than common case semantic relations which connect Synsets.
+  /**
+   * Special case indicator for lexical relations (those connecting specific {@code WordSense}s)
+   * rather than common case semantic relations which connect {@code Synset}s.
+   */
   static final int LEXICAL = 32;
-}
+} // end class PointerTypeFlag
