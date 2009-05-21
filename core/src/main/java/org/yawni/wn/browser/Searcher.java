@@ -36,33 +36,38 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
-/*
-Try to use http://www.w3.org/TR/wordnet-rdf/
-- note odd Word/Collocation distinction - seems like this should be optional
-
-Consider XStream (thoughtworks)
-- supports JSON (REST)
-
-WordNetQueryResult
-  queryTerm:"foo",
-  queryPOS:"NOUN",
-  queryPointerType:"HYPONYM"
-
-  NounSynsets
-    NounSynset
-    NounWordSense
-  VerbSynsets
-    VerbSynset
-    VerbWordSense
-  AjectiveSynsets
-    AjectiveSynset
-    AdjectiveSatelliteSynset
-    AjectiveWordSense
-    AdjectiveSatelliteWordSense
-  AdverbSynsets
-    AdverbSynset
-    AdverbWordSense
-*/
+/**
+ * Try to use <a href="http://www.w3.org/TR/wordnet-rdf/">http://www.w3.org/TR/wordnet-rdf/</a>
+ * - note odd Word/Collocation distinction - seems like this should be optional
+ * 
+ * Consider XStream (ThoughtWorks)
+ * - supports JSON (REST)
+ *
+ * Goals:
+ * - common XML serialization that apps / other APIs can be built out of using XSLT
+ * - a simple commandline interface (minimum boot time, so RandomAccessFile)
+ * - simple JSON REST interface
+ * 
+ * WordNetQueryResult
+ *   queryTerm:"foo",
+ *   queryPOS:"NOUN",
+ *   queryPointerType:"HYPONYM"
+ * 
+ *   NounSynsets
+ *     NounSynset
+ *     NounWordSense
+ *   VerbSynsets
+ *     VerbSynset
+ *     VerbWordSense
+ *   AjectiveSynsets
+ *     AjectiveSynset
+ *     AdjectiveSatelliteSynset
+ *     AjectiveWordSense
+ *     AdjectiveSatelliteWordSense
+ *   AdverbSynsets
+ *     AdverbSynset
+ *     AdverbWordSense
+ */
 class SynsetWriter {
   private final Synset synset;
   private final Appendable output;
@@ -72,7 +77,7 @@ class SynsetWriter {
   }
 
   public Appendable write() {
-    for(final WordSense wordSense : synset) {
+    for (final WordSense wordSense : synset) {
       new WordSenseWriter(wordSense, output).write();
     }
     return output;
@@ -106,7 +111,7 @@ class WordWriter {
   public Appendable write() {
     // lexicalForm
     // pos
-    for(final Synset synset : word.getSynsets()) {
+    for (final Synset synset : word.getSynsets()) {
       new SynsetWriter(synset, output).write();
     }
     return output;
