@@ -140,6 +140,14 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
+        <configuration>
+          <format>{0,date,yyyy-MM-dd HH:mm:ss}</format>
+          <items>
+            <item>timestamp</item>
+          </items>
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+        </configuration>
         <executions>
           <execution>
             <phase>validate</phase>
@@ -148,10 +156,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -172,7 +176,7 @@
               <mainClass>org.yawni.wn.browser.Browser</mainClass>
             </manifest>
             <manifestEntries>
-              <svnversion>${buildNumber}</svnversion>
+              <!-- <svnversion>${buildNumber}</svnversion> -->
             </manifestEntries>
           </archive>
           <alias>Luke Nezda</alias>
@@ -269,14 +273,20 @@
       -->
     </plugins>
   </reporting>
-  <scm>
+  <!-- <scm> -->
+    <!--
+    <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</connection>
+    <developerConnection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</developerConnection>
+    -->
+    <!--
     <connection>scm:svn:file:///Users/nezda/code/svn/jwordnet</connection>
     <developerConnection>scm:svn:file:///Users/nezda/code/svn/jwordnet</developerConnection>
+    -->
     <!--
     <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</connection>
     <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</url>
     -->
-  </scm>
+  <!-- </scm> -->
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>

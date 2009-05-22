@@ -216,7 +216,7 @@ public class Browser extends JFrame {
         final JEditorPane info = new JEditorPane("text/html",
             "<table cellpadding=\"1\">" +
             "<tr><td>"+
-              "<b>Version:</b> "+app.getVersion()+" (Build "+app.getBuildNumber()+", "+app.getFormattedBuildDate()+")"+
+              "<b>Version:</b> "+app.getVersion()+" (Build "+app.getBuildNumber()+/*", "+app.getFormattedBuildDate()+*/")"+
             "</td></tr>"+
             "<tr><td>"+
               "<b>WNHOME:</b> env: "+System.getenv("WNHOME")+

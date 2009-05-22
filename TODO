@@ -1,7 +1,4 @@
 - issues
-  - git import not 100% done - broke 'git svn rebase' by deleting history of TODO file
-    - to fix: svn export head, diff with git repo
-    + git build number stuff still broken
   - rename Pointer* -> Relation* ?
   - add LexicalRelation / SemanticRelation ?
 
