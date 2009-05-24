@@ -16,7 +16,7 @@
  */
 /*
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice and this restriction, and label your changes.
+ * the copyright notice.
  */
 package org.yawni.util;
 
