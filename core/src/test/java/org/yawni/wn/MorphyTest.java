@@ -16,12 +16,6 @@
  */
 package org.yawni.wn;
 
-import org.yawni.wn.POS;
-import org.yawni.wn.Morphy;
-import org.yawni.wn.Word;
-import org.yawni.wn.WordSense;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.DictionaryDatabase;
 import org.junit.*;
 import static org.junit.Assert.*;
 

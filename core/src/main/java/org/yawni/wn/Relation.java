@@ -23,16 +23,16 @@ package org.yawni.wn;
 import org.yawni.util.CharSequenceTokenizer;
 
 /**
- * A <code>Pointer</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
+ * A <code>Relation</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
  * Relationships are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
- * Relationships are <i>typed</i>: the type of a relationship is a {@link PointerType}, and can
- * be retrieved via {@link Pointer#getType PointerType.getType()}.
+ * Relationships are <i>typed</i>: the type of a relationship is a {@link RelationType}, and can
+ * be retrieved via {@link Relation#getType RelationType.getType()}.
  *
  * @see Synset
  * @see WordSense
  */
-public final class Pointer implements Comparable<Pointer> {
+public final class Relation implements Comparable<Relation> {
   /**
    * These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
@@ -50,19 +50,19 @@ public final class Pointer implements Comparable<Pointer> {
   //
 
   /**
-   * The index of this Pointer within the array of Pointer's in the source Synset.
+   * The index of this Relation within the array of Relation's in the source Synset.
    * Used in <code>equals</code>.
    */
   private final int index;
-  private final PointerTarget source;
-  private final byte pointerTypeOrdinal;
+  private final RelationTarget source;
+  private final byte relationTypeOrdinal;
 
   //
   // Constructor
   //
-  Pointer(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
+  Relation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
     this.index = index;
-    this.pointerTypeOrdinal = (byte) PointerType.parseKey(tokenizer.nextToken()).ordinal();
+    this.relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken()).ordinal();
 
     this.targetOffset = tokenizer.nextInt();
 
@@ -77,8 +77,8 @@ public final class Pointer implements Comparable<Pointer> {
   //
   // Accessors
   //
-  public PointerType getType() {
-    return PointerType.fromOrdinal(pointerTypeOrdinal);
+  public RelationType getType() {
+    return RelationType.fromOrdinal(relationTypeOrdinal);
   }
 
   /** A lexical relationship holds between {@link WordSense}s */
@@ -95,11 +95,11 @@ public final class Pointer implements Comparable<Pointer> {
   //
   // Targets
   //
-  public PointerTarget getSource() {
+  public RelationTarget getSource() {
     return source;
   }
 
-  public PointerTarget getTarget() {
+  public RelationTarget getTarget() {
     return resolveTarget(
         // using source.getSynset() to avoid requiring a local field
         source.getSynset().fileBackedDictionary.getSynsetAt(
@@ -108,7 +108,7 @@ public final class Pointer implements Comparable<Pointer> {
         targetIndex);
   }
 
-  private static PointerTarget resolveTarget(final Synset synset, final int index) {
+  private static RelationTarget resolveTarget(final Synset synset, final int index) {
     if (index == 0) {
       return synset;
     } else {
@@ -121,9 +121,9 @@ public final class Pointer implements Comparable<Pointer> {
   //
   @Override
   public boolean equals(final Object that) {
-    return (that instanceof Pointer)
-      && ((Pointer) that).source.equals(this.source)
-      && ((Pointer) that).index == this.index;
+    return (that instanceof Relation)
+      && ((Relation) that).source.equals(this.source)
+      && ((Relation) that).index == this.index;
   }
 
   @Override
@@ -133,7 +133,7 @@ public final class Pointer implements Comparable<Pointer> {
 
   @Override
   public String toString() {
-    return new StringBuilder("[Pointer").
+    return new StringBuilder("[Relation").
       append(' ').
       append(getType().name()).
       //append("#").
@@ -148,7 +148,7 @@ public final class Pointer implements Comparable<Pointer> {
   }
 
   /** {@inheritDoc} */
-  public int compareTo(final Pointer that) {
+  public int compareTo(final Relation that) {
     // order by src Synset
     // then by 'index' field
     int result;

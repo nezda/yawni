@@ -19,8 +19,8 @@ package org.yawni.wn.browser;
 import org.yawni.wn.Synset;
 import org.yawni.wn.WordSense;
 import org.yawni.wn.Word;
-import org.yawni.wn.Pointer;
-import org.yawni.wn.PointerType;
+import org.yawni.wn.Relation;
+import org.yawni.wn.RelationType;
 import org.yawni.wn.POS;
 import org.yawni.wn.DictionaryDatabase;
 import org.yawni.wn.FileBackedDictionary;
@@ -128,7 +128,7 @@ class PointerWriter {
   public Appendable write() {
     // source PointerTarget
     // target PointerTarget
-    // PointerType
+    // RelationType
     return output;
   }
 }
@@ -201,8 +201,8 @@ public class Searcher {
   // TODO torture test: recursively get all hypernyms / hyponyms -- see if caches blow out memory
   
   // Goal: make a Hypernyms Iterator
-  // - emit the Pointers (source + PointerType + target)
-  // Goal2: make any-of-Set<PointerType> Iterator
+  // - emit the Pointers (source + RelationType + target)
+  // Goal2: make any-of-Set<RelationType> Iterator
 
   public static void main(String[] args) throws Exception {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();

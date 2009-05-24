@@ -23,15 +23,15 @@ package org.yawni.wn;
 import java.util.List;
 
 /**
- * A <code>PointerTarget</code> is the <i>source</i> or <i>target</i> of a {@link Pointer}.
- * The target of a <b>semantic</b> <code>PointerTarget</code> is a {@link Synset};
- * the target of a <b>lexical</b> <code>PointerTarget</code> is a {@link WordSense}.
+ * A <code>RelationTarget</code> is the <i>source</i> or <i>target</i> of a {@link Relation}.
+ * The target of a <b>semantic</b> <code>RelationTarget</code> is a {@link Synset};
+ * the target of a <b>lexical</b> <code>RelationTarget</code> is a {@link WordSense}.
  *
- * @see Pointer
+ * @see Relation
  * @see Synset
  * @see WordSense
  */
-public interface PointerTarget extends Iterable<WordSense> {
+public interface RelationTarget extends Iterable<WordSense> {
   public POS getPOS();
 
   /**
@@ -48,22 +48,22 @@ public interface PointerTarget extends Iterable<WordSense> {
   public String getLongDescription();
 
   /**
-   * Returns the outgoing <code>Pointer</code>s from this target -- those
-   * <code>Pointer</code>s that have this object as their source.
+   * Returns the outgoing <code>Relation</code>s from this target -- those
+   * <code>Relation</code>s that have this object as their source.
    */
-  public List<Pointer> getPointers();
+  public List<Relation> getRelations();
 
-  /** Returns the outgoing <code>Pointer</code>s of type {@code type}. */
-  public List<Pointer> getPointers(PointerType type);
+  /** Returns the outgoing <code>Relation</code>s of type {@code type}. */
+  public List<Relation> getRelations(RelationType type);
 
-  /** Returns the targets of the outgoing <code>Pointer</code>s. */
-  public List<PointerTarget> getTargets();
+  /** Returns the targets of the outgoing <code>Relation</code>s. */
+  public List<RelationTarget> getTargets();
 
   /**
-   * Returns the targets of the outgoing <code>Pointer</code>s that have type
+   * Returns the targets of the outgoing <code>Relation</code>s that have type
    * {@code type}.
    */
-  public List<PointerTarget> getTargets(PointerType type);
+  public List<RelationTarget> getTargets(RelationType type);
 
   /** LN Added */
   public Synset getSynset();

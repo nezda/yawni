@@ -34,7 +34,7 @@ public enum POS {
    * Meta-<code>POS</code> representing all parts of speech.  For use in search methods.
    */
   ALL("all POS", null, 0),
-  /** <b>NOTE: do not reorder - PointerTypes relies on this</b> */
+  /** <b>NOTE: do not reorder - RelationTypes relies on this</b> */
   /**
    * <ol>
    *   <li> a content word that can be used to refer to a person, place, thing, quality, or action </li>

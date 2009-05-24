@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
  * <p> A {@code FileBackedDictionary} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
  * calls to {@code lookupWord} with the same parameters would return the same value
- * ({@code ==} as well as {@code equals}), as would traversal of two {@code Pointer}s
+ * ({@code ==} as well as {@code equals}), as would traversal of two {@code Relation}s
  * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
  * two different objects to represent the same entity, if their retrieval is separated by other
  * database operations.
@@ -963,57 +963,57 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#pointers
+   * @see DictionaryDatabase#relations
    */
-  private class POSPointersIterator implements Iterator<Pointer> {
-    private final Iterator<Pointer> pointers;
-    POSPointersIterator(final POS pos, final PointerType pointerType) {
-      this.pointers = MultiLevelIterable.of(new SynsetsToPointers(synsets(pos), pointerType)).iterator();
+  private class POSRelationsIterator implements Iterator<Relation> {
+    private final Iterator<Relation> relations;
+    POSRelationsIterator(final POS pos, final RelationType relationType) {
+      this.relations = MultiLevelIterable.of(new SynsetsToRelations(synsets(pos), relationType)).iterator();
     }
     public boolean hasNext() {
-      return pointers.hasNext();
+      return relations.hasNext();
     }
-    public Pointer next() {
-      return pointers.next();
+    public Relation next() {
+      return relations.next();
     }
     public void remove() {
       throw new UnsupportedOperationException();
     }
-  } // end class POSPointersIterator
+  } // end class POSRelationsIterator
 
-  private static class SynsetsToPointers extends MutatedIterable<Synset, List<Pointer>> {
-    private final PointerType pointerType;
-    SynsetsToPointers(final Iterable<Synset> iterable, final PointerType pointerType) {
+  private static class SynsetsToRelations extends MutatedIterable<Synset, List<Relation>> {
+    private final RelationType relationType;
+    SynsetsToRelations(final Iterable<Synset> iterable, final RelationType relationType) {
       super(iterable);
-      this.pointerType = pointerType;
+      this.relationType = relationType;
     }
     @Override
-    public List<Pointer> apply(final Synset synset) {
-      if (pointerType == null) {
-        return synset.getPointers();
+    public List<Relation> apply(final Synset synset) {
+      if (relationType == null) {
+        return synset.getRelations();
       } else {
-        return synset.getPointers(pointerType);
+        return synset.getRelations(relationType);
       }
     }
-  } // end class SynsetsToPointers
+  } // end class SynsetsToRelations
 
   /** {@inheritDoc} */
-  public Iterable<Pointer> pointers(final POS pos) {
-    return pointers(null, pos);
+  public Iterable<Relation> relations(final POS pos) {
+    return relations(null, pos);
   }
 
   /** {@inheritDoc} */
-  public Iterable<Pointer> pointers(final PointerType pointerType, final POS pos) {
+  public Iterable<Relation> relations(final RelationType relationType, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
-        pointers(pointerType, POS.NOUN),
-        pointers(pointerType, POS.VERB),
-        pointers(pointerType, POS.ADJ),
-        pointers(pointerType, POS.ADV));
+        relations(relationType, POS.NOUN),
+        relations(relationType, POS.VERB),
+        relations(relationType, POS.ADJ),
+        relations(relationType, POS.ADV));
     } else {
-      return new Iterable<Pointer> () {
-        public Iterator<Pointer> iterator() {
-          return new POSPointersIterator(pos, pointerType);
+      return new Iterable<Relation> () {
+        public Iterator<Relation> iterator() {
+          return new POSRelationsIterator(pos, relationType);
         }
       };
     }

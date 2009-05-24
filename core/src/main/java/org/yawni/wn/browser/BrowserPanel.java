@@ -25,9 +25,9 @@ import org.yawni.util.Utils;
 import org.yawni.wn.DictionaryDatabase;
 import org.yawni.wn.FileBackedDictionary;
 import org.yawni.wn.POS;
-import org.yawni.wn.Pointer;
-import org.yawni.wn.PointerTarget;
-import org.yawni.wn.PointerType;
+import org.yawni.wn.Relation;
+import org.yawni.wn.RelationTarget;
+import org.yawni.wn.RelationType;
 import org.yawni.wn.Synset;
 import org.yawni.wn.Word;
 import org.yawni.wn.WordSense;
@@ -112,7 +112,7 @@ public class BrowserPanel extends JPanel {
   private final UndoAction undoAction;
   private final RedoAction redoAction;
   private final StyledTextPane resultEditorPane;
-  private EnumMap<POS, PointerTypeComboBox> posBoxes;
+  private EnumMap<POS, RelationTypeComboBox> posBoxes;
   private final Action slashAction;
   private final JLabel statusLabel;
 //  private final int pad = 5;
@@ -234,7 +234,7 @@ public class BrowserPanel extends JPanel {
 
     makePOSComboBoxes();
 
-    final JPanel searchAndPointersPanel = new JPanel(new GridBagLayout());
+    final JPanel searchAndRelationsPanel = new JPanel(new GridBagLayout());
     final GridBagConstraints c = new GridBagConstraints();
 
     c.gridy = 0;
@@ -249,7 +249,7 @@ public class BrowserPanel extends JPanel {
     searchPanel.add(searchField);
     searchPanel.add(Box.createHorizontalStrut(3));
     searchPanel.add(searchButton);
-    searchAndPointersPanel.add(searchPanel, c);
+    searchAndRelationsPanel.add(searchPanel, c);
 
     c.fill = GridBagConstraints.NONE;
     c.gridwidth = 1;
@@ -257,18 +257,18 @@ public class BrowserPanel extends JPanel {
     c.gridy = 1;
     c.gridx = 0;
     c.insets = new Insets(3, 3, 3, 3);
-    searchAndPointersPanel.add(this.posBoxes.get(POS.NOUN), c);
+    searchAndRelationsPanel.add(this.posBoxes.get(POS.NOUN), c);
     c.gridx = 1;
-    searchAndPointersPanel.add(this.posBoxes.get(POS.VERB), c);
+    searchAndRelationsPanel.add(this.posBoxes.get(POS.VERB), c);
     c.gridx = 2;
-    searchAndPointersPanel.add(this.posBoxes.get(POS.ADJ), c);
+    searchAndRelationsPanel.add(this.posBoxes.get(POS.ADJ), c);
     c.gridx = 3;
     c.insets = new Insets(3, 0, 3, 3);
-    searchAndPointersPanel.add(this.posBoxes.get(POS.ADV), c);
+    searchAndRelationsPanel.add(this.posBoxes.get(POS.ADV), c);
 
-    // set width(pointerPanel) = width(searchPanel)
+    // set width(relationPanel) = width(searchPanel)
 
-    this.add(searchAndPointersPanel, BorderLayout.NORTH);
+    this.add(searchAndRelationsPanel, BorderLayout.NORTH);
 
     this.resultEditorPane = new StyledTextPane();
     this.resultEditorPane.setBorder(browser.textAreaBorder());
@@ -328,7 +328,7 @@ public class BrowserPanel extends JPanel {
       this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " DOWN"), scrollDown);
       this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " DOWN"), scrollDown);
 
-      for (final PointerTypeComboBox comboBox : this.posBoxes.values()) {
+      for (final RelationTypeComboBox comboBox : this.posBoxes.values()) {
         comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey + " UP"), "scrollUp");
         comboBox.getActionMap().put("scrollUp", scrollUp);
         comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey + " DOWN"), "scrollDown");
@@ -520,7 +520,7 @@ public class BrowserPanel extends JPanel {
     final List<Component> components = new ArrayList<Component>();
     components.add(this.searchField);
     components.addAll(this.posBoxes.values());
-    //for(final PointerTypeComboBox box : this.posBoxes.values()) {
+    //for(final RelationTypeComboBox box : this.posBoxes.values()) {
     //  components.add(box.menu);
     //}
     browser.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
@@ -745,17 +745,17 @@ public class BrowserPanel extends JPanel {
 
   /**
    * Command button encapsulates a button (for a pos) which controls a
-   * menu that is dynamically populated with PointerTypeAction(s).
+   * menu that is dynamically populated with RelationTypeAction(s).
    * - handles Slash (search)
    * - interactive updates via updateFor()
    */
-  private class PointerTypeComboBox extends PopdownButton {
+  private class RelationTypeComboBox extends PopdownButton {
     // FIXME if user changes text field contents and selects menu, bad things will happen
     // FIXME text in HTML pane looks bold at line wraps
     private static final long serialVersionUID = 1L;
     private final POS pos;
 
-    PointerTypeComboBox(final POS pos) {
+    RelationTypeComboBox(final POS pos) {
       //super(Utils.capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
       super(Utils.capitalize(pos.getLabel()));
       this.pos = pos;
@@ -771,7 +771,7 @@ public class BrowserPanel extends JPanel {
           switch (evt.getKeyChar()) {
             case '/':
               // if slash, hide menu, go back to searchField
-              PointerTypeComboBox.this.doClick();
+              RelationTypeComboBox.this.doClick();
               slashAction.actionPerformed(null);
               break;
             case '\t':
@@ -784,37 +784,38 @@ public class BrowserPanel extends JPanel {
       });
     }
 
-    /** populate with <code>PointerType</code>s which apply to pos+word */
+    /** populate with <code>RelationType</code>s which apply to pos+word */
     void updateFor(final POS pos, final Word word) {
       getPopupMenu().removeAll();
-      getPopupMenu().add(new PointerTypeAction("Senses", pos, null));
-      for (final PointerType pointerType : word.getPointerTypes()) {
+      getPopupMenu().add(new RelationTypeAction("Senses", pos, null));
+      for (final RelationType relationType : word.getRelationTypes()) {
         // use word+pos custom labels for drop downs
-        final String label = String.format(pointerType.getFormatLabel(word.getPOS()), word.getLemma());
-        //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
-        final JMenuItem item = getPopupMenu().add(new PointerTypeAction(label, pos, pointerType));
+        final String label = String.format(relationType.getFormatLabel(word.getPOS()), word.getLemma());
+        //System.err.println("label: "+label+" word: "+word+" relationType: "+relationType);
+        final JMenuItem item = getPopupMenu().add(new RelationTypeAction(label, pos, relationType));
       }
       if (pos == POS.VERB) {
         // use word+pos custom labels for drop downs
         final String label = String.format("Sentence frames for verb %s", word.getLemma());
-        //System.err.println("label: "+label+" word: "+word+" pointerType: "+pointerType);
+        //System.err.println("label: "+label+" word: "+word+" relationType: "+relationType);
         final JMenuItem item = getPopupMenu().add(new VerbFramesAction(label));
       }
     }
-  } // end class PointerTypeComboBox
+  } // end class RelationTypeComboBox
+
 
   /**
-   * Displays information related to a given POS + PointerType
+   * Displays information related to a given POS + RelationType
    */
-  class PointerTypeAction extends AbstractAction {
+  class RelationTypeAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     private final POS pos;
-    private final PointerType pointerType;
+    private final RelationType relationType;
 
-    PointerTypeAction(final String label, final POS pos, final PointerType pointerType) {
+    RelationTypeAction(final String label, final POS pos, final RelationType relationType) {
       super(label);
       this.pos = pos;
-      this.pointerType = pointerType;
+      this.relationType = relationType;
     }
 
     public void actionPerformed(final ActionEvent evt) {
@@ -827,18 +828,17 @@ public class BrowserPanel extends JPanel {
         word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), pos);
         assert forms.isEmpty() == false;
       }
-      if (pointerType == null) {
+      if (relationType == null) {
         //FIXME bad form to use stderr
         System.err.println(word);
         displaySenses(word);
       } else {
-        displaySenseChain(word, pointerType);
+        displaySenseChain(word, relationType);
       }
     }
-  } // end class PointerTypeAction
-
+  } // end class RelationTypeAction
   /**
-   * Displays information related to a given POS + PointerType
+   * Displays information related to a given POS + RelationType
    */
   class VerbFramesAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
@@ -862,10 +862,10 @@ public class BrowserPanel extends JPanel {
   } // end class VerbFramesAction
 
   private void makePOSComboBoxes() {
-    this.posBoxes = new EnumMap<POS, PointerTypeComboBox>(POS.class);
+    this.posBoxes = new EnumMap<POS, RelationTypeComboBox>(POS.class);
 
     for (final POS pos : POS.CATS) {
-      final PointerTypeComboBox comboBox = new PointerTypeComboBox(pos);
+      final RelationTypeComboBox comboBox = new RelationTypeComboBox(pos);
 
       comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
@@ -914,7 +914,7 @@ public class BrowserPanel extends JPanel {
     if (inputString.length() == 0) {
       resultEditorPane.setFocusable(false);
       updateStatusBar(Status.INTRO);
-      for (final PointerTypeComboBox comboBox : this.posBoxes.values()) {
+      for (final RelationTypeComboBox comboBox : this.posBoxes.values()) {
         comboBox.setEnabled(false);
       }
       resultEditorPane.setText("");
@@ -987,7 +987,7 @@ public class BrowserPanel extends JPanel {
     SEARCHING("Searching..."),
     SYNONYMS("Synonyms search for %s \"%s\""),
     NO_MATCHES("No matches found."),
-    POINTER("\"%s\" search for %s \"%s\""),
+    RELATION("\"%s\" search for %s \"%s\""),
     VERB_FRAMES("Verb Frames search for verb \"%s\"");
     private final String formatString;
 
@@ -996,12 +996,12 @@ public class BrowserPanel extends JPanel {
     }
 
     String get(Object... args) {
-      if (this == POINTER) {
-        final PointerType pointerType = (PointerType) args[0];
+      if (this == RELATION) {
+        final RelationType relationType = (RelationType) args[0];
         final POS pos = (POS) args[1];
         final String lemma = (String) args[2];
         return String.format(formatString,
-          String.format(pointerType.getFormatLabel(pos), lemma),
+          String.format(relationType.getFormatLabel(pos), lemma),
           pos.getLabel(),
           lemma);
       } else {
@@ -1010,7 +1010,7 @@ public class BrowserPanel extends JPanel {
     }
   } // end enum Status
 
-  // TODO For PointerType searches, show same text as combo box (e.g., "running"
+  // TODO For RelationType searches, show same text as combo box (e.g., "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
     this.statusLabel.setText(status.get(args));
@@ -1076,12 +1076,12 @@ public class BrowserPanel extends JPanel {
       //  "if searchstr is in a head synset, all of the head synset's satellites"
       buffer.append(sense.getLongDescription(verbose));
       if (verbose) {
-        final List<PointerTarget> similarTos = sense.getTargets(PointerType.SIMILAR_TO);
+        final List<RelationTarget> similarTos = sense.getTargets(RelationType.SIMILAR_TO);
         if (similarTos.isEmpty() == false) {
           buffer.append("<br>\n");
           buffer.append("Similar to:");
           buffer.append("<ul>\n");
-          for (final PointerTarget similarTo : similarTos) {
+          for (final RelationTarget similarTo : similarTos) {
             buffer.append(listOpen());
             final Synset targetSynset = (Synset) similarTo;
             buffer.append(targetSynset.getLongDescription(verbose));
@@ -1090,14 +1090,14 @@ public class BrowserPanel extends JPanel {
           buffer.append("</ul>\n");
         }
 
-        final List<PointerTarget> seeAlsos = sense.getTargets(PointerType.SEE_ALSO);
+        final List<RelationTarget> seeAlsos = sense.getTargets(RelationType.SEE_ALSO);
         if (seeAlsos.isEmpty() == false) {
           if (similarTos.isEmpty()) {
             buffer.append("<br>");
           }
           buffer.append("Also see: ");
           int seeAlsoNum = 0;
-          for (final PointerTarget seeAlso : seeAlsos) {
+          for (final RelationTarget seeAlso : seeAlsos) {
             buffer.append(seeAlso.getDescription());
             for (final WordSense wordSense : seeAlso) {
               buffer.append('#');
@@ -1116,17 +1116,17 @@ public class BrowserPanel extends JPanel {
   }
 
   /**
-   * Renders single {@code Word + PointerType}.  Calls recursive {@linkplain #appSenseChain()} method for
+   * Renders single {@code Word + RelationType}.  Calls recursive {@linkplain #appSenseChain()} method for
    * each applicable sense.
    */
-  private void displaySenseChain(final Word word, final PointerType pointerType) {
-    updateStatusBar(Status.POINTER, pointerType, word.getPOS(), word.getLemma());
+  private void displaySenseChain(final Word word, final RelationType relationType) {
+    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLemma());
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
-    // count number of senses pointerType applies to
+    // count number of senses relationType applies to
     int numApplicableSenses = 0;
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (senses.get(i).getTargets(pointerType).isEmpty() == false) {
+      if (senses.get(i).getTargets(relationType).isEmpty() == false) {
         numApplicableSenses++;
       }
     }
@@ -1134,22 +1134,22 @@ public class BrowserPanel extends JPanel {
       append(senses.size()).append(" senses").//(senses.length > 1 ? "s" : "")+
       append(" of <b>").append(word.getLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (senses.get(i).getTargets(pointerType).isEmpty() == false) {
+      if (senses.get(i).getTargets(relationType).isEmpty() == false) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
 
-        // honestly, I don't even know why there are 2 PointerTypes here ??
-//        PointerType inheritanceType = PointerType.HYPERNYM;
-//        PointerType attributeType = pointerType;
+        // honestly, I don't even know why there are 2 RelationTypes here ??
+//        RelationType inheritanceType = RelationType.HYPERNYM;
+//        RelationType attributeType = relationType;
 //
-//        if (pointerType.equals(inheritanceType) || pointerType.isSymmetricTo(inheritanceType)) {
-//          // either pointerType == PointerType.HYPERNYM
-//          // or pointerType is isSymmetricTo(PointerType.HYPERNYM) currently is only HYPONYM
-//          inheritanceType = pointerType;
+//        if (relationType.equals(inheritanceType) || relationType.isSymmetricTo(inheritanceType)) {
+//          // either relationType == RelationType.HYPERNYM
+//          // or relationType is isSymmetricTo(RelationType.HYPERNYM) currently is only HYPONYM
+//          inheritanceType = relationType;
 //          attributeType = null;
 //        }
         // else inheritanceType remains hypernym and the sought type remains attributeType
-        // maybe this is wrong if sought pointerType is
-        // PointerType.INSTANCE_HYPONYM or PointerType.INSTANCE_HYPERNYM ??
+        // maybe this is wrong if sought relationType is
+        // RelationType.INSTANCE_HYPONYM or RelationType.INSTANCE_HYPERNYM ??
         // neither of these are recursive
 
         //input: HYPONYM
@@ -1161,19 +1161,19 @@ public class BrowserPanel extends JPanel {
         //attributeType: null
 
         //take2
-        PointerType inheritanceType = PointerType.HYPERNYM;
-        PointerType attributeType = pointerType;
-        switch (pointerType) {
+        RelationType inheritanceType = RelationType.HYPERNYM;
+        RelationType attributeType = relationType;
+        switch (relationType) {
           case HYPONYM:
           //case INSTANCE_HYPONYM:
           case HYPERNYM:
           //case INSTANCE_HYPERNYM:
-            inheritanceType = pointerType;
+            inheritanceType = relationType;
             attributeType = null;
         }
 
         System.err.println(word + " inheritanceType: " + inheritanceType + 
-          " attributeType: " + attributeType + " pointerType: " + pointerType);
+          " attributeType: " + attributeType + " relationType: " + relationType);
         buffer.append("<ul>\n");
         appendSenseChain(buffer, senses.get(i).getWordSense(word), senses.get(i), inheritanceType, attributeType);
         buffer.append("</ul>\n");
@@ -1184,15 +1184,15 @@ public class BrowserPanel extends JPanel {
   }
 
   /**
-   * Adds information from {@code Pointer}s.  Base method signature of recursive method
+   * Adds information from {@code Relation}s.  Base method signature of recursive method
    * {@linkplain #appendSenseChain()}.
    */
   void appendSenseChain(
     final StringBuilder buffer,
     final WordSense rootWordSense,
-    final PointerTarget sense,
-    final PointerType inheritanceType,
-    final PointerType attributeType) {
+    final RelationTarget sense,
+    final RelationType inheritanceType,
+    final RelationType attributeType) {
     appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
   }
 
@@ -1204,14 +1204,14 @@ public class BrowserPanel extends JPanel {
   }
 
   /**
-   * Recursivly adds information from {@code Pointer}s.
+   * Recursivly adds information from {@code Relation}s.
    */
   void appendSenseChain(
     final StringBuilder buffer,
     final WordSense rootWordSense,
-    final PointerTarget sense,
-    final PointerType inheritanceType,
-    final PointerType attributeType,
+    final RelationTarget sense,
+    final RelationType inheritanceType,
+    final RelationType attributeType,
     final int tab,
     Link ancestors) {
     buffer.append(listOpen());
@@ -1219,23 +1219,23 @@ public class BrowserPanel extends JPanel {
     buffer.append("</li>\n");
 
     if (attributeType != null) {
-      for (final Pointer pointer : sense.getPointers(attributeType)) {
-        final PointerTarget target = pointer.getTarget();
+      for (final Relation relation : sense.getRelations(attributeType)) {
+        final RelationTarget target = relation.getTarget();
         final boolean srcMatch;
-        if (pointer.isLexical()) {
-          srcMatch = pointer.getSource().equals(rootWordSense);
+        if (relation.isLexical()) {
+          srcMatch = relation.getSource().equals(rootWordSense);
         } else {
-          srcMatch = pointer.getSource().getSynset().equals(rootWordSense.getSynset());
+          srcMatch = relation.getSource().getSynset().equals(rootWordSense.getSynset());
         }
         if (srcMatch == false) {
           System.err.println("rootWordSense: " + rootWordSense +
             " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
-          System.err.println(pointer);
+          System.err.println(relation);
           continue;
         }
         buffer.append("<li>");
         if (target instanceof WordSense) {
-          assert pointer.isLexical();
+          assert relation.isLexical();
           final WordSense wordSense = (WordSense) target;
           //FIXME RELATED TO label below only right for DERIVATIONALLY_RELATED
           buffer.append("RELATED TO → (").append(wordSense.getPOS().getLabel()).
@@ -1244,15 +1244,15 @@ public class BrowserPanel extends JPanel {
           //Antonym of dissociate (Sense 2)
           buffer.append("<br>\n");
         } else {
-          buffer.append("POINTER TARGET ");
+          buffer.append("RELATION TARGET ");
         }
         buffer.append(target.getSynset().getLongDescription());
         buffer.append("</li>\n");
       }
 
       // Don't get ancestors for these relationships.
-      if (NON_RECURSIVE_POINTER_TYPES.contains(attributeType)) {
-        System.err.println("NON_RECURSIVE_POINTER_TYPES "+attributeType);
+      if (NON_RECURSIVE_RELATION_TYPES.contains(attributeType)) {
+        System.err.println("NON_RECURSIVE_RELATION_TYPES "+attributeType);
         return;
       }
     }
@@ -1260,7 +1260,7 @@ public class BrowserPanel extends JPanel {
       System.err.println("ancestors == null || does not contain sense "+sense+
         " "+attributeType+" ancestors: "+ancestors);
       ancestors = new Link(sense, ancestors);
-      for (final PointerTarget parent : sense.getTargets(inheritanceType)) {
+      for (final RelationTarget parent : sense.getTargets(inheritanceType)) {
         buffer.append("<ul>\n");
         appendSenseChain(buffer, rootWordSense, parent, inheritanceType, attributeType, tab + 1, ancestors);
         buffer.append("</ul>\n");
@@ -1270,11 +1270,11 @@ public class BrowserPanel extends JPanel {
     }
   }
   //FIXME red DERIVATIONALLY_RELATED shows Sense 2 which has no links!?
-  private static final EnumSet<PointerType> NON_RECURSIVE_POINTER_TYPES = EnumSet.of(
-    PointerType.DERIVATIONALLY_RELATED,
-    PointerType.MEMBER_OF_TOPIC_DOMAIN, PointerType.MEMBER_OF_USAGE_DOMAIN, PointerType.MEMBER_OF_REGION_DOMAIN,
-    PointerType.DOMAIN_OF_TOPIC, PointerType.DOMAIN_OF_USAGE, PointerType.DOMAIN_OF_REGION,
-    PointerType.ANTONYM);
+  private static final EnumSet<RelationType> NON_RECURSIVE_RELATION_TYPES = EnumSet.of(
+    RelationType.DERIVATIONALLY_RELATED,
+    RelationType.MEMBER_OF_TOPIC_DOMAIN, RelationType.MEMBER_OF_USAGE_DOMAIN, RelationType.MEMBER_OF_REGION_DOMAIN,
+    RelationType.DOMAIN_OF_TOPIC, RelationType.DOMAIN_OF_USAGE, RelationType.DOMAIN_OF_REGION,
+    RelationType.ANTONYM);
 
   private void displayVerbFrames(final Word word) {
     updateStatusBar(Status.VERB_FRAMES, word.getLemma());
@@ -1301,17 +1301,17 @@ public class BrowserPanel extends JPanel {
 
   //FIXME pretty old-fashioned and error prone.  List ? LinkedList ?
   private static class Link {
-    private final PointerTarget pointerTarget;
+    private final RelationTarget relationTarget;
     private final Link link;
 
-    Link(final PointerTarget pointerTarget, final Link link) {
-      this.pointerTarget = pointerTarget;
+    Link(final RelationTarget relationTarget, final Link link) {
+      this.relationTarget = relationTarget;
       this.link = link;
     }
 
-    boolean contains(final PointerTarget object) {
+    boolean contains(final RelationTarget object) {
       for (Link head = this; head != null; head = head.link) {
-        if (head.pointerTarget.equals(object)) {
+        if (head.relationTarget.equals(object)) {
           return true;
         }
       }

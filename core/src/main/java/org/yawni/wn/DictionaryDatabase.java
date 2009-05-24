@@ -119,18 +119,18 @@ public interface DictionaryDatabase {
   public Iterable<WordSense> wordSenses(final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code Pointer}s in the database.
+   * Return an iterator of <b>all</b> the {@code Relation}s in the database.
    * @param pos The part-of-speech.
-   * @return An iterable of {@code Pointer}s.
+   * @return An iterable of {@code Relation}s.
    */
-  public Iterable<Pointer> pointers(final POS pos);
+  public Iterable<Relation> relations(final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code Pointer}s in the database of
-   * type {@code PointerType}.
-   * @param pointerType The {@code PointerType}. {@code null} implies ALL {@code PointerType}s.
+   * Return an iterator of <b>all</b> the {@code Relation}s in the database of
+   * type {@code RelationType}.
+   * @param relationType The {@code RelationType}. {@code null} implies ALL {@code RelationType}s.
    * @param pos The part-of-speech.
-   * @return An iterable of {@code Pointer}s of type {@code PointerType}.
+   * @return An iterable of {@code Relation}s of type {@code RelationType}.
    */
-  public Iterable<Pointer> pointers(final PointerType pointerType, final POS pos);
+  public Iterable<Relation> relations(final RelationType relationType, final POS pos);
 }

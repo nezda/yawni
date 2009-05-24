@@ -16,10 +16,6 @@
  */
 package org.yawni.wn;
 
-import org.yawni.wn.POS;
-import org.yawni.wn.Synset;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.DictionaryDatabase;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.*;
@@ -38,8 +34,8 @@ public class DictionaryDatabaseTest {
    * test POS.ALL support
    * + String[] lookupBaseForms(POS pos, String someString)
    * - Synset[] lookupSynsets(POS pos, String someString)
-   * - Iterator<Pointer> pointers(POS pos)
-   * - Iterator<Pointer> pointers(POS pos, PointerType pointerType)
+   * - Iterator<Relation> relations(POS pos)
+   * - Iterator<Relation> relations(POS pos, RelationType relationType)
    * - Iterator<Word> words(POS pos)
    * - Iterator<Synset> synsets(POS pos)
    * - Iterator<WordSense> wordSenses(POS pos)

@@ -35,14 +35,14 @@ import org.yawni.util.ImmutableList;
  * that names that concept (and each of which is therefore synonymous with the other <code>WordSense</code>s in the
  * <code>Synset</code>).
  *
- * <p><code>Synset</code>'s are linked by {@link Pointer}s into a network of related concepts; this is the <i>Net</i>
+ * <p><code>Synset</code>'s are linked by {@link Relation}s into a network of related concepts; this is the <i>Net</i>
  * in WordNet.  {@link Synset#getTargets Synset.getTargets()} retrieves the targets of these links, and
- * {@link Synset#getPointers Synset.getPointers()} retrieves the pointers themselves.
+ * {@link Synset#getRelations Synset.getRelations()} retrieves the relations themselves.
  *
  * @see WordSense
- * @see Pointer
+ * @see Relation
  */
-public final class Synset implements PointerTarget, Comparable<Synset>, Iterable<WordSense> {
+public final class Synset implements RelationTarget, Comparable<Synset>, Iterable<WordSense> {
   private static final Logger log = LoggerFactory.getLogger(Synset.class.getName());
   //
   // Instance implementation
@@ -52,7 +52,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
   /** offset in <code>data.</code>{@code pos} file */
   private final int offset;
   private final ImmutableList<WordSense> wordSenses;
-  private final ImmutableList<Pointer> pointers;
+  private final ImmutableList<Relation> relations;
   //TODO make this a byte[] - not often accessed ?
   private final char[] gloss;
   private final byte posOrdinal;
@@ -111,12 +111,12 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
     }
     this.wordSenses = ImmutableList.of(localWordSenses);
 
-    final int pointerCount = tokenizer.nextInt();
-    final Pointer[] localPointers = new Pointer[pointerCount];
-    for (int i = 0; i < pointerCount; i++) {
-      localPointers[i] = new Pointer(this, i, tokenizer);
+    final int relationCount = tokenizer.nextInt();
+    final Relation[] localRelations = new Relation[relationCount];
+    for (int i = 0; i < relationCount; i++) {
+      localRelations[i] = new Relation(this, i, tokenizer);
     }
-    this.pointers = ImmutableList.of(localPointers);
+    this.relations = ImmutableList.of(localRelations);
 
     if (posOrdinal == POS.VERB.ordinal()) {
       final int f_cnt = tokenizer.nextInt();
@@ -263,32 +263,32 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
 
 
   //
-  // Pointers
+  // Relations
   //
-  static List<PointerTarget> collectTargets(final List<Pointer> pointers) {
-    final PointerTarget[] targets = new PointerTarget[pointers.size()];
-    for (int i = 0, n = pointers.size(); i < n; i++) {
-      targets[i] = pointers.get(i).getTarget();
+  static List<RelationTarget> collectTargets(final List<Relation> relations) {
+    final RelationTarget[] targets = new RelationTarget[relations.size()];
+    for (int i = 0, n = relations.size(); i < n; i++) {
+      targets[i] = relations.get(i).getTarget();
     }
     return ImmutableList.of(targets);
   }
 
-  public List<Pointer> getPointers() {
-    return pointers;
+  public List<Relation> getRelations() {
+    return relations;
   }
 
-  public List<Pointer> getPointers(final PointerType type) {
-    List<Pointer> list = null;
+  public List<Relation> getRelations(final RelationType type) {
+    List<Relation> list = null;
     //TODO
     // if superTypes exist, search them
     // if current type exists, search it
     // if subTypes exist, search them
-    for (final Pointer pointer : pointers) {
-      if (pointer.getType() == type) {
+    for (final Relation relation : relations) {
+      if (relation.getType() == type) {
         if (list == null) {
-          list = new ArrayList<Pointer>();
+          list = new ArrayList<Relation>();
         }
-        list.add(pointer);
+        list.add(relation);
       }
     }
     // if list == null && type has auxType, recall this method with that auxtype
@@ -296,7 +296,7 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
 //      if (type.subTypes.isEmpty() == false) {
 //        System.err.println("going for it "+type+" this: "+this+" subType: "+type.subTypes.get(0));
 //        assert type.subTypes.size() == 1;
-//        return getPointers(type.subTypes.get(0));
+//        return getRelations(type.subTypes.get(0));
 //      } else {
 //        //System.err.println("type "+type+" for "+this+" has no subTypes");
 //      }
@@ -305,15 +305,15 @@ public final class Synset implements PointerTarget, Comparable<Synset>, Iterable
     return ImmutableList.of(list);
   }
 
-  public List<PointerTarget> getTargets() {
-    return collectTargets(getPointers());
+  public List<RelationTarget> getTargets() {
+    return collectTargets(getRelations());
   }
 
-  public List<PointerTarget> getTargets(final PointerType type) {
-    return collectTargets(getPointers(type));
+  public List<RelationTarget> getTargets(final RelationType type) {
+    return collectTargets(getRelations(type));
   }
 
-  /** @see PointerTarget */
+  /** @see RelationTarget */
   public Synset getSynset() {
     return this;
   }

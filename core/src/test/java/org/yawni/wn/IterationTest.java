@@ -16,15 +16,6 @@
  */
 package org.yawni.wn;
 
-import org.yawni.wn.POS;
-import org.yawni.wn.Synset;
-import org.yawni.wn.Word;
-import org.yawni.wn.WordSense;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.Pointer;
-import org.yawni.wn.DictionaryDatabase;
-import org.yawni.wn.WordToLemma;
-import org.yawni.wn.PointerType;
 import org.junit.*;
 import static org.junit.Assert.*;
 //import static org.hamcrest.CoreMatchers.*;
@@ -278,12 +269,12 @@ public class IterationTest {
       assertTrue(pos+" wordSenses not unique?", Utils.isUnique(dictionary.wordSenses(pos), false));
     }
     for (final POS pos : POS.CATS) {
-      //System.err.println(pos+" pointers isSorted");
-      assertTrue(pos+" pointers not sorted?", Utils.isSorted(dictionary.pointers(pos)));
+      //System.err.println(pos+" relations isSorted");
+      assertTrue(pos+" relations not sorted?", Utils.isSorted(dictionary.relations(pos)));
     }
     for (final POS pos : POS.CATS) {
-      //System.err.println(pos+" pointers isUnique");
-      assertTrue(pos+" pointers not unique?", Utils.isUnique(dictionary.pointers(pos), false));
+      //System.err.println(pos+" relations isUnique");
+      assertTrue(pos+" relations not unique?", Utils.isUnique(dictionary.relations(pos), false));
     }
     //System.err.println("allPOSAllIterationsSortUniqueTests() passed");
   }
@@ -308,11 +299,11 @@ public class IterationTest {
               iterationGlossLetters += synset.getGloss().length();
             }
             ++iterationIndexWordsVisited;
-            final Set<PointerType> pointerTypes = word.getPointerTypes();
-            if (pointerTypes.contains(PointerType.ATTRIBUTE)) {
+            final Set<RelationType> relationTypes = word.getRelationTypes();
+            if (relationTypes.contains(RelationType.ATTRIBUTE)) {
               //System.err.println("found ATTRIBUTE for word: "+word);
             }
-            iteration_total_p_cnt += pointerTypes.size();
+            iteration_total_p_cnt += relationTypes.size();
             for (final WordSense wordSense : word.getSenses()) {
               //final String lemma = word.getLemma();
               final Synset synset = wordSense.getSynset();
@@ -397,10 +388,10 @@ public class IterationTest {
   }
   //@Ignore
   @Test
-  public void pointers() {
-    logTest("pointers");
-    for (final Pointer pointer : dictionary.pointers(POS.ALL)) {
-      final String s = pointer.toString();
+  public void relations() {
+    logTest("relations");
+    for (final Relation relation : dictionary.relations(POS.ALL)) {
+      final String s = relation.toString();
       //System.err.println(s);
     }
   }

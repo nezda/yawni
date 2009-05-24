@@ -30,19 +30,19 @@ import org.yawni.util.ImmutableList;
 /**
  * A {@code WordSense} represents the precise lexical information related to a specific sense of a {@link Word}.
  *
- * <p> {@code WordSense}'s are linked by {@link Pointer}s into a network of lexically related {@code Synset}s
+ * <p> {@code WordSense}'s are linked by {@link Relation}s into a network of lexically related {@code Synset}s
  * and {@code WordSense}s.
  * {@link WordSense#getTargets WordSense.getTargets()} retrieves the targets of these links, and
- * {@link WordSense#getPointers WordSense.getPointers()} retrieves the pointers themselves.
+ * {@link WordSense#getRelations WordSense.getRelations()} retrieves the relations themselves.
  *
  * <p> Each {@code WordSense} has exactly one associated {@link Word} (however a given {@code Word} may have one
  * or more {@code WordSense}s with different orthographic case (e.g., the nouns "CD" vs. "Cd")).
  *
- * @see Pointer
+ * @see Relation
  * @see Synset
  * @see Word
  */
-public final class WordSense implements PointerTarget, Comparable<WordSense> {
+public final class WordSense implements RelationTarget, Comparable<WordSense> {
   /**
    * <em>Optional</em> restrictions for the position(s) an adjective can take
    * relative to the noun it modifies. aka "adjclass".
@@ -199,7 +199,7 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     final String searchWord;
     final int headSense;
     if (getSynset().isAdjectiveCluster()) {
-      final List<PointerTarget> adjsses = getSynset().getTargets(PointerType.SIMILAR_TO);
+      final List<RelationTarget> adjsses = getSynset().getTargets(RelationType.SIMILAR_TO);
       assert adjsses.size() == 1;
       final Synset adjss = (Synset) adjsses.get(0);
       // if satellite, key lemma in cntlist.rev
@@ -476,10 +476,10 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
       description.append(flagsToString());
       description.append(')');
     }
-    final List<PointerTarget> targets = getTargets(PointerType.ANTONYM);
+    final List<RelationTarget> targets = getTargets(RelationType.ANTONYM);
     if (targets.isEmpty() == false) {
       // adj 'acidic' has more than 1 antonym ('alkaline' and 'amphoteric')
-      for (final PointerTarget target : targets) {
+      for (final RelationTarget target : targets) {
         description.append(" (vs. ");
         final WordSense antonym = (WordSense)target;
         description.append(antonym.getLemma());
@@ -515,18 +515,18 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
   }
 
   //
-  // Pointers
+  // Relations
   //
-  private List<Pointer> restrictPointers(final List<Pointer> source) {
-    List<Pointer> list = null;
+  private List<Relation> restrictRelations(final List<Relation> source) {
+    List<Relation> list = null;
     for (int i = 0, n = source.size(); i < n; i++) {
-      final Pointer pointer = source.get(i);
-      if (pointer.getSource().equals(this)) {
-        assert pointer.getSource() == this;
+      final Relation relation = source.get(i);
+      if (relation.getSource().equals(this)) {
+        assert relation.getSource() == this;
         if (list == null) {
-          list = new ArrayList<Pointer>();
+          list = new ArrayList<Relation>();
         }
-        list.add(pointer);
+        list.add(relation);
       }
     }
     if (list == null) {
@@ -535,20 +535,20 @@ public final class WordSense implements PointerTarget, Comparable<WordSense> {
     return ImmutableList.of(list);
   }
 
-  public List<Pointer> getPointers() {
-    return restrictPointers(synset.getPointers());
+  public List<Relation> getRelations() {
+    return restrictRelations(synset.getRelations());
   }
 
-  public List<Pointer> getPointers(final PointerType type) {
-    return restrictPointers(synset.getPointers(type));
+  public List<Relation> getRelations(final RelationType type) {
+    return restrictRelations(synset.getRelations(type));
   }
 
-  public List<PointerTarget> getTargets() {
-    return Synset.collectTargets(getPointers());
+  public List<RelationTarget> getTargets() {
+    return Synset.collectTargets(getRelations());
   }
 
-  public List<PointerTarget> getTargets(final PointerType type) {
-    return Synset.collectTargets(getPointers(type));
+  public List<RelationTarget> getTargets(final RelationType type) {
+    return Synset.collectTargets(getRelations(type));
   }
 
   //

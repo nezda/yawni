@@ -16,13 +16,6 @@
  */
 package org.yawni.wn;
 
-import org.yawni.wn.POS;
-import org.yawni.wn.Synset;
-import org.yawni.wn.Word;
-import org.yawni.wn.WordSense;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.Pointer;
-import org.yawni.wn.DictionaryDatabase;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.concurrent.*;
@@ -40,7 +33,7 @@ public class ThreadSafetyTest {
 
     private int wordsVisited;
     private int wordSensesVisited;
-    private int pointersVisited;
+    private int relationsVisited;
 
     Antagonizer(final int id, final Semaphore semaphore) { 
       super("Antagonizer "+id);
@@ -52,13 +45,13 @@ public class ThreadSafetyTest {
       return 
         this.wordsVisited == that.wordsVisited &&
         this.wordSensesVisited == that.wordSensesVisited &&
-        this.pointersVisited == that.pointersVisited;
+        this.relationsVisited == that.relationsVisited;
     }
     @Override public String toString() {
       return "[Antagonizer: " + id +
         " wordsVisited: " + wordsVisited +
         " wordSensesVisited: " + wordSensesVisited +
-        " pointersVisited: " + pointersVisited + "]";
+        " relationsVisited: " + relationsVisited + "]";
     }
 
     protected void antagonize() {
@@ -75,10 +68,10 @@ public class ThreadSafetyTest {
             ++wordSensesVisited;
           }
           for (final Synset synset : word.getSynsets()) {
-            for (final Pointer pointer : synset.getPointers()) {
-              pointer.getTarget();
+            for (final Relation relation : synset.getRelations()) {
+              relation.getTarget();
               // note these are not unique - they are visited from both sides
-              ++pointersVisited;
+              ++relationsVisited;
             }
           }
         }

@@ -41,7 +41,7 @@ import org.yawni.util.ImmutableList;
  *
  * @see Synset
  * @see WordSense
- * @see Pointer
+ * @see Relation
  */
 public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = LoggerFactory.getLogger(Word.class.getName());
@@ -62,7 +62,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   private Object synsets;
 
-  private Set<PointerType> ptrTypes;
+  private Set<RelationType> ptrTypes;
   private final byte posOrdinal;
   //
   // Constructor
@@ -77,16 +77,16 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
 
       tokenizer.skipNextToken(); // poly_cnt
       //final int poly_cnt = tokenizer.nextInt(); // poly_cnt
-      final int pointerCount = tokenizer.nextInt();
-      //this.ptrTypes = EnumSet.noneOf(PointerType.class);
-      for (int i = 0; i < pointerCount; i++) {
-        //XXX each of these tokens is a pointertype, although it may be may be
-        //incorrect - see getPointerTypes() comments)
+      final int relationCount = tokenizer.nextInt();
+      //this.ptrTypes = EnumSet.noneOf(RelationType.class);
+      for (int i = 0; i < relationCount; i++) {
+        //XXX each of these tokens is a relationtype, although it may be may be
+        //incorrect - see getRelationTypes() comments)
         tokenizer.skipNextToken();
         //  try {
-        //    ptrTypes.add(PointerType.parseKey(tokenizer.nextToken()));
+        //    ptrTypes.add(RelationType.parseKey(tokenizer.nextToken()));
         //  } catch (final java.util.NoSuchElementException exc) {
-        //    log.log(Level.SEVERE, "Word() got PointerType.parseKey() error:", exc);
+        //    log.log(Level.SEVERE, "Word() got RelationType.parseKey() error:", exc);
         //  }
       }
 
@@ -100,17 +100,17 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         synsetOffsets[i] = tokenizer.nextInt();
       }
       this.synsets = synsetOffsets;
-      //final EnumSet<PointerType> actualPtrTypes = EnumSet.noneOf(PointerType.class);
+      //final EnumSet<RelationType> actualPtrTypes = EnumSet.noneOf(RelationType.class);
       //for (final Synset synset : getSynsets()) {
-      //  for (final Pointer pointer : synset.getPointers()) {
-      //    final PointerType ptrType = pointer.getType();
+      //  for (final Relation relation : synset.getRelations()) {
+      //    final RelationType ptrType = relation.getType();
       //    actualPtrTypes.add(ptrType);
       //  }
       //}
       //// in actualPtrTypes, NOT ptrTypes
-      //final EnumSet<PointerType> missing = EnumSet.copyOf(actualPtrTypes); missing.removeAll(ptrTypes);
+      //final EnumSet<RelationType> missing = EnumSet.copyOf(actualPtrTypes); missing.removeAll(ptrTypes);
       //// in ptrTypes, NOT actualPtrTypes
-      //final EnumSet<PointerType> extra = EnumSet.copyOf(ptrTypes); extra.removeAll(actualPtrTypes);
+      //final EnumSet<RelationType> extra = EnumSet.copyOf(ptrTypes); extra.removeAll(actualPtrTypes);
       //if(false == missing.isEmpty()) {
       //  //log.error("missing: {}", missing);
       //}
@@ -133,20 +133,20 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * The pointer types available for this word.  May not apply to all
+   * The relation types available for this word.  May not apply to all
    * senses of the word.
    */
-  public Set<PointerType> getPointerTypes() {
+  public Set<RelationType> getRelationTypes() {
     if (ptrTypes == null) {
       // these are not always correct
-      // PointerType.INSTANCE_HYPERNYM
-      // PointerType.HYPERNYM
-      // PointerType.INSTANCE_HYPONYM
-      // PointerType.HYPONYM
-      final EnumSet<PointerType> localPtrTypes = EnumSet.noneOf(PointerType.class);
+      // RelationType.INSTANCE_HYPERNYM
+      // RelationType.HYPERNYM
+      // RelationType.INSTANCE_HYPONYM
+      // RelationType.HYPONYM
+      final EnumSet<RelationType> localPtrTypes = EnumSet.noneOf(RelationType.class);
       for (final Synset synset : getSynsets()) {
-        for (final Pointer pointer : synset.getPointers()) {
-          final PointerType ptrType = pointer.getType();
+        for (final Relation relation : synset.getRelations()) {
+          final RelationType ptrType = relation.getType();
           localPtrTypes.add(ptrType);
         }
       }

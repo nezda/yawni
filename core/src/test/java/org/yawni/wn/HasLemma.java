@@ -1,7 +1,5 @@
 package org.yawni.wn;
 
-import org.yawni.wn.Word;
-import org.yawni.wn.WordSense;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;

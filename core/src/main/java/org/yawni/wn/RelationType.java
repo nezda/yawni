@@ -23,12 +23,12 @@ package org.yawni.wn;
 import java.util.*;
 
 import org.yawni.util.ImmutableList;
-import static org.yawni.wn.PointerTypeFlag.*;
+import static org.yawni.wn.RelationTypeFlag.*;
 
 /**
- * Instances of this class enumerate the possible WordNet pointer types, and
- * are used to label {@link Pointer}s.
- * Each {@code PointerType} carries additional information including:
+ * Instances of this class enumerate the possible WordNet relation types, and
+ * are used to label {@link Relation}s.
+ * Each {@code RelationType} carries additional information including:
  * <ul>
  *   <li> a human-readable label </li>
  *   <li> an optional symmetric (i.e., reflexive) type that labels links pointing the opposite direction </li>
@@ -38,11 +38,11 @@ import static org.yawni.wn.PointerTypeFlag.*;
  *
  * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN#sect4>http://wordnet.princeton.edu/man/wnsearch.3WN#sect4</a>
  * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
- * @see Pointer
+ * @see Relation
  * @see POS
  * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN.html#sect4">WordNet Searches</a>
  */
-public enum PointerType {
+public enum RelationType {
   // consider Unicde ellipsis: "…" instead of "..."
 
   // Nouns and Verbs
@@ -79,10 +79,10 @@ public enum PointerType {
   
   /**
    * A word that names a part of a larger whole, aka "part name".<br>
-   * Pure-virtual PointerType.
-   * @see PointerType#MEMBER_MERONYM
-   * @see PointerType#SUBSTANCE_MERONYM
-   * @see PointerType#PART_MERONYM
+   * Pure-virtual RelationType.
+   * @see RelationType#MEMBER_MERONYM
+   * @see RelationType#SUBSTANCE_MERONYM
+   * @see RelationType#PART_MERONYM
    */
   MERONYM("meronym", "%" /* non-existent */, 12, N),
   /** aka "is member". */
@@ -94,10 +94,10 @@ public enum PointerType {
 
   /**
    * A word that names the whole of which a given word is a part.<br>
-   * Pure-virtual PointerType.
-   * @see PointerType#MEMBER_HOLONYM
-   * @see PointerType#SUBSTANCE_HOLONYM
-   * @see PointerType#PART_HOLONYM
+   * Pure-virtual RelationType.
+   * @see RelationType#MEMBER_HOLONYM
+   * @see RelationType#SUBSTANCE_HOLONYM
+   * @see RelationType#PART_HOLONYM
    */
   HOLONYM("holonym", "#" /* non-existent */, 13, N),
   /** aka "has member". */
@@ -139,30 +139,30 @@ public enum PointerType {
 
   /**
    * aka "class"<br>
-   * Pure-virtual PointerType.
-   * @see PointerType#MEMBER_OF_TOPIC_DOMAIN
-   * @see PointerType#MEMBER_OF_REGION_DOMAIN
-   * @see PointerType#MEMBER_OF_USAGE_DOMAIN
+   * Pure-virtual RelationType.
+   * @see RelationType#MEMBER_OF_TOPIC_DOMAIN
+   * @see RelationType#MEMBER_OF_REGION_DOMAIN
+   * @see RelationType#MEMBER_OF_USAGE_DOMAIN
    */
   DOMAIN_MEMBER("Domain Member", "-", 22, N | V | ADJ | ADV),
 
   /**
    * aka "classification"<br>
-   * Pure-virtual PointerType.
-   * @see PointerType#DOMAIN_OF_TOPIC
-   * @see PointerType#DOMAIN_OF_REGION
-   * @see PointerType#DOMAIN_OF_USAGE
+   * Pure-virtual RelationType.
+   * @see RelationType#DOMAIN_OF_TOPIC
+   * @see RelationType#DOMAIN_OF_REGION
+   * @see RelationType#DOMAIN_OF_USAGE
    */
   DOMAIN("Domain", ";", 21, N | V | ADJ | ADV);
 
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
 
   /**
-   * A list of all {@code PointerType}s.
+   * A list of all {@code RelationType}s.
    * Don't want to export this mutable, easily derived information.
-   * @see PointerType#values()
+   * @see RelationType#values()
    */
-  private static final EnumSet<PointerType> TYPES = EnumSet.of(
+  private static final EnumSet<RelationType> TYPES = EnumSet.of(
     ANTONYM, HYPERNYM, HYPONYM, ATTRIBUTE, SEE_ALSO,
     ENTAILMENT, CAUSE, VERB_GROUP,
     MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
@@ -176,7 +176,7 @@ public enum PointerType {
 
   //XXX this seems to indicate DOMAIN implies DOMAIN_PART
   //XXX SAT_ADJ seems to be an index-only POS
-  private static final Set<PointerType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
+  private static final Set<RelationType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
 
   static {
     // checks for completeness of these 2 lists (TYPES and INDEX_ONLY = all the types)
@@ -185,19 +185,19 @@ public enum PointerType {
 
   /**
    * A "pure-virtual" concept (i.e., one that cannot be directly instantiated).
-   * Index-only pointer types are used only for parsing index file records.
-   * {@code isIndexOnly} {@code PointerType}s are not used to determine relationships between words.
-   * @param pointerType
-   * @return {@code true} if the {@code pointerType} is an index-only pointer type, otherwise {@code false}.
+   * Index-only relation types are used only for parsing index file records.
+   * {@code isIndexOnly} {@code RelationType}s are not used to determine relationships between words.
+   * @param relationType
+   * @return {@code true} if the {@code relationType} is an index-only relation type, otherwise {@code false}.
    */
-  public static boolean isIndexOnly(final PointerType pointerType) {
-    return INDEX_ONLY.contains(pointerType);
+  public static boolean isIndexOnly(final RelationType relationType) {
+    return INDEX_ONLY.contains(relationType);
   }
 
   /**
    * i.e., {@code HYPERNYM.isSymmetricTo(HYPONYM)}
    */
-  private static void setSymmetric(final PointerType a, final PointerType b) {
+  private static void setSymmetric(final RelationType a, final RelationType b) {
     a.symmetricType = b;
     b.symmetricType = a;
   }
@@ -221,7 +221,7 @@ public enum PointerType {
     setSymmetric(VERB_GROUP, VERB_GROUP);
 
     /**
-     * Some {@code PointerType}s are "abstract/virtual/meta", though most are concrete.<br>
+     * Some {@code RelationType}s are "abstract/virtual/meta", though most are concrete.<br>
      * "Virtual" means has super-types and/or sub-types.<br>
      * Compare to "concrete" (isolated) and "pure virtual" (incomplete) types.<br>
      * It does not make sense to search for a pure-virtual type.
@@ -303,18 +303,18 @@ public enum PointerType {
     //- type should never be its own subtype
   }
 
-  private static final PointerType[] VALUES = values();
+  private static final RelationType[] VALUES = values();
 
-  static PointerType fromOrdinal(final byte ordinal) {
+  static RelationType fromOrdinal(final byte ordinal) {
     return VALUES[ordinal];
   }
 
   /**
-   * @return the {@code PointerType} whose key matches {@code key}.
-   * @exception NoSuchElementException If {@code key} doesn't name any {@code PointerType}.
+   * @return the {@code RelationType} whose key matches {@code key}.
+   * @exception NoSuchElementException If {@code key} doesn't name any {@code RelationType}.
    */
-  public static PointerType parseKey(final CharSequence key) {
-    for (final PointerType pType : VALUES) {
+  public static RelationType parseKey(final CharSequence key) {
+    for (final RelationType pType : VALUES) {
       if (pType.key.contentEquals(key)) {
         return pType;
       }
@@ -332,20 +332,20 @@ public enum PointerType {
   private final int value;
   private final int flags;
   private final String toString;
-  private PointerType symmetricType;
+  private RelationType symmetricType;
   // experimental fields
-  ImmutableList<PointerType> subTypes;
-  private ImmutableList<PointerType> superTypes;
+  ImmutableList<RelationType> subTypes;
+  private ImmutableList<RelationType> superTypes;
 
-  PointerType(final String label, final String key, final int value, final int flags) {
+  RelationType(final String label, final String key, final int value, final int flags) {
     this(label, key, value, flags, null, null);
   }
 
-  PointerType(final String label, final String key, final int value, final int flags, final String longNounLabel) {
+  RelationType(final String label, final String key, final int value, final int flags, final String longNounLabel) {
     this(label, key, value, flags, longNounLabel, null);
   }
 
-  PointerType(final String label, final String key, final int value, final int flags, final String longNounLabel, final String longVerbLabel) {
+  RelationType(final String label, final String key, final int value, final int flags, final String longNounLabel, final String longVerbLabel) {
     this.label = label;
     this.key = key;
     this.value = value;
@@ -376,7 +376,7 @@ public enum PointerType {
   }
 
   /**
-   * @return human-readable label, e.g. {@code PointerType.HYPERNYM.getLabel() == "hypernym"}
+   * @return human-readable label, e.g. {@code RelationType.HYPERNYM.getLabel() == "hypernym"}
    */
   public String getLabel() {
     return label;
@@ -399,7 +399,7 @@ public enum PointerType {
   }
 
   /**
-   * Some {@code PointerType}s only apply to certain {@link POS}.
+   * Some {@code RelationType}s only apply to certain {@link POS}.
    */
   public boolean appliesTo(final POS pos) {
     return (flags & POS_MASK[pos.ordinal()]) != 0;
@@ -407,27 +407,27 @@ public enum PointerType {
 
   /**
    * {@code type} is the opposite concept of {@code this}.
-   * For example <code>{@link PointerType#HYPERNYM}.isSymmetricTo({@link PointerType#HYPONYM}<code>).
+   * For example <code>{@link RelationType#HYPERNYM}.isSymmetricTo({@link RelationType#HYPONYM}<code>).
    * {@code isInverseOf} might've been a better name.
    */
-  public boolean isSymmetricTo(final PointerType type) {
+  public boolean isSymmetricTo(final RelationType type) {
     return symmetricType != null && symmetricType.equals(type);
   }
 
-  public List<PointerType> getSuperTypes() {
+  public List<RelationType> getSuperTypes() {
     return this.superTypes;
   }
 
-  public List<PointerType> getSubTypes() {
+  public List<RelationType> getSubTypes() {
     return this.subTypes;
   }
-} // end enum PointerType
+} // end enum RelationType
 
 /**
- * Flags for tagging a pointer type with the POS types it apples to.
- * Separate class to allow PointerType enum constructor to reference it.
+ * Flags for tagging a relation type with the POS types it apples to.
+ * Separate class to allow RelationType enum constructor to reference it.
  */
-class PointerTypeFlag {
+class RelationTypeFlag {
   static final int N = 1;
   static final int V = 2;
   static final int ADJ = 4;
@@ -438,4 +438,4 @@ class PointerTypeFlag {
    * rather than common case semantic relations which connect {@code Synset}s.
    */
   static final int LEXICAL = 32;
-} // end class PointerTypeFlag
+} // end class RelationTypeFlag

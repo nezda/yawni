@@ -16,14 +16,6 @@
  */
 package org.yawni.wn;
 
-import org.yawni.wn.POS;
-import org.yawni.wn.Synset;
-import org.yawni.wn.PointerTarget;
-import org.yawni.wn.Word;
-import org.yawni.wn.WordSense;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.DictionaryDatabase;
-import org.yawni.wn.PointerType;
 import java.util.List;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -62,22 +54,22 @@ public class SynsetTest {
     System.err.println("testAntonym");
     // adj up#1 has ANTONYM adj down#1
     final Word upWord = dictionary.lookupWord("up", POS.ADJ);
-    assertTrue(upWord.getPointerTypes().contains(PointerType.ANTONYM));
+    assertTrue(upWord.getRelationTypes().contains(RelationType.ANTONYM));
     final WordSense up1 = upWord.getSense(1);
     final Word downWord = dictionary.lookupWord("down", POS.ADJ);
     final WordSense down1 = downWord.getSense(1);
-    assertTrue(up1.getTargets(PointerType.ANTONYM).contains(down1));
-    assertTrue(down1.getTargets(PointerType.ANTONYM).contains(up1));
+    assertTrue(up1.getTargets(RelationType.ANTONYM).contains(down1));
+    assertTrue(down1.getTargets(RelationType.ANTONYM).contains(up1));
 
     // adj beutifulu#1 has ANTONYM adj ugly#1
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1226746&group_id=33824&atid=409470
     final Word beautifulWord = dictionary.lookupWord("beautiful", POS.ADJ);
-    assertTrue(beautifulWord.getPointerTypes().contains(PointerType.ANTONYM));
+    assertTrue(beautifulWord.getRelationTypes().contains(RelationType.ANTONYM));
     final WordSense beautiful1 = beautifulWord.getSense(1);
     final Word uglyWord = dictionary.lookupWord("ugly", POS.ADJ);
     final WordSense ugly1 = uglyWord.getSense(1);
-    assertTrue(beautiful1.getTargets(PointerType.ANTONYM).contains(ugly1));
-    assertTrue(ugly1.getTargets(PointerType.ANTONYM).contains(beautiful1));
+    assertTrue(beautiful1.getTargets(RelationType.ANTONYM).contains(ugly1));
+    assertTrue(ugly1.getTargets(RelationType.ANTONYM).contains(beautiful1));
   }
 
    @Test
@@ -85,13 +77,13 @@ public class SynsetTest {
     System.err.println("testPertainym");
     // adj presidential#1 has PERTAINYM noun president#3
     final Word presidentialWord = dictionary.lookupWord("presidential", POS.ADJ);
-    assertTrue(presidentialWord.getPointerTypes().contains(PointerType.PERTAINYM));
+    assertTrue(presidentialWord.getRelationTypes().contains(RelationType.PERTAINYM));
     final WordSense presidential1 = presidentialWord.getSense(1);
     final Word presidentWord = dictionary.lookupWord("president", POS.NOUN);
     final WordSense president3 = presidentWord.getSense(3);
-    assertTrue(presidential1.getTargets(PointerType.PERTAINYM).contains(president3));
+    assertTrue(presidential1.getTargets(RelationType.PERTAINYM).contains(president3));
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1372493&group_id=33824&atid=409470
-    assertTrue(presidential1.getTargets(PointerType.DERIVED).isEmpty());
+    assertTrue(presidential1.getTargets(RelationType.DERIVED).isEmpty());
   }
 
   @Test
@@ -99,18 +91,18 @@ public class SynsetTest {
     System.err.println("testDomainTypes");
     // adj up#7 member of noun TOPIC computer#1
     final Word word = dictionary.lookupWord("up", POS.ADJ);
-    System.err.println("word: "+word+" pointerTypes: "+word.getPointerTypes());
+    System.err.println("word: "+word+" relationTypes: "+word.getRelationTypes());
     System.err.println("  "+word.getSense(7).getLongDescription());
-    final PointerType[] pointerTypes = new PointerType[] {
-      //PointerType.DOMAIN,
-      //PointerType.MEMBER_OF_TOPIC_DOMAIN,
-      PointerType.DOMAIN_OF_TOPIC,
-      //PointerType.MEMBER_OF_THIS_DOMAIN_TOPIC,
+    final RelationType[] relationTypes = new RelationType[] {
+      //RelationType.DOMAIN,
+      //RelationType.MEMBER_OF_TOPIC_DOMAIN,
+      RelationType.DOMAIN_OF_TOPIC,
+      //RelationType.MEMBER_OF_THIS_DOMAIN_TOPIC,
     };
     //FIXME assert something here, don't just print
-    for (final PointerType pointerType : pointerTypes) {
-      for (final PointerTarget target : word.getSense(7).getSynset().getTargets(pointerType)) {
-        System.err.println(pointerType + " target: " + target);
+    for (final RelationType relationType : relationTypes) {
+      for (final RelationTarget target : word.getSense(7).getSynset().getTargets(relationType)) {
+        System.err.println(relationType + " target: " + target);
       }
     }
   }
@@ -120,15 +112,15 @@ public class SynsetTest {
     System.err.println("testAttributeType");
     // adj low-pitch#1 is attribute of "pitch"#1
     final Word word = dictionary.lookupWord("low-pitched", POS.ADJ);
-    System.err.println("word: "+word+" pointerTypes: "+word.getPointerTypes());
+    System.err.println("word: "+word+" relationTypes: "+word.getRelationTypes());
     System.err.println("  "+word.getSense(1).getLongDescription());
-    final PointerType[] pointerTypes = new PointerType[] { 
-      PointerType.ATTRIBUTE, 
+    final RelationType[] relationTypes = new RelationType[] {
+      RelationType.ATTRIBUTE,
     };
     //FIXME assert something here, don't just print
-    for (final PointerType pointerType : pointerTypes) {
-      for (final PointerTarget target : word.getSense(1).getSynset().getTargets(pointerType)) {
-        System.err.println("  "+pointerType+" target: "+target);
+    for (final RelationType relationType : relationTypes) {
+      for (final RelationTarget target : word.getSense(1).getSynset().getTargets(relationType)) {
+        System.err.println("  "+relationType+" target: "+target);
       }
     }
   }
@@ -157,25 +149,25 @@ public class SynsetTest {
     System.err.println("testInstances");
     // noun "George Bush"#1 has 
     final Word georgeBush = dictionary.lookupWord("George Bush", POS.NOUN);
-    System.err.println("word: "+georgeBush+" pointerTypes: "+georgeBush.getPointerTypes());
+    System.err.println("word: "+georgeBush+" relationTypes: "+georgeBush.getRelationTypes());
     System.err.println("  "+georgeBush.getSense(1).getLongDescription());
-    final PointerType[] pointerTypes = new PointerType[] { 
+    final RelationType[] relationTypes = new RelationType[] {
       //FIXME make HYPONYM a superset of INSTANCE_HYPONYM ?
-      PointerType.HYPONYM,
-      PointerType.INSTANCE_HYPONYM,
-      PointerType.HYPERNYM,
-      PointerType.INSTANCE_HYPERNYM,
+      RelationType.HYPONYM,
+      RelationType.INSTANCE_HYPONYM,
+      RelationType.HYPERNYM,
+      RelationType.INSTANCE_HYPERNYM,
     };
-    for (final PointerType pointerType : pointerTypes) {
-      final List<PointerTarget> targets = georgeBush.getSense(1).getSynset().getTargets(pointerType);
-      //assertTrue("type: "+pointerType, targets.isEmpty() == false);
+    for (final RelationType relationType : relationTypes) {
+      final List<RelationTarget> targets = georgeBush.getSense(1).getSynset().getTargets(relationType);
+      //assertTrue("type: "+relationType, targets.isEmpty() == false);
       // woah - WordSense targets are different than Synset targets ??
       // at a minimum this needs to be documented
-      final List<PointerTarget> targetsAlt = georgeBush.getSense(1).getTargets(pointerType);
-//      assertEquals("pointerType: "+pointerType, targets, targetsAlt);
+      final List<RelationTarget> targetsAlt = georgeBush.getSense(1).getTargets(relationType);
+//      assertEquals("relationType: "+relationType, targets, targetsAlt);
       //assertTrue(targets == targetsAlt);
-      for (final PointerTarget target : targets) {
-        System.err.println("  " + pointerType + " target: " + target);
+      for (final RelationTarget target : targets) {
+        System.err.println("  " + relationType + " target: " + target);
       }
     }
   }

@@ -16,8 +16,6 @@
  */
 package org.yawni.wn;
 
-import org.yawni.wn.FileManager;
-import org.yawni.wn.FileManagerInterface;
 import org.junit.*;
 import static org.junit.Assert.*;
 
