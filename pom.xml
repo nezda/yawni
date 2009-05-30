@@ -57,14 +57,6 @@
         <role>1.0 Developer</role>
       </roles>
     </developer>
-    <developer>
-      <id>kurthayes</id>
-      <name>Kurt Hayes</name>
-      <email>kurthayes -at- sourceforget.net</email>
-      <roles>
-        <role>1.0 Maintainer</role>
-      </roles>
-    </developer>
   </developers>
   <licenses>
     <license>
@@ -79,7 +71,8 @@
   <packaging>pom</packaging>
   <modules>
     <module>core</module>
-    <module>data</module>
+    <!-- no need to build this everytime -->
+    <!-- <module>data</module> -->
   </modules>
   <build>
     <plugins>
