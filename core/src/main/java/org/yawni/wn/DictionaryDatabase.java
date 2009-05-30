@@ -128,7 +128,7 @@ public interface DictionaryDatabase {
   /**
    * Return an iterator of <b>all</b> the {@code Relation}s in the database of
    * type {@code RelationType}.
-   * @param relationType The {@code RelationType}. {@code null} implies ALL {@code RelationType}s.
+   * @param relationType The {@code RelationType}. {@code null} implies <b>all</b> {@code RelationType}s.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Relation}s of type {@code RelationType}.
    */
