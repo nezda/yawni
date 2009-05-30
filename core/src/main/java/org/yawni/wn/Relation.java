@@ -23,16 +23,18 @@ package org.yawni.wn;
 import org.yawni.util.CharSequenceTokenizer;
 
 /**
- * A <code>Relation</code> encodes a lexical <i>or</i> semantic relationship between WordNet entities.  A lexical
+ * A <code>Relation</code> encodes a lexical <em>or</em> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
- * Relationships are <i>directional</i>:  the two roles of a relationship are the <i>source</i> and <i>target</i>.
- * Relationships are <i>typed</i>: the type of a relationship is a {@link RelationType}, and can
+ * Relationships are <em>directional</em>:  the two roles of a relationship are the <em>source</em> and <em>target</em>.
+ * Relationships are <em>typed</em>: the type of a relationship is a {@link RelationType}, and can
  * be retrieved via {@link Relation#getType RelationType.getType()}.
+ *
+ * <p> Note this class used to be called {@code Pointer}.
  *
  * @see Synset
  * @see WordSense
  */
-public final class Relation implements Comparable<Relation> {
+public class Relation implements Comparable<Relation> {
   /**
    * These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
@@ -60,18 +62,35 @@ public final class Relation implements Comparable<Relation> {
   //
   // Constructor
   //
-  Relation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
+
+  Relation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
+    final int index, final RelationTarget source, final byte relationTypeOrdinal) {
+    this.targetOffset = targetOffset;
+    this.targetIndex = targetIndex;
+    this.targetPOSOrdinal = targetPOSOrdinal;
     this.index = index;
-    this.relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken()).ordinal();
+    this.source = source;
+    this.relationTypeOrdinal = relationTypeOrdinal;
+  }
 
-    this.targetOffset = tokenizer.nextInt();
+  static Relation makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
+    final byte relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken()).ordinal();
 
-    this.targetPOSOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
+    final int targetOffset = tokenizer.nextInt();
+
+    final byte targetPOSOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
     final int linkIndices = tokenizer.nextHexInt();
     final int sourceIndex = linkIndices >> 8;
-    this.targetIndex = linkIndices & 0xFF;
+    final int targetIndex = linkIndices & 0xFF;
 
-    this.source = resolveTarget(synset, sourceIndex);
+    final RelationTarget source = Relation.resolveTarget(synset, sourceIndex);
+    if (source instanceof WordSense) {
+      return new LexicalRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
+    } else if (source instanceof Synset) {
+      return new SemanticRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
+    } else {
+      throw new IllegalStateException();
+    }
   }
 
   //
@@ -92,15 +111,12 @@ public final class Relation implements Comparable<Relation> {
     return source instanceof Synset;
   }
 
-  //
-  // Targets
-  //
   public RelationTarget getSource() {
     return source;
   }
 
   public RelationTarget getTarget() {
-    return resolveTarget(
+    return Relation.resolveTarget(
         // using source.getSynset() to avoid requiring a local field
         source.getSynset().fileBackedDictionary.getSynsetAt(
           POS.fromOrdinal(targetPOSOrdinal),
@@ -119,6 +135,7 @@ public final class Relation implements Comparable<Relation> {
   //
   // Object methods
   //
+  
   @Override
   public boolean equals(final Object that) {
     return (that instanceof Relation)
