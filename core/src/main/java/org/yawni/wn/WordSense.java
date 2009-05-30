@@ -30,12 +30,12 @@ import org.yawni.util.ImmutableList;
 /**
  * A {@code WordSense} represents the precise lexical information related to a specific sense of a {@link Word}.
  *
- * <p> {@code WordSense}'s are linked by {@link Relation}s into a network of lexically related {@code Synset}s
+ * <p> {@code WordSense}'s are linked by {@link Relation}s into a network of lexically related {@link Synset}s
  * and {@code WordSense}s.
  * {@link WordSense#getTargets WordSense.getTargets()} retrieves the targets of these links, and
  * {@link WordSense#getRelations WordSense.getRelations()} retrieves the relations themselves.
  *
- * <p> Each {@code WordSense} has exactly one associated {@link Word} (however a given {@code Word} may have one
+ * <p> Each {@code WordSense} has exactly one associated {@code Word} (however a given {@code Word} may have one
  * or more {@code WordSense}s with different orthographic case (e.g., the nouns "CD" vs. "Cd")).
  *
  * @see Relation
@@ -103,6 +103,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   //
   // Accessors
   //
+  
   public Synset getSynset() {
     return synset;
   }
@@ -152,7 +153,9 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * 1-indexed value.  Note that this value often varies across WordNet versions.
+   * 1-indexed value whose order is relative to its {@link Word}.
+   *
+   * <p> Note that this value often varies across WordNet versions.
    * For those senses which never occured in sense tagged corpora, it is
    * arbitrarily chosen.
    * @see <a href="http://wordnet.princeton.edu/man/cntlist.5WN#toc4">'NOTES' in cntlist WordNet documentation</a>
@@ -194,7 +197,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * @see <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
    */
   //TODO cache this ? does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
-  // power users would be into this: https://sourceforge.net/tracker/index.php?func=detail&aid=2009619&group_id=33824&atid=409470
+  // power users might be into this: https://sourceforge.net/tracker/index.php?func=detail&aid=2009619&group_id=33824&atid=409470
   CharSequence getSenseKey() {
     final String searchWord;
     final int headSense;
@@ -517,17 +520,24 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   //
   // Relations
   //
-  private List<Relation> restrictRelations(final List<Relation> source) {
-    List<Relation> list = null;
-    for (int i = 0, n = source.size(); i < n; i++) {
-      final Relation relation = source.get(i);
-      if (relation.getSource().equals(this)) {
-        assert relation.getSource() == this;
-        if (list == null) {
-          list = new ArrayList<Relation>();
-        }
-        list.add(relation);
+  
+  private List<LexicalRelation> restrictRelations(final RelationType type) {
+    final List<Relation> relations = synset.getRelations();
+    List<LexicalRelation> list = null;
+    for (int i = 0, n = relations.size(); i < n; i++) {
+      final Relation relation = relations.get(i);
+      if (relation.getSource().equals(this) == false) {
+        continue;
       }
+      if (type != null && type != relation.getType()) {
+        continue;
+      }
+      assert relation.getSource() == this;
+      if (list == null) {
+        list = new ArrayList<LexicalRelation>();
+      }
+      final LexicalRelation lexicalRelation = (LexicalRelation) relation;
+      list.add(lexicalRelation);
     }
     if (list == null) {
       return ImmutableList.of();
@@ -535,12 +545,12 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return ImmutableList.of(list);
   }
 
-  public List<Relation> getRelations() {
-    return restrictRelations(synset.getRelations());
+  public List<LexicalRelation> getRelations() {
+    return restrictRelations(null);
   }
 
-  public List<Relation> getRelations(final RelationType type) {
-    return restrictRelations(synset.getRelations(type));
+  public List<LexicalRelation> getRelations(final RelationType type) {
+    return restrictRelations(type);
   }
 
   public List<RelationTarget> getTargets() {
@@ -554,6 +564,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   //
   // Object methods
   //
+  
   @Override
   public boolean equals(Object object) {
     return (object instanceof WordSense)
