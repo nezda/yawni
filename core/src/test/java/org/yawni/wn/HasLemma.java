@@ -35,7 +35,7 @@ public class HasLemma<T> extends BaseMatcher<T> {
     String lemma = (String) operand;
     if (wordOrWordSense instanceof Word) {
       return lemma.equals(((Word)wordOrWordSense).getLemma());
-    } else if(wordOrWordSense instanceof WordSense) {
+    } else if (wordOrWordSense instanceof WordSense) {
       return lemma.equals(((WordSense)wordOrWordSense).getLemma());
     } else {
       throw new IllegalArgumentException("wordOrWordSense: "+wordOrWordSense+
