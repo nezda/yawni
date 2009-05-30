@@ -52,8 +52,8 @@ Changes in 2.x versions
   - re-implemented LRUCache in terms of LinkedHashMap (much more efficient)
   - uses maximally configurable slf4j logging system
   - added LookaheadIterator (analagous to old LookaheadEnumeration)
-- New/changed API methods
-  - renamed Word -> WordSense, IndexWord -> Word
+- New / changed API methods
+  - renamed Word -> WordSense, IndexWord -> Word, Pointer -> Relation, PointerType -> RelationType, PointerTarget -> RelationTarget
     - easier to understand, matches W3C proposal (http://www.w3.org/TR/wordnet-rdf/)
   - WordSense.getSenseNumber()
   - WordSense.getTaggedSenseCount()
@@ -62,7 +62,7 @@ Changes in 2.x versions
   - Word.isCollocation()
   - Word.getPointerTypes()
   - Synset.getLexCategory()
-  - added PointerTarget.getSynset()
+  - added RelationTarget.getSynset()
   - Word.getSenses() -> Word.getSynsets() and added List<WordSense> Word.getSenses()
   - DictionaryDatabase iteration methods are Iterables for ease of use (e.g., for loops)
   - all core classes implement Comparable<T>
