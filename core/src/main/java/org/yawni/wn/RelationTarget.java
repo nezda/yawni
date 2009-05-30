@@ -24,8 +24,10 @@ import java.util.List;
 
 /**
  * A <code>RelationTarget</code> is the <i>source</i> or <i>target</i> of a {@link Relation}.
- * The target of a <b>semantic</b> <code>RelationTarget</code> is a {@link Synset};
- * the target of a <b>lexical</b> <code>RelationTarget</code> is a {@link WordSense}.
+ * The target (and source) of a {@link SemanticRelation} is a {@link Synset};
+ * the target (and source) of a {@link LexicalRelation} is a {@link WordSense}.
+ *
+ * <p> Note this class used to be called {@code PointerTarget}.
  *
  * @see Relation
  * @see Synset
@@ -51,10 +53,10 @@ public interface RelationTarget extends Iterable<WordSense> {
    * Returns the outgoing <code>Relation</code>s from this target -- those
    * <code>Relation</code>s that have this object as their source.
    */
-  public List<Relation> getRelations();
+  public List<? extends Relation> getRelations();
 
   /** Returns the outgoing <code>Relation</code>s of type {@code type}. */
-  public List<Relation> getRelations(RelationType type);
+  public List<? extends Relation> getRelations(RelationType type);
 
   /** Returns the targets of the outgoing <code>Relation</code>s. */
   public List<RelationTarget> getTargets();
