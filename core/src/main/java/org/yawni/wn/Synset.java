@@ -114,7 +114,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     final int relationCount = tokenizer.nextInt();
     final Relation[] localRelations = new Relation[relationCount];
     for (int i = 0; i < relationCount; i++) {
-      localRelations[i] = new Relation(this, i, tokenizer);
+      localRelations[i] = Relation.makeRelation(this, i, tokenizer);
     }
     this.relations = ImmutableList.of(localRelations);
 
@@ -165,6 +165,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Accessors
   //
+  
   public POS getPOS() {
     return POS.fromOrdinal(posOrdinal);
   }
@@ -261,18 +262,10 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return description.toString();
   }
 
-
   //
   // Relations
   //
-  static List<RelationTarget> collectTargets(final List<Relation> relations) {
-    final RelationTarget[] targets = new RelationTarget[relations.size()];
-    for (int i = 0, n = relations.size(); i < n; i++) {
-      targets[i] = relations.get(i).getTarget();
-    }
-    return ImmutableList.of(targets);
-  }
-
+  
   public List<Relation> getRelations() {
     return relations;
   }
@@ -305,12 +298,37 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.of(list);
   }
 
+  public List<SemanticRelation> getSemanticRelations(final RelationType type) {
+    List<SemanticRelation> list = null;
+    for (final Relation relation : relations) {
+      if (relation.getType() == type && relation.getSource().equals(this)) {
+        if (list == null) {
+          list = new ArrayList<SemanticRelation>();
+        }
+        final SemanticRelation semanticRelation = (SemanticRelation) relation;
+        list.add(semanticRelation);
+      }
+    }
+    if (list == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.of(list);
+  }
+
   public List<RelationTarget> getTargets() {
-    return collectTargets(getRelations());
+    return Synset.collectTargets(getRelations());
+  }
+
+  static List<RelationTarget> collectTargets(final List<? extends Relation> relations) {
+    final RelationTarget[] targets = new RelationTarget[relations.size()];
+    for (int i = 0, n = relations.size(); i < n; i++) {
+      targets[i] = relations.get(i).getTarget();
+    }
+    return ImmutableList.of(targets);
   }
 
   public List<RelationTarget> getTargets(final RelationType type) {
-    return collectTargets(getRelations(type));
+    return Synset.collectTargets(getRelations(type));
   }
 
   /** @see RelationTarget */
@@ -321,6 +339,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Object methods
   //
+  
   @Override
   public boolean equals(Object that) {
     return (that instanceof Synset)
