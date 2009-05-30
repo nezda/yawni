@@ -62,8 +62,9 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   private Object synsets;
 
-  private Set<RelationType> ptrTypes;
+  private Set<RelationType> relationTypes;
   private final byte posOrdinal;
+  
   //
   // Constructor
   //
@@ -78,13 +79,13 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       tokenizer.skipNextToken(); // poly_cnt
       //final int poly_cnt = tokenizer.nextInt(); // poly_cnt
       final int relationCount = tokenizer.nextInt();
-      //this.ptrTypes = EnumSet.noneOf(RelationType.class);
+      //this.relationTypes = EnumSet.noneOf(RelationType.class);
       for (int i = 0; i < relationCount; i++) {
         //XXX each of these tokens is a relationtype, although it may be may be
         //incorrect - see getRelationTypes() comments)
         tokenizer.skipNextToken();
         //  try {
-        //    ptrTypes.add(RelationType.parseKey(tokenizer.nextToken()));
+        //    relationtypes.add(RelationType.parseKey(tokenizer.nextToken()));
         //  } catch (final java.util.NoSuchElementException exc) {
         //    log.log(Level.SEVERE, "Word() got RelationType.parseKey() error:", exc);
         //  }
@@ -100,17 +101,17 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         synsetOffsets[i] = tokenizer.nextInt();
       }
       this.synsets = synsetOffsets;
-      //final EnumSet<RelationType> actualPtrTypes = EnumSet.noneOf(RelationType.class);
+      //final EnumSet<RelationType> actualRelationTypes = EnumSet.noneOf(RelationType.class);
       //for (final Synset synset : getSynsets()) {
       //  for (final Relation relation : synset.getRelations()) {
-      //    final RelationType ptrType = relation.getType();
-      //    actualPtrTypes.add(ptrType);
+      //    final RelationType relationType = relation.getType();
+      //    actualRelationTypes.add(relationType);
       //  }
       //}
-      //// in actualPtrTypes, NOT ptrTypes
-      //final EnumSet<RelationType> missing = EnumSet.copyOf(actualPtrTypes); missing.removeAll(ptrTypes);
-      //// in ptrTypes, NOT actualPtrTypes
-      //final EnumSet<RelationType> extra = EnumSet.copyOf(ptrTypes); extra.removeAll(actualPtrTypes);
+      //// in actualRelationTypes, NOT relationTypes
+      //final EnumSet<RelationType> missing = EnumSet.copyOf(actualRelationTypes); missing.removeAll(relationTypes);
+      //// in relationTypes, NOT actualRelationTypes
+      //final EnumSet<RelationType> extra = EnumSet.copyOf(relationTypes); extra.removeAll(actualRelationTypes);
       //if(false == missing.isEmpty()) {
       //  //log.error("missing: {}", missing);
       //}
@@ -128,6 +129,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   //
   // Accessors
   //
+  
   public POS getPOS() {
     return POS.fromOrdinal(posOrdinal);
   }
@@ -137,22 +139,22 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * senses of the word.
    */
   public Set<RelationType> getRelationTypes() {
-    if (ptrTypes == null) {
+    if (relationTypes == null) {
       // these are not always correct
       // RelationType.INSTANCE_HYPERNYM
       // RelationType.HYPERNYM
       // RelationType.INSTANCE_HYPONYM
       // RelationType.HYPONYM
-      final EnumSet<RelationType> localPtrTypes = EnumSet.noneOf(RelationType.class);
+      final EnumSet<RelationType> localRelationTypes = EnumSet.noneOf(RelationType.class);
       for (final Synset synset : getSynsets()) {
         for (final Relation relation : synset.getRelations()) {
-          final RelationType ptrType = relation.getType();
-          localPtrTypes.add(ptrType);
+          final RelationType relationType = relation.getType();
+          localRelationTypes.add(relationType);
         }
       }
-      this.ptrTypes = Collections.unmodifiableSet(localPtrTypes);
+      this.relationTypes = Collections.unmodifiableSet(localRelationTypes);
     }
-    return ptrTypes;
+    return relationTypes;
   }
 
   /**
@@ -184,7 +186,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   // little tricky to implement efficiently once we switch to ImmutableList
-  // if we maintain the sometimes offets sometimes Synsets optimization because somewhat inefficient to store Integer vs int
+  // if we maintain the sometimes offets / sometimes Synsets optimization because somewhat inefficient to store Integer vs int
   // still much smaller than Synset objects, and still prevents "leaks"
   //public int getSenseCount() {
   //}
@@ -263,6 +265,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   //
   // Object methods
   //
+  
   @Override
   public boolean equals(final Object that) {
     return (that instanceof Word)
