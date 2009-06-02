@@ -135,8 +135,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * The relation types available for this word.  May not apply to all
-   * senses of the word.
+   * The relation types available for this word.
    */
   public Set<RelationType> getRelationTypes() {
     if (relationTypes == null) {
@@ -200,6 +199,9 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     return getSenses().iterator();
   }
 
+  /**
+   * The synsets which include senses of this word
+   */
   public List<Synset> getSynsets() {
     // careful with this.synsets
     synchronized(this) {
@@ -223,6 +225,9 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     }
   }
 
+  /**
+   * The senses of this word
+   */
   public List<WordSense> getSenses() {
     //TODO consider caching senses - we are Iterable on it and getSense would also be much cheaper
     final WordSense[] senses = new WordSense[getSynsets().size()];
@@ -237,7 +242,9 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     return ImmutableList.of(senses);
   }
 
-  /** Note, <param>senseNumber</param> is a <em>1</em>-indexed value. */
+  /**
+   * A specific sense of this word - note that <param>senseNumber</param> is a <em>1</em>-indexed value.
+   */
   public WordSense getSense(final int senseNumber) {
     if (senseNumber <= 0) {
       throw new IllegalArgumentException("Invalid senseNumber "+senseNumber+" requested");
