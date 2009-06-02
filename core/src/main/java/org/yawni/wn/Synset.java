@@ -192,6 +192,9 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return new String(gloss);
   }
 
+  /**
+   * The senses whose common meaning this synset represents.
+   */
   public List<WordSense> getWordSenses() {
     return wordSenses;
   }
@@ -265,7 +268,15 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Relations
   //
-  
+
+  /**
+   * {@code Synset} holds <em>all</em> {@code Relation}s for itself and
+   * its {@code WordSense}s.  As a result, this method returns both {@link SemanticRelation}s
+   * for which it is the source <em>and</em> {@link LexicalRelation}s for which one of its
+   * senses is the source.
+   * 
+   * @see Synset#getSemanticRelations(org.yawni.wn.RelationType)
+   */
   public List<Relation> getRelations() {
     return relations;
   }
@@ -298,6 +309,12 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.of(list);
   }
 
+  /**
+   * Returns <em>only</em> {@link SemanticRelation}s
+   * which have this synset as their source.
+   *
+   * @see Synset#getRelations()
+   */
   public List<SemanticRelation> getSemanticRelations(final RelationType type) {
     List<SemanticRelation> list = null;
     for (final Relation relation : relations) {
