@@ -1,6 +1,43 @@
 - issues
-  - rename Pointer* -> Relation* ?
-  - add LexicalRelation / SemanticRelation ?
+  - introduce LexicalRelation, SemanticRelation as subclasses of Relation
+    - make Relation abstract and give it a package private ctor to inhibit subclasses
+    - only changes in subclasses will be covariant return values for getSource() and getTarget()
+      - isLexical() / isSemantic() can be constant for these subclasses
+  - Synset
+    getRelations() - FIXME this is currently returning LexicalRelations which apply to WordSenses, not Synsets
+    getRelations(RelationType) - FIXME this will currently incorrectly return values for LexicalRelation types
+    collectTargets(List<Relation>) - FIXME 
+  - WordSense
+    restrictRelations(List<Relation>) - filters Relation instances not sourced at this WordSense (incidentally, filters SemanticRelations as well)
+    getRelations() - dynamically filters its Synset's Relation list (which incorrectly includes SemanticRelations AND LexicalRelations)
+    getRelations(RelationType) - further filtered form of its own correct getRelations()
+    getTargets() - correct since getRelations() is correct
+    getTargets(RelationType) - correct since getRelations(RelationType) is correct
+  * right now, WordSense creates all its Relation lists on the fly everytime since it filters Synset
+  * to be correct, Synset should filter its published Relation list on the fly too to be correct
+    - alternative: WordSense can store its own indepdent list of Relations
+      * this will effect Word.getRelationTypes() which relies on this buggy behavior
+   
+  - potential solution:
+    - add subclasses LexicalRelation and SemanticRelation as planned and create them with factory method on Relation
+      * factory still requires a cast from Relation to Semantic/Lexical-Relation
+    - make Synset.getRelations() return List<Relation>
+    - make Synset.getRelations(RelationType) return List<SemanticRelation> ("upgrade" filtering to ensure this)
+    - make WordSense.getRelations() return List<LexicalRelation> (filtering should already ensure this)
+    - make WordSense.getRelations(RelationType) return List<LexicalRelation> (filtering should already ensure this)
+    ? should we rename getRelations() methods? (e.g., getSemanticRelations(RelationType), getLexicalRelations(RelationType))
+    * advantages of this change
+      - types highlight that Synset.getRelations() returns both types of relations
+      - types highlight that Synset's Relations are semantic and WordSense's are lexical
+      - ugliness of determining lexical/semantic relation is hidden in implementation
+
+    ? who creates WordSense objects, and their Relations
+      - Synset ctor creates all WordSenses and Relations
+        - Synset stores all Relations, WordSense keeps reference to its Synset, Relation itself can be either Lexical or Semantic
+      - Word knows all RelationTypes which any of its senses (or their synsets) participate in (lexical or semantic) via getRelationTypes()
+
+  * found some incorrect values for RelationType.isLexical() (new method to check this unused flag value)
+  ? search for "LN added"'s?
 
 - WordNet supersenses (WNSS) (Ciaramita and Altun, 2006)
   Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger
