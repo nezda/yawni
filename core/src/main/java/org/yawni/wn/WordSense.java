@@ -288,27 +288,6 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return senseKey;
   }
 
-  //TODO move to unit test
-  private String oldAdjClusterSenseKey(final String searchWord, final int headSense) {
-    return String.format("%s%%%d:%02d:%02d:%s:%02d",
-        getLemma().toLowerCase(),
-        POS.SAT_ADJ.getWordNetCode(),
-        getSynset().lexfilenum(),
-        lexid,
-        searchWord.toLowerCase(),
-        headSense);
-  }
-
-  //TODO move to unit test
-  private String oldNonAdjClusterSenseKey() {
-    return String.format("%s%%%d:%02d:%02d::",
-        getLemma().toLowerCase(),
-        getPOS().getWordNetCode(),
-        getSynset().lexfilenum(),
-        lexid
-        );
-  }
-
   /**
    * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html"><tt>cntlist</tt></a>
    */
@@ -377,6 +356,10 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       return AdjPosition.IMMEDIATE_POSTNOMINAL;
     }
     throw new IllegalStateException("invalid flags "+flags);
+  }
+
+  int getLexid() {
+    return lexid;
   }
 
   // published as long, stored as byte for max efficiency
