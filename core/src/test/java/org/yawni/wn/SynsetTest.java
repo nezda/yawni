@@ -16,7 +16,9 @@
  */
 package org.yawni.wn;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -72,7 +74,7 @@ public class SynsetTest {
     assertTrue(ugly1.getTargets(RelationType.ANTONYM).contains(beautiful1));
   }
 
-   @Test
+  @Test
   public void testPertainym() {
     System.err.println("testPertainym");
     // adj presidential#1 has PERTAINYM noun president#3
@@ -170,5 +172,41 @@ public class SynsetTest {
         System.err.println("  " + relationType + " target: " + target);
       }
     }
+  }
+
+  @Test
+  public void testLexicalRelations() {
+    System.err.println("testLexicalRelations");
+    final Set<RelationType> expectedLexicalRelations = EnumSet.noneOf(RelationType.class);
+    for (final RelationType relType : RelationType.values()) {
+      if (relType.isLexical()) {
+        expectedLexicalRelations.add(relType);
+      }
+    }
+    final Set<RelationType> foundLexicalRelations = EnumSet.noneOf(RelationType.class);
+    for (final Synset synset : dictionary.synsets(POS.ALL)) {
+      for (final Relation relation : synset.getRelations()) {
+        if (relation.isLexical()) {
+          foundLexicalRelations.add(relation.getType());
+        }
+        // check if isLexical, relation source and target are WordSenses,
+        // else neither the source nor the target are WordSenses
+        if (relation.isLexical()) {
+          assertTrue(relation.getSource() instanceof WordSense && 
+            relation.getTarget() instanceof WordSense);
+        } else {
+          assertTrue(relation.getSource() instanceof Synset &&
+            relation.getTarget() instanceof Synset);
+        }
+      }
+    }
+    //System.err.printf("foundLexicalRelations.size(): %d expectedLexicalRelations.size(): %d\n",
+    //  foundLexicalRelations.size(), expectedLexicalRelations.size());
+    //System.err.printf("foundLexicalRelations: %s \nexpectedLexicalRelations: %s\n",
+    //  foundLexicalRelations, expectedLexicalRelations);
+    // compute the difference in these 2 sets:
+    Set<RelationType> missing = EnumSet.copyOf(foundLexicalRelations);
+    missing.removeAll(expectedLexicalRelations);
+    assertTrue("missing: %s\n", missing.isEmpty());
   }
 }
