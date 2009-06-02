@@ -36,6 +36,8 @@ import static org.yawni.wn.RelationTypeFlag.*;
  *   <li> a short string that represents it in the dictionary files </li>
  * </ul>
  *
+ * <p> Note this class used to be called {@code PointerType}.
+ *
  * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN#sect4>http://wordnet.princeton.edu/man/wnsearch.3WN#sect4</a>
  * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
  * @see Relation
@@ -58,7 +60,7 @@ public enum RelationType {
   /** aka "instances" */
   INSTANCE_HYPONYM("instance hyponym", "~i", 39, N | V, "Instance Hyponyms (... is an instance of %s)"),
   /** aka "derivation" */
-  DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V, "Derivationally related forms"),
+  DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V | LEXICAL, "Derivationally related forms"),
 
   // Nouns and Adjectives
 
@@ -73,7 +75,7 @@ public enum RelationType {
   /** aka "'cause to'" */
   CAUSE("cause", ">", 14, V, null, "%s causes ..."),
   /** */
-  VERB_GROUP("verb group", "$", 19, V),
+  VERB_GROUP("verb group", "$", 19, V | LEXICAL),
 
   // Nouns
   
@@ -108,11 +110,11 @@ public enum RelationType {
   PART_HOLONYM("part holonym", "%p", 11, N, "Part Holonyms (%s is a part of ...)"),
 
   /** aka "topic term" */
-  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N),
+  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N | LEXICAL),
   /** aka "usage term" */
-  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N),
+  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N | LEXICAL),
   /** aka "regional term" */
-  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N),
+  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N | LEXICAL),
 
   // Adjectives
   
@@ -131,11 +133,11 @@ public enum RelationType {
   /** opposite word */
   ANTONYM("antonym", "!", 1, N | V | ADJ | ADV | LEXICAL, "Antonyms (... is the opposite of %s)"),
   /** aka "a topic/domain" */
-  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV),
+  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV | LEXICAL),
   /** aka "a usage type" */
-  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV),
+  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV | LEXICAL),
   /** aka "a region" */
-  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", 34, N | V | ADJ | ADV),
+  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", 34, N | V | ADJ | ADV | LEXICAL),
 
   /**
    * aka "class"<br>
@@ -405,6 +407,14 @@ public enum RelationType {
     return (flags & POS_MASK[pos.ordinal()]) != 0;
   }
 
+  public boolean isLexical() {
+    return (flags & LEXICAL) != 0;
+  }
+
+  public boolean isSemantic() {
+    return false == isLexical();
+  }
+
   /**
    * {@code type} is the opposite concept of {@code this}.
    * For example <code>{@link RelationType#HYPERNYM}.isSymmetricTo({@link RelationType#HYPONYM}<code>).
@@ -435,7 +445,7 @@ class RelationTypeFlag {
   static final int SAT_ADJ = 16;
   /**
    * Special case indicator for lexical relations (those connecting specific {@code WordSense}s)
-   * rather than common case semantic relations which connect {@code Synset}s.
+   * rather than the usual semantic relations which connect {@code Synset}s.
    */
   static final int LEXICAL = 32;
 } // end class RelationTypeFlag
