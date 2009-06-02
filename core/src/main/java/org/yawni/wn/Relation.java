@@ -73,6 +73,7 @@ public class Relation implements Comparable<Relation> {
     this.relationTypeOrdinal = relationTypeOrdinal;
   }
 
+  /** Factory method */
   static Relation makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
     final byte relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken()).ordinal();
 
@@ -109,6 +110,7 @@ public class Relation implements Comparable<Relation> {
   /** A semantic relationship holds between {@link Synset}s */
   public boolean isSemantic() {
     return source instanceof Synset;
+    // else assert instanceof WordSense;
   }
 
   public RelationTarget getSource() {
