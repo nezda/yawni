@@ -188,6 +188,9 @@ public class SynsetTest {
       for (final Relation relation : synset.getRelations()) {
         if (relation.isLexical()) {
           foundLexicalRelations.add(relation.getType());
+          if (relation.getType().isSemantic()) {
+            //System.err.println("CONFUSED "+relation);
+          }
         }
         // check if isLexical, relation source and target are WordSenses,
         // else neither the source nor the target are WordSenses
@@ -207,6 +210,21 @@ public class SynsetTest {
     // compute the difference in these 2 sets:
     Set<RelationType> missing = EnumSet.copyOf(foundLexicalRelations);
     missing.removeAll(expectedLexicalRelations);
-    assertTrue("missing: %s\n", missing.isEmpty());
+    //assertTrue(String.format("missing: %s\n", missing), missing.isEmpty());
+    System.err.println("oddball semi-lexical RelationTypes: "+missing);
+  }
+
+  @Test
+  public void testSemanticRelations() {
+    System.err.println("testSemanticRelations");
+    for (final Synset synset : dictionary.synsets(POS.ALL)) {
+      //if (synset.getPOS() == POS.ADJ) {
+      //  continue;
+      //}
+      for (final SemanticRelation relation : synset.getSemanticRelations(null)) {
+        assertTrue(relation.isSemantic());
+        assertTrue("! isSemantic(): "+relation, relation.getType().isSemantic());
+      }
+    }
   }
 }
