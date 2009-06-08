@@ -412,7 +412,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     // TODO use getindex() too ?
     if (pos == POS.ALL) {
-      return ImmutableList.of(uniq(merge(
+      return ImmutableList.copyOf(uniq(merge(
         morphy.morphstr(someString, POS.NOUN),
         morphy.morphstr(someString, POS.VERB),
         morphy.morphstr(someString, POS.ADJ),
@@ -456,7 +456,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       return ImmutableList.of();
     }
     // TODO dedup this ?
-    return ImmutableList.of(syns);
+    return ImmutableList.copyOf(syns);
   }
 
   private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = new LRUCache<DatabaseKey, ImmutableList<String>>(DEFAULT_CACHE_CAPACITY);

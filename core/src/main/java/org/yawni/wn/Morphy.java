@@ -401,7 +401,7 @@ class Morphy {
     if (word != null) {
       addTrueCaseLemmas(word, toReturn);
     }
-    final ImmutableList<String> uniqed = ImmutableList.of(Utils.dedup(toReturn));
+    final ImmutableList<String> uniqed = ImmutableList.copyOf(Utils.dedup(toReturn));
     morphyCache.put(cacheKey, uniqed);
     if (log.isDebugEnabled()) {
       log.debug("returning "+toReturn+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
@@ -493,7 +493,7 @@ class Morphy {
           }
           final List<String> appended = new ArrayList<String>(toReturn);
           appended.add(nextWord);
-          toReturn = ImmutableList.of(appended);
+          toReturn = ImmutableList.copyOf(appended);
           if (log.isDebugEnabled()) {
             log.debug("returning: \""+retval+"\"");
           }
