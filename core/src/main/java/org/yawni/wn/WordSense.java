@@ -449,7 +449,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
         }
       }
     }
-    return ImmutableList.of(frames);
+    return ImmutableList.copyOf(frames);
   }
 
   public String getDescription() {
@@ -525,7 +525,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     if (list == null) {
       return ImmutableList.of();
     }
-    return ImmutableList.of(list);
+    return ImmutableList.copyOf(list);
   }
 
   public List<LexicalRelation> getRelations() {
