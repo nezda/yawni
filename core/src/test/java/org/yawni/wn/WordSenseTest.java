@@ -19,8 +19,22 @@ public class WordSenseTest {
   public void testSenseKey() {
     System.err.println("testSenseKey");
     for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
-      // NOTE: String != StringBuilder !
+      // NOTE: String != StringBuilder ! (use .toString() or contentEquals())
       assertEquals(sense.getSenseKey().toString(), getSenseKey(sense).toString());
+    }
+  }
+
+  @Test
+  public void testLexicalRelations() {
+    System.err.println("testRelations");
+    for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
+      for (final LexicalRelation relation : sense.getRelations()) {
+        assertTrue(relation.isLexical());
+        //assertTrue("! type.isLexical(): "+relation, relation.getType().isLexical());
+        if (relation.getType().isLexical() == false) {
+          //System.err.println("CONFUSED "+relation);
+        }
+      }
     }
   }
 
