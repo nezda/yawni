@@ -16,7 +16,6 @@
  */
 package org.yawni.util;
 
-import org.yawni.util.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,7 +145,7 @@ public class ImmutableListTest {
     Integer e3 = elements[3];
     Integer e4 = elements[4];
     List<Integer> expResult = Collections.unmodifiableList(Arrays.asList(e0, e1, e2, e3, e4));
-    ImmutableList<Integer> result = ImmutableList.of(expResult);
+    ImmutableList<Integer> result = ImmutableList.copyOf(expResult);
     // compile test for covariant subList
     ImmutableList<Integer> immutableSubList = result.subList(0, 1);
     assertTrue(result instanceof ImmutableList.Quintupleton);

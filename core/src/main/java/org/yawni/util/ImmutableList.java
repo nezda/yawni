@@ -139,7 +139,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
         }
     }
   }
-  public static <E> ImmutableList<E> of(final Iterable<? extends E> elements) {
+  public static <E> ImmutableList<E> copyOf(final Iterable<? extends E> elements) {
     if (elements instanceof ImmutableList) {
       @SuppressWarnings("unchecked")
       final ImmutableList<E> elementsAsImmutableList = (ImmutableList<E>) elements;
@@ -155,10 +155,11 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       return ImmutableList.of(elementsAsArray);
     } else {
       final Collection<E> elementsAsCollection = new ArrayList<E>();
-      for(final E e : elements) {
+      for (final E e : elements) {
         elementsAsCollection.add(e);
       }
-      return ImmutableList.of(elementsAsCollection);
+      // recursive call
+      return ImmutableList.copyOf(elementsAsCollection);
     }
   }
 
@@ -718,7 +719,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   /**
    * <h3> Broken (subList, etc.) impl! Do not use </h3>
    * Classic {@code ArrayList}-style implementation.
-   * <p> Goal is to minimize memery requirements by avoiding begin/end fields for
+   * <p> Goal is to minimize memory requirements by avoiding begin/end fields for
    * common cases.
    * @param <E>
    */
@@ -875,7 +876,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   
   /**
    * Classic {@code ArrayList}-style implementation.  Implementation liberally copied
-   * from GoogleCollections ImmutableList.RegularImmutableList
+   * from Google Collections ImmutableList.RegularImmutableList
    * @param <E>
    */
   private static final class RegularImmutableList<E> extends AbstractImmutableList<E> {
