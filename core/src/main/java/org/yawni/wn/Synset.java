@@ -76,6 +76,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     CharSequence ss_type = tokenizer.nextToken();
     if ("s".contentEquals(ss_type)) {
       ss_type = "a";
+      // satellite implies indirect antonym
       this.isAdjectiveCluster = true;
     } else {
       this.isAdjectiveCluster = false;
@@ -201,7 +202,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
 
   /**
    * If {@code word} is a member of this <code>Synset</code>, return the
-   *  <code>WordSense</code> it implies, else return <code>null</code>.
+   * <code>WordSense</code> it implies, else return <code>null</code>.
    */
   public WordSense getWordSense(final Word word) {
     for (final WordSense wordSense : wordSenses) {
@@ -306,7 +307,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
 //      }
       return ImmutableList.of();
     }
-    return ImmutableList.of(list);
+    return ImmutableList.copyOf(list);
   }
 
   /**
@@ -318,7 +319,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   public List<SemanticRelation> getSemanticRelations(final RelationType type) {
     List<SemanticRelation> list = null;
     for (final Relation relation : relations) {
-      if (relation.getType() == type && relation.getSource().equals(this)) {
+      if ((type == null || relation.getType() == type) &&
+        relation.getSource().equals(this)) {
         if (list == null) {
           list = new ArrayList<SemanticRelation>();
         }
@@ -329,7 +331,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     if (list == null) {
       return ImmutableList.of();
     }
-    return ImmutableList.of(list);
+    return ImmutableList.copyOf(list);
   }
 
   public List<RelationTarget> getTargets() {
