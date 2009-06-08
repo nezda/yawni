@@ -81,8 +81,9 @@ public class Relation implements Comparable<Relation> {
 
     final byte targetPOSOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
     final int linkIndices = tokenizer.nextHexInt();
-    final int sourceIndex = linkIndices >> 8;
-    final int targetIndex = linkIndices & 0xFF;
+    assert linkIndices >> 16 == 0;
+    final int sourceIndex = linkIndices >> 8; // select high byte
+    final int targetIndex = linkIndices & 0xFF; // select low byte
 
     final RelationTarget source = Relation.resolveTarget(synset, sourceIndex);
     if (source instanceof WordSense) {
@@ -152,7 +153,9 @@ public class Relation implements Comparable<Relation> {
 
   @Override
   public String toString() {
-    return new StringBuilder("[Relation").
+    return new StringBuilder("[").
+      append(getClass().getSimpleName()).
+      //append("Relation").
       append(' ').
       append(getType().name()).
       //append("#").
