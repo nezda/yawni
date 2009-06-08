@@ -51,31 +51,36 @@ public enum RelationType {
   /** "a word that is <em>more generic</em> than a given word" */
   HYPERNYM("hypernym", "@", 2, N | V, "Hypernyms (%s is a kind of ...)", "Hypernyms (%s is one way to ...)"),
   /** aka "instance of" or just "instance" */
-  INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N | V, "Instance Hypernyms (%s is an instance of ...)"),
+  INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N, "Instance Hypernyms (%s is an instance of ...)"),
   /**
    * "a word that is <em>more specific</em> than a given word"
    * aka "troponym" for verbs.
    */
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   /** aka "instances" */
-  INSTANCE_HYPONYM("instance hyponym", "~i", 39, N | V, "Instance Hyponyms (... is an instance of %s)"),
+  INSTANCE_HYPONYM("instance hyponym", "~i", 39, N, "Instance Hyponyms (... is an instance of %s)"),
   /** aka "derivation" */
   DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V | LEXICAL, "Derivationally related forms"),
 
   // Nouns and Adjectives
 
-  //FIXME "=" or "\=" ?
   ATTRIBUTE("attribute", "=", 18, N | ADJ, "Attribute (%s is a value of ...)"),
-  /** aka "also see" */
-  SEE_ALSO("also see", "^", 16, N | ADJ | LEXICAL),
+  /**
+   * Lexical variant shows phrasal verbs (e.g., "turn" -> "turn around").
+   * aka "also see"
+   */
+  SEE_ALSO("also see", "^", 16, N | V | ADJ),
 
   // Verbs
   
   ENTAILMENT("entailment", "*", 4, V, "%s entails doing ..."),
   /** aka "'cause to'" */
   CAUSE("cause", ">", 14, V, null, "%s causes ..."),
-  /** */
-  VERB_GROUP("verb group", "$", 19, V | LEXICAL),
+  /**
+   * Verb senses that similar in meaning and have been manually grouped together.
+   * Lexical examples: V"bear"#4 -> V"bear"#12 and V"bear"#12 -> V"bear"#4
+   */
+  VERB_GROUP("verb group", "$", 19, V),
 
   // Nouns
   
@@ -109,18 +114,20 @@ public enum RelationType {
   /** aka "has part". */
   PART_HOLONYM("part holonym", "%p", 11, N, "Part Holonyms (%s is a part of ...)"),
 
+  // domain terms
   /** aka "topic term" */
-  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N | LEXICAL),
+  MEMBER_OF_TOPIC_DOMAIN("Member of TOPIC domain", "-c", 35, N),
   /** aka "usage term" */
-  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N | LEXICAL),
+  MEMBER_OF_USAGE_DOMAIN("Member of USAGE domain", "-u", 36, N),
   /** aka "regional term" */
-  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N | LEXICAL),
+  MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N),
 
   // Adjectives
   
   SIMILAR_TO("similar to", "&", 5, ADJ),
+  /** adjective derived from a verb. */
   PARTICIPLE_OF("participle of", "<", 15, ADJ | LEXICAL),
-  /** aka "pertains to noun" */
+  /** "a relational adjective." aka "pertains to noun (or another pertainym)".  do not have antonyms */
   PERTAINYM("pertainym", "\\", 17, ADJ | LEXICAL, "... are nouns related to %s"),
 
   // Adverbs
@@ -132,12 +139,17 @@ public enum RelationType {
   
   /** opposite word */
   ANTONYM("antonym", "!", 1, N | V | ADJ | ADV | LEXICAL, "Antonyms (... is the opposite of %s)"),
+
+  // 'domains'
   /** aka "a topic/domain" */
-  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV | LEXICAL),
-  /** aka "a usage type" */
-  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV | LEXICAL),
+  DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV),
+  /**
+   * Frequently lexical.
+   * aka "a usage type"
+   */
+  DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV),
   /** aka "a region" */
-  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", 34, N | V | ADJ | ADV | LEXICAL),
+  DOMAIN_OF_REGION("Domain of synset - REGION", ";r", 34, N | V | ADJ | ADV),
 
   /**
    * aka "class"<br>
@@ -407,11 +419,11 @@ public enum RelationType {
     return (flags & POS_MASK[pos.ordinal()]) != 0;
   }
 
-  public boolean isLexical() {
+  boolean isLexical() {
     return (flags & LEXICAL) != 0;
   }
 
-  public boolean isSemantic() {
+  boolean isSemantic() {
     return false == isLexical();
   }
 
