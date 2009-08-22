@@ -59,7 +59,7 @@ public enum RelationType {
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   /** aka "instances" */
   INSTANCE_HYPONYM("instance hyponym", "~i", 39, N, "Instance Hyponyms (... is an instance of %s)"),
-  /** aka "derivation" */
+  /** aka "derivation", "nominalization" */
   DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V | LEXICAL, "Derivationally related forms"),
 
   // Nouns and Adjectives
