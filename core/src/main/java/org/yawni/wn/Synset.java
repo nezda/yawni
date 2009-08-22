@@ -189,6 +189,9 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return fileBackedDictionary.lookupLexCategory(lexfilenum());
   }
 
+  /**
+   * Returns the "gloss", or definition of this synset, and optionally some sample sentences.
+   */
   public String getGloss() {
     return new String(gloss);
   }
