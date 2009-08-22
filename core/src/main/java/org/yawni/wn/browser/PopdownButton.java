@@ -181,7 +181,7 @@ public class PopdownButton extends JButton {
     final int px = 5;
     final int py = 1 + this.getHeight() - margins.bottom;
     popupMenu.show(this, px, py);
-    System.err.println("focusable?: "+popupMenu.isFocusable());
+    //System.err.println("focusable?: "+popupMenu.isFocusable());
     // show the menu below the button, and slightly to the right.
     //popupMenu.show(this, 5, this.getHeight());
   }
