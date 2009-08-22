@@ -775,7 +775,7 @@ public class BrowserPanel extends JPanel {
               slashAction.actionPerformed(null);
               break;
             case '\t':
-              System.err.println("menu evt: tab");
+              //System.err.println("menu evt: tab");
               hidePopupMenu();
               break;
           }
@@ -1172,8 +1172,8 @@ public class BrowserPanel extends JPanel {
             attributeType = null;
         }
 
-        System.err.println(word + " inheritanceType: " + inheritanceType + 
-          " attributeType: " + attributeType + " relationType: " + relationType);
+//        System.err.println(word + " inheritanceType: " + inheritanceType +
+//          " attributeType: " + attributeType + " relationType: " + relationType);
         buffer.append("<ul>\n");
         appendSenseChain(buffer, senses.get(i).getWordSense(word), senses.get(i), inheritanceType, attributeType);
         buffer.append("</ul>\n");
@@ -1228,8 +1228,8 @@ public class BrowserPanel extends JPanel {
           srcMatch = relation.getSource().getSynset().equals(rootWordSense.getSynset());
         }
         if (srcMatch == false) {
-          System.err.println("rootWordSense: " + rootWordSense +
-            " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
+//          System.err.println("rootWordSense: " + rootWordSense +
+//            " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
           System.err.println(relation);
           continue;
         }
@@ -1257,8 +1257,8 @@ public class BrowserPanel extends JPanel {
       }
     }
     if (ancestors == null || ancestors.contains(sense) == false) {
-      System.err.println("ancestors == null || does not contain sense "+sense+
-        " "+attributeType+" ancestors: "+ancestors);
+//      System.err.println("ancestors == null || does not contain sense "+sense+
+//        " "+attributeType+" ancestors: "+ancestors);
       ancestors = new Link(sense, ancestors);
       for (final RelationTarget parent : sense.getTargets(inheritanceType)) {
         buffer.append("<ul>\n");
@@ -1266,7 +1266,7 @@ public class BrowserPanel extends JPanel {
         buffer.append("</ul>\n");
       }
     } else {
-      System.err.println("ancestors != null || contains sense "+sense+" "+attributeType);
+//      System.err.println("ancestors != null || contains sense "+sense+" "+attributeType);
     }
   }
   //FIXME red DERIVATIONALLY_RELATED shows Sense 2 which has no links!?
