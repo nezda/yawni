@@ -111,16 +111,9 @@ public final class FileManager implements FileManagerInterface {
 //  }
 
   /**
-   * Directory with subdirectory {@code dict/} which contains all
-   * of the WordNet data files.
-   */
-  private static String getWNHome() {
-    return getValidatedPathNamed("WNHOME");
-  }
-
-  /**
    * Directory which contains all WordNet data files defined by {@code $WNSEARCHDIR}.
    * The {@code WNsearchDir} is typically {@code $WNHOME/dict}
+   * @see #getFileStream(java.lang.String, boolean)
    */
   private static String getWNSearchDir() {
     final String searchDir = getValidatedPathNamed("WNSEARCHDIR");
@@ -130,10 +123,10 @@ public final class FileManager implements FileManagerInterface {
       return searchDir;
     }
     // WNSEARCHDIR was not defined & readable - try generating it from WNHOME
-    final String wnHome = getWNHome();
+    final String wnHome = getValidatedPathNamed("WNHOME");
     String generatedSearchDir = null;
     if (wnHome != null) {
-      generatedSearchDir = getWNHome() + File.separator + "dict/";
+      generatedSearchDir = wnHome + File.separator + "dict/";
       if (false == isReadableFile(generatedSearchDir)) {
         generatedSearchDir = null;
       }
@@ -147,15 +140,20 @@ public final class FileManager implements FileManagerInterface {
    * returns that path, otherwise returns {@code null}.
    */
   static String getValidatedPathNamed(final String propName) {
-    String path;
-    path = System.getenv(propName);
-    if (isReadableFile(path)) {
-      return path;
-    } else {
-      path = System.getProperty(propName);
+    try {
+      String path;
+      path = System.getenv(propName);
       if (isReadableFile(path)) {
         return path;
+      } else {
+        path = System.getProperty(propName);
+        if (isReadableFile(path)) {
+          return path;
+        }
       }
+    } catch (SecurityException ex) {
+      log.debug("need plan B due to: {}", ex);
+      return null;
     }
     //log.error(propName+" is not defined correctly as either a Java system property or environment variable. "+
     //    System.getenv()+" \n\nsystem properties: "+System.getProperties());
@@ -164,7 +162,7 @@ public final class FileManager implements FileManagerInterface {
     return null;
   }
 
-  static boolean isReadableFile(String path) {
+  static boolean isReadableFile(final String path) {
     File file;
     return path != null &&
       (file = new File(path)).exists() &&
@@ -258,9 +256,9 @@ public final class FileManager implements FileManagerInterface {
 
   /**
    * {@link ByteBuffer} {@code CharStream} implementation.
-   * This {@code CharStream} is has boots very quickly (little slower than
-   * ({@code RAFCharStream}) and provides very fast access times, however it
-   * requires a {@code ByteBuffer} which is usually most eaily derived
+   * This {@code CharStream} is boots very quickly (little slower than
+   * {@code RAFCharStream}) and provides very fast access times, however it
+   * requires a {@code ByteBuffer} which is usually most easily derived
    * from an {@code FileChannel}. aka {@code mmap CharStream}
    */
   private static class NIOCharStream extends CharStream {
