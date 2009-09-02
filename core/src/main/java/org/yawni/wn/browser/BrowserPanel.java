@@ -14,10 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/*
- * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice.
- */
 package org.yawni.wn.browser;
 
 import org.yawni.util.ImmutableList;
@@ -124,18 +120,6 @@ public class BrowserPanel extends JPanel {
     //XXX DBG browser.addWindowFocusListener(new FocusWatcher());
     //XXX DBG browser.addWindowListener(new FocusWatcher2());
 
-    //this.searchField = new JTextField() {
-    //  private static final long serialVersionUID = 1L;
-    //  protected Document createDefaultModel() {
-    //    //String word = "['a-z.0-9]+";
-    //    // regex has to support partial matches (as they're typed)
-    //    //String regex = "(?i)("+word+"[ /_-]?)+";
-    //    //return new RegexConstrainedDocument(regex);
-    //
-    //    //return new SearchFieldDocument();
-    //  }
-    //};
-    //XXX doesn't seem to work!? ((AbstractDocument)searchField.getDocument()).setDocumentFilter(new SearchFieldDocumentFilter());
     this.searchField = new JTextField();
     SearchFrame.multiClickSelectAll(searchField);
     this.searchField.setDocument(new SearchFieldDocument());
@@ -1230,8 +1214,8 @@ public class BrowserPanel extends JPanel {
         if (srcMatch == false) {
 //          System.err.println("rootWordSense: " + rootWordSense +
 //            " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
-          System.err.println(relation);
-          continue;
+          System.err.println(">"+relation);
+          //continue;
         }
         buffer.append("<li>");
         if (target instanceof WordSense) {
