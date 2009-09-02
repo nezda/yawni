@@ -14,10 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/*
- * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice.
- */
 package org.yawni.wn;
 
 import java.util.*;
@@ -57,7 +53,7 @@ public enum RelationType {
    * aka "troponym" for verbs.
    */
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
-  /** aka "instances" */
+  /** aka "instances" / "has instance" */
   INSTANCE_HYPONYM("instance hyponym", "~i", 39, N, "Instance Hyponyms (... is an instance of %s)"),
   /** aka "derivation", "nominalization" */
   DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V | LEXICAL, "Derivationally related forms"),
@@ -77,7 +73,7 @@ public enum RelationType {
   /** aka "'cause to'" */
   CAUSE("cause", ">", 14, V, null, "%s causes ..."),
   /**
-   * Verb senses that similar in meaning and have been manually grouped together.
+   * Verb senses that are similar in meaning and have been manually grouped together.
    * Lexical examples: V"bear"#4 -> V"bear"#12 and V"bear"#12 -> V"bear"#4
    */
   VERB_GROUP("verb group", "$", 19, V),
