@@ -130,7 +130,7 @@ public class CharSequences {
 
     }
 
-    throw new UnsupportedOperationException("IMPLEMENT ME");
+    throw new UnsupportedOperationException("Not yet implemented.");
   }
 
   // what could be done to make this work for String, StringBuilder, StringBuffer, ...
