@@ -14,10 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/*
- * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice.
- */
 package org.yawni.wn;
 
 import java.util.List;
@@ -34,6 +30,8 @@ public interface DictionaryDatabase {
    * case-independent and phrases are separated by spaces (e.g., "look up", not
    * "look_up"), but otherwise {@code lemma}  must match the form in the
    * database exactly.  Similar to C function {@code index_lookup}.
+   * Note that {@link POS#ALL} doesn't make sense here because the result
+   * would no longer be unique (i.e., a scalar, single {@code Word}).
    * @param lemma The orthographic representation of the word.
    * @param pos The part-of-speech.
    * @return An {@code Word} representing the word, or
@@ -102,7 +100,8 @@ public interface DictionaryDatabase {
    * @param pos The part-of-speech.
    * @return An iterable of {@code Synset}s.
    */
-  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
+  // Not yet implemented
+//  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
 
   /**
    * Return an iterator of <b>all</b> the {@code Synset}s in the database.
