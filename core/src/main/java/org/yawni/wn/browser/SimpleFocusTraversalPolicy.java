@@ -53,15 +53,15 @@ class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
 
   private Component getNextComponent(final Container focusCycleRoot, final Component aComponent, final boolean after) {
     final int idx = order.indexOf(aComponent);
-    if(idx < 0) {
+    if (idx < 0) {
       return getDefaultComponent(focusCycleRoot);
     }
-    for(int
+    for (int
         n = order.size(), i = next(idx, n, after), cnt = 0;
         cnt < n;
         i = next(i, n, after), cnt++) {
       final Component comp = order.get(i);
-      if(comp.isEnabled() && comp.isFocusable()) {
+      if (comp.isEnabled() && comp.isFocusable()) {
         return order.get(i);
       }
     }
@@ -69,18 +69,18 @@ class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
   }
 
   private int next(final int i, final int n, final boolean after) {
-    if(after) {
+    if (after) {
       // 0 1 2 0 1 2
       return (i + 1) % n;
     } else {
       assert i >= 0;
       // 0 2 1 0 2 1
-      if(i - 1 == 0) {
+      if (i - 1 == 0) {
         return n - 1;
       } else {
         return i - 1;
       }
     }
   }
-} // end class SimpleFocusTraversalPolicy
+}
 
