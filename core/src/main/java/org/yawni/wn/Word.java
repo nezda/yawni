@@ -14,10 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/*
- * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice.
- */
 package org.yawni.wn;
 
 import org.slf4j.Logger;
@@ -157,7 +153,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * Returns the {@code Word}'s lowercased lemma.  Its <em>lemma</em> is its orthographic
+   * Returns the {@code Word}'s <em>lowercased</em> lemma.  Its lemma is its orthographic
    * representation, for example "<tt>dog</tt>" or "<tt>get up</tt>"
    * or "<tt>u.s.a.</tt>".
    * 
