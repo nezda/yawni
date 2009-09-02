@@ -14,10 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/*
- * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice.
- */
 package org.yawni.wn.browser;
 
 import org.yawni.wn.POS;
@@ -140,6 +136,7 @@ class SearchFrame extends JFrame {
 
     final int searchFieldWidth = 12;
     this.searchField = new JTextField("", searchFieldWidth);
+    this.searchField.setDocument(new SearchFieldDocument());
     // rounded corners and magnifying glass icon on OS X
     this.searchField.putClientProperty("JTextField.variant", "search");
     this.searchField.addKeyListener(windowHider);
