@@ -14,10 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/*
- * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
- * the copyright notice.
- */
 package org.yawni.wn;
 
 import static org.yawni.util.MergedIterable.merge;
@@ -357,8 +353,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Word lookupWord(final CharSequence lemma, final POS pos) {
-    // POS.ALL never makes sense here as the result
-    // would no longer be unique
     checkValidPOS(pos);
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
@@ -849,7 +843,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       this.substring = substring.toString();
     }
     public boolean hasNext() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException("Not yet implemented.");
     }
     public Synset next() {
       throw new UnsupportedOperationException("Not yet implemented");
@@ -860,9 +854,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   } // end class SearchGlossBySubstringIterator
   
   /** {@inheritDoc} */
-  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
-    throw new UnsupportedOperationException("Not yet implemented");
-  }
+//  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
+//    throw new UnsupportedOperationException("Not yet implemented");
+//  }
 
   /**
    * @see DictionaryDatabase#synsets
