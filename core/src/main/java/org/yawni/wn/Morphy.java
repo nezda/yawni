@@ -473,7 +473,7 @@ class Morphy {
     for (int i = 0; i < cnt; i++) {
       final String retval = wordbase(tmpbuf, (i + offset));
       if (lastRetval != null) {
-        // LN added a little caching
+        // added a little caching
         if (lastRetval.equals(retval)) {
           continue;
         }
