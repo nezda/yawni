@@ -65,7 +65,7 @@ class MoveMouseListener implements MouseListener, MouseMotionListener {
   public void mouseMoved(final MouseEvent evt) {}
 
   static JFrame getFrame(final Container target) {
-    if(target instanceof JFrame) {
+    if (target instanceof JFrame) {
       return (JFrame)target;
     }
     return MoveMouseListener.getFrame(target.getParent());
