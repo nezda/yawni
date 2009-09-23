@@ -30,7 +30,7 @@ import javax.swing.border.*;
 import java.util.prefs.*;
 
 // TODO add Meta + F everywhere we have "slash"
-class SearchFrame extends JFrame {
+class SearchFrame extends JDialog {
   private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
   private static final long serialVersionUID = 1L;
 
@@ -60,7 +60,13 @@ class SearchFrame extends JFrame {
   };
 
   SearchFrame(final Browser browser, final BrowserPanel browserPanel) {
-    super("Substring Search");
+    super(browser, "Substring Search");
+    // this is the preferred way to set brushMetalRounded
+    // http://lists.apple.com/archives/Java-dev/2007/Nov/msg00081.html
+    getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
+    // doesn't add anything
+    //getRootPane().putClientProperty("Window.style", "small");
+    
     this.browser = browser;
     this.browserPanel = browserPanel;
     this.setVisible(false);
