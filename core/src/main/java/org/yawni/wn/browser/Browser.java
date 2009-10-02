@@ -76,6 +76,13 @@ public class Browser extends JFrame {
     // ⊚ \u229a CIRCLED RING OPERATOR
     // ◎ \u25ce BULLSEYE
     this.setName(Browser.class.getName());
+    // this is the preferred way to set brushMetalRounded
+    // http://lists.apple.com/archives/Java-dev/2007/Nov/msg00081.html
+    getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
+    // allows drags to switch OS X Spaces, but also makes whole Window draggable which
+    // is weird; discussed here (esp. the comments):
+    // http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
+    //getRootPane().putClientProperty("apple.awt.draggableWindowBackground", Boolean.TRUE);
 
     this.textAreaBorder = new BasicBorders.MarginBorder() {
       private static final long serialVersionUID = 1L;
