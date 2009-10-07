@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 // - produces all combinations
 // - produces no duplicates
 
-@Ignore // feature not working
+//@Ignore // feature not working
 public class GetIndexTest {
   private static DictionaryDatabase dictionary;
   private static Morphy morphy;
@@ -38,25 +38,31 @@ public class GetIndexTest {
   }
   @Test
   public void test2() {
+    System.err.println("test2() "+morphy);
     assertEquals(2, GetIndex.alternate("a_b"));
   }
   @Test
   public void test3() {
+    System.err.println("test3() "+morphy);
     assertEquals(4, GetIndex.alternate("x_y_z"));
   }
-  //@Test
-  //public void test4() {
-  //  assertEquals(16, GetIndex.alternate("p_q_r_s"));
-  //}
   @Test
-  public void testExplore() {
-    //XXX NOTE THE UNDERSCORES
-    //System.err.println("GetIndexTest test1() "+morphy);
-    //new GetIndex("internal-combustion_engine", POS.NOUN, morphy);
-    //GetIndex.alternate("internal-combustion_engine");
-    //GetIndex.alternate("I_ran");
-    //GetIndex.alternate("be_an");
-    
-    //GetIndex.alternate("m_n_o_p");
+  public void test4() {
+    assertEquals(8, GetIndex.alternate("p_q_r_s"));
   }
+//  @Test
+//  public void test5() {
+//    assertEquals(16, GetIndex.alternate("d_e_f_g_h"));
+//  }
+//  @Test
+//  public void testExplore() {
+//    //XXX NOTE THE UNDERSCORES
+//    System.err.println("testExplore() "+morphy);
+//    new GetIndex("internal-combustion_engine", POS.NOUN, morphy);
+////    GetIndex.alternate("internal-combustion_engine");
+////    GetIndex.alternate("I_ran");
+////    GetIndex.alternate("be_an");
+//
+////    GetIndex.alternate("m_n_o_p");
+//  }
 }
