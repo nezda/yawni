@@ -16,6 +16,7 @@
  */
 package org.yawni.wn;
 
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -41,45 +42,96 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
   // * offset is the step we're in in the set of transformations to undergo
   // * method advance() will mutate the outward appearance of this object
   //   to the next state
+
   public char charAt(int i) {
     throw new UnsupportedOperationException();
   }
+
   public int length() {
     throw new UnsupportedOperationException();
   }
+
   public CharSequence subSequence(final int s, final int e) {
     throw new UnsupportedOperationException();
   }
+
   public Iterator<CharSequence> iterator() {
     return new GetIndex(base, pos, morphy);
   }
+
   public boolean hasNext() {
     throw new UnsupportedOperationException();
   }
+
   public CharSequence next() {
     throw new UnsupportedOperationException();
   }
+
   public void remove() {
     throw new UnsupportedOperationException();
   }
+
   public int compareTo(final CharSequence that) {
     throw new UnsupportedOperationException();
   }
   // note this is part of the CharSequence interface
+
   @Override
   public String toString() {
     throw new UnsupportedOperationException();
   }
+
   @Override
   public int hashCode() {
     throw new UnsupportedOperationException();
   }
+
   @Override
   public boolean equals(Object that) {
     throw new UnsupportedOperationException();
   }
 
-  static int alternate(String searchStr) {
+  // simple-minded, slow factorial
+  // Do not use it if n > 12
+  private static int factorial(int n) {
+    return n <= 1 ? 1 : n * factorial(n - 1);
+  }
+
+ /**
+  * Creat kth permutation of {@code list[first, last)} without repititions.
+  * Idea is an iterative version of unrank() function by Myrvold & Ruskey
+  * lifted from http://en.wikipedia.org/wiki/Permutation#Algorithms_to_generate_permutations
+  * @param k, with {@code 0 ≤ k < n!}
+  * @param first
+  * @param last
+  * @param list
+  */
+  private static <E> void permutation(int k, int first, int last, List<E> list) {
+    final int n = last - first;
+    if (n == 2 && k == 1) {
+      Collections.swap(list, first, first + 1);
+    } else {
+      for (int j = 2; j < n; j++) {
+        // k % j returns the least significant digit of k in the factorial base
+        Collections.swap(list, first + (k % j), first + j);
+        k = k / j; // integer division cuts off the remainder
+      }
+    }
+  }
+
+  private static <E> void test(final List<E> list) {
+    for (int k = 0, numPerms = factorial(list.size()); k < numPerms; k++) {
+      permutation(k, 0, list.size(), list);
+      System.err.println("k "+k+" "+list);
+    }
+  }
+
+  static int alternate0(String searchStr) {
+    if (true) {
+      test(Arrays.asList(0, 1));
+      test(Arrays.asList(0, 1, 2));
+      return -1;
+    }
     // http://en.wikipedia.org/wiki/Combination (number of cobinations with repetitions)
     // - count spaces & dashes (k)
     // - generate alternatives with minimal differences using
@@ -88,9 +140,9 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     //   - (n + k - 1) choose (n - 1)
     // * these 32 sequences (limited by number of bits in int and how long a collocation we want to
     //   try exhaustive alternatives for) can be cached
-    // Combinadic: ordered interger partition or composition
+    // Combinadic: ordered integer partition or composition
     //
-    // number of comnbinations: 2^n - 1
+    // number of combinations: 2^n - 1
     //
     // XXX new notes
     // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
@@ -100,24 +152,23 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
 
     // a_b
     //  1 3
- 
+
     // x_y_z
     //  1 3
 
-    
     int numAlternations = 0;
-    for(int i = next(searchStr, 0);
+    for (int i = next(searchStr, 0);
       i >= 0;
       i = next(searchStr, i + 1)) {
-      for(int j = next(searchStr, i + 1);
-          j >= 0;
-          j = next(searchStr, j + 1)) {
+      for (int j = next(searchStr, i + 1);
+        j >= 0;
+        j = next(searchStr, j + 1)) {
         //System.err.println("i: "+i+" j: "+j);
         buffer.setCharAt(i, toggle(buffer, i));
-        System.err.println("buffer: "+buffer);
+        System.err.println("buffer: " + buffer);
         numAlternations++;
         buffer.setCharAt(j, toggle(buffer, j));
-        System.err.println("buffer: "+buffer);
+        System.err.println("buffer: " + buffer);
         numAlternations++;
         buffer.setCharAt(j, toggle(buffer, j));
 
@@ -126,10 +177,10 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
         //}
 
         buffer.setCharAt(i, toggle(buffer, i));
-        System.err.println("buffer: "+buffer);
+        System.err.println("buffer: " + buffer);
         numAlternations++;
         buffer.setCharAt(j, toggle(buffer, j));
-        System.err.println("buffer: "+buffer);
+        System.err.println("buffer: " + buffer);
         numAlternations++;
         buffer.setCharAt(j, toggle(buffer, j));
       }
@@ -138,25 +189,76 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
   }
 
   static char toggle(CharSequence str, int i) {
-    if(str.charAt(i) == '_') {
+    if (str.charAt(i) == '_') {
       return '-';
-    } else if(str.charAt(i) == '-') {
+    } else if (str.charAt(i) == '-') {
       return '_';
     } else {
-      throw new IllegalStateException("str: "+str+" str["+i+"]: "+str.charAt(i));
+      throw new IllegalStateException("str: " + str + " str[" + i + "]: " + str.charAt(i));
     }
   }
 
   static int next(String str, int i) {
     int s = str.indexOf("_", i);
     int h = str.indexOf("-", i);
-    if(s < 0) {
+    if (s < 0) {
       return h;
-    } else if(h < 0) {
+    } else if (h < 0) {
       return s;
     } else {
       return Math.min(s, h);
     }
+  }
+
+  static int alternate(String searchStr) {
+    // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
+    // ? implementation should be straight-forward ?
+
+    final StringBuilder buffer = new StringBuilder(searchStr);
+
+    // a_b
+    //  1 3
+
+    // x_y_z
+    //  1 3
+    
+    int numCandidates = 0;
+    BigInteger initialState = BigInteger.ZERO;
+    for (int i = next(searchStr, 0);
+      i >= 0;
+      i = next(searchStr, i + 1)) {
+      if (searchStr.charAt(i) == '_') {
+        // initialState[numCandidates] = 0
+      } else if (searchStr.charAt(i) == '-') {
+        initialState = initialState.setBit(numCandidates);
+      }  else {
+        throw new IllegalStateException();
+      }
+      ++numCandidates;
+    }
+
+    if (numCandidates == 0) {
+      return 0;
+    }
+    final BigInteger numAlternations = BigInteger.valueOf(1 << numCandidates);
+    BigInteger nextState = initialState;
+    do {
+      nextState = nextState.add(BigInteger.ONE).mod(numAlternations);
+//      System.err.println("initialState: "+initialState+" nextState: "+nextState+" numAlternations: "+numAlternations);
+      int candIdx = 0;
+      for (int i = next(searchStr, 0);
+        i >= 0;
+        i = next(searchStr, i + 1)) {
+        if (nextState.testBit(candIdx)) {
+          buffer.setCharAt(i, '-');
+        } else {
+          buffer.setCharAt(i, '_');
+        }
+        candIdx++;
+      }
+      System.err.println("buffer: " + buffer);
+    } while (false == nextState.equals(initialState));
+    return numAlternations.intValue();
   }
 
   /**
@@ -237,7 +339,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
 
     int j = -1;
     for (final String s : strings) {
-      System.err.println("s["+(++j)+"]: "+s);
+      System.err.println("s[" + (++j) + "]: " + s);
     }
 
     // Get offset of first entry.  Then eliminate duplicates
