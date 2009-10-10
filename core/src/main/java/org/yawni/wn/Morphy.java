@@ -102,7 +102,7 @@ class Morphy {
 
   /**
    * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
-   * Changes ' ''s to '_' to allows searches to pass.
+   * Changes ' ''s to '_' to allow searches to pass.
    *
    * Also used in {@link FileBackedDictionary.SearchIterator} and
    * {@link FileBackedDictionary.StartsWithSearchIterator}.
