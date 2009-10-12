@@ -24,63 +24,105 @@ import java.util.*;
  * in <code>search.c</code>.
  * TODO implement ListIterator<CharSequence>, ListIterator<Word>
  */
-class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSequence>, Comparable<CharSequence> {
-  private List<Word> words;
-  private int offset;
+// general plan
+// * offset is the step we're in in the set of transformations to undergo
+// * method next() mutates the outward appearance of this object to the next state
+class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSequence> {
   private final String base;
   private final POS pos;
   private final Morphy morphy;
+  private final BigInteger numAlternations;
+  private final BigInteger initialState;
+  private final StringBuilder buffer;
+  private BigInteger nextState;
 
-  GetIndex(final String base, final POS pos, final Morphy morphy) {
-    this.base = base;
+  GetIndex(final String searchStr, final POS pos, final Morphy morphy) {
+    this.base = Morphy.searchNormalize(searchStr);
+//    this.base = searchStr;
     this.pos = pos == POS.SAT_ADJ ? POS.ADJ : pos;
     this.morphy = morphy;
-    this.words = new ArrayList<Word>();
-    getindex(base, pos);
+    int numCandidates = 0;
+    BigInteger initialState = BigInteger.ZERO;
+    for (int i = next(searchStr, 0);
+      i >= 0;
+      i = next(searchStr, i + 1)) {
+      if (searchStr.charAt(i) == '_') {
+        // initialState[numCandidates] = 0
+      } else if (searchStr.charAt(i) == '-') {
+        // initialState = initialState.setBit(numCandidates);
+      }  else {
+        throw new IllegalStateException();
+      }
+      ++numCandidates;
+    }
+    this.initialState = initialState;
+    this.nextState = initialState;
+    // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
+    this.numAlternations = BigInteger.valueOf(1 << numCandidates);
+    this.buffer = new StringBuilder(searchStr);
+//    getindex(searchStr, pos);
   }
-  // general plan
-  // * offset is the step we're in in the set of transformations to undergo
-  // * method advance() will mutate the outward appearance of this object
-  //   to the next state
+
+  private void reset() {
+    nextState = initialState;
+    buffer.replace(0, base.length(), base);
+  }
 
   public char charAt(int i) {
-    throw new UnsupportedOperationException();
+    return buffer.charAt(i);
   }
 
   public int length() {
-    throw new UnsupportedOperationException();
+    return base.length();
+  }
+
+  public int size() {
+    return numAlternations.intValue();
   }
 
   public CharSequence subSequence(final int s, final int e) {
-    throw new UnsupportedOperationException();
+    return buffer.subSequence(s, e);
   }
 
   public Iterator<CharSequence> iterator() {
+    reset();
     return new GetIndex(base, pos, morphy);
   }
 
   public boolean hasNext() {
-    throw new UnsupportedOperationException();
+    return nextState.compareTo(numAlternations) < 0;
   }
 
   public CharSequence next() {
-    throw new UnsupportedOperationException();
+    // TODO
+    // - does any term in WordNet actually have n dashes (say n=2+) ?
+    // - strip dashes
+    // - handle single token as special case
+    // - create alternations for "F.D." -> "F. D.", and maybe "FD" -> "F. D."
+    int candIdx = 0;
+    for (int i = next(base, 0);
+      i >= 0;
+      i = next(base, i + 1)) {
+      if (nextState.testBit(candIdx)) {
+        buffer.setCharAt(i, '-');
+      } else {
+        buffer.setCharAt(i, '_');
+      }
+      candIdx++;
+    }
+    nextState = nextState.add(BigInteger.ONE);
+    return this;
   }
 
   public void remove() {
     throw new UnsupportedOperationException();
   }
 
-  public int compareTo(final CharSequence that) {
-    throw new UnsupportedOperationException();
-  }
-  // note this is part of the CharSequence interface
-
-  @Override
-  public String toString() {
-    throw new UnsupportedOperationException();
-  }
-
+  // Comparable<CharSequence>
+  //public int compareTo(final CharSequence that) {
+  //  throw new UnsupportedOperationException();
+  //}
+  
   @Override
   public int hashCode() {
     throw new UnsupportedOperationException();
@@ -91,116 +133,15 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     throw new UnsupportedOperationException();
   }
 
-  // simple-minded, slow factorial
-  // Do not use it if n > 12
-  private static int factorial(int n) {
-    return n <= 1 ? 1 : n * factorial(n - 1);
+  // note this is part of the CharSequence interface
+  @Override
+  public String toString() {
+    return buffer.toString();
   }
 
- /**
-  * Creat kth permutation of {@code list[first, last)} without repititions.
-  * Idea is an iterative version of unrank() function by Myrvold & Ruskey
-  * lifted from http://en.wikipedia.org/wiki/Permutation#Algorithms_to_generate_permutations
-  * @param k, with {@code 0 ≤ k < n!}
-  * @param first
-  * @param last
-  * @param list
-  */
-  private static <E> void permutation(int k, int first, int last, List<E> list) {
-    final int n = last - first;
-    if (n == 2 && k == 1) {
-      Collections.swap(list, first, first + 1);
-    } else {
-      for (int j = 2; j < n; j++) {
-        // k % j returns the least significant digit of k in the factorial base
-        Collections.swap(list, first + (k % j), first + j);
-        k = k / j; // integer division cuts off the remainder
-      }
-    }
-  }
-
-  private static <E> void test(final List<E> list) {
-    for (int k = 0, numPerms = factorial(list.size()); k < numPerms; k++) {
-      permutation(k, 0, list.size(), list);
-      System.err.println("k "+k+" "+list);
-    }
-  }
-
-  static int alternate0(String searchStr) {
-    if (true) {
-      test(Arrays.asList(0, 1));
-      test(Arrays.asList(0, 1, 2));
-      return -1;
-    }
-    // http://en.wikipedia.org/wiki/Combination (number of cobinations with repetitions)
-    // - count spaces & dashes (k)
-    // - generate alternatives with minimal differences using
-    //   Gray code single-change strategy
-    //   - every combo of size k of space and dash (n=2) should be tried
-    //   - (n + k - 1) choose (n - 1)
-    // * these 32 sequences (limited by number of bits in int and how long a collocation we want to
-    //   try exhaustive alternatives for) can be cached
-    // Combinadic: ordered integer partition or composition
-    //
-    // number of combinations: 2^n - 1
-    //
-    // XXX new notes
-    // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
-    // ? implementation should be straight-forward ?
-
-    final StringBuilder buffer = new StringBuilder(searchStr);
-
-    // a_b
-    //  1 3
-
-    // x_y_z
-    //  1 3
-
-    int numAlternations = 0;
-    for (int i = next(searchStr, 0);
-      i >= 0;
-      i = next(searchStr, i + 1)) {
-      for (int j = next(searchStr, i + 1);
-        j >= 0;
-        j = next(searchStr, j + 1)) {
-        //System.err.println("i: "+i+" j: "+j);
-        buffer.setCharAt(i, toggle(buffer, i));
-        System.err.println("buffer: " + buffer);
-        numAlternations++;
-        buffer.setCharAt(j, toggle(buffer, j));
-        System.err.println("buffer: " + buffer);
-        numAlternations++;
-        buffer.setCharAt(j, toggle(buffer, j));
-
-        //if (i >= j) {
-        //  break;
-        //}
-
-        buffer.setCharAt(i, toggle(buffer, i));
-        System.err.println("buffer: " + buffer);
-        numAlternations++;
-        buffer.setCharAt(j, toggle(buffer, j));
-        System.err.println("buffer: " + buffer);
-        numAlternations++;
-        buffer.setCharAt(j, toggle(buffer, j));
-      }
-    }
-    return numAlternations;
-  }
-
-  static char toggle(CharSequence str, int i) {
-    if (str.charAt(i) == '_') {
-      return '-';
-    } else if (str.charAt(i) == '-') {
-      return '_';
-    } else {
-      throw new IllegalStateException("str: " + str + " str[" + i + "]: " + str.charAt(i));
-    }
-  }
-
-  static int next(String str, int i) {
-    int s = str.indexOf("_", i);
-    int h = str.indexOf("-", i);
+  private static int next(final CharSequence str, final int i) {
+    final int s = indexOf(str, '_', i);
+    final int h = indexOf(str, '-', i);
     if (s < 0) {
       return h;
     } else if (h < 0) {
@@ -210,55 +151,17 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     }
   }
 
-  static int alternate(String searchStr) {
-    // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
-    // ? implementation should be straight-forward ?
-
-    final StringBuilder buffer = new StringBuilder(searchStr);
-
-    // a_b
-    //  1 3
-
-    // x_y_z
-    //  1 3
-    
-    int numCandidates = 0;
-    BigInteger initialState = BigInteger.ZERO;
-    for (int i = next(searchStr, 0);
-      i >= 0;
-      i = next(searchStr, i + 1)) {
-      if (searchStr.charAt(i) == '_') {
-        // initialState[numCandidates] = 0
-      } else if (searchStr.charAt(i) == '-') {
-        initialState = initialState.setBit(numCandidates);
-      }  else {
-        throw new IllegalStateException();
-      }
-      ++numCandidates;
-    }
-
-    if (numCandidates == 0) {
-      return 0;
-    }
-    final BigInteger numAlternations = BigInteger.valueOf(1 << numCandidates);
-    BigInteger nextState = initialState;
-    do {
-      nextState = nextState.add(BigInteger.ONE).mod(numAlternations);
-//      System.err.println("initialState: "+initialState+" nextState: "+nextState+" numAlternations: "+numAlternations);
-      int candIdx = 0;
-      for (int i = next(searchStr, 0);
-        i >= 0;
-        i = next(searchStr, i + 1)) {
-        if (nextState.testBit(candIdx)) {
-          buffer.setCharAt(i, '-');
-        } else {
-          buffer.setCharAt(i, '_');
+  private static int indexOf(final CharSequence str, final char c, final int i) {
+    if (str instanceof String) {
+      return ((String)str).indexOf(c, i);
+    } else {
+      for (int j = i, n = str.length(); j < n; j++) {
+        if (c == str.charAt(j)) {
+          return j;
         }
-        candIdx++;
       }
-      System.err.println("buffer: " + buffer);
-    } while (false == nextState.equals(initialState));
-    return numAlternations.intValue();
+      return -1;
+    }
   }
 
   /**
@@ -279,7 +182,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
    * - ...
    * - see commented test cases in {@link MorphyTest}
    */
-  private void getindex(String searchstr, POS pos) {
+  private void getindex(String searchstr, final POS pos) {
     // typical input:
     // needs "-" -> ""  { POS.NOUN, "fire-bomb",   "firebomb" }, // WN does this
     // needs "-" -> " " { POS.NOUN, "letter-bomb", "letter bomb" }, // WN does do this
@@ -345,6 +248,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     // Get offset of first entry.  Then eliminate duplicates
     // and get offsets of unique strings.
 
+    List<Word> words = null;
     Word word = morphy.is_defined(strings[0], pos);
     if (word != null) {
       words.add(word);
