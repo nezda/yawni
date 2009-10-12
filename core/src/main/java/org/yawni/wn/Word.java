@@ -297,7 +297,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * {@inheritDoc}
    */
   public int compareTo(final Word that) {
-    // if these ' ' -> '_' replaces aren't done resulting sort will not match
+    // if these ' ' → '_' replaces aren't done resulting sort will not match
     // index files.
     int result = WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLemma(), that.getLemma());
     if (result == 0) {
