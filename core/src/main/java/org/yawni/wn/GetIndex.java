@@ -37,8 +37,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
   private BigInteger nextState;
 
   GetIndex(final String searchStr, final POS pos, final Morphy morphy) {
-    this.base = Morphy.searchNormalize(searchStr);
-//    this.base = searchStr;
+    this.base = searchStr;
     this.pos = pos == POS.SAT_ADJ ? POS.ADJ : pos;
     this.morphy = morphy;
     int numCandidates = 0;
