@@ -25,7 +25,7 @@ import org.yawni.util.CharSequenceTokenizer;
  * Relationships are <em>typed</em>: the type of a relationship is a {@link RelationType}, and can
  * be retrieved via {@link Relation#getType RelationType.getType()}.
  *
- * <p> Note this class used to be called {@code Pointer}.
+ * <p> Note this class used to be called {@code Pointer} as it is often referred to in the official WordNet documentation.
  *
  * @see Synset
  * @see WordSense
