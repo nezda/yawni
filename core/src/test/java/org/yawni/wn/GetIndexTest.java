@@ -39,16 +39,26 @@ public class GetIndexTest {
   @Test
   public void test2() {
     System.err.println("test2() "+morphy);
-    assertEquals(2, GetIndex.alternate("a_b"));
+    assertEquals(2, alternate("a_b"));
   }
   @Test
   public void test3() {
     System.err.println("test3() "+morphy);
-    assertEquals(4, GetIndex.alternate("x_y_z"));
+    assertEquals(4, alternate("x_y_z"));
   }
   @Test
   public void test4() {
-    assertEquals(8, GetIndex.alternate("p_q_r_s"));
+    assertEquals(8, alternate("p_q_r_s"));
+  }
+  static int alternate(final String searchStr) {
+    final GetIndex alternator = new GetIndex(searchStr, POS.NOUN, null);
+    for (final CharSequence alt : alternator) {
+      System.err.println("alternation: " + alt);
+    }
+//    for (final CharSequence alt : alternator) {
+//      System.err.println("alternation': " + alt);
+//    }
+    return alternator.size();
   }
 //  @Test
 //  public void test5() {
