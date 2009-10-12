@@ -127,7 +127,10 @@
         <configuration>
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
-          <!-- -XX:CompileThreshold=1 -->
+          <!-- <argLine> -->
+          <!--   -Xmx256m -->
+          <!--   -XX:CompileThreshold=1 -->
+          <!-- </argLine> -->
           <systemProperties>
             <!-- Required to pass this system property through to the unit tests -->
             <property>
@@ -291,12 +294,24 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.5.6</version>
+      <version>1.5.8</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>1.5.6</version>
+      <version>1.5.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.5.8</version>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.5.8</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
