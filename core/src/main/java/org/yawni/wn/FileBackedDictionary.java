@@ -383,8 +383,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   //public String lookupBaseForm(final POS pos, final String derivation) {
   //  checkValidPOS(pos);
   //  // TODO add caching!
-  //  // FIXME in addition to exceptions file and Morhpy.morphstr() too
-  //  // use getindex() too ?
   //  final String filename = getExceptionsFilename(pos);
   //  try {
   //    final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
@@ -404,8 +402,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public List<String> lookupBaseForms(final String someString, final POS pos) {
-    // TODO use getindex() too ?
-    // when using getindex(), should we try each variant for each POS or each POS for each variant ?
     if (pos == POS.ALL) {
       return ImmutableList.copyOf(uniq(merge(
         lookupBaseForms(someString, POS.NOUN),
@@ -413,26 +409,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
         lookupBaseForms(someString, POS.ADJ),
         lookupBaseForms(someString, POS.ADV))));
     } else {
-//      for (final CharSequence variant : new  GetIndex(someString, pos, morphy)) {
-//        // morphstr() should take a CharSequence ?
-//        if (log.isDebugEnabled()) {
-//          log.debug("trying: "+variant+" "+pos);
-//        }
-
-//        final List<String> baseForms = morphy.morphstr(variant.toString(), pos);
-        final List<String> baseForms = morphy.morphstr(someString, pos);
-        return baseForms;
-//        if (false == baseForms.isEmpty()) {
-//          if (log.isDebugEnabled()) {
-//            log.debug("success: "+variant+" "+pos+" baseForms: "+baseForms);
-//          }
-//          return baseForms;
-//        }
-//      }
-//      if (log.isDebugEnabled()) {
-//        log.debug("failed: "+someString+" "+pos);
-//      }
-//      return ImmutableList.of();
+        return morphy.morphstr(someString, pos);
     }
   }
 
@@ -441,7 +418,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     checkValidPOS(pos);
     // TODO support POS.ALL - NOTE: don't modify morphs directly as this
     // will damage the Morphy cache
-    // TODO use getindex() too ?
     final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
     if (morphs.isEmpty()) {
       return ImmutableList.of();
