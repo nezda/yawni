@@ -405,14 +405,34 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /** {@inheritDoc} */
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     // TODO use getindex() too ?
+    // when using getindex(), should we try each variant for each POS or each POS for each variant ?
     if (pos == POS.ALL) {
       return ImmutableList.copyOf(uniq(merge(
-        morphy.morphstr(someString, POS.NOUN),
-        morphy.morphstr(someString, POS.VERB),
-        morphy.morphstr(someString, POS.ADJ),
-        morphy.morphstr(someString, POS.ADV))));
+        lookupBaseForms(someString, POS.NOUN),
+        lookupBaseForms(someString, POS.VERB),
+        lookupBaseForms(someString, POS.ADJ),
+        lookupBaseForms(someString, POS.ADV))));
     } else {
-      return morphy.morphstr(someString, pos);
+//      for (final CharSequence variant : new  GetIndex(someString, pos, morphy)) {
+//        // morphstr() should take a CharSequence ?
+//        if (log.isDebugEnabled()) {
+//          log.debug("trying: "+variant+" "+pos);
+//        }
+
+//        final List<String> baseForms = morphy.morphstr(variant.toString(), pos);
+        final List<String> baseForms = morphy.morphstr(someString, pos);
+        return baseForms;
+//        if (false == baseForms.isEmpty()) {
+//          if (log.isDebugEnabled()) {
+//            log.debug("success: "+variant+" "+pos+" baseForms: "+baseForms);
+//          }
+//          return baseForms;
+//        }
+//      }
+//      if (log.isDebugEnabled()) {
+//        log.debug("failed: "+someString+" "+pos);
+//      }
+//      return ImmutableList.of();
     }
   }
 
