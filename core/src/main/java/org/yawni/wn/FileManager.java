@@ -47,8 +47,7 @@ import java.util.Map;
  * position.
  */
 public final class FileManager implements FileManagerInterface {
-  // intentionally using FileBackedDictionary's logger (for now)
-  private static final Logger log = LoggerFactory.getLogger("org.yawni.wn.FileBackedDictionary");
+  private static final Logger log = LoggerFactory.getLogger(FileManager.class.getName());
 
 //  private String searchDirectory;
   private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
