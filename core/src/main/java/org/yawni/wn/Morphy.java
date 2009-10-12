@@ -17,12 +17,12 @@
 
 package org.yawni.wn;
 
+import java.text.Normalizer.Form;
 import java.util.*;
 import java.util.regex.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.*;
-import static org.yawni.util.Utils.last;
 import org.yawni.wn.FileBackedDictionary.DatabaseKey;
 
 /**
@@ -128,7 +128,21 @@ class Morphy {
     // lowercase and flatten all runs of white space to a single '_'
     //TODO consider compiling this regex
     //return origstr.toLowerCase().replaceAll("\\s+", "_");
-    return MULTI_WHITESPACE.matcher(origstr.toLowerCase()).replaceAll("_");
+    String toReturn = MULTI_WHITESPACE.matcher(origstr.toLowerCase()).replaceAll("_");
+    //TODO if contains any non-ASCII chars, Normalize, pulling apart combined characters and
+    // then remove these non-ASCII chars
+    //final String normalized = java.text.Normalizer.normalize(origstr, Form.NFD);
+    //log.debug("origstr: \""+origstr+"\" normalized: \""+normalized+"\" "+asCharacterList(normalized));
+    return toReturn;
+  }
+
+  private static List<Character> asCharacterList(String s) {
+    final char[] chars = s.toCharArray();
+    final List<Character> charList = new ArrayList<Character>(chars.length);
+    for (final char c : chars) {
+      charList.add(c);
+    }
+    return charList;
   }
 
   //TODO move to Utils
