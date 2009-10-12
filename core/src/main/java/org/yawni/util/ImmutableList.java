@@ -91,7 +91,7 @@ import java.util.RandomAccess;
 // - consider generating code for methods like get(i), subList
 //
 // - hopefully compiler won't have problems with deeply nested implementation classes
-//   ImmutableList -> AbstractList -> Singleton -> Doubleton -> ...
+//   ImmutableList → AbstractList → Singleton → Doubleton → ...
 //
 // - ImmutableList should be an interface
 //   - ideally above List, but for compat has to be
@@ -839,7 +839,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
           throw new IndexOutOfBoundsException();
         }
         // index needs to be adjusted for s and end
-        // index 0 -> begin
+        // index 0 → begin
         index += begin;
         if (index > end) {
           throw new IndexOutOfBoundsException();
