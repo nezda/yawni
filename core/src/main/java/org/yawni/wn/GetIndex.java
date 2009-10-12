@@ -94,10 +94,10 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
 
   public CharSequence next() {
     // TODO
-    // - does any term in WordNet actually have n dashes (say n=2+) ?
+    // ? does any term in WordNet actually have n dashes (say n=2+) ?
     // - strip dashes
-    // - handle single token as special case
-    // - create alternations for "F.D." -> "F. D.", and maybe "FD" -> "F. D."
+    // ~ handle single token as special case
+    // - create alternations for "F.D." → "F. D.", and maybe "FD" → "F. D."
     int candIdx = 0;
     for (int i = next(base, 0);
       i >= 0;
@@ -183,11 +183,11 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
    */
   private void getindex(String searchstr, final POS pos) {
     // typical input:
-    // needs "-" -> ""  { POS.NOUN, "fire-bomb",   "firebomb" }, // WN does this
-    // needs "-" -> " " { POS.NOUN, "letter-bomb", "letter bomb" }, // WN does do this
-    // needs "" -> " "  { POS.NOUN, "letterbomb", "letter bomb" }, // WN doesn't do this
-    // - requires prefix AND suffix match or forgiving match -- slippery slope "I ran" -> "Iran"
-    // needs "" -> "." AND "X.X." -> "X. X." { "FD Roosevelt", "F.D. Roosevelt", "F. D. Roosevelt"} // WN doesn't do this
+    // needs "-" → ""  { POS.NOUN, "fire-bomb",   "firebomb" }, // WN does this
+    // needs "-" → " " { POS.NOUN, "letter-bomb", "letter bomb" }, // WN does do this
+    // needs "" → " "  { POS.NOUN, "letterbomb", "letter bomb" }, // WN doesn't do this
+    // - requires prefix AND suffix match or forgiving match -- slippery slope "I ran" → "Iran"
+    // needs "" → "." AND "X.X." → "X. X." { "FD Roosevelt", "F.D. Roosevelt", "F. D. Roosevelt"} // WN doesn't do this
 
     //FIXME this strategy fails for special 3+ word
     // collocations like "wild-goose chase" and "internal-combustion engine"
@@ -198,10 +198,9 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     //   a dash and each dash is switched to an underscore (space)
     //   in turn to create ALL possible variants
     //   - numDashes * numUnderscores variants
-    //  * def do "X.[^_]" -> "X. " (e.g., "F.D." -> "F. D.")
+    //  * def do "X.[^_]" → "X. " (e.g., "F.D." → "F. D.")
     //  * consider similar for periods so "U.S.A." produces "U.S.A"
-    // ? consider implementing algorithm as a series of modifcations of
-    //   a single StringBuilder:
+    // - implement algorithm as a series of modifcations of a single StringBuilder:
     //   * make mod, issue search (morphy.is_defined()) and store result
 
     //FIXME short circuit this if searchstr contains
@@ -237,6 +236,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     strings[3] = strings[3].replace("_", "").replace("-", "");
     // remove ALL periods
     // [4] is no periods
+    //FIXME this strategy is a also little crazy ("u.s." → "us")
     strings[4] = strings[4].replace(".", "");
 
     int j = -1;
