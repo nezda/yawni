@@ -801,7 +801,7 @@ public final class FileManager implements FileManagerInterface {
         stream.skipLine();
         final int offset = stream.position();
         if (log.isTraceEnabled()) {
-          log.trace("  "+start+", "+midpoint+", "+stop+" -> "+offset);
+          log.trace("  "+start+", "+midpoint+", "+stop+" → "+offset);
         }
         if (offset == start) {
           // cannot be a match here - would be zero width
@@ -823,7 +823,7 @@ public final class FileManager implements FileManagerInterface {
             // note the spaces of this 'word' are underscores
             final CharSequence word = stream.readLineWord();
             if (log.isTraceEnabled()) {
-              log.trace("  . \""+word+"\" -> "+(0 == compare(target, word)));
+              log.trace("  . \""+word+"\" → "+(0 == compare(target, word)));
             }
             final int compare = compare(target, word);
             if (compare == 0) {
