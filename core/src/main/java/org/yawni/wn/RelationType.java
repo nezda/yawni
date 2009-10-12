@@ -62,7 +62,7 @@ public enum RelationType {
 
   ATTRIBUTE("attribute", "=", 18, N | ADJ, "Attribute (%s is a value of ...)"),
   /**
-   * Lexical variant shows phrasal verbs (e.g., "turn" -> "turn around").
+   * Lexical variant shows phrasal verbs (e.g., "turn" → "turn around").
    * aka "also see"
    */
   SEE_ALSO("also see", "^", 16, N | V | ADJ),
@@ -74,7 +74,7 @@ public enum RelationType {
   CAUSE("cause", ">", 14, V, null, "%s causes ..."),
   /**
    * Verb senses that are similar in meaning and have been manually grouped together.
-   * Lexical examples: V"bear"#4 -> V"bear"#12 and V"bear"#12 -> V"bear"#4
+   * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
    */
   VERB_GROUP("verb group", "$", 19, V),
 
@@ -284,14 +284,14 @@ public enum RelationType {
      */
 
     /**
-     * e.g., { Bill Clinton } (* the Synset) --instance hypernym--> { President of the United States }
+     * e.g., { Bill Clinton } (* the Synset) --instance hypernym-→ { President of the United States }
      * which in turn has (normal) hypernyms
      */
 //    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
 //    INSTANCE_HYPERNYM.superTypes = ImmutableList.of(HYPERNYM);
     INSTANCE_HYPERNYM.subTypes = ImmutableList.of(HYPERNYM);
     /**
-     * e.g., { President of the United States } (* the Synset) --instance hyponyms--> ({ Bill Clinton }, ...) AND
+     * e.g., { President of the United States } (* the Synset) --instance hyponyms-→ ({ Bill Clinton }, ...) AND
      * (normal) hyponyms ({ chief of state }, ...).  Note that while { President of the United States } also
      * has (normal) hyponyms, { President of the United States } does NOT since
      * it is more lexically specified.
