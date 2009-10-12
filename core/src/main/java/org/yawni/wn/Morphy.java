@@ -88,7 +88,7 @@ class Morphy {
   };
 
   private final FileBackedDictionary dictionary;
-  private Cache<DatabaseKey, ImmutableList<String>> morphyCache;
+  private final Cache<DatabaseKey, ImmutableList<String>> morphyCache;
 
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
@@ -108,9 +108,6 @@ class Morphy {
    * {@link FileBackedDictionary.StartsWithSearchIterator}.
    */
   static String searchNormalize(String origstr) {
-    if (log.isTraceEnabled()) {
-      log.trace("origstr: {}", origstr);
-    }
     final int underscore = origstr.indexOf('_');
     final int dash = origstr.indexOf('-');
     final int space = origstr.indexOf(' ');
@@ -181,10 +178,11 @@ class Morphy {
       pos = POS.ADJ;
     }
 
+    //TODO cache would have more coverage if searchNormalize()'d variant were used
     final FileBackedDictionary.DatabaseKey cacheKey = new FileBackedDictionary.StringPOSDatabaseKey(origstr, pos);
     final ImmutableList<String> cached = morphyCache.get(cacheKey);
     if (cached != null) {
-      //FIXME doesn't cache null (combinations not in WordNet)
+      //FIXME doesn't cache null (i.e., combinations not in WordNet)
       return cached;
     }
 
@@ -195,7 +193,7 @@ class Morphy {
     }
     int wordCount = countWords(str, '_');
     if (log.isTraceEnabled()) {
-      log.trace("origstr: "+origstr+" wordCount: "+wordCount);
+      log.trace("origstr: "+origstr+" wordCount: "+wordCount+" "+pos);
     }
     //XXX what does 'svcnt' stand for? state variable...count...
     //XXX what does 'svprep' stand for? state variable...preposition...
@@ -259,7 +257,8 @@ class Morphy {
       phase1Done = true;
       //FIXME "if verb has a preposition, then no more morphs"
     } else if (phase1Done == false) {
-      svcnt = wordCount = countWords(str, '-');
+      final int origWordCount;
+      svcnt = origWordCount = wordCount = countWords(str, '-');
       if (log.isDebugEnabled()) {
         log.debug("origstr: \""+origstr+
             "\" str: \""+str+"\" wordCount: "+wordCount+" "+pos);
@@ -354,6 +353,10 @@ class Morphy {
         //LN is this adding the last word of the collocation ?
         searchstr += wordStr;
       }
+      // all words in given collocation have been stemmed
+      if (log.isDebugEnabled()) {
+        log.debug("searchstr: \""+searchstr+"\" origWordCount: "+origWordCount+" "+pos);
+      }
       //XXX System.err.println("searchstr: "+searchstr+" morphWords: "+morphWords);
 
       //XXX System.err.println("searchstr: "+searchstr+" str: "+str+" "+pos+
@@ -362,8 +365,21 @@ class Morphy {
       //XXX     " toReturn: "+toReturn);
       word = null;
       if (searchstr.equals(str) == false && null != (word = is_defined(searchstr, pos))) {
-        //debug(Level.FINER, "word for (\""+searchstr+"\", "+pos+"): "+word);
+        log.debug("stem hit:\"{}\" {}", searchstr, pos);
         addTrueCaseLemmas(word, toReturn);
+      } else if (origWordCount > 1) {
+        log.trace("trying getindex logic on \"{}\" {}", searchstr, pos);
+        for (final CharSequence variant : new GetIndex(searchstr, pos, this)) {
+          final String variantString = variant.toString();
+          log.trace("trying variant:\"{}\"", variantString);
+          word = is_defined(variantString, pos);
+          if (word != null) {
+            log.debug("variant hit!:\"{}\"", variantString);
+            searchstr = variantString;
+            addTrueCaseLemmas(word, toReturn);
+            break;
+          }
+        }
       }
       phase1Done = true;
     }
@@ -401,10 +417,12 @@ class Morphy {
     if (word != null) {
       addTrueCaseLemmas(word, toReturn);
     }
+    //TODO toReturn has output with spaces (not underscores) and may include case
+    //
     final ImmutableList<String> uniqed = ImmutableList.copyOf(Utils.dedup(toReturn));
     morphyCache.put(cacheKey, uniqed);
     if (log.isDebugEnabled()) {
-      log.debug("returning "+toReturn+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
+      log.debug("returning "+uniqed+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
     }
     return uniqed;
   }
@@ -425,6 +443,17 @@ class Morphy {
     return dictionary.lookupWord(lemma, pos);
   }
 
+  static <T> ImmutableList<T> addUnique(T item, ImmutableList<T> items) {
+    if (items.isEmpty()) {
+      items = ImmutableList.of(item);
+    } else if (false == items.contains(item)) {
+      final List<T> appended = new ArrayList<T>(items);
+      appended.add(item);
+      items = ImmutableList.copyOf(appended);
+    }
+    return items;
+  }
+
   /**
    * Try to find baseform (lemma) of <b>individual word</b> <param>word</param>
    * in POS <param>pos</param>.
@@ -443,7 +472,7 @@ class Morphy {
     }
 
     if (pos == POS.ADV) {
-      // only use exception list for adverbs
+      // use only the exception list for adverbs
       return ImmutableList.of();
     }
 
@@ -460,15 +489,14 @@ class Morphy {
       }
     }
 
-    // If not in exception list, try applying rules from tables
-
     if (tmpbuf == null) {
       tmpbuf = wordStr;
     }
 
+    // If not in exception list, try applying rules from tables
+
     final int offset = OFFSETS[pos.getWordNetCode()];
     final int cnt = CNTS[pos.getWordNetCode()];
-    ImmutableList<String> toReturn = ImmutableList.of();
     String lastRetval = null;
     for (int i = 0; i < cnt; i++) {
       final String retval = wordbase(tmpbuf, (i + offset));
@@ -480,37 +508,28 @@ class Morphy {
       } else {
         lastRetval = retval;
       }
-      Word word;
-      if (retval.equals(tmpbuf) == false && null != (word = is_defined(retval, pos))) {
-        if (toReturn.isEmpty()) {
-          toReturn = ImmutableList.of(retval);
-        } else {
-          // not common to have > 1
-          final String nextWord = retval;
-          if (nextWord.equals(last(toReturn))) {
-            // don't need to store this duplicate
-            continue;
-          }
-          final List<String> appended = new ArrayList<String>(toReturn);
-          appended.add(nextWord);
-          toReturn = ImmutableList.copyOf(appended);
-          if (log.isDebugEnabled()) {
-            log.debug("returning: \""+retval+"\"");
-          }
+      if (retval.equals(tmpbuf)) {
+        continue;
+      }
+      log.trace("trying retval: {}", retval);
+      final Word word = is_defined(retval, pos);
+      if (word != null) {
+        if (log.isDebugEnabled()) {
+          log.debug("returning retval+end: " + retval + end + " retval: \"" + retval + "\" end: \"" + end+"\"");
         }
         return ImmutableList.of(retval + end);
       }
     }
-    return toReturn;
+    return ImmutableList.of();
   }
 
   /**
    * Port of {@code morph.c wordbase()}.
    */
   private String wordbase(final String word, final int enderIdx) {
-    if (log.isTraceEnabled()) {
-      log.trace("word: "+word+" enderIdx: "+enderIdx);
-    }
+//    if (log.isTraceEnabled()) {
+//      log.trace("word: "+word+" enderIdx: "+enderIdx);
+//    }
     if (word.endsWith(SUFX[enderIdx])) {
       return word.substring(0, word.length() - SUFX[enderIdx].length()) + ADDR[enderIdx];
     }
