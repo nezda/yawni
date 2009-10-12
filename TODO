@@ -21,6 +21,8 @@ Bugs and Features
   summarize:
     - things to do
       grep "[-~] \(bug\|feature\):" TODO | less -S
+      - core:
+      - gui:
 
 Yawni Subprojects
 - core
@@ -76,12 +78,36 @@ Release TODOs
     ! fail: at least for Word, VERB_GROUP would need List<List<RelationTarget>> since it clumps
     - wilder idea: make a MetaSynset/VerbGroup object
 
+- synset groups
+  verb VERB_GROUP
+  adj SIMILAR_TO
+   -connects satellite adjectives to their head and vice-versa
+
 - issues
+  - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux
+  - bug: gui: OS X search field (x) no longer works
+  - feature: core: tolerate not having index.<POS> files (i.e., only data.<POS> files) to allow
+    lightweight stemmer
+  - feature: gui: OS X using reflectin, ala OSXAdapter, override handleQuit(), handleAbout()
+  - bug: gui: substring search keyboard focus skips Substring/Prefix radio button group
+  ~ bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other
+    - how does OS X handle this? ideally they should be one in the same in tab ordering too
+    - this behavior is called a dialog ("modal" means the dialog must be dismissed before the main screen is available for use again)
+      - Apple fail: JDialog doesn't respect brushedMetal !
+      - JWindow respects brushedMetal, but has no native close controls
+        - thought about slide out drawer, but apparently this is hard (http://forums.java.net/jive/thread.jspa?threadID=30506)
+        - swingx JXCollapsiblePane could be nice solution -- essentially frame-internal drawer / JSplitPane with slide / fade effects
+    ? why doesn't drag-from-non-menu-bar move app to another desktop ?
+  - bug: gui: jnlp version doesn't use brushedMetal
+    - 99% fixed -- client property, not system property (for jnlp)
+      getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
+      - introduced some code duplication
+      - where should related properties go?
   + feature: gui: text boxes should just ignore slash (there's none in WordNet anyway)
     + update scrub in org.yawni.wn.browser.SearchFieldDocument
     + SearchFrame was missing: this.searchField.setDocument(new SearchFieldDocument());
   < feature: cross reference and index Wikitionary
-  ~ feature: make code 'sandbox' compatible (aka Google App Engine (GAE), 80legs)
+  ~ feature: core: make code 'sandbox' compatible (e.g., Google App Engine (GAE), 80legs)
     + need to catch security exceptions when attempting to inspect user environment and 
       system properties
     + non-gui, classes not on GAE whitelist
@@ -91,45 +117,56 @@ Release TODOs
     + java.util.prefs.Preferences (and - java.util.prefs.InvalidPreferencesFormatException)
       - static preferences references should be limited to the GUI classes
         - only used in browser - not a problems
-    - need test app
-  - bug: why do some relation types have mixed lexical and semantic instances - wnb seems to always present these as semantic (i.e., synsets)
+    - need test app in GAE
+  - bug: core: why do some relation types have mixed lexical and semantic instances - wnb seems to always present these as semantic (i.e., synsets)
     - DOMAIN_OF_x / MEMBER_OF_x_DOMAIN
       - "trademark"
     - SEE_ALSO (phrasal verb)
     - 1 instance of VERB_GROUP ("bear"2/14)
-  - bug: several relation types don't render correctly/informatively in the browser
+  - bug: several relation types don't render correctly/informatively in the browser (e.g., VERB_GROUP)
     - VERB_GROUP (example "turn")
   - bug: search for "LN added"'s?
 
 - feature: doc: highlight WordNetLexicalComparator and describe where you might use it
-- feature: consider GetLemma interface? 
-  - bug: rename Word.getLemma() -> getLowercasedLemma() - not the same
+- feature: core: consider GetLemma interface
+  - bug: core: rename Word.getLemma() -> getLowercasedLemma() - not the same
+    - XXX beware: changing getLemma()'s behavior will break code! must update it to getLowercasedLemma()
+      - do NetBeans rename refactor, then add new method
+    - new cased getLemma() would improve look of single case output (e.g., "Al Capone")
 - more unit tests
   - bug: test: searching examples (findRelationships() from JWNL)
   - bug: test: add torture test outlined in Searcher (resursive parents / children)
-- feature: add expert query modes: attempt to integrate these without adding more API cruft (e.g., little language / "magic" strings ?)
+- feature: core: add expert query modes: attempt to integrate these without adding more API cruft (e.g., little language / "magic" strings ?)
   - (was feature: type/property search / filter)
   - go for modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
   <sensekey>
   <POS>#<synset>
+  <prefix>
   <regex>
   <lexname>
   <AdjPosition>
-  <PointerType>
+  <RelationType>
+  <random POS/Word/WordSense/Synset> ?
+    - good for unit tests and performance tests
+  <glossSubstring>
+    - gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (ie use Lucene)
   <suffix>
-  - many of these are just filters which require exhaustive iteration
-    - do any make more sense in substring search than "normal", unstemmed search ? 
-- feature: design a useful Visitor API and implement it with TreeIterator
-- bug: doc: should we note that Substring search will NOT search inflected forms in some kind of documentation?  maybe it should try these if it has no matches ?
+  <glob>
+    - glob-style regexes (e.g., "*" means ".*", "p*za")
+  * many of these are just filters which require exhaustive iteration
+    - these only make sense in substring search than (since its not stemmed)
+- feature: core: design a useful Visitor API and implement it with TreeIterator
+- bug: doc: note that Substring search will NOT search inflected forms in some kind of documentation?  maybe it should try these if it has no matches ?
 - bug: gui: when going back and forth between Search and Substring search
   ? what happens ?
-+ bug: "hypocrite" shows derivationally related forms menu option, but nothing shows up ?
++ bug: "hypocrite" shows derivationally related forms menu option, but nothing shows up
 - feature: factor static, non-public inner classes out (simpler?)
   - FileManager: *CharStream
-- "Pertainym" word/label not actually shown, meaning demonstrated via example, e.g.
+- bug: "Pertainym" word/label not actually shown, meaning demonstrated via example, e.g.
   "...are nouns related to viral"
   ? maybe change "related to" to pertaining to"?
-~ feature: informative (for debugging) About dialog
+~ feature: core: gui: informative About dialog for debugging
+  - would be good in both a commandline and gui browser
   - colorize red if WNHOME not readable
   - data-in-jar
   - the core logic of this belongs in FileManager
@@ -150,10 +187,14 @@ x feature: implement Set<Word> interface ?
 - feature: use appassembler to generate scripts
   - WNHOME
   - JVM args
-~ bug: switch to slf4j (more library friendly?)
-  - still need to convert web start stuff (shaded jar)
-  - reference Lucene dev thread and slf4j list of projects for rationale
-    - markmail perma link
+~ bug: core: switch to slf4j (more library friendly?)
+  - setup pom to take advantage of this debug tracing using a profile
+  + set up a log4j.properties file
+    - programmatically refer to this properties file so we don't have to set system property
+  - convert web start stuff (shaded jar)
+    ? does shaded jar "hide" embeded jar
+  - reference Lucene dev thread and slf4j list of Apache projects for rationale
+    - markmail perma link: 
 x feature: howto for developing in NetBeans ?
 + feature: package-info.java / overview.html
 + bug: LICENSE.txt, NOTICE.txt, README -> README.txt
@@ -171,7 +212,7 @@ x feature: howto for developing in NetBeans ?
   - compare to OS X dictionary - history, color and font variation, font size buttons, right-click menus, option-click search from defintion
 - feature: show "generic frame number" in interface ? (these are for experts)
 + feature: cache WordSense getSensesTaggedFrequency()
-- bug: document that we don't do Serialization (use sense keys ?)
+- bug: doc: document that we don't do Serialization (use sense keys ?)
 < bug: words with more than 1 distinct baseform (e.g., "bases") (not to be confused with words with "more than 1 'stem'" (e.g., "was"))
   - "bases" has 2 bases (aka baseforms): "base" and "basis" yawni shows "basis", then "base", but wnb shows the opposite
     - "base" has 19 senses
@@ -184,9 +225,8 @@ x feature: howto for developing in NetBeans ?
     * this order happens to be alphabetical
   - "axes" NOUN, "ax", "axis", "Axis"
   - "saw" VERB, "see", "saw"
-+ feature: Setup Trac (likCyberduck uses) as sourceforge "Hosted App"
++ feature: Setup Trac (like Cyberduck uses) as sourceforge "Hosted App"
 < feature: remove singleton stuff ? (i.e., FileBackedDictionary.getInstance())
-- feature: implement & test GetIndex
 - feature: consider a "lexicon" class for simple uses (like stemming)
 - feature: consider test / example coverage
   - Ruby WordNet has some decent looking "examples/" and tests (linguawordnet)
@@ -208,7 +248,7 @@ x feature: howto for developing in NetBeans ?
     source:trunk/examples/distance.rb
     source:trunk/examples/hypernymTree.rb
     source:trunk/examples/gcs.rb
-~ feature: read data files from jar
+~ feature: core: read data files from jar
   ? what test cases remain?
   + use subproject to build this (data only 11MB zipped!)
   + URL+ByteArrayInputStream CharStream implementation 
@@ -216,7 +256,7 @@ x feature: howto for developing in NetBeans ?
     + load data files from InputStream(s) (from jar) (loading from web via web start would be sweet too)
     - final ReadableByteChannel channel = Channels.newChannel(Class.getResource().openStream());
     + make this a separate jar file (data subproject)
-- bug: morphy shouldn't produce results which cannot be found in WN for that POS
+- bug: core: morphy shouldn't produce results which cannot be found in WN for that POS
   + bug: (data bug) search failures? in lookupSynsets()
     * contrast these to "geese" / "goose" which works
       [fedayee, fedayeen] NOUN - backwards in exc file 
@@ -224,8 +264,8 @@ x feature: howto for developing in NetBeans ?
       [furculum, furcula] NOUN - backwards in exc file  
     - also seems to happen for [cathar, cathari, Cathari] NOUN
     * looked like multi-stemming bug (N wounds -> N wound -> N wind)
-  - bug: noisy, scary logging in lookupSynsets()
-+ feature: T[] -> List<T> API improvement - use NetBeans to do this
+  - bug: core: noisy, scary logging in lookupSynsets()
++ feature: core: T[] -> List<T> API improvement - use NetBeans to do this
   - key here is ImmutableList<T>
     - Collections.emptyList()
     - Collections.singletonList(T) - more space efficient
@@ -267,14 +307,14 @@ x feature: howto for developing in NetBeans ?
         - this could prove quite confusing!
     - look at Google Collections impl - looks very simple - contains size and offset fields and 
       disallows null members which seems crazy? (not general) forgot RandomAccess marker interface
-~ feature: make bullets look better 
+~ feature: gui: make bullets look better 
   - list-style: url... .gif
   - anti-aliasing (doesn't fix size, but far less jaggy looking)
-~ feature: POS.ALL search support (esp for stems) - use Uniq to populate this
+~ feature: core: POS.ALL search support (esp for stems) - use Uniq to populate this
   + lookupBaseForms()
   - Synset[] lookupSynsets(POS pos, String someString)
   - (maybe) boolean isDefined(String)
-+ feature: POS.ALL support for exhaustive DictionaryDatabase iteration methods 
++ feature: core: POS.ALL support for exhaustive DictionaryDatabase iteration methods 
   + words()
   + wordSenses()
   + synsets()
@@ -282,22 +322,24 @@ x feature: howto for developing in NetBeans ?
   + searchBySubstring()
   + relations()
 - feature: add GUI unit tests with WindowLicker
-< feature: add generated unit tests with ScalaCheck
-+ bug: fix wonky POS button menu behavior (behaves very differently across different LookAndFeels)
+< feature: core: add generated unit tests with ScalaCheck
++ bug: gui: fix wonky POS button menu behavior (behaves very differently across different LookAndFeels)
   - consider making POS buttons toggle buttons - have window closing auto-toggle them
-+ feature: refactor DictionaryDatabase methods to take String, POS rather
-  than POS, String - more natural - use Eclipse to do this
++ feature: core: refactor DictionaryDatabase methods to take String, POS rather than POS, String - more natural - use Eclipse to do this
 + feature: version information in jar (and About dialog)
 + feature: up/down arrow navigation of search results from searchField
 + bug: multi-click behavior improvments
-+ Need to create new key (with keytool) to sign the jar (with jarsigner via Maven)
++ bug: need to create new key (with keytool) to sign the jar (with jarsigner via Maven)
   and upload it with Cyberduck
   keytool -genkey -alias "Luke Nezda" # password "secret", makes new keystore
   keytool -selfcert -alias "Luke Nezda" # issue myself a new key
+  ! if jarsigner shows:
+    Warning: The signer certificate has expired.
+    jnlp on OS X acts crazy (basically hangs and has to be Force Quit-killed)
 + feature: update .jnlp file using pom.xml properties
 
 - Core
-  ~ feature: meta-pointers (e.g., Hypo/InstanceHypo)
+  ~ feature: core: meta-pointers (e.g., Hypo/InstanceHypo)
     - test cases:
       - "head of state" hyponyms should include "Bill Clinton"
         HYPONYM*, INSTANCE_HYPONYM
@@ -307,7 +349,7 @@ x feature: howto for developing in NetBeans ?
         = in some sense, HYPONYM has subTypes INSTANCE_HYPONYM (postTypes?)
           = in another sense, they could be considered equal types, although they never co-exist, they have very similar meanings
         ? could it also be said that INSTANCE_HYPONYM has superTypes HYPONYM* ?
-        * ideally, we'd like to limit the number of PointerTypes which have auxiliary types to limit the extra
+        * ideally, we'd like to limit the number of RelationTypes which have auxiliary types to limit the extra
           implied search "leniency"
       - "Bill Clinton" hypernyms should include "President of the United States", "head of state", "person"
         INSTANCE_HYPERNYM, HYPERNYM*
@@ -316,7 +358,7 @@ x feature: howto for developing in NetBeans ?
       + "President of the United States" hypernyms "head of state"
       - "President of the United States" hyponyms should NOT include its hypernyms (e.g., "head of state")
         - but in current impl
-  ~ feature: performance (and correctness) comparison between yawni and Princeton C WordNet API
+  ~ feature: core: performance (and correctness) comparison between yawni and Princeton C WordNet API
     - compare to JWNL, JAWS
       - doesn't even have build script
     - add src/test/cpp/
@@ -343,10 +385,10 @@ x feature: howto for developing in NetBeans ?
          'words' 2m59.294s         0m47.293s (3.8x)
     War & Peace  9m36.705s         1m44.244s (5.5x)
                                    1m27.662s after Synset parsing optimization (6.5x)
-  - feature: implement "CharSequences#sameLetterDigitSequence
+  < feature: core: implement CharSequences#sameLetterDigitSequence
     - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
-    ? where would this be used ?
-  ~ feature: getindex() impl
+    ? where would this be used ? getindex() impl ?
+  ~ feature: core: getindex() impl
     * These heuristics should be optional (config param or method param?)
     * Goal: These heuristics should be strict enough to not make stupid mistakes ("I ran" -> "Iran", "be an" -> bean")
       and loose enough to catch most reasonable variants ("wild goose chase" == "wild-goose chase",
@@ -355,7 +397,7 @@ x feature: howto for developing in NetBeans ?
       - requires removing space during lookup
     - search for "n. y. stock exchange" should match search for "n.y. stock exchange"
       - requires adding artificial space during lookup
-    - search for "internal combustion engine" should match "internal-combustion engine"
+    + search for "internal combustion engine" should match "internal-combustion engine"
       - requires replacing "-" with space during lookup
     o search for "A.M." should match "AM"
     x "U.S." should NOT match "us" - could filter on length ? maybe just a hot word cause its a common preposition ? could filter if has any vowels ? could enforce case ?
@@ -371,20 +413,20 @@ x feature: howto for developing in NetBeans ?
     o "DOA" -> "d.o.a"
     o "BTU" -> "b.t.u."
     * many initials already have their period-free form in the data files
-  < feature: gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (ie use Lucene)
   - feature: create lemmatizing Lucene analyzer
-  ~ feature: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
-  - feature: nice interface to verb groups (http://wordnet.princeton.edu/man/wngroups.7WN)
+  ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
+  - feature: core: nice interface to verb groups (http://wordnet.princeton.edu/man/wngroups.7WN)
   ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on
     class(es)? though could hide real bugs) 
-  - feature: document sort orders of Word, WordSense, Synset, and Pointer
+  - bug: doc: document sort orders of Word, WordSense, Synset, and Relation
     - Word: 
     - WordSense: xxx Synset (and then lemma for the few same-Synset ties (Doomsday, doomsday, Utopian, utopian)
     - Synset: 
-    - Pointer:
-  - feature: document approximate runtime of various search algorithms
-  < feature: add search support for java.text.Collator / CollationKey to allow searches for accented words to work (e.g. "resumé", "résumé", "résumés" to match "resume")
-    - to handle stemming in combination is a little harder - need custom RuleBasedCollator ?
+    - Relation:
+  - feature: doc: document approximate runtime of various search algorithms
+  ~ feature: core: add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" -> "cliche"))
+    - Normalizer requires Java 6 which excludes some platforms - could use reflection
+    - aka words with diacritics: http://en.wikipedia.org/wiki/List_of_English_words_with_diacritics
   < feature: interface to parse and cleanly represent (in code) glosstags corpus
     - convert to lighter JSON or binary XML format ?
     - delivered as 1 giant bzipped collection of XML files in directories
@@ -393,14 +435,11 @@ x feature: howto for developing in NetBeans ?
       - similar merged.tbz is only 20MB - nice win
       ? I wonder how lzo would do ? (nice and fast)
   < feature: reverse iteration
-  < feature: random item accessor (good for unit tests and performance tests)
   < feature: implement ConcurrentLRUCache - cleaning eldest entries is the hard part ?
   < feature: GUI Maven target (and delete script) or use a local Java Web Start
   < feature: convert CharStream interface to long's (from int's) to support huge files
-  - feature: make JList scroll-rate accelerate ? I swear I worked on this for
-    large result sets - maybe the difference is scrolling in terms of
-    JScrollBar or content ?
-  ~ feature: should be able to use WordNet 3.0 UNIX distribution dict/ files on Windows
+  < feature: gui: make JList scroll-rate accelerate ? I swear I worked on this for large result sets - maybe the difference is scrolling in terms of JScrollBar or content ?
+  ~ feature: core: should be able to use WordNet 3.0 UNIX distribution dict/ files on Windows
   + bug: fix always-singleton for WordSense.AdjPosition flags accessor
   + bug: source files not being interpretted as UTF-8 -- uncommented line in pom.xml
     + can be checked by looking for Unicode arrow as in RELATED TO → (verb) cat#1
@@ -414,7 +453,7 @@ x feature: howto for developing in NetBeans ?
     to getPrefixMatchLinePointer()
   + bug: checkstyle issue:
     [WARNING] File encoding has not been set, using platform encoding MacRoman, i.e. build is platform dependent!
-  + feature: capability to substring search all pos at once 
+  + feature: capability to substring search all pos at once (aka POS.ALL)
     + implemented MergedIterable (and unit tests)
       / merge results with a CompositeComparator (Collator?)
     + how to represent this in the API
@@ -428,24 +467,24 @@ x feature: howto for developing in NetBeans ?
       virtual POS in SearchFrame menu only ? ("*" - kinda begs for a label for this combobox then though)
       ? how many internal search routines would have to change to support this comprehensively ?
         - zero (merge results with external mechanisms), all, some ???
-  + feature: rename "searchIndexBeginning" to "searchByPrefix"
-  + feature: rename "searchWords" to "searchBySubstring"
+  + feature: core: rename "searchIndexBeginning" to "searchByPrefix"
+  + feature: core rename "searchWords" to "searchBySubstring"
     + tried to get Eclipse to work but moved files pissed it off bigtime
-  + feature: all atomic core types (ie all but Pointer) are Iterable<WordSense>
-  + feature: Word, Synset, WordSense, Pointer should implement Comparable
+  + feature: core: all atomic core types (ie all but Relation) are Iterable<WordSense>
+  + feature: Word, Synset, WordSense, Relation should implement Comparable
   + bug: substring search for "-" (hyphenated words) not found
     + would be cool to search for terms containing spaces too (collocation search)
     ~ this means SearchFieldDocument needs to tolerate a leading word delimiters/"spacer"
-  + feature: mavenize project
-  + feature: AdjPositionFlags API (PREDICATIVE, ...)
-  + feature: lazy, correct getPointerTypes()
+  + feature: core: mavenize project
+  + feature: core: AdjPositionFlags API (PREDICATIVE, ...)
+  + feature: lazy, correct getRelationTypes()
   + feature: Word - memory optimization (only synset offsets OR synset objects, NOT both)
   + feature: WordSense
     + make verb frame info accessible
     + make adjective positions an enum and make accessible by an EnumSet (only 7 possible combos?)
 
 - GUI
-  - bug: gui: GTK LAF -- too many bugs to list: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6417110
+  < feature: gui: GTK LAF -- too many bugs to list: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6417110
     + solution: for Windows and Mac, use native LAF, for Linux use CrossPlatform LAF
     - Linux doesn't use anti-aliased fonts
     - Linux and OS X + Java 5: preferred button size much smaller (esp on Linux)
@@ -488,9 +527,9 @@ x feature: howto for developing in NetBeans ?
   - bug: gui: SearchFrame always takes text of BrowserPanel even if it was
     indirectly, automatically populated via clicking on a SearchFrame list item
     search result
-    - tricky because this field is used to store state used by POS PointerType menus
+    - tricky because this field is used to store state used by POS RelationType menus
     - perfect use for SnapBack
-  - feature: gui: add Undo/Redo to SearchFrame's searchField like BrowserPanel
+  < feature: gui: add Undo/Redo to SearchFrame's searchField like BrowserPanel
   - feature: gui: if browser is close to left edge of screen, align SearchFrame on right edge of browser (instead of attempting to align it to the left edge)
   < feature: gui: save window positions across boots
     - load default preferences (don't clobber pre-set ones?)
@@ -555,7 +594,7 @@ x feature: howto for developing in NetBeans ?
       - use Quartz rendering pipeline options ?
   < bug: gui: native Linux (GTK) L&F seems to work on lcc64 only ? java6 only ? 64-bit JVM only ?
   < feature: gui: hyperlink word senses in glosses using new http://wordnet.princeton.edu/glosstags
-  - feature: gui: add font zoom buttons to BrowserPanel
+  - feature: gui: add font zoom buttons to BrowserPanel (could use same ones created for the menu or maybe a little larger)
   - feature: gui: add edit menu and copy, paste, select all, +undo, +redo to it
   - feature: gui: add back/forward (history) buttons to BrowserPanel (just trigger undo)
   - feature: gui: in search fields, filter input and show history
@@ -650,7 +689,7 @@ x feature: howto for developing in NetBeans ?
   + bug: partial fix for multi-stem issue (talks, talk)
   + bug: gui: various state-fixes for status bar
   + feature: almost no indexed based loops now
-  + feature: many more PointerType displays are correct now (Adj syns, etc)
+  + feature: many more RelationType displays are correct now (Adj syns, etc)
 
 + feature: rename Word -> WordSense, IndexWord -> Word
   + use Eclipse refactor - much better Java support
@@ -668,22 +707,20 @@ x feature: howto for developing in NetBeans ?
 - bug: clean up (especially FIXMEs (and TODOs))
   - factor some inner classes into outter, non-public classes
   - remove cruft / extra debug crap
-- feature: consider taking CharSequence for search in interface to allow
-  use of mutable query "String"'s, etc (from user perspective, still
-  fully backwards compat with String (Java 1.5-wise)
+- feature: consider taking CharSequence for search in interface to allow use of mutable query "String"'s, etc (from user perspective, still fully backwards compat with String (Java 1.5-wise)
 + feature: run code through various tools (God bless Maven)
   + findbugs (http://findbugs.cs.umd.edu/demo/jnlp/findbugs.jnlp)
   + CPD - looks good (http://pmd.sourceforge.net/cpd.jnlp)
 + bug: make line ends native in files and svn
 ~ feature: work on Morphy
   * add exact match in 1 spot
-  ? simplify various parallel arrays
-  - implement getindex()
+  - simplify various parallel arrays
+  - see getindex() feature
   - NEW fancy search options
     - properly stem / find prefix variants
     - guess to find missing items ("blogging")
-    - consider returning morphologically derived terms ?
-  - ensure symmetric search results
+    ? consider returning morphologically derived terms ?
+  - strive for symmetric search results
     FAQ http://wordnet.princeton.edu/faq#morphology says "the morphological component of WordNet is unidirectional"
     "long time" is a NOUN, "longtime" is an ADJ, both come up in searches for
     "long time", but only the ADJ comes up in searches for "longtime"
@@ -693,33 +730,30 @@ x feature: howto for developing in NetBeans ?
     - similar for removing e in shaking hands -> shake hands
   - shootout test against Porter stemmer (copy from Lucene)
     - many sublteties here - may stem incorrectly (???), may not (blogging->blog)
-  - stem special words: naieve - naXXXve
+  - stem special words: naive → naïve ; resume -> résumé
   ~ add unit test to Lucene to ensure equality with Snowball generated Porter stemmer
   - consider integration with Snowball ?
-- feature: compare interface summary stats with those in:
-  $WNHOME/dict/log.grind.3.0
+- feature: core: compare interface summary stats with those in: $WNHOME/dict/log.grind.3.0
   ? will this filename remain the same ?
-? how come Doomsday and Utopian came up as case ambiguous, but
-  Moon, moon didn't ?
+- bug: core: how come Doomsday and Utopian came up as case ambiguous, but Moon, moon didn't ?
 
-- feature: Measure memory requirements
+- feature: doc: Measure memory requirements
   - write program to generate report of each lexeme and relation
   - estimate this value -- outline has many of the details
   ? is there a tool to do this ?
-  - all IndexWords, Synsets, and Pointers 
+  - all IndexWords, Synsets, and Relations 
     - approximate this:
   
   * used 'hat' https://hat.dev.java.net/
     Synset: 76
     Word: 22
     IndexWord: 29
-    Pointer: 20
+    Relation: 20
 
   - all caches full
 
 Features / Enhancements
-- feature: phase in support for "ALLSENSES" (original WN libraries have this for 
-  core search routines (findtheinfo(...) and in_wn(...))
+- feature: phase in support for "ALLSENSES" (original WN libraries have this for core search routines (findtheinfo(...) and in_wn(...))
 < feature: create bounded length longest match algorithm and run over documents
 < feature: re-write grind in Java with jflex and/or javacc
   - very old, suspect C code with scary comments in lex file in particular
@@ -756,13 +790,12 @@ WordNet features (unexposed)
 Performance
 + bug: cache null values!!!
   - complete ?
-- feature: convert over to CharSequence and consider using ByteCharBuffer
+- feature: core: convert over to CharSequence and consider using ByteCharBuffer
   - eliminates a lot of immediately discarded String objects
   - eliminates backing char[] storage reqs of longer lived Strings
-- feature: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to
+- feature: core: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to chop the memory requirements in half for these large strings.
   - 16,557,481 letters (about 32 MB as char so about 16 MB as byte)
-    chop the memory requirements in half for these large strings.
-< bug: use WeakReference's/ WeakReference[]
+- bug: core: use WeakReference's/ WeakReference[]
   * Steele's original code referred to this (was not yet in JDK)
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
 < feature: look for synchronization / liveness opportunities
@@ -775,8 +808,8 @@ Performance
 
 General Project Quality
 + bug: run RAT to ensure licenses are all good (http://code.google.com/p/arat/)
-+ test on Windows, Linux, Mac
-~ bug: add javadoc to all important methods
+~ bug: core: test on Windows, Linux, Mac
+~ bug: core: add javadoc to all important methods
   - remove dated/wrong comments regarding original impl
   - remove LN comments ? maybe replace with @author for now ? use tool to compare APIs
   - consider using prose from http://www.w3.org/TR/wordnet-rdf/
@@ -808,10 +841,10 @@ General Project Quality
           DirectByteBuffer ref, int mapMode, ...
     * key here is re-use, not object size
       - although, offset and length into ByteCharBuffer would be pretty darn compact
-  - PointerType[] vs EnumSet<PointerType>
-    - PointerType[]
+  - RelationType[] vs EnumSet<RelationType>
+    - RelationType[]
       - object, int length, length * 4 = 16+4*len
-    - EnumSet<PointerType>
+    - EnumSet<RelationType>
       - object, Class ref
         MiniEnumSet: 12+4+4+4=24 (tie at len=2)
           - size (int), E[] ref, long // could save 8+4=7 bytes
