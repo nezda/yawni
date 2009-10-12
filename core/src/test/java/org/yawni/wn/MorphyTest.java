@@ -149,16 +149,17 @@ public class MorphyTest {
       { POS.NOUN.name(), "George W. \t\tBush", "George W. Bush" }, // WN doesn't get this (extra internal space) (WN online does - probably better input string preprocessing)
       { POS.NOUN.name(), "george w. bush", "George W. Bush" },
       //{ POS.NOUN.name(), "f.d. roosevelt", "F. D. Roosevelt" }, // WN doesn't get this
-      //{ POS.NOUN.name(), "u.s", "u.s."}, // WN gets this, though probably via "US"
+      //{ POS.NOUN.name(), "u.s", "u.s."}, // WN gets this via "US"
       //WN doesn't get this either (missing ".") { POS.NOUN.name(), "george w bush", "George W. Bush" },
       { POS.NOUN.name(), "mice", "mouse", "mice" },
-      { POS.NOUN.name(), "internal-combustion engine", "internal-combustion engine" },
-      //WN 3 doesn't get this? { POS.NOUN.name(), "internal combustion engine", "internal-combustion engine" },
+      { POS.NOUN.name(), "internal-combustion engine", "internal-combustion engine" }, // simple reflexive test
+      { POS.NOUN.name(), "internal combustion engine", "internal-combustion engine" }, // exercise getindex() logic; WN doesn't get this
+      { POS.NOUN.name(), "internal combustion engines", "internal-combustion engine" }, // exercise getindex() logic; WN doesn't get this
       { POS.NOUN.name(), "hangers-on", "hanger-on" },
-      // needs " " -> "-" { POS.NOUN.name(), "hangers on", "hanger-on" },
+      { POS.NOUN.name(), "hangers on", "hanger-on" }, // needs " " -> "-"
       { POS.NOUN.name(), "letter bombs", "letter bomb" },
       // needs "-" -> "" { POS.NOUN.name(), "fire-bomb", "firebomb" },
-      // needs "-" -> " " { POS.NOUN.name(), "letter-bomb", "letter bomb" },
+      { POS.NOUN.name(), "letter-bomb", "letter bomb" }, // needs "-" -> " "
       // harder one: 
       // - needs to either not require getIndexedLinePointer() to operate on words OR 
       //   + return the nearest hit (maybe negated to indicate no normal match)
