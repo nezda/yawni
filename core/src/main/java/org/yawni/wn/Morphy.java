@@ -120,7 +120,7 @@ class Morphy {
       if (isOnlySpaces(origstr)) {
         return "_";
       }
-      // strip edge underscores (e.g., "_slovaks_" -> "slovaks")
+      // strip edge underscores (e.g., "_slovaks_" → "slovaks")
       //TODO consider compiling this regex
       origstr = origstr.replaceAll("^[_ -]+", "");
       origstr = origstr.replaceAll("[_ -]+$", "");
@@ -482,7 +482,7 @@ class Morphy {
       if (wordStr.endsWith("ful")) {
         tmpbuf = wordStr.substring(0, wordStr.length() - "ful".length());
         end = "ful";
-        // special case for *ful "boxesful" -> "boxful"
+        // special case for *ful "boxesful" → "boxful"
       } else if (wordStr.length() <= 2 || wordStr.endsWith("ss")) {
         // check for noun ending with 'ss' or short words
         return ImmutableList.of();
