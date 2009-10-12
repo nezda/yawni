@@ -36,7 +36,7 @@ import org.yawni.util.CharSequenceTokenizer;
  *   - other relations including derivationally related
  *   - add speed tests
  *     - task-based: count unique WordSense's in all DBs
- *     - get stems of every lemma in all DBs ("wounds" -> "wound" -> "wind") 
+ *     - get stems of every lemma in all DBs ("wounds" → "wound" → "wind") 
  *     - compare speed with various CharStream impls (add some package private methods)
  *   - sense numbers
  *   - gloss
@@ -156,17 +156,17 @@ public class MorphyTest {
       { POS.NOUN.name(), "internal combustion engine", "internal-combustion engine" }, // exercise getindex() logic; WN doesn't get this
       { POS.NOUN.name(), "internal combustion engines", "internal-combustion engine" }, // exercise getindex() logic; WN doesn't get this
       { POS.NOUN.name(), "hangers-on", "hanger-on" },
-      { POS.NOUN.name(), "hangers on", "hanger-on" }, // needs " " -> "-"
+      { POS.NOUN.name(), "hangers on", "hanger-on" }, // needs " " → "-"
       { POS.NOUN.name(), "letter bombs", "letter bomb" },
-      // needs "-" -> "" { POS.NOUN.name(), "fire-bomb", "firebomb" },
-      { POS.NOUN.name(), "letter-bomb", "letter bomb" }, // needs "-" -> " "
+      // needs "-" → "" { POS.NOUN.name(), "fire-bomb", "firebomb" },
+      { POS.NOUN.name(), "letter-bomb", "letter bomb" }, // needs "-" → " "
       // harder one: 
       // - needs to either not require getIndexedLinePointer() to operate on words OR 
       //   + return the nearest hit (maybe negated to indicate no normal match)
       // - could be really fast with a suffix index (reverse words)
-      // needs "" -> " " { POS.NOUN.name(), "letterbomb", "letter bomb" }, // WN doesn't get this
+      // needs "" → " " { POS.NOUN.name(), "letterbomb", "letter bomb" }, // WN doesn't get this
       //{ POS.NOUN.name(), "hyper-active", "hyperactive" }, // WN doesn't get this
-      { POS.NOUN.name(), "I ran", null }, // WN gets this as "Iran" - " " -> "" seems bad unless a variant has "-" in same position (WN online doesn't do this)
+      { POS.NOUN.name(), "I ran", null }, // WN gets this as "Iran" - " " → "" seems bad unless a variant has "-" in same position (WN online doesn't do this)
       { POS.NOUN.name(), "be an", null }, // WN gets this as "bean" (WN online doesn't do this)
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
       { POS.NOUN.name(), "_slovaks_", "Slovak" },
@@ -199,7 +199,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "mamma's boy", "mamma's boy" },
       { POS.NOUN.name(), "15_minutes", "15 minutes" },
       { POS.NOUN.name(), "talks", "talk", "talks" },
-      { POS.NOUN.name(), "talk", "talk" }, // note asymmetric property: "talk" -> {"talk"}, "talks" -> {"talk", "talks"}
+      { POS.NOUN.name(), "talk", "talk" }, // note asymmetric property: "talk" → {"talk"}, "talks" → {"talk", "talks"}
       { POS.NOUN.name(), "wounded", "wounded" },
       { POS.NOUN.name(), "wounding", "wounding" },
       { POS.VERB.name(), "wounded", "wound" },
