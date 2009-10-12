@@ -27,7 +27,6 @@ import static org.junit.Assert.*;
 // - produces all combinations
 // - produces no duplicates
 
-//@Ignore // feature not working
 public class GetIndexTest {
   private static DictionaryDatabase dictionary;
   private static Morphy morphy;
