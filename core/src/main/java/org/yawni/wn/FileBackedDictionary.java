@@ -452,11 +452,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = new LRUCache<DatabaseKey, ImmutableList<String>>(DEFAULT_CACHE_CAPACITY);
 
   /**
-   * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given <param>pos</param>.
+   * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given {@code pos}.
    * The exception list files, <tt>pos</tt>.<i>exc</i> , are used to help the morphological
    * processor find base forms from irregular inflections.  <b>NOTE: Skip the
    * first entry (the exceptional word itself!)</b>
-   * morph.c exc_lookup()
+   * Port of {@code morph.c exc_lookup()}
    */
   ImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(someString, pos);
