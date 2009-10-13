@@ -26,8 +26,9 @@ import org.yawni.util.*;
 import org.yawni.wn.FileBackedDictionary.DatabaseKey;
 
 /**
- * Java port of <code>morph.c</code>'s <code>morphstr</code> - WordNet search
+ * Java port of {@code morph.c}'s {@code morphstr} - WordNet's search
  * code morphological processing functions.
+ * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
  */
 class Morphy {
   private static final Logger log = LoggerFactory.getLogger(Morphy.class.getName());
@@ -136,6 +137,7 @@ class Morphy {
     return toReturn;
   }
 
+  //TODO move to Utils
   private static List<Character> asCharacterList(String s) {
     final char[] chars = s.toCharArray();
     final List<Character> charList = new ArrayList<Character>(chars.length);
@@ -451,7 +453,7 @@ class Morphy {
   /**
    * Must be an exact match in the dictionary.
    * (C version in {@code search.c} only returns {@code true}/{@code false})
-   * Similar to C function {@code index_lookup}
+   * Similar to C function {@code index_lookup()}
    */
   Word is_defined(final String lemma, final POS pos) {
     return dictionary.lookupWord(lemma, pos);
@@ -469,8 +471,8 @@ class Morphy {
   }
 
   /**
-   * Try to find baseform (lemma) of <b>individual word</b> <param>word</param>
-   * in POS <param>pos</param>.
+   * Try to find baseform (lemma) of <b>individual word</b> {@code word}
+   * in POS {@code pos}.
    * Port of {@code morph.c morphword()}.
    */
   private ImmutableList<String> morphword(final String wordStr, final POS pos) {
@@ -585,7 +587,7 @@ class Morphy {
    * off, check for validity, then try various morphs with the
    * rest of the phrase tacked on, trying to find a match.
    *
-   * Note: all letters in <param>s</param> are lowercase.
+   * Note: all letters in {@code s} are lowercase.
    * Port of {@code morph.c morphprep()}
    */
   private String morphprep(final String s) {
