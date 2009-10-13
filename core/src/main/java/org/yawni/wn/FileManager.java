@@ -494,9 +494,9 @@ public final class FileManager implements FileManagerInterface {
 
   /**
    * @param filename
-   * @param filenameWnRelative is a boolean which indicates that <param>filename</param>
+   * @param filenameWnRelative is a boolean which indicates that {@code filename}
    * is relative (else, its absolute).  This facilitates testing and reuse.
-   * @return CharStream representing <param>filename</param> or null if no such file exists.
+   * @return CharStream representing {@code filename} or null if no such file exists.
    */
   private synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
