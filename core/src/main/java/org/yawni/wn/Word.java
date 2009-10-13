@@ -239,7 +239,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * A specific sense of this word - note that <param>senseNumber</param> is a <em>1</em>-indexed value.
+   * A specific sense of this word - note that {@code senseNumber} is a <em>1</em>-indexed value.
    */
   public WordSense getSense(final int senseNumber) {
     if (senseNumber <= 0) {
