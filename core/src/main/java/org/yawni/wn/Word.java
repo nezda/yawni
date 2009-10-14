@@ -30,7 +30,7 @@ import org.yawni.util.ImmutableList;
 /**
  * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file.
  * A {@code Word} is retrieved via {@link DictionaryDatabase#lookupWord},
- * and has a <em>lemma</em>, a <em>part of speech ({@link POS})</em>, and a set of <em>senses</em> ({@link WordSense}s).
+ * and has a lowercase <em>lemma</em>, a <em>part of speech ({@link POS})</em>, and a set of <em>senses</em> ({@link WordSense}s).
  *
  * <p> Note this class used to be called {@code IndexWord} which arguably makes more sense from the
  * WordNet perspective.
@@ -43,11 +43,11 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = LoggerFactory.getLogger(Word.class.getName());
 
   private final FileBackedDictionary fileBackedDictionary;
-  /** offset in {@code <pos>.index} file */
+  /** offset in <code>index.<em>pos</em></code> file; {@code Index.idxoffset} in {@code wn.h} */
   private final int offset;
   /**
    * Lowercase form of lemma. Each {@link WordSense} has at least 1 true case lemma
-   * (could vary by POS).
+   * (could vary by POS). {@link Word}s have exactly 1 lowercase lemma.
    */
   private final String lowerCasedLemma;
   // number of senses with counts in sense tagged corpora
@@ -115,8 +115,8 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       //  //log.error("extra: {}", extra);
       //}
     } catch (final RuntimeException e) {
-      log.error("Word parse error on offset: {} line:\n\"{1}\"",
-          new Object[]{ offset, line });
+      log.error("Word parse error on offset: {} line:\n\"{}\"",
+          offset, line);
       log.error("",  e);
       throw e;
     }
@@ -153,7 +153,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * Returns the {@code Word}'s <em>lowercased</em> lemma.  Its lemma is its orthographic
+   * Returns this {@code Word}'s <em>lowercased</em> lemma.  Its lemma is its orthographic
    * representation, for example "<tt>dog</tt>" or "<tt>get up</tt>"
    * or "<tt>u.s.a.</tt>".
    * 
@@ -196,7 +196,8 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * The synsets which include senses of this word
+   * All synsets which include senses of this word.
+   * @return all synsets which include senses of this word.
    */
   public List<Synset> getSynsets() {
     // careful with this.synsets
@@ -222,7 +223,8 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * The senses of this word
+   * All senses of this word.
+   * @return all senses of this word.
    */
   public List<WordSense> getSenses() {
     //TODO consider caching senses - we are Iterable on it and getSense would also be much cheaper
@@ -273,19 +275,19 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   public boolean equals(final Object that) {
     return (that instanceof Word)
       && ((Word) that).posOrdinal == posOrdinal
-      && ((Word) that).offset == offset;
+      && ((Word) that).getOffset() == getOffset();
   }
 
   @Override
   public int hashCode() {
     // times 10 shifts left by 1 decimal place
-    return (offset * 10) + getPOS().hashCode();
+    return (getOffset() * 10) + getPOS().hashCode();
   }
 
   @Override
   public String toString() {
     return new StringBuilder("[Word ").
-      append(offset).
+      append(getOffset()).
       append('@').
       append(getPOS().getLabel()).
       append(": \"").
