@@ -20,7 +20,7 @@ MVN_REPO=$HOME/.m2/repository/
 # classpath when slf4j is not "shaded" into jar
 #CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-core/$VERSION/yawni-core-$VERSION.jar:$MVN_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar:$MVN_REPO/org/slf4j/slf4j-jdk14/1.5.8/slf4j-jdk14-1.5.8.jar
 # simple single jar classpath
-CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-core/$VERSION/yawni-core-$VERSION.jar
+CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-browser/$VERSION/yawni-browser-$VERSION.jar
 #CLASSPATH=$CLASSPATH:$MVN_REPO/org/yawni/wn/yawni-data/$VERSION/yawni-data-$VERSION.jar
 # outter parens make this a Bash array of space separated elements
 JVM_ARGS=(-Xdock:name="Yawni Browser" -Dlog4j.configuration=org/yawni/wn/log4j.properties)
