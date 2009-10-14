@@ -26,12 +26,12 @@ import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.ImmutableList;
 
 /**
- * A <code>Synset</code>, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet {@code pos}<code>.data</code> file.
- * A <code>Synset</code> represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
- * that names that concept (and each of which is therefore synonymous with the other <code>WordSense</code>s in the
- * <code>Synset</code>).
+ * A {@code Synset}, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <code>data.<em>pos</em></code> file.
+ * A {@code Synset} represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
+ * that names that concept (and each of which is therefore synonymous with the other {@code WordSense}s in the
+ * {@code Synset}).
  *
- * <p><code>Synset</code>'s are linked by {@link Relation}s into a network of related concepts; this is the <i>Net</i>
+ * <p> {@code Synset}'s are linked by {@link Relation}s into a network of related concepts; this is the <em>Net</em>
  * in WordNet.  {@link Synset#getTargets Synset.getTargets()} retrieves the targets of these links, and
  * {@link Synset#getRelations Synset.getRelations()} retrieves the relations themselves.
  *
@@ -45,7 +45,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   /** package private for use by WordSense */
   final FileBackedDictionary fileBackedDictionary;
-  /** offset in <code>data.</code>{@code pos} file */
+  /** offset in <code>data.<em>pos</em></code> file; {@code Synset.hereiam} in {@code wn.h} */
   private final int offset;
   private final ImmutableList<WordSense> wordSenses;
   private final ImmutableList<Relation> relations;
@@ -154,7 +154,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
         this.gloss = new char[0];
       }
     } else {
-      log.warn("Synset has no gloss?:\n" + line);
+      log.warn("Synset has no gloss?:\n{}", line);
       this.gloss = null;
     }
   }
@@ -311,7 +311,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
 
   /**
    * Returns <em>only</em> {@link SemanticRelation}s
-   * which have this synset as their source.
+   * which have this synset as their source that have
+   * type {@code type}.
    *
    * @see Synset#getRelations()
    */
@@ -362,19 +363,19 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   public boolean equals(Object that) {
     return (that instanceof Synset)
       && ((Synset) that).posOrdinal == posOrdinal
-      && ((Synset) that).offset == offset;
+      && ((Synset) that).getOffset() == getOffset();
   }
 
   @Override
   public int hashCode() {
     // times 10 shifts left by 1 decimal place
-    return (offset * 10) + getPOS().hashCode();
+    return (getOffset() * 10) + getPOS().hashCode();
   }
 
   @Override
   public String toString() {
     return new StringBuilder("[Synset ").
-      append(offset).
+      append(getOffset()).
       append('@').
       append(getPOS()).
       append('<').
@@ -395,7 +396,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     int result;
     result = this.getPOS().compareTo(that.getPOS());
     if (result == 0) {
-      result = this.offset - that.offset;
+      result = this.getOffset() - that.getOffset();
     }
     return result;
   }
