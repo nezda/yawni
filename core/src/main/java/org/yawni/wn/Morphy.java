@@ -456,6 +456,7 @@ class Morphy {
    * Similar to C function {@code index_lookup()}
    */
   Word is_defined(final String lemma, final POS pos) {
+    log.trace("is_defined lemma: {} {}", lemma, pos);
     return dictionary.lookupWord(lemma, pos);
   }
 
