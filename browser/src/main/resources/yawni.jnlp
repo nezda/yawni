@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!-- FIXME make the codebase path a param -->
+  <!-- <jnlp spec="1.0+" codebase="file:///home/luke/code/java/yawni/jnlp/"> -->
+  <jnlp spec="1.0+" codebase="http://www.fatbread.com/">
+  <information>
+    <title>Yawni Browser</title>
+    <vendor>Luke Nezda</vendor>
+    <homepage href="http://www.fatbread.com/" />
+    <description>Java Swing browser for WordNet</description>
+    <!-- not a 64x64 icon - rejected ? -->
+    <icon href="http://www.fatbread.com/american-flag.png"/>
+    <!--
+    <shortcut>
+       <desktop/>
+       <menu/>
+    </shortcut>
+    -->
+  </information>
+  <offline-allowed/>
+  <security>
+    <all-permissions/>
+  </security>
+
+  <resources>
+    <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
+    <!-- <jar href="yawni-2.0.0-SNAPSHOT.jar"/> -->
+    <jar href="${pom.artifactId}-${pom.version}.jar"/>
+    <!-- <extension name="yawni-data" href="yawni-data.jnlp"/> -->
+    <!-- attempt to work around minor javaws bug
+      http://lists.apple.com/archives/java-dev/2005/Mar/msg00426.html -->
+    <property name="apple.awt.brushMetalLook" value="true"/>
+    <property name="apple.awt.brushMetalRounded" value="true"/>
+    <property name="apple.awt.textantialiasing" value="on"/>
+    <property name="apple.laf.useScreenMenuBar" value="true"/>
+    <property name="apple.awt.showGrowBox" value="false"/>
+  </resources>
+
+  <!-- some platform specific WNHOME defaults -->
+  <resources os="Mac OS X">
+    <property name="WNHOME" value="/usr/local/WordNet-3.0/"/>
+  </resources>
+
+  <resources os="Linux">
+    <!-- default install location of Ubuntu install -->
+    <property name="WNSEARCHDIR" value="/usr/share/wordnet/"/>
+    <!-- default location of a Princeton install -->
+    <!-- <property name="WNHOME" value="/usr/local/WordNet-3.0/"/> -->
+  </resources>
+
+  <resources os="Windows">
+    <property name="WNHOME" value="c:\Program Files\WordNet\2.1\"/>
+  </resources>
+
+  <resources>
+    <property name="swing.aatext" value="true"/>
+    <property name="awt.useSystemAAFontSettings" value="on"/>
+    <property name="file.encoding" value="US-ASCII"/>
+  </resources>
+
+  <application-desc main-class="org.yawni.wn.browser.Browser">
+  </application-desc>
+</jnlp>
