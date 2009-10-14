@@ -49,8 +49,8 @@ public enum RelationType {
   /** aka "instance of" or just "instance" */
   INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N, "Instance Hypernyms (%s is an instance of ...)"),
   /**
-   * "a word that is <em>more specific</em> than a given word"
-   * aka "troponym" for verbs.
+   * "a word that is <em>more specific</em> than a given word".
+   * analagous to "troponym" for verbs.
    */
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   /** aka "instances" / "has instance" */
@@ -88,11 +88,11 @@ public enum RelationType {
    * @see RelationType#PART_MERONYM
    */
   MERONYM("meronym", "%" /* non-existent */, 12, N),
-  /** aka "is member". */
+  /** aka "is member" */
   MEMBER_MERONYM("member meronym", "#m", 6, N, "Member Meronyms (... are members of %s)"),
-  /** aka "is stuff". */
+  /** aka "is stuff" */
   SUBSTANCE_MERONYM("substance meronym", "#s", 7, N, "Substance Meronyms (... are substances of %s)"),
-  /** aka "is part". */
+  /** aka "is part" */
   PART_MERONYM("part meronym", "#p", 8, N, "Part Meronyms (... are parts of %s)"),
 
   /**
@@ -103,11 +103,11 @@ public enum RelationType {
    * @see RelationType#PART_HOLONYM
    */
   HOLONYM("holonym", "#" /* non-existent */, 13, N),
-  /** aka "has member". */
+  /** aka "has member" */
   MEMBER_HOLONYM("member holonym", "%m", 9, N, "Member Holonyms (%s is a member of ...)"),
-  /** aka "has stuff". */
+  /** aka "has stuff" */
   SUBSTANCE_HOLONYM("substance holonym", "%s", 10, N, "Substance Holonyms (%s is a substance of ...)"),
-  /** aka "has part". */
+  /** aka "has part" */
   PART_HOLONYM("part holonym", "%p", 11, N, "Part Holonyms (%s is a part of ...)"),
 
   // domain terms
@@ -235,12 +235,12 @@ public enum RelationType {
      * "Virtual" means has super-types and/or sub-types.<br>
      * Compare to "concrete" (isolated) and "pure virtual" (incomplete) types.<br>
      * It does not make sense to search for a pure-virtual type.
-     * <h4>Virtual:</h4>
+     * <h4> Virtual:</h4>
      * <ul>
      *   <li> Hyponym, Instance </li>
      *   <li> Hypernym, Instance </li>
      * </ul>
-     * <h4>Pure-virtual:</h4>
+     * <h4> Pure-virtual:</h4>
      * <ul>
      *   <li> Holonym:: Part, Member, Substance </li>
      *   <li> Meronym:: Part, Member, Substance </li>
@@ -284,14 +284,14 @@ public enum RelationType {
      */
 
     /**
-     * e.g., { Bill Clinton } (* the Synset) --instance hypernym-→ { President of the United States }
+     * e.g., { Bill Clinton } (* the Synset) --instance hypernym--> { President of the United States }
      * which in turn has (normal) hypernyms
      */
 //    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
 //    INSTANCE_HYPERNYM.superTypes = ImmutableList.of(HYPERNYM);
     INSTANCE_HYPERNYM.subTypes = ImmutableList.of(HYPERNYM);
     /**
-     * e.g., { President of the United States } (* the Synset) --instance hyponyms-→ ({ Bill Clinton }, ...) AND
+     * e.g., { President of the United States } (* the Synset) --instance hyponyms--> ({ Bill Clinton }, ...) AND
      * (normal) hyponyms ({ chief of state }, ...).  Note that while { President of the United States } also
      * has (normal) hyponyms, { President of the United States } does NOT since
      * it is more lexically specified.
