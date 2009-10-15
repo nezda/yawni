@@ -179,7 +179,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
    * Provides access to the 'lexicographer category' of this <code>Synset</code>.  This
    * is variously called the 'lexname' or 'supersense'.
    * @return the <em>lexname</em> this <code>Synset</code> is a member of, e.g., "noun.quantity"
-   * @see <a href="http://wordnet.princeton.edu/man/lexnames.5WN">http://wordnet.princeton.edu/man/lexnames.5WN</a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/lexnames.5WN.html">http://wordnet.princeton.edu/wordnet/man/lexnames.5WN.html</a>
    */
   public String getLexCategory() {
     return fileBackedDictionary.lookupLexCategory(lexfilenum());
