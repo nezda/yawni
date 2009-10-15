@@ -38,6 +38,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
+    <!-- TODO move to parent pom -->
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -62,37 +63,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>appassembler-maven-plugin</artifactId>
-        <!-- <version>1.0</version> -->
-        <configuration>
-          <!-- 
-          mvn package appassembler:assemble 
-          sh target/appassembler/bin/browser
-          -->
-          <!-- <generateRepository>false</generateRepository> -->
-          <!-- appassembler bug: no way to do: -Xdock:name="Foo Browser" -->
-          <!-- TODO consider just making a shaded "executable jar" -->
-          <extraJvmArguments>-Xdock:name=Yawni -Dfile.encoding=US-ASCII -ea -Dswing.aatext=true -Dawt.useSystemAAFontSettings=on -Dapple.awt.textantialiasing=on -Dapple.laf.useScreenMenuBar=true -Dapple.awt.brushMetalLook=true -Dapple.awt.brushMetalRounded=true -Dapple.awt.showGrowBox=false</extraJvmArguments>
-          <programs>
-            <program>
-              <mainClass>org.yawni.wn.browser.Browser</mainClass>
-              <name>browser</name>
-            </program>
-          </programs>
-        </configuration>
-      </plugin>
-      <!-- hacky test with assembly plugin
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>src/assemble/repository.xml</descriptor>
-          </descriptors>
-        </configuration>
-      </plugin>
-      -->
+      <!-- TODO move to parent pom -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -112,25 +83,17 @@
           <verbose/>
         </configuration>
       </plugin>
-      <!-- not even sure what this is !?
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <configuration>
-        <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
-          <!-- <argLine> -->
+          <argLine>
           <!--   -Xmx256m -->
           <!--   -XX:CompileThreshold=1 -->
-          <!-- </argLine> -->
+            -d32
+          </argLine>
           <systemProperties>
             <!-- Required to pass this system property through to the unit tests -->
             <property>
@@ -140,6 +103,7 @@
           </systemProperties>
         </configuration>
       </plugin>
+      <!-- TODO move to parent pom -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
@@ -175,9 +139,6 @@
           <archive>
             <!-- <compress>false</compress> -->
             <index>true</index>
-            <manifest>
-              <mainClass>org.yawni.wn.browser.Browser</mainClass>
-            </manifest>
             <manifestEntries>
               <!-- <svnversion>${buildNumber}</svnversion> -->
             </manifestEntries>
@@ -190,6 +151,7 @@
       </plugin>
     </plugins>
   </build>
+  <!-- TODO move to parent pom -->
   <reporting>
     <plugins>
       <plugin>
