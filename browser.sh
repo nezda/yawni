@@ -23,7 +23,8 @@ MVN_REPO=$HOME/.m2/repository/
 CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-browser/$VERSION/yawni-browser-$VERSION.jar
 #CLASSPATH=$CLASSPATH:$MVN_REPO/org/yawni/wn/yawni-data/$VERSION/yawni-data-$VERSION.jar
 # outter parens make this a Bash array of space separated elements
-JVM_ARGS=(-Xdock:name="Yawni Browser" -Dlog4j.configuration=org/yawni/wn/log4j.properties)
+JVM_ARGS=(-Xdock:name="Yawni Browser")
+#JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wn/log4j.properties)
 JVM_ARGS+=(-Dfile.encoding=UTF-8)
 #JVM_ARGS+=(-Dfile.encoding=US-ASCII)
 #JVM_ARGS+=(-Dlog4j.debug)
