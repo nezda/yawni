@@ -42,7 +42,7 @@ public class Utils {
    * at {@code l1s} and {@code l2} starting at {@code l2s}) are <u>first</u>
    * not {@code equals()} or {@code l1e} if no such offset exists.
    * 
-   * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/mismtatch.html">mismatch</a>,
+   * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/mismatch.html">mismatch</a>,
    * but assumes "random access iterators".
    */
   public static int mismatch(final List<?> l1, int l1s, final int l1e,
