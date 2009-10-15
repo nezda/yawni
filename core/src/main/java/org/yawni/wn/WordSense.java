@@ -154,7 +154,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * <p> Note that this value often varies across WordNet versions.
    * For those senses which never occured in sense tagged corpora, it is
    * arbitrarily chosen.
-   * @see <a href="http://wordnet.princeton.edu/man/cntlist.5WN#toc4">'NOTES' in cntlist WordNet documentation</a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html#toc4">'NOTES' in cntlist WordNet documentation</a>
    */
   public int getSenseNumber() {
     if (senseNumber < 1) {
@@ -189,8 +189,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt><br>
-   * @see <a href="http://wordnet.princeton.edu/man/senseidx.5WN#sect3">senseidx WordNet documentation</a>
+   * Build 'sensekey'; .  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3">http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3</a>
    */
   //TODO cache this ? does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
   // power users might be into this: https://sourceforge.net/tracker/index.php?func=detail&aid=2009619&group_id=33824&atid=409470
@@ -285,7 +285,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * <a href="http://wordnet.princeton.edu/man/cntlist.5WN.html"><tt>cntlist</tt></a>
+   * <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html"><tt>cntlist</tt></a>
    */
   public int getSensesTaggedFrequency() {
     if (sensesTaggedFrequency < 0) {
@@ -387,7 +387,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * <p> Official WordNet 3.0 documentation indicates "specific" and generic frames
    * are mutually exclusive which is not the case.
    *
-   * @see <a href="http://wordnet.princeton.edu/man/wndb.5WN#sect6">http://wordnet.princeton.edu/man/wndb.5WN#sect6</a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wndb.5WN.html#sect6">http://wordnet.princeton.edu/wordnet/man/wndb.5WN.html#sect6</a>
    */
   public List<String> getVerbFrames() {
     if (getPOS() != POS.VERB) {
