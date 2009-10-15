@@ -55,7 +55,7 @@ public interface DictionaryDatabase {
    * @param someString
    * @param pos The part-of-speech.
    * @return baseform(s) of {@code someString}
-   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN">http://wordnet.princeton.edu/man/morphy.7WN</a>
+   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
    */
   public List<String> lookupBaseForms(final String someString, final POS pos);
 
@@ -81,7 +81,7 @@ public interface DictionaryDatabase {
    * @param substring The substring to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
-   * @see <a href="http://wordnet.princeton.edu/man/wn.1WN"><code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html"><code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
    */
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
 
