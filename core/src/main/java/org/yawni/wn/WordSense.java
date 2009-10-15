@@ -189,7 +189,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * Build 'sensekey'; .  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>
+   * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3">http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3</a>
    */
   //TODO cache this ? does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
