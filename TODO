@@ -25,8 +25,8 @@ Bugs and Features
       - gui:
 
 Yawni Subprojects
-- core
-- data
++ core
++ data
   - should there be 1 per WN version? (..., 2.1, 3.0, ..., etc.)
 - browser
   - depends on core
@@ -84,10 +84,13 @@ Release TODOs
    -connects satellite adjectives to their head and vice-versa
 
 - issues
+  - bug: core: do no depend on default platform encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
+  + bug: gui: factor into new browser subproject
+  < feature: start "new browser" remote branch -- JSplitPane-based, maybe LGPL dependencies
   - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux
   - bug: gui: OS X search field (x) no longer works
-  - feature: core: tolerate not having index.<POS> files (i.e., only data.<POS> files) to allow
-    lightweight stemmer
+  ~ feature: core: tolerate not having data.<POS> files (i.e., only index.<POS> files) to allow use as a resource-light, data driven stemmer
+    - this may "just work"
   - feature: gui: OS X using reflectin, ala OSXAdapter, override handleQuit(), handleAbout()
   - bug: gui: substring search keyboard focus skips Substring/Prefix radio button group
   ~ bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other
@@ -125,7 +128,7 @@ Release TODOs
     - 1 instance of VERB_GROUP ("bear"2/14)
   - bug: several relation types don't render correctly/informatively in the browser (e.g., VERB_GROUP)
     - VERB_GROUP (example "turn")
-  - bug: search for "LN added"'s?
+  - bug: search for "LN added"'s
 
 - feature: doc: highlight WordNetLexicalComparator and describe where you might use it
 - feature: core: consider GetLemma interface
@@ -137,22 +140,29 @@ Release TODOs
   - bug: test: searching examples (findRelationships() from JWNL)
   - bug: test: add torture test outlined in Searcher (resursive parents / children)
 - feature: core: add expert query modes: attempt to integrate these without adding more API cruft (e.g., little language / "magic" strings ?)
+  * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just
+    add a bunch of overloaded methods or some kind of visitor
   - (was feature: type/property search / filter)
   - go for modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
-  <sensekey>
-  <POS>#<synset>
-  <prefix>
-  <regex>
-  <lexname>
-  <AdjPosition>
-  <RelationType>
-  <random POS/Word/WordSense/Synset> ?
-    - good for unit tests and performance tests
-  <glossSubstring>
-    - gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (ie use Lucene)
-  <suffix>
+  <POS>#<synset_offset> Synset
+  <sensekey> -> WordSense
+
+  <prefix> Iterable<Word>
+  <suffix> Iterable<Word>
+  <regex> Iterable<Word>
   <glob>
     - glob-style regexes (e.g., "*" means ".*", "p*za")
+      http://jakarta.apache.org/oro/api/org/apache/oro/text/GlobCompiler.html
+      http://stackoverflow.com/questions/1247772/is-there-an-equivalent-of-java-util-regex-for-glob-type-patterns
+
+  <lexname> Iterable<WordSense>
+  <AdjPosition> Iterable<WordSense>
+  <RelationType> Iterable<Relation>
+  <glossSubstring> Iterable<Synset>
+    - gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (ie use Lucene)
+
+  <random POS/Word/WordSense/Synset>
+    - good for unit tests and performance tests
   * many of these are just filters which require exhaustive iteration
     - these only make sense in substring search than (since its not stemmed)
 - feature: core: design a useful Visitor API and implement it with TreeIterator
@@ -264,6 +274,7 @@ x feature: howto for developing in NetBeans ?
       [furculum, furcula] NOUN - backwards in exc file  
     - also seems to happen for [cathar, cathari, Cathari] NOUN
     * looked like multi-stemming bug (N wounds -> N wound -> N wind)
+    ? are these issues all related to exceptions ?
   - bug: core: noisy, scary logging in lookupSynsets()
 + feature: core: T[] -> List<T> API improvement - use NetBeans to do this
   - key here is ImmutableList<T>
@@ -389,7 +400,10 @@ x feature: howto for developing in NetBeans ?
     - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
     ? where would this be used ? getindex() impl ?
   ~ feature: core: getindex() impl
-    * These heuristics should be optional (config param or method param?)
+    - convert from BigInteger to more efficient int
+    - limit extremely unlikely combos (e.g., 2+ dashes)
+      - maybe multi-word getindex() logic doesn't make as much sense for non-NOUNs
+    - make these heuristics optional (config param or method param?)
     * Goal: These heuristics should be strict enough to not make stupid mistakes ("I ran" -> "Iran", "be an" -> bean")
       and loose enough to catch most reasonable variants ("wild goose chase" == "wild-goose chase",
       "wide-screen" == "widescreen")
@@ -714,7 +728,7 @@ x feature: howto for developing in NetBeans ?
 + bug: make line ends native in files and svn
 ~ feature: work on Morphy
   * add exact match in 1 spot
-  - simplify various parallel arrays
+  - simplify various parallel arrays (SUFX, ADDR, OFFSETS, CNTS)
   - see getindex() feature
   - NEW fancy search options
     - properly stem / find prefix variants
@@ -737,7 +751,7 @@ x feature: howto for developing in NetBeans ?
   ? will this filename remain the same ?
 - bug: core: how come Doomsday and Utopian came up as case ambiguous, but Moon, moon didn't ?
 
-- feature: doc: Measure memory requirements
+- feature: doc: measure memory requirements
   - write program to generate report of each lexeme and relation
   - estimate this value -- outline has many of the details
   ? is there a tool to do this ?
@@ -790,7 +804,7 @@ WordNet features (unexposed)
 Performance
 + bug: cache null values!!!
   - complete ?
-- feature: core: convert over to CharSequence and consider using ByteCharBuffer
+< feature: core: convert over to CharSequence and consider using ByteCharBuffer
   - eliminates a lot of immediately discarded String objects
   - eliminates backing char[] storage reqs of longer lived Strings
 - feature: core: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to chop the memory requirements in half for these large strings.
