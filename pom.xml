@@ -71,6 +71,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>core</module>
+    <module>browser</module>
     <!-- no need to build this everytime -->
     <!-- <module>data</module> -->
   </modules>
