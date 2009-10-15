@@ -34,7 +34,7 @@ import static org.yawni.wn.RelationTypeFlag.*;
  *
  * <p> Note this class used to be called {@code PointerType}.
  *
- * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN#sect4>http://wordnet.princeton.edu/man/wnsearch.3WN#sect4</a>
+ * @see <a href="http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4">http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4</a>
  * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
  * @see Relation
  * @see POS
