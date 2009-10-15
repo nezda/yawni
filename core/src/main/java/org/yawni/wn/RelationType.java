@@ -119,8 +119,15 @@ public enum RelationType {
   MEMBER_OF_REGION_DOMAIN("Member of REGION domain", "-r", 37, N),
 
   // Adjectives
-  
-  SIMILAR_TO("similar to", "&", 5, ADJ),
+  /** 
+   * Connects adjective 'head' sense and its 'satellite' senses which
+   * are similar in meaning to it (usually specializations).  Only the 'head sense'
+   * has a 'direct antonym', and the 'satellite' senses have 'indirect
+   * antonyms' through it.
+   * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect3">http://wordnet.princeton.edu/man/wngloss.7WN.html#sect3</a>
+   * @see POS#SAT_ADJ
+   */
+  SIMILAR_TO("similar to", "&", 5, ADJ | LEXICAL),
   /** adjective derived from a verb. */
   PARTICIPLE_OF("participle of", "<", 15, ADJ | LEXICAL),
   /** "a relational adjective." aka "pertains to noun (or another pertainym)".  do not have antonyms */
