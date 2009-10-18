@@ -14,28 +14,35 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.util;
+package org.yawni.util.cache;
 
+import org.yawni.util.cache.Cache;
 import java.util.*;
 
 /**
- * A {@link Cache} of unbounded capacity.  Use this at your own risk ({@link OutOfMemoryError}).
+ * A {@link Cache} of unbounded capacity.  <b>Use this at your own risk; expect {@link OutOfMemoryError}</b>.
  */
-public class UnboundedCache<K, V> extends HashMap<K, V> implements Cache<K, V> {
+public class UnboundedCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
+  
+  private final Map<K, V> backingMap;
 
-  @Override
-  public synchronized V put(K key, V value) {
-    return super.put(key, value);
+  public UnboundedCache(final int initialCapacity) {
+    this.backingMap = new HashMap<K, V>(initialCapacity);
   }
 
   @Override
-  public synchronized V get(Object key) {
-    return super.get(key);
+  public synchronized V put(K key, V value) {
+    return backingMap.put(key, value);
+  }
+
+  @Override
+  public synchronized V get(K key) {
+    return backingMap.get(key);
   }
 
   @Override
   public synchronized void clear() {
-    super.clear();
+    backingMap.clear();
   }
 }

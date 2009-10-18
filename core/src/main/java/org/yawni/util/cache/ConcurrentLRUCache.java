@@ -1,6 +1,4 @@
 /*
- *  Copyright (C) 2007 Google Inc.
- *
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
  *  this work for additional information regarding copyright ownership.
@@ -16,45 +14,44 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.util;
+package org.yawni.util.cache;
 
-import java.util.*;
-import java.util.concurrent.*;
+import org.yawni.util.*;
+import org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy;
+import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
 
 /**
- * A fixed-capacity <code>Cache</code> that stores the {@code n} values associate
- * with the {@code n} most recently accessed keys.  Backed by an {@link ConcurrentMap}.
- * FIXME currently totally broken and incomplete
+ * A fixed-capacity {@code Cache} that stores the {@code n} values associate
+ * with the {@code n} most recently accessed keys.
  */
-public class ConcurrentLRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
+public class ConcurrentLRUCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
-  private final ConcurrentHashMap<K, V> backingMap;
+  private final ConcurrentLinkedHashMap<K, V> backingMap;
   protected final int capacity;
+
+  public ConcurrentLRUCache(final int capacity, final EvictionPolicy evictionPolicy) {
+    this.capacity = capacity;
+    this.backingMap = ConcurrentLinkedHashMap.create(evictionPolicy, capacity);
+  }
 
   public ConcurrentLRUCache(final int capacity) {
     this.capacity = capacity;
-    this.backingMap = new ConcurrentHashMap<K, V>();
+    this.backingMap = ConcurrentLinkedHashMap.create(FIFO, capacity);
   }
 
   @Override
   public V put(K key, V value) {
-    return super.put(key, value);
+    return backingMap.put(key, value);
   }
 
   @Override
-  public V get(Object key) {
-    return super.get(key);
+  public V get(K key) {
+    return backingMap.get(key);
   }
 
   @Override
   public void clear() {
-    super.clear();
-  }
-
-  @Override
-  protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-    // Return true to cause the oldest elm to be removed
-    return size() > capacity;
+    backingMap.clear();
   }
 }

@@ -14,27 +14,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.util;
+package org.yawni.util.cache;
 
+import org.yawni.util.cache.Cache;
 import java.util.*;
 
 /**
- * A fixed-capacity <code>Cache</code> that stores the {@code n} values associate
+ * A fixed-capacity {@code Cache} that stores the {@code n} values associated
  * with the {@code n} most recently accessed keys.
+ * All methods are thread-safe by brute-force synchronization.
  */
-public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
+public class LRUCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private static final float DEFAULT_LOAD_FACTOR = 0.75f;
   private static final boolean accessOrder = true; // means access-order (LRU)
-  //private static final boolean accessOrder = false; // means insertion-order
+  //private static final boolean accessOrder = false; // means insertion-order (FIFO)
 
+  private final LinkedHashMap<K, V> backingMap;
   protected final int capacity;
 
   public LRUCache(final int capacity) {
-    super(capacity /* initial capacity */,
+    this.backingMap = new LinkedHashMap<K, V>(capacity /* initial capacity */,
         DEFAULT_LOAD_FACTOR,
-        accessOrder);
+        accessOrder) {
+      @Override
+      protected boolean removeEldestEntry(final Map.Entry<K, V> eldest) {
+        // Return true to cause the oldest elm to be removed
+        return size() > capacity;
+      }
+    };
     // actual capacity (ie max size)
     this.capacity = capacity;
   }
@@ -43,22 +52,16 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> implements Cache<K, V> {
   public synchronized V put(final K key, final V value) {
     //to disable for testing uncomment this
     //if(true) { return null; }
-    return super.put(key, value);
+    return backingMap.put(key, value);
   }
 
   @Override
-  public synchronized V get(final Object key) {
-    return super.get(key);
+  public synchronized V get(final K key) {
+    return backingMap.get(key);
   }
 
   @Override
   public synchronized void clear() {
-    super.clear();
-  }
-
-  @Override
-  protected boolean removeEldestEntry(final Map.Entry<K, V> eldest) {
-    // Return true to cause the oldest elm to be removed
-    return size() > capacity;
+    backingMap.clear();
   }
 }
