@@ -60,8 +60,8 @@ public interface DictionaryDatabase {
   public List<String> lookupBaseForms(final String someString, final POS pos);
 
   /**
-   * Convenient combination of basic API methods {@code lookupBaseForms()}, {@code lookupWord()}
-   * and {@code Word.getSynsets()}.
+   * Convenient combination of basic API methods {@link #lookupBaseForms()}, {@link #lookupWord()}
+   * and {@link Word#getSynsets()}.
    * @param someString
    * @param pos The part-of-speech.
    * @return {@code Synset}(s) of {@code someString} in {@code pos}
