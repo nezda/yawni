@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.RandomAccess;
 
 /**
@@ -58,7 +59,7 @@ public class Utils {
 
   /**
    * Equivalent to the STL function by the same name except the
-   * <code>first</code> and <code>last</code> are implied to select the entire
+   * {@code first} and {@code last} are implied to select the entire
    * contents of {@code iterable}.
    * 
    * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/distance.html">distance</a>
@@ -84,7 +85,7 @@ public class Utils {
 
   /**
    * @param iterable generator of sequences to check for natural sortedness
-   * @return whether or not the naturally <code>Comparable</code> elements of
+   * @return whether or not the naturally {@code Comparable} elements of
    * sequences emitted by {@code iterable} are produced in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -94,9 +95,9 @@ public class Utils {
 
   /**
    * @param iterable generator of sequences to check for natural sortedness
-   * @param infoException if <code>true</code>, throw informative <code>RuntimeException</code>
+   * @param infoException if {@code true}, throw informative {@code RuntimeException}
    * if {@code iterable} isn't sorted
-   * @return whether or not the naturally <code>Comparable</code> elements of
+   * @return whether or not the naturally {@code Comparable} elements of
    * sequences emitted by {@code iterable} are produced in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -106,7 +107,7 @@ public class Utils {
 
   /**
    * @param iterator sequence to check for natural sortedness
-   * @return whether or not the naturally <code>Comparable</code> elements of
+   * @return whether or not the naturally {@code Comparable} elements of
    * the sequence emitted by {@code iterator} are produced in sorted order.
    */
   public static <T extends Object & Comparable<? super T>>
@@ -116,9 +117,9 @@ public class Utils {
 
   /**
    * @param iterator sequence to check for natural sortedness
-   * @param infoException if <code>true</code>, throw informative <code>RuntimeException</code>
+   * @param infoException if {@code true}, throw informative {@code RuntimeException}
    * if {@code iterator} isn't sorted
-   * @return whether or not the naturally <code>Comparable</code> elements
+   * @return whether or not the naturally {@code Comparable} elements
    * emitted by {@code iterator} are produced in sorted order.
    * @throws IllegalArgumentException with informative message if {@code infoException}
    * and <em>not</em> sorted.
@@ -160,7 +161,7 @@ public class Utils {
 
 // erasure causes ambiguity
 //  /**
-//   * Note: relies on equals and hashCode to be correct.
+//   * Note: relies on equals and hashCode being correct.
 //   */
 //  public static <T> boolean isUnique(final Collection<T> items) {
 //    return isUnique(items, UniqueMode.EQUALS);
@@ -191,13 +192,13 @@ public class Utils {
   /**
    *TODO
    * Make versions of isSorted (IsSorted) and isUnique (IsUnique) that are
-   * <code>Iterator</code>/<code>Iterable</code> decorators which pass their type-signature through.  They should
+   * {@code Iterator}/{@code Iterable} decorators which pass their type-signature through.  They should
    * do nothing but verify that their constraint is met and throw an informative
-   * <code>RuntimeException</code> if it is not.
+   * {@code RuntimeException} if it is not.
    * IsUnique can optionally <i>make</i> a sorted sequence unique.
-   * IsUnique should be able to make its decision based on <code>equals()</code> or <code>compareTo() == 0</code>
+   * IsUnique should be able to make its decision based on {@code equals()} or {@code compareTo() == 0}
    * although there could be discontinuous violations that it can't detect with exotic/wrong
-   * <code>Comparable</code>/<code>Comparator</code>s -- add an enum.
+   * {@code Comparable}/{@code Comparator}s -- add an enum.
    */
 
   /**
