@@ -16,12 +16,12 @@
  */
 package org.yawni.wn;
 
+import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
 import static org.yawni.util.Utils.uniq;
-import org.yawni.util.Cache;
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
-import org.yawni.util.LRUCache;
+import org.yawni.util.cache.LRUCache;
 import org.yawni.util.LookAheadIterator;
 import org.yawni.util.MultiLevelIterable;
 import org.yawni.util.MutatedIterable;
@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.yawni.util.cache.Caches;
 
 /** 
  * A {@code DictionaryDatabase} that retrieves objects from the text files in the WordNet distribution
@@ -136,8 +137,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   // Entity lookup caching
   //
   final int DEFAULT_CACHE_CAPACITY = 10000;//100000;
-  private Cache<DatabaseKey, Object> synsetCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
-  private Cache<DatabaseKey, Object> indexWordCache = new LRUCache<DatabaseKey, Object>(DEFAULT_CACHE_CAPACITY);
+  private final Cache<DatabaseKey, Object> synsetCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
+  private final Cache<DatabaseKey, Object> indexWordCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
 
   static interface DatabaseKey {
     @Override public int hashCode();
@@ -199,12 +200,13 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   //
   private static final Map<POS, String> POS_TO_FILENAME_ROOT;
   static {
-    POS_TO_FILENAME_ROOT = new EnumMap<POS, String>(POS.class);
-    POS_TO_FILENAME_ROOT.put(POS.NOUN, "noun");
-    POS_TO_FILENAME_ROOT.put(POS.VERB, "verb");
-    POS_TO_FILENAME_ROOT.put(POS.ADJ, "adj");
-    POS_TO_FILENAME_ROOT.put(POS.SAT_ADJ, "adj");
-    POS_TO_FILENAME_ROOT.put(POS.ADV, "adv");
+    POS_TO_FILENAME_ROOT = new EnumMap<POS, String>(POS.class) {{
+      put(POS.NOUN, "noun");
+      put(POS.VERB, "verb");
+      put(POS.ADJ, "adj");
+      put(POS.SAT_ADJ, "adj");
+      put(POS.ADV, "adv");
+    }};
   }
 
   /** NOTE: Called at most once per POS */
