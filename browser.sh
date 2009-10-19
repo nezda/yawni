@@ -26,6 +26,9 @@ CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-browser/$VERSION/yawni-browser-$VERSION.j
 JVM_ARGS=(-Xdock:name="Yawni Browser")
 #JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wn/log4j.properties)
 JVM_ARGS+=(-Dfile.encoding=UTF-8)
+JVM_ARGS+=(-d32)
+# need lots RAM for huge searches (e.g., all hyponyms of "person")
+#JVM_ARGS+=(-Xmx96m)
 #JVM_ARGS+=(-Dfile.encoding=US-ASCII)
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
