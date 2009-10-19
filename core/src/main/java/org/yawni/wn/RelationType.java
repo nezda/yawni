@@ -16,8 +16,10 @@
  */
 package org.yawni.wn;
 
-import java.util.*;
-
+import java.util.EnumSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import org.yawni.util.ImmutableList;
 import static org.yawni.wn.RelationTypeFlag.*;
 
@@ -127,7 +129,7 @@ public enum RelationType {
    * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect3">http://wordnet.princeton.edu/man/wngloss.7WN.html#sect3</a>
    * @see POS#SAT_ADJ
    */
-  SIMILAR_TO("similar to", "&", 5, ADJ | LEXICAL),
+  SIMILAR_TO("similar to", "&", 5, ADJ),
   /** adjective derived from a verb. */
   PARTICIPLE_OF("participle of", "<", 15, ADJ | LEXICAL),
   /** "a relational adjective." aka "pertains to noun (or another pertainym)".  do not have antonyms */
@@ -294,9 +296,9 @@ public enum RelationType {
      * e.g., { Bill Clinton } (* the Synset) --instance hypernym--> { President of the United States }
      * which in turn has (normal) hypernyms
      */
-//    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
-//    INSTANCE_HYPERNYM.superTypes = ImmutableList.of(HYPERNYM);
-    INSTANCE_HYPERNYM.subTypes = ImmutableList.of(HYPERNYM);
+    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
+    INSTANCE_HYPERNYM.superTypes = ImmutableList.of(HYPERNYM);
+//    INSTANCE_HYPERNYM.subTypes = ImmutableList.of(HYPERNYM);
     /**
      * e.g., { President of the United States } (* the Synset) --instance hyponyms--> ({ Bill Clinton }, ...) AND
      * (normal) hyponyms ({ chief of state }, ...).  Note that while { President of the United States } also
