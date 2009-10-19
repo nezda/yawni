@@ -80,5 +80,12 @@ public class DictionaryDatabaseTest {
       System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
     }
     //System.err.println(str+": "+Arrays.toString(syns));
+    syns = dictionary.lookupSynsets("compromise", POS.ALL);
+    assertTrue(isUnique(syns));
+    assertEquals(5, syns.size());
+  }
+
+  private static <T> boolean isUnique(final Collection<T> items) {
+    return items.size() == new HashSet<T>(items).size();
   }
 }
