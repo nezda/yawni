@@ -417,9 +417,19 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public List<Synset> lookupSynsets(final String someString, final POS pos) {
+    if (pos == POS.ALL) {
+      return ImmutableList.copyOf(uniq(merge(
+        lookupSynsets(someString, POS.NOUN),
+        lookupSynsets(someString, POS.VERB),
+        lookupSynsets(someString, POS.ADJ),
+        lookupSynsets(someString, POS.ADV))));
+    } else {
+      return doLookupSynsets(someString, pos);
+    }
+  }
+
+  private List<Synset> doLookupSynsets(final String someString, final POS pos) {
     checkValidPOS(pos);
-    // TODO support POS.ALL - NOTE: don't modify morphs directly as this
-    // will damage the Morphy cache
     final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
     if (morphs.isEmpty()) {
       return ImmutableList.of();
@@ -451,11 +461,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return ImmutableList.copyOf(syns);
   }
 
-  private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = new LRUCache<DatabaseKey, ImmutableList<String>>(DEFAULT_CACHE_CAPACITY);
+  private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
 
   /**
-   * <i>looks up</i> word in the appropriate <i>exc</i>eptions file for the given {@code pos}.
-   * The exception list files, <tt>pos</tt>.<i>exc</i> , are used to help the morphological
+   * <em>looks up</em> word in the appropriate <em>exc</em>eptions file for the given {@code pos}.
+   * The exception list files, <tt>pos</tt>.<em>exc</em> , are used to help the morphological
    * processor find base forms from irregular inflections.  <b>NOTE: Skip the
    * first entry (the exceptional word itself!)</b>
    * Port of {@code morph.c exc_lookup()}
