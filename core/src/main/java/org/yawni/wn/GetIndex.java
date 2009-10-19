@@ -17,12 +17,13 @@
 package org.yawni.wn;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * Function object port of <code>getindex()</code> search variants function
- * in <code>search.c</code>.
- * TODO implement ListIterator<CharSequence>, ListIterator<Word>
+ * Function object port of {@code getindex()} search variants function
+ * in {@code search.c}.
+ * TODO implement {@code ListIterator<CharSequence>, ListIterator<Word>}
  */
 // general plan
 // * offset is the step we're in in the set of transformations to undergo
@@ -174,7 +175,7 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
    * </ul>
    * ??? Typically this operates on the output(s) of <code>morphstr()</code>.
    *
-   * <p>Port of <code>search.c</code>'s function <code>getindex()</code> function.
+   * <p>Port of {@code search.c}'s function {@code getindex()} function.
    *
    * TODO
    * - add periods to all upper searchstr's
