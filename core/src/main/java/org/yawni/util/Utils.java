@@ -343,4 +343,18 @@ public class Utils {
       return list.get(list.size() - 1);
     }
   }
+
+  /**
+   * Lazy initialization idiom for adding non-null {@code item} to
+   * list, creating list if it is {@code null}.
+   */
+  public static <T> List<T> add(List<T> list, final T item) {
+    if (item != null) {
+      if (list == null) {
+        list = new ArrayList<T>();
+      }
+      list.add(item);
+    }
+    return list;
+  }
 }
