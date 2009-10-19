@@ -18,12 +18,12 @@ package org.yawni.wn;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.ImmutableList;
+import static org.yawni.util.Utils.add;
 
 /**
  * A {@code Synset}, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <code>data.<em>pos</em></code> file.
@@ -288,11 +288,16 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     // if current type exists, search it
     // if subTypes exist, search them
     for (final Relation relation : relations) {
-      if (relation.getType() == type) {
-        if (list == null) {
-          list = new ArrayList<Relation>();
-        }
-        list.add(relation);
+      if (type == RelationType.HYPONYM &&
+        (relation.getType() == RelationType.HYPONYM ||
+				 relation.getType() == RelationType.INSTANCE_HYPONYM)) {
+        list = add(list, relation);
+      } else if (type == RelationType.HYPERNYM &&
+        (relation.getType() == RelationType.HYPERNYM||
+				 relation.getType() == RelationType.INSTANCE_HYPERNYM)) {
+        list = add(list, relation);
+      } else if (relation.getType() == type) {
+        list = add(list, relation);
       }
     }
     // if list == null && type has auxType, recall this method with that auxtype
@@ -321,11 +326,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     for (final Relation relation : relations) {
       if ((type == null || relation.getType() == type) &&
         relation.getSource().equals(this)) {
-        if (list == null) {
-          list = new ArrayList<SemanticRelation>();
-        }
         final SemanticRelation semanticRelation = (SemanticRelation) relation;
-        list.add(semanticRelation);
+        list = add(list, semanticRelation);
       }
     }
     if (list == null) {
