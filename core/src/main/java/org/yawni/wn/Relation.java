@@ -19,7 +19,7 @@ package org.yawni.wn;
 import org.yawni.util.CharSequenceTokenizer;
 
 /**
- * A <code>Relation</code> encodes a lexical <em>or</em> semantic relationship between WordNet entities.  A lexical
+ * A {@code Relation} encodes a lexical <em>or</em> semantic relationship between WordNet entities.  A lexical
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
  * Relationships are <em>directional</em>:  the two roles of a relationship are the <em>source</em> and <em>target</em>.
  * Relationships are <em>typed</em>: the type of a relationship is a {@link RelationType}, and can
