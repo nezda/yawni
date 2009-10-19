@@ -43,7 +43,7 @@ import java.util.Map;
  * of these methods would necessitate.
  *
  * <p> Instances of this class are guarded.  All operations are read-only, but
- * are synchronized per file to maintain state including the file pointers's
+ * are synchronized per file to maintain state including the file pointers'
  * position.
  */
 public final class FileManager implements FileManagerInterface {
