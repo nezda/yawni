@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
+import static org.yawni.util.Utils.add;
 
 /**
  * A {@code WordSense} represents the precise lexical information related to a specific sense of a {@link Word}.
@@ -512,11 +513,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
         continue;
       }
       assert relation.getSource() == this;
-      if (list == null) {
-        list = new ArrayList<LexicalRelation>();
-      }
       final LexicalRelation lexicalRelation = (LexicalRelation) relation;
-      list.add(lexicalRelation);
+      list = add(list, lexicalRelation);
     }
     if (list == null) {
       return ImmutableList.of();
