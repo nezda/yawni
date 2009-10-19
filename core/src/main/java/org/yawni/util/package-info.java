@@ -18,4 +18,3 @@
  * Utility classes containing general data structures and algorithms used throughout Yawni.
  */
 package org.yawni.util;
-
