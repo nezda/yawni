@@ -17,12 +17,17 @@
 
 package org.yawni.wn;
 
+import org.yawni.util.cache.Cache;
 import java.text.Normalizer.Form;
-import java.util.*;
-import java.util.regex.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yawni.util.*;
+import org.yawni.util.ImmutableList;
+import org.yawni.util.cache.Caches;
+import org.yawni.util.CharSequenceTokenizer;
+import org.yawni.util.Utils;
 import org.yawni.wn.FileBackedDictionary.DatabaseKey;
 
 /**
@@ -93,10 +98,9 @@ class Morphy {
 
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
-    //this.morphyCache = new LRUCache<DatabaseKey, List<String>>(dictionary.DEFAULT_CACHE_CAPACITY);
     // 0 capacity is for performance debugging
     final int morphyCacheCapacity = dictionary.DEFAULT_CACHE_CAPACITY;
-    this.morphyCache = new LRUCache<DatabaseKey, ImmutableList<String>>(morphyCacheCapacity);
+    this.morphyCache = Caches.withCapacity(morphyCacheCapacity);
   }
 
   private static final Pattern MULTI_WHITESPACE = Pattern.compile("\\s+");
