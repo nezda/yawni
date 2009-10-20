@@ -38,7 +38,7 @@ Changes in 2.x versions
 - Implemented Morphy stemming algorithms
 - Completely rewritten GUI browser in Java Swing featuring
   - Incremental find
-  - No limits on search
+  - No limits on search (Never see "Search too large.  Narrow search and try again..." again)
 - Support for WordNet 3.0 data files (and all older formats)
 - Supports reading data files from JAR file
 - Many bug fixes
