@@ -16,6 +16,7 @@
  */
 package org.yawni.wn;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,18 @@ public class SynsetTest {
   @BeforeClass
   public static void init() {
     dictionary = FileBackedDictionary.getInstance();
+  }
+
+  @Test
+  public void testSomeGlosses() {
+    System.err.println("testSomeGlosses");
+    final WordSense sentence = dictionary.lookupWord("sentence", POS.NOUN).getSense(1);
+    final String sentenceGloss = "a string of words satisfying the grammatical rules of a language; \"he always spoke in grammatical sentences\"";
+    assertEquals(sentenceGloss, sentence.getSynset().getGloss());
+
+    final WordSense lexeme = dictionary.lookupWord("lexeme", POS.NOUN).getSense(1);
+    final String lexemeGloss = "a minimal unit (as a word or stem) in the lexicon of a language; `go' and `went' and `gone' and `going' are all members of the English lexeme `go'";
+    assertEquals(lexemeGloss, lexeme.getSynset().getGloss());
   }
 
   @Test
@@ -73,6 +86,9 @@ public class SynsetTest {
     assertTrue(beautiful1.getTargets(RelationType.ANTONYM).contains(ugly1));
     assertTrue(ugly1.getTargets(RelationType.ANTONYM).contains(beautiful1));
   }
+
+  // test SEE_ALSO
+  // ADJ"happy"#1 → {"cheerful", "contented", "content", "glad", "elated", "euphoric", "felicitous", "joyful", "joyous"}
 
   @Test
   public void testPertainym() {
@@ -175,6 +191,38 @@ public class SynsetTest {
   }
 
   @Test
+  public void testVerbGroup() {
+    System.err.println("testVerbGroup");
+    // verb turn#1 groups with turn#4 and turn#19
+    final Word word = dictionary.lookupWord("turn", POS.VERB);
+    System.err.println(word);
+    final WordSense s1 = word.getSense(1);
+    System.err.println("  "+s1);
+    RelationTarget syn1 = s1.getSynset();
+    System.err.println("  "+syn1);
+    // VERB_GROUP targets form a chain/tree: syn1 → {syn2}, syn2 → {syn3, syn4}, ...
+    // - gather these recursively
+    final List<RelationTarget> g1 = new ArrayList<RelationTarget>();
+    gather(syn1, RelationType.VERB_GROUP, g1);
+    System.err.println("g1: "+g1);
+    // most efficient way of enumerating verb groups:
+    // - start with full set of Synset for given Word
+    // - take 1st Synset,
+    //   - follow VERB_GROUP pointers (? assert all targets in full set ?)
+    //     - create Map<Synset, Set<Synset>> where value sets are shared
+  }
+
+  private static void gather(final RelationTarget source, final RelationType type, final List<RelationTarget> accum) {
+    for (final RelationTarget target : source.getTargets(type)) {
+      if (accum.contains(target)) {
+        continue;
+      }
+      accum.add(target);
+      gather(target, type, accum);
+    }
+  }
+
+  @Test
   public void testLexicalRelations() {
     System.err.println("testLexicalRelations");
     final Set<RelationType> expectedLexicalRelations = EnumSet.noneOf(RelationType.class);
@@ -218,9 +266,6 @@ public class SynsetTest {
   public void testSemanticRelations() {
     System.err.println("testSemanticRelations");
     for (final Synset synset : dictionary.synsets(POS.ALL)) {
-      //if (synset.getPOS() == POS.ADJ) {
-      //  continue;
-      //}
       for (final SemanticRelation relation : synset.getSemanticRelations(null)) {
         assertTrue(relation.isSemantic());
         assertTrue("! isSemantic(): "+relation, relation.getType().isSemantic());
