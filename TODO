@@ -83,8 +83,30 @@ Release TODOs
   adj SIMILAR_TO
    -connects satellite adjectives to their head and vice-versa
 
+- what clever things could I do with JavaScript integration ?
+  - probably want some little higher-level accessors ?
+    - add a debug terminal
+      ? how would errors be reported ?
+    - maybe want some default includes
+  - if fast-boot be desirable, make FileManager.getFileStream() impl configurable ?
+
+- MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
+- Bloom anti-match filter
+  - get key
+  - if in filter
+      return empty result
+    if in cache
+      return cached
+    // do actual search
+    // if no result, add key to filter
+
+    * trick: filter has capacity which will be 
+
 - issues
-  - bug: core: do no depend on default platform encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
+  - bug: core: no meronyms for "capacity" ? (at least in GUI drop down)
+  + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand
+  - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
+  - bug: core: do not depend on default platform character encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
   + bug: gui: factor into new browser subproject
   < feature: start "new browser" remote branch -- JSplitPane-based, maybe LGPL dependencies
   - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux
@@ -93,8 +115,8 @@ Release TODOs
     - this may "just work"
   - feature: gui: OS X using reflectin, ala OSXAdapter, override handleQuit(), handleAbout()
   - bug: gui: substring search keyboard focus skips Substring/Prefix radio button group
-  ~ bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other
-    - how does OS X handle this? ideally they should be one in the same in tab ordering too
+  ~ bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other ∴ JDialog
+    Old English: 
     - this behavior is called a dialog ("modal" means the dialog must be dismissed before the main screen is available for use again)
       - Apple fail: JDialog doesn't respect brushedMetal !
       - JWindow respects brushedMetal, but has no native close controls
@@ -143,7 +165,20 @@ Release TODOs
   * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just
     add a bunch of overloaded methods or some kind of visitor
   - (was feature: type/property search / filter)
-  - go for modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
+  *** go for modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
+    - this only makes sense if it is part of existing query methods
+      public Word lookupWord(final CharSequence lemma, final POS pos);
+      //public String lookupBaseForm(final POS pos, final String derivationLemma);
+      public List<String> lookupBaseForms(final String someString, final POS pos);
+      public List<Synset> lookupSynsets(final String someString, final POS pos);
+      public Iterable<Word> words(final POS pos);
+      public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
+      public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
+      public Iterable<Synset> synsets(final POS pos);
+      public Iterable<WordSense> wordSenses(final POS pos);
+      public Iterable<Relation> relations(final POS pos);
+      public Iterable<Relation> relations(final RelationType relationType, final POS pos);
+    
   <POS>#<synset_offset> Synset
   <sensekey> -> WordSense
 
@@ -260,7 +295,7 @@ x feature: howto for developing in NetBeans ?
     source:trunk/examples/gcs.rb
 ~ feature: core: read data files from jar
   ? what test cases remain?
-  + use subproject to build this (data only 11MB zipped!)
+  + use subproject to build this (data only 8.6MBMB zipped!)
   + URL+ByteArrayInputStream CharStream implementation 
     + could create a ByteBuffer or a byte[] directly
     + load data files from InputStream(s) (from jar) (loading from web via web start would be sweet too)
@@ -321,9 +356,9 @@ x feature: howto for developing in NetBeans ?
 ~ feature: gui: make bullets look better 
   - list-style: url... .gif
   - anti-aliasing (doesn't fix size, but far less jaggy looking)
-~ feature: core: POS.ALL search support (esp for stems) - use Uniq to populate this
++ feature: core: POS.ALL search support (esp for stems) - use Uniq to populate this
   + lookupBaseForms()
-  - Synset[] lookupSynsets(POS pos, String someString)
+  + Synset[] lookupSynsets(POS pos, String someString)
   - (maybe) boolean isDefined(String)
 + feature: core: POS.ALL support for exhaustive DictionaryDatabase iteration methods 
   + words()
@@ -351,6 +386,9 @@ x feature: howto for developing in NetBeans ?
 
 - Core
   ~ feature: core: meta-pointers (e.g., Hypo/InstanceHypo)
+    ? can a node have hyponyms AND instance hyponyms (or hypernyms AND instance hypernyms) ?
+      - write test to look
+    - good example: full hyponyms of "person"
     - test cases:
       - "head of state" hyponyms should include "Bill Clinton"
         HYPONYM*, INSTANCE_HYPONYM
@@ -449,7 +487,14 @@ x feature: howto for developing in NetBeans ?
       - similar merged.tbz is only 20MB - nice win
       ? I wonder how lzo would do ? (nice and fast)
   < feature: reverse iteration
-  < feature: implement ConcurrentLRUCache - cleaning eldest entries is the hard part ?
+  - feature: implement ConcurrentLRUCache - cleaning eldest entries is the hard part ?
+    - open source alternatives include Ben Manes' ConcurrentLinkedHashMap and Google Collections / Guauva (MapMaker)
+    - file access is still synchronized: ThreadLocal file pointer would be best solution for this
+    - ThreadSafetyTest time with:
+      - LRUCache: about 35 seconds
+      - ConcurrentLRUCache (LRU): about 38-40 seconds
+      - ConcurrentLRUCache (): about XXX seconds
+      - UnboundedCache (): about ∞ seconds -- OutOfMemoryException
   < feature: GUI Maven target (and delete script) or use a local Java Web Start
   < feature: convert CharStream interface to long's (from int's) to support huge files
   < feature: gui: make JList scroll-rate accelerate ? I swear I worked on this for large result sets - maybe the difference is scrolling in terms of JScrollBar or content ?
@@ -809,8 +854,8 @@ Performance
   - eliminates backing char[] storage reqs of longer lived Strings
 - feature: core: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to chop the memory requirements in half for these large strings.
   - 16,557,481 letters (about 32 MB as char so about 16 MB as byte)
-- bug: core: use WeakReference's/ WeakReference[]
-  * Steele's original code referred to this (was not yet in JDK)
+- bug: core: use WeakReference's/ WeakReference[] (really I think SoftReference's/SoftReference[])
+  * Steele's original code referred to this (was not yet in JDK); see 
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
 < feature: look for synchronization / liveness opportunities
 < feature: make amount of file to mmap configurable
