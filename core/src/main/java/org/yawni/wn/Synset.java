@@ -49,9 +49,6 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   private final int offset;
   private final ImmutableList<WordSense> wordSenses;
   private final ImmutableList<Relation> relations;
-  //TODO make this a byte[] - not often accessed ?
-  //better still: store offset and length :)
-  private final char[] gloss;
   private final byte posOrdinal;
   private final byte lexfilenum;
   private final boolean isAdjectiveCluster;
@@ -132,34 +129,6 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
         }
       }
     }
-    // parse gloss
-//    final int index = line.indexOf('|');
-//    final int altIndex = line.indexOf('|', tokenizer.position());
-    final int index = line.indexOf('|', tokenizer.position());
-//    assert index == altIndex : "index: "+index+" altIndex: "+altIndex;
-    if (index > 0) {
-      // jump '|' and immediately following ' '
-      assert line.charAt(index + 1) == ' ';
-      int incEnd = line.length() - 1;
-      for (int i = incEnd; i >= 0; i--) {
-        if (Character.isSpace(line.charAt(i)) == false) {
-          incEnd = i;
-          break;
-        }
-      }
-      final int finalLen = (incEnd + 1) - (index + 2);
-      if (finalLen > 0) {
-        this.gloss = new char[finalLen];
-        assert gloss.length == finalLen : "gloss.length: "+gloss.length+" finalLen: "+finalLen;
-        line.getChars(index + 2, incEnd + 1, gloss, 0);
-      } else {
-        // synset with no gloss (support generated WordNets)
-        this.gloss = new char[0];
-      }
-    } else {
-      log.warn("Synset has no gloss?:\n{}", line);
-      this.gloss = null;
-    }
   }
 
   //
@@ -179,9 +148,9 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   }
 
   /**
-   * Provides access to the 'lexicographer category' of this <code>Synset</code>.  This
+   * Provides access to the 'lexicographer category' of this {@code Synset}.  This
    * is variously called the 'lexname' or 'supersense'.
-   * @return the <em>lexname</em> this <code>Synset</code> is a member of, e.g., "noun.quantity"
+   * @return the <em>lexname</em> this {@code Synset} is a member of, e.g., "noun.quantity"
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/lexnames.5WN.html">http://wordnet.princeton.edu/wordnet/man/lexnames.5WN.html</a>
    */
   public String getLexCategory() {
@@ -192,7 +161,30 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
    * Returns the "gloss", or definition of this synset, and optionally some sample sentences.
    */
   public String getGloss() {
-    return new String(gloss);
+    final String line = fileBackedDictionary.getSynsetLineAt(getPOS(), offset);
+    // parse gloss
+    final int index = line.indexOf('|');
+    if (index > 0) {
+      // jump '|' and immediately following ' '
+      assert line.charAt(index + 1) == ' ';
+      int incEnd = line.length() - 1;
+      for (int i = incEnd; i >= 0; i--) {
+        if (Character.isSpace(line.charAt(i)) == false) {
+          incEnd = i;
+          break;
+        }
+      }
+      final int finalLen = (incEnd + 1) - (index + 2);
+      if (finalLen > 0) {
+        return line.substring(index + 2, incEnd + 1);
+      } else {
+        // synset with no gloss (support generated WordNets)
+        return "";
+      }
+    } else {
+      log.warn("Synset has no gloss?:\n{}", line);
+      return "";
+    }
   }
 
   /**
@@ -203,8 +195,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   }
 
   /**
-   * If {@code word} is a member of this <code>Synset</code>, return the
-   * <code>WordSense</code> it implies, else return <code>null</code>.
+   * If {@code word} is a member of this {@code Synset}, return the
+   * {@code WordSense} it implies, else return {@code null}.
    */
   public WordSense getWordSense(final Word word) {
     for (final WordSense wordSense : wordSenses) {
