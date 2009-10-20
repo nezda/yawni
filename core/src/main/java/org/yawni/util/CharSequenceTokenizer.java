@@ -255,4 +255,8 @@ public final class CharSequenceTokenizer implements Iterator<CharSequence> {
     final int e = scanToTokenEnd();
     return parseLong(string, s, e, 10);
   }
+
+  public int position() {
+    return position;
+  }
 }
