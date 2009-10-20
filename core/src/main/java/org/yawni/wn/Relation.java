@@ -49,7 +49,7 @@ public class Relation implements Comparable<Relation> {
 
   /**
    * The index of this Relation within the array of Relation's in the source Synset.
-   * Used in <code>equals</code>.
+   * Used in {@code equals}.
    */
   private final int index;
   private final RelationTarget source;
