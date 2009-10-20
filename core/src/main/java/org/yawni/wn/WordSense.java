@@ -371,7 +371,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
 
   /**
    * <p> Returns illustrative sentences <em>and</em> generic verb frames.  This <b>only</b> has values
-   * for {@link POS#VERB} <code>WordSense</code>s.
+   * for {@link POS#VERB} {@code WordSense}s.
    *
    * <p> For illustrative sentences (<tt>sents.vrb</tt>), "%s" is replaced with the verb lemma
    * which seems unnecessarily ineficient since you have the WordSense anyway.
