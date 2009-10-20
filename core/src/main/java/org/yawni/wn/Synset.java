@@ -50,6 +50,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   private final ImmutableList<WordSense> wordSenses;
   private final ImmutableList<Relation> relations;
   //TODO make this a byte[] - not often accessed ?
+  //better still: store offset and length :)
   private final char[] gloss;
   private final byte posOrdinal;
   private final byte lexfilenum;
@@ -131,9 +132,11 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
         }
       }
     }
-
     // parse gloss
-    final int index = line.indexOf('|');
+//    final int index = line.indexOf('|');
+//    final int altIndex = line.indexOf('|', tokenizer.position());
+    final int index = line.indexOf('|', tokenizer.position());
+//    assert index == altIndex : "index: "+index+" altIndex: "+altIndex;
     if (index > 0) {
       // jump '|' and immediately following ' '
       assert line.charAt(index + 1) == ' ';
