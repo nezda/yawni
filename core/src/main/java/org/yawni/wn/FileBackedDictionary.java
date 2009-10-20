@@ -316,23 +316,27 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   static int getSynsetAtCacheHit = 0;
   static int weirdGetSynsetAtCacheMiss = 0;
 
+  String getSynsetLineAt(final POS pos, final int offset) {
+    final String line;
+    final String filename = getDataFilename(pos);
+    try {
+      line = fileManager.readLineAt(offset, filename);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return line;
+  }
+
   Synset getSynsetAt(final POS pos, final int offset, String line) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Synset synset = (Synset) synsetCache.get(cacheKey);
     if (synset != null) {
-      ++getSynsetAtCacheHit;
+      getSynsetAtCacheHit++;
       cacheDebug(synsetCache);
     } else {
-      ++getSynsetAtCacheMiss;
+      getSynsetAtCacheMiss++;
       cacheDebug(synsetCache);
-      if (line == null) {
-        final String filename = getDataFilename(pos);
-        try {
-          line = fileManager.readLineAt(offset, filename);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
+      line = getSynsetLineAt(pos, offset);
       synset = new Synset(line, this);
       synsetCache.put(cacheKey, synset);
     }
