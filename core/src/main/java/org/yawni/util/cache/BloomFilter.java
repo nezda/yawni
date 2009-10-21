@@ -222,6 +222,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @return      The flag's value.
    */
   private boolean getAt(final int index, final long[] words) {
+    //assert index >= 0 && index < bits;
     final int i = index / Long.SIZE;
     final int bitIndex = index % Long.SIZE;
     return (words[i] & (1L << bitIndex)) != 0;
@@ -235,6 +236,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @return      If updated.
    */
   private boolean setAt(final int index, final long[] words) {
+    //assert index >= 0 && index < bits;
     final int i = index / Long.SIZE;
     final int bitIndex = index % Long.SIZE;
     final long mask = (1L << bitIndex);
@@ -252,11 +254,12 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @return  The index to the bit.
    */
   private int[] indexes(Object o) {
-    // Double hashing allows calculating multiple index locations
     final int h = o.hashCode();
     final int[] indexes = new int[hashes];
     for (int i = 0; i < hashes; i++) {
       // each of the k hash functions' values will be used % bits
+      // each hash is formed by simply adding and i to the base
+      // hash h and hashing that sum
       indexes[i] = abs(hash(h + i)) % bits;
     }
     return indexes;
@@ -267,6 +270,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    */
   private int hash(int hashCode) {
     // Spread bits using variant of single-word Wang/Jenkins hash
+    //my limited testing shows it is pretty good
     // n: 1,000 falsePositives: 11 n/falsePositives: 0.0110
     hashCode += (hashCode << 15) ^ 0xffffcd7d;
     hashCode ^= (hashCode >>> 10);
@@ -275,6 +279,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
     hashCode += (hashCode << 2) + (hashCode << 14);
     return hashCode ^ (hashCode >>> 16);
 //    // copied from HashMap
+//    //my limited testing shows it inferior to above
 //    //n: 1,000 falsePositives: 90 n/falsePositives: 0.0900
 //    hashCode ^= (hashCode >>> 20) ^ (hashCode >>> 12);
 //    return hashCode ^ (hashCode >>> 7) ^ (hashCode >>> 4);
@@ -337,7 +342,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
       append("bits=").
       append(bits).
       append(", ").
-      append("bit-count=").
+      append("set-bit-count=").
       append(toBitCount(words)).
       append(", ").
       append("value=").
