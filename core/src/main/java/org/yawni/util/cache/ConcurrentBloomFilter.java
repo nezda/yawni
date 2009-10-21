@@ -58,7 +58,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author <a href="mailto:ben.manes@gmail.com">Ben Manes</a>
  */
-public final class BloomFilter<E> extends AbstractSet<E> {
+public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
   private final AtomicStampedReference<long[]> ref;
   private final float probability;
   private final int capacity;
@@ -75,7 +75,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @param capacity    The expected maximum number of elements to be inserted into the Bloom filter.
    * @param probability The acceptable false positive probability for membership queries.
    */
-  public BloomFilter(int capacity, float probability) {
+  public ConcurrentBloomFilter(int capacity, float probability) {
     if ((capacity <= 0) || (probability <= 0) || (probability >= 1)) {
       throw new IllegalArgumentException();
     }
@@ -300,10 +300,10 @@ public final class BloomFilter<E> extends AbstractSet<E> {
   public boolean equals(Object o) {
     if (o == this) {
       return true;
-    } else if (!(o instanceof BloomFilter<?>)) {
+    } else if (!(o instanceof ConcurrentBloomFilter<?>)) {
       return false;
     }
-    BloomFilter<?> filter = (BloomFilter<?>) o;
+    ConcurrentBloomFilter<?> filter = (ConcurrentBloomFilter<?>) o;
     int[] size1 = new int[1];
     int[] size2 = new int[1];
     long[] words1 = ref.get(size1);
