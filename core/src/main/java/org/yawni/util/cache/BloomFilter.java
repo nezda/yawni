@@ -18,6 +18,7 @@
 // with last update Oct  04, 2009
 package org.yawni.util.cache;
 
+import java.math.BigInteger;
 import static java.lang.Long.bitCount;
 import static java.lang.Long.toBinaryString;
 import static java.lang.Math.abs;
@@ -174,15 +175,15 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * {@inheritDoc}
    */
   @Override
-  public boolean contains(Object o) {
-    int[] size = new int[1];
-    long[] words = ref.get(size);
+  public boolean contains(final Object o) {
+    final int[] size = new int[1];
+    final long[] words = ref.get(size);
     if (size[0] == 0) {
       return false;
     }
-    int[] indexes = indexes(o);
+    final int[] indexes = indexes(o);
     for (int index : indexes) {
-      if (!getAt(index, words)) {
+      if (! getAt(index, words)) {
         return false;
       }
     }
@@ -193,14 +194,15 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * {@inheritDoc}
    */
   @Override
-  public boolean add(E o) {
-    int[] indexes = indexes(o);
+  public boolean add(final E o) {
+    final int[] indexes = indexes(o);
     boolean added = false;
     lock.lock();
     try {
-      int[] size = new int[1];
-      long[] words = copyOf(ref.get(size), length);
-      for (int index : indexes) {
+      final int[] size = new int[1];
+      final long[] words = copyOf(ref.get(size), length);
+      assert words.length == length;
+      for (final int index : indexes) {
         added |= setAt(index, words);
       }
       if (added) {
@@ -219,9 +221,9 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @param words The array to lookup in.
    * @return      The flag's value.
    */
-  private boolean getAt(int index, long[] words) {
-    int i = index / bits;
-    int bitIndex = index % bits;
+  private boolean getAt(final int index, final long[] words) {
+    final int i = index / Long.SIZE;
+    final int bitIndex = index % Long.SIZE;
     return (words[i] & (1L << bitIndex)) != 0;
   }
 
@@ -232,10 +234,10 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @param words The array to update.
    * @return      If updated.
    */
-  private boolean setAt(int index, long[] words) {
-    int i = index / bits;
-    int bitIndex = index % bits;
-    long mask = (1L << bitIndex);
+  private boolean setAt(final int index, final long[] words) {
+    final int i = index / Long.SIZE;
+    final int bitIndex = index % Long.SIZE;
+    final long mask = (1L << bitIndex);
     if ((words[i] & mask) == 0) {
       words[i] |= mask;
       return true;
@@ -251,13 +253,11 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    */
   private int[] indexes(Object o) {
     // Double hashing allows calculating multiple index locations
-    int hashCode = o.hashCode();
-    int probe = 1 + abs(hashCode % length);
-    int[] indexes = new int[hashes];
-//    int h = hash(hashCode);
+    final int h = o.hashCode();
+    final int[] indexes = new int[hashes];
     for (int i = 0; i < hashes; i++) {
-//      indexes[i] = abs(h ^ i * probe) % bits;
-      indexes[i] = abs(hash(hashCode + i) * probe) % bits;
+      // each of the k hash functions' values will be used % bits
+      indexes[i] = abs(hash(h + i)) % bits;
     }
     return indexes;
   }
@@ -267,6 +267,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    */
   private int hash(int hashCode) {
     // Spread bits using variant of single-word Wang/Jenkins hash
+    // n: 1,000 falsePositives: 11 n/falsePositives: 0.0110
     hashCode += (hashCode << 15) ^ 0xffffcd7d;
     hashCode ^= (hashCode >>> 10);
     hashCode += (hashCode << 3);
@@ -274,6 +275,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
     hashCode += (hashCode << 2) + (hashCode << 14);
     return hashCode ^ (hashCode >>> 16);
 //    // copied from HashMap
+//    //n: 1,000 falsePositives: 90 n/falsePositives: 0.0900
 //    hashCode ^= (hashCode >>> 20) ^ (hashCode >>> 12);
 //    return hashCode ^ (hashCode >>> 7) ^ (hashCode >>> 4);
   }
@@ -321,7 +323,8 @@ public final class BloomFilter<E> extends AbstractSet<E> {
     final long[] words = ref.get(size);
     return new StringBuilder("{").
       append("probability=").
-      append(probability).append(", ").
+      append(probability).
+      append(", ").
       append("hashes=").
       append(hashes).
       append(", ").
@@ -349,7 +352,7 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    * @param words The consistent view of the data.
    * @return      The number of one-bits in the two's complement binary representation.
    */
-  private int toBitCount(long[] words) {
+  private int toBitCount(final long[] words) {
     int population = 0;
     for (final long word : words) {
       population += bitCount(word);
@@ -365,18 +368,25 @@ public final class BloomFilter<E> extends AbstractSet<E> {
    */
   private String toBinaryArrayString(long[] words) {
     final StringBuilder buffer = new StringBuilder(words.length);
-    boolean trim = true;
-    for (int i = words.length - 1; i >= 0; i--) {
-      long word = words[i];
-      if ((word == 0) && trim) {
-        continue;
-      }
-      buffer.append(toBinaryString(word));
-      trim = false;
+    final int maxWords = 1;
+    for (int i = words.length - 1, wordNum = 0; i >= 0 && wordNum < maxWords; i--, wordNum++) {
+      final long word = words[i];
+      // chops leading zeros which is confusing at best
+      //buffer.append(toBinaryString(word));
+      // main issue with this is its treated as signed!
+      //buffer.append(BigInteger.valueOf(word).toString(2));
+      appendBinaryString(word, buffer);
     }
-    if (trim) {
-      buffer.append('0');
+    if (words.length > maxWords) {
+      buffer.append("...");
     }
     return buffer.toString();
+  }
+
+  private static void appendBinaryString(final long word, final StringBuilder buffer) {
+    for (int i = 0, lz = Long.numberOfLeadingZeros(word); i < lz; i++) {
+      buffer.append('0');
+    }
+    buffer.append(Long.toBinaryString(word));
   }
 }
