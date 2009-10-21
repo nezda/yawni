@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 public class BloomFilterTest {
   @Test
   public void test1() {
-    final int size = 100;
+    final int size = 100000;
     final float ONE_PERCENT = 0.01f;
     final float TEN_PERCENT = 0.1f;
     final float desiredFpFatio = ONE_PERCENT;
@@ -33,7 +33,7 @@ public class BloomFilterTest {
 
     System.err.println("filter: "+filter);
 
-    assertFalse(filter.contains(3));
+    assertFalse("3 is in this empty filter? "+filter, filter.contains(3));
 
     final Set<Integer> hard = new HashSet<Integer>(size);
 
@@ -42,10 +42,10 @@ public class BloomFilterTest {
       final int next = rand.nextInt();
       hard.add(next);
       filter.add(next);
-      System.err.println("next: "+next+" "+filter);
+//      System.err.println("next: "+next+" "+filter);
     }
     // extremely unlikey
-    assertFalse(filter.toString(), filter.contains(4));
+    assertFalse("4 is not in this filter "+filter.toString(), filter.contains(4));
 
     for (final Integer i : hard) {
       assertTrue(filter.contains(i));
