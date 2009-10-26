@@ -91,16 +91,85 @@ Release TODOs
   - if fast-boot be desirable, make FileManager.getFileStream() impl configurable ?
 
 - MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
-- Bloom anti-match filter
-  - get key
-  - if in filter
-      return empty result
-    if in cache
-      return cached
-    // do actual search
-    // if no result, add key to filter
 
-    * trick: filter has capacity which will be 
+- bachelor party payment
+  - last email sent around June 23, 2009 (subject: Bachelor Costs)
+  - Justin thinks he got 1 payment from Jeramy Leonard
+  - Luke has JLs check
+
+- Sweet composite / decorator Cache
+  - maybe a ForwardingCache
+
+//  - Bloom anti-match cache
+//
+//    if key in filter // ! this could be wrong; can't do this
+//      return emptyResult
+//
+//    result = search(key) // optionally includes hardCache search
+//
+//    if result.empty
+//      filter.add(key)
+//      return result
+//
+//  - best we can do is add same things to hard and soft filter
+//    once we have seen something, we can  
+//
+//  - add cache filter saturation protection
+//    - every size add()s, clear
+//    - forces refill, but prevents filter utility degradation
+//    - preserves expected FP probability behavior
+
+- Bloom cache
+  - must pre-populate with index (Word) contents (1 filter per POS)
+    - could also cache exceptions lists
+  - add optional indirection to indicate
+    - 
+
+// - do a Lucene Tokenizer / Analyzer integration - good performance test best
+//   - use tikluc demo
+//     - indexed reuters docs: http://192.168.1.66:8880/skwish/meta?id=10500
+//
+//  org.apache.lucene.analysis.TeeSinkTokenFilter.SinkFilter
+//    - seems to be modern way to "hook into" Token stream
+//  - related Lucene contrib examples
+//    - org.apache.lucene.analysis.shingle.ShingleFilter
+//      - constructs shingles (token n-grams) from a token stream, i.e., creates combinations of tokens as a single token.
+//    - org.apache.lucene.analysis.sinks.DateRecognizerSinkFilter
+//    - org.apache.lucene.analysis.compound.
+//      - decomposes 1 token into more than 1 (Germanic languages)
+//
+// - use Lucene StandardTokenizer (JFlex: fast!)
+// - use shingle generator to create alternatives
+//   - what pattern does it generate the various shingle lengths in ? (5's, 4's, 3's, 2's, 1's would be ideal :))
+//     - don't ultimately, only emit 1 token per position
+
+// - hyperlinking the glosses in the browser would be a good way to exercise this
+//    - basically, factors out tokenization and exercises Lucene plumbing
+
+- git checkin (on trunk) for my little javadoc change 
+  120b6d3dc3377f51c188b93b971d56fe56029b6c
+  somehow want to merge this into my LUCENE-2008  local branch which is wired to origin/tags/lucene_2_9_back_compat_tests_20091023a
+
+  git cherry-pick 120b6d3dc3377f51c188b93b971d56fe56029b6c
+  Automatic cherry-pick failed.  After resolving the conflicts,
+  mark the corrected paths with 'git add <paths>' or 'git rm <paths>' and commit the result.
+  When commiting, use the option '-c 120b6d3' to retain authorship and message.
+  
+// - learn new Lucene Token/Tokenizer/TokenStream/TokenFilter
+//   - AttributeSource
+//     - TokenStream
+//       - Tokenizer (input isa Reader)
+//       - TokenFilter (input isa TokenStream) (Uwe says decorator pattern: TokenFilter adds functionality to a Tokenizer)
+//       - TeeSinkTokenFilter.SinkTokenStream
+//       - NumericTokenStream
+//   - "Attributes instead of Tokens"
+//   - AttributeImpl implements Attribute
+//     - Token (implements Attribute,  FlagsAttribute, OffsetAttribute, PayloadAttribute, PositionIncrementAttribute, TermAttribute, TypeAttribute)
+//   - AttributeSource container of AttributeImpls
+
+- bug: core: fix Bloom filter issue with non-String CharSequence hasshCode !!
+- feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
+- feature: 
 
 - issues
   - bug: core: no meronyms for "capacity" ? (at least in GUI drop down)
@@ -418,6 +487,16 @@ x feature: howto for developing in NetBeans ?
     - edu.brandeis.cs.steele.wn.browser.Searcher
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp target/yawni-core-2.0.0-SNAPSHOT.jar edu.brandeis.cs.steele.wn.browser.Searcher > /dev/null
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | src/test/cpp/wnlemmatizer > /dev/null
+
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp browser/target/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
+
+      # verified same search results with and without filters
+      # NOTE: redirecting to disk rather than /dev/null increases XXX wrong
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > filters
+      
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > no_filters
+
     - optimization opportunities:
       * IO methods most costly: readLineWord(), scanForwardToLineBreak(), scanToSpace()
       + re-use StringBuilder (and ensureCapacity()) rather than making and tossing buffer every time
@@ -434,6 +513,25 @@ x feature: howto for developing in NetBeans ?
          'words' 2m59.294s         0m47.293s (3.8x)
     War & Peace  9m36.705s         1m44.244s (5.5x)
                                    1m27.662s after Synset parsing optimization (6.5x)
+    
+    War & Peace: latest Yawni results 10/25/2009
+      (no Bloom filters)
+      real    0m42.235s
+      user    0m38.894s
+      sys     0m5.685s
+
+      with Bloom filters
+      real    0m37.415s
+      user    0m35.235s
+      sys     0m5.557s
+
+      only put matches into LRU cache (let Bloom filter handle non matches)
+      real    0m33.618s
+      user    0m28.612s
+      sys     0m5.586s
+      
+      
+                                    
   < feature: core: implement CharSequences#sameLetterDigitSequence
     - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
     ? where would this be used ? getindex() impl ?
@@ -477,6 +575,7 @@ x feature: howto for developing in NetBeans ?
     - Relation:
   - feature: doc: document approximate runtime of various search algorithms
   ~ feature: core: add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" -> "cliche"))
+    - an alternative is org.apache.lucene.analysis.ASCIIFoldingFilter
     - Normalizer requires Java 6 which excludes some platforms - could use reflection
     - aka words with diacritics: http://en.wikipedia.org/wiki/List_of_English_words_with_diacritics
   < feature: interface to parse and cleanly represent (in code) glosstags corpus
