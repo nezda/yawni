@@ -1,8 +1,7 @@
 package org.yawni.util.cache;
 
-import org.yawni.util.cache.Cache;
-import org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy;
-import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
+//import org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy;
+//import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
 
 public class Caches {
   public static <K, V> Cache<K, V> withCapacity(final int capacity) {
