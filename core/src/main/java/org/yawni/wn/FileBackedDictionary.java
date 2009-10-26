@@ -384,20 +384,17 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       if (filter != null) {
         INDEX_DATA_FILTERS.put(pos, filter);
       }
-      System.err.println("filter loaded: "+filter);
     }
   }
 
   // look in classpath for filters
   private static BloomFilter<CharSequence> getIndexDataFilter(final POS pos) {
     try {
-      final String resourcename = "dict/" + pos.name() + ".bloom";
-      System.err.println("resourcename: "+resourcename);
       // assume WN dict/ is in the classpath
+      final String resourcename = "dict/" + pos.name() + ".bloom";
       final URL url = FileBackedDictionary.class.getClassLoader().getResource(resourcename);
       if (url == null) {
         log.info("resourcename: {} not found!", resourcename);
-        System.err.println("resourcename: "+resourcename+" not found!");
         return null;
       }
       final URLConnection conn = url.openConnection();
@@ -434,7 +431,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else {
       indexWord = NULL_INDEX_WORD;
       // TODO check Bloom filters
-      if (false == maybeDefined(lemma, pos)) {
+      if (maybeDefined(lemma, pos)) {
         lookupIndexWordCacheMiss++;
         cacheDebug(indexWordCache);
         final String filename = getIndexFilename(pos);
@@ -451,6 +448,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           //   false positive
         }
       }
+      //FIXME maybe best to not add negative results (indexWord == NULL_INDEX_WORD)
+      // to the LRU cache
       indexWordCache.put(cacheKey, indexWord);
     }
     return indexWord != NULL_INDEX_WORD ? (Word) indexWord : null;
