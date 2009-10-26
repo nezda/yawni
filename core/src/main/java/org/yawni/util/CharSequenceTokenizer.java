@@ -221,7 +221,7 @@ public final class CharSequenceTokenizer implements Iterator<CharSequence> {
    *
    * @param delims the new delimiters to use
    * @return next token in the string as a CharSequence
-   * @exception NoSuchElementException if no tokens remain
+   * @throws NoSuchElementException if no tokens remain
    */
   public CharSequence nextToken(final String delims) {
     this.delimiters = delims;
