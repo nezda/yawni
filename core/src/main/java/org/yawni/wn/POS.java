@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Represents the major syntactic categories, or <b>p</b>arts <b>o</b>f
- * <b>s</b>peech, used in WordNet.  Each <code>POS</code> has a human-readable
+ * <b>s</b>peech, used in WordNet.  Each {@code POS} has a human-readable
  * label that can be used to print it, and a key by which it can be looked up.
  */
 public enum POS {
@@ -28,7 +28,7 @@ public enum POS {
   // Class variables
   //
   /**
-   * Meta-<code>POS</code> representing all parts of speech.  For use in search methods.
+   * Meta-{@code POS} representing all parts of speech.  For use in search methods.
    */
   ALL("all POS", null, 0),
   /** <b>NOTE: do not reorder - RelationTypes relies on this</b> */
@@ -61,7 +61,7 @@ public enum POS {
    */
   ADV("adverb", "r", 4),
   /**
-   * Basically a sub-<code>POS</code> of <code>ADJ</code>.
+   * Basically a sub-{@code POS} of {@code ADJ}.
    * aka "adjective satellite", "ADJSAT"
    */
   SAT_ADJ("satellite adjective", "s", 5);
@@ -73,7 +73,7 @@ public enum POS {
     return VALUES[ordinal];
   }
 
-  /** A list of all <code>POS</code>s <b>except {@link POS#SAT_ADJ}</b> which doesn't
+  /** A list of all {@code POS}s <b>except {@link POS#SAT_ADJ}</b> which doesn't
    * have its own data files.
    */
   public static final POS[] CATS = {NOUN, VERB, ADJ, ADV};
@@ -115,8 +115,8 @@ public enum POS {
     return wnCode;
   }
 
-  /** Return the <code>POS</code> whose key matches {@code key}.
-   * @exception NoSuchElementException If {@code key} doesn't name any <code>POS</code>.
+  /** Return the {@code POS} whose key matches {@code key}.
+   * @throws NoSuchElementException If {@code key} doesn't name any {@code POS}.
    */
   public static POS lookup(final CharSequence key) {
     for (final POS pos : CATS) {
