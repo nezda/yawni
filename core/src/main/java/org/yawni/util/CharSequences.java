@@ -19,7 +19,7 @@ package org.yawni.util;
 /**
  * Utility methods for {@link CharSequence}s.
  * 
- * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer}
+ * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer java.util.StringTokenizer}
  */
 public class CharSequences {
   private CharSequences() {}
@@ -201,11 +201,11 @@ public class CharSequences {
       throw new NumberFormatException();
     }
     if (start >= end) {
-      throw new NumberFormatException(toString(string, start, end));
+      throw new NumberFormatException(substring(string, start, end));
     }
     final boolean negative = string.charAt(offset) == '-';
     if (negative && ++offset == end) {
-      throw new NumberFormatException(toString(string, start, end));
+      throw new NumberFormatException(substring(string, start, end));
     }
 
     final int max = Integer.MIN_VALUE / radix;
@@ -213,21 +213,21 @@ public class CharSequences {
     while (offset < end) {
       final int digit = Character.digit(string.charAt(offset++), radix);
       if (digit == -1) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
       if (max > result) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
       final int next = result * radix - digit;
       if (next > result) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
       result = next;
     }
     if (! negative) {
       result = -result;
       if (result < 0) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
     }
     return result;
@@ -270,38 +270,41 @@ public class CharSequences {
       throw new NumberFormatException();
     }
     if (start >= end) {
-      throw new NumberFormatException(toString(string, start, end));
+      throw new NumberFormatException(substring(string, start, end));
     }
     final boolean negative = string.charAt(offset) == '-';
     if (negative && ++offset == end) {
-      throw new NumberFormatException(toString(string, start, end));
+      throw new NumberFormatException(substring(string, start, end));
     }
     final long max = Long.MIN_VALUE / radix;
     long result = 0;
     while (offset < end) {
       final int digit = Character.digit(string.charAt(offset++), radix);
       if (digit == -1) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
       if (max > result) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
       final long next = result * radix - digit;
       if (next > result) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
       result = next;
     }
     if (! negative) {
       result = -result;
       if (result < 0) {
-        throw new NumberFormatException(toString(string, start, end));
+        throw new NumberFormatException(substring(string, start, end));
       }
     }
     return result;
   }
 
-  public static String toString(final CharSequence charSequence,
+  /**
+   * @see java.lang.String#substring(int, int)
+   */
+  public static String substring(final CharSequence charSequence,
       final int offset, final int end) {
     return charSequence.subSequence(offset, end).toString();
   }
