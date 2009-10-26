@@ -16,8 +16,8 @@
  */
 package org.yawni.util.cache;
 
-import org.yawni.util.cache.Cache;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@link Cache} of unbounded capacity.  <b>Use this at your own risk; expect {@link OutOfMemoryError}</b>.
