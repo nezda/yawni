@@ -16,7 +16,6 @@
  */
 package org.yawni.util.cache;
 
-import org.yawni.util.*;
 import org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy;
 import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
 
