@@ -54,7 +54,7 @@ public interface DictionaryDatabase {
    * Utilizes an implementation of the {@code morphstr()} and {@code getindex()} algorithms.
    * @param someString
    * @param pos The part-of-speech.
-   * @return baseform(s) of {@code someString}
+   * @return an immutable list of the baseform(s) of {@code someString}
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
    */
   public List<String> lookupBaseForms(final String someString, final POS pos);
@@ -64,7 +64,7 @@ public interface DictionaryDatabase {
    * and {@link Word#getSynsets()}.
    * @param someString
    * @param pos The part-of-speech.
-   * @return {@code Synset}(s) of {@code someString} in {@code pos}
+   * @return an immutable list of the {@code Synset}(s) of {@code someString} in {@code pos}
    */
   public List<Synset> lookupSynsets(final String someString, final POS pos);
 
@@ -132,4 +132,11 @@ public interface DictionaryDatabase {
    * @return An iterable of {@code Relation}s of type {@code RelationType}.
    */
   public Iterable<Relation> relations(final RelationType relationType, final POS pos);
+
+  /**
+   * Return an iterator of <b>all</b> the exceptions for the given part-of-speech.
+   * @param pos The part-of-speech.
+   * @return An iterable of the exceptional strings.
+   */
+  public Iterable<List<String>> exceptions(final POS pos);
 }
