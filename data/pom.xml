@@ -19,6 +19,18 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <!-- don't want to corrupt the serialized filters ! -->
+        <excludes>
+          <exclude>**/*.bloom</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <!-- copy the serialized filters ! -->
+        <includes>
+          <include>**/*.bloom</include>
+        </includes>
       </resource>
     </resources>
     <plugins>
