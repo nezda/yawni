@@ -18,9 +18,7 @@
 // with last update Oct  04, 2009
 package org.yawni.util.cache;
 
-import java.math.BigInteger;
 import static java.lang.Long.bitCount;
-import static java.lang.Long.toBinaryString;
 import static java.lang.Math.abs;
 import static java.lang.Math.ceil;
 import static java.lang.Math.exp;
@@ -270,19 +268,12 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
    */
   private int hash(int hashCode) {
     // Spread bits using variant of single-word Wang/Jenkins hash
-    //my limited testing shows it is pretty good
-    // n: 1,000 falsePositives: 11 n/falsePositives: 0.0110
     hashCode += (hashCode << 15) ^ 0xffffcd7d;
     hashCode ^= (hashCode >>> 10);
     hashCode += (hashCode << 3);
     hashCode ^= (hashCode >>> 6);
     hashCode += (hashCode << 2) + (hashCode << 14);
     return hashCode ^ (hashCode >>> 16);
-//    // copied from HashMap
-//    //my limited testing shows it inferior to above
-//    //n: 1,000 falsePositives: 90 n/falsePositives: 0.0900
-//    hashCode ^= (hashCode >>> 20) ^ (hashCode >>> 12);
-//    return hashCode ^ (hashCode >>> 7) ^ (hashCode >>> 4);
   }
 
   /**
@@ -376,10 +367,6 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     final int maxWords = 1;
     for (int i = words.length - 1, wordNum = 0; i >= 0 && wordNum < maxWords; i--, wordNum++) {
       final long word = words[i];
-      // chops leading zeros which is confusing at best
-      //buffer.append(toBinaryString(word));
-      // main issue with this is its treated as signed!
-      //buffer.append(BigInteger.valueOf(word).toString(2));
       appendBinaryString(word, buffer);
     }
     if (words.length > maxWords) {
