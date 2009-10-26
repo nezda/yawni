@@ -16,8 +16,10 @@
  */
 package org.yawni.wn;
 
+import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
+import static org.yawni.util.ConcatenatedIterable.concat;
 import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
@@ -31,12 +33,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
 
 /** 
@@ -69,9 +77,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   //
 
   /**
-   * Construct a {@link DictionaryDatabase} that retrieves file data from
-   * {@code fileManager}.  A client can use this to create a
-   * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
+   * Construct a {@link DictionaryDatabase} that retrieves file data from {@code fileManager}.
    */
   private FileBackedDictionary(final FileManagerInterface fileManager) {
     this.fileManager = fileManager;
@@ -81,8 +87,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * Construct a dictionary backed by a set of files contained in the default
    * WordNet search directory.
-   * @see FileManager for a description of the location of the default
-   * WordNet search directory (<code>$WNSEARCHDIR</code>).
+   * See {@link FileManager} for a description of the location of the default
+   * WordNet search directory ({@code $WNSEARCHDIR}).
    */
   FileBackedDictionary() {
     this(new FileManager());
@@ -98,7 +104,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
   // thread-safe singleton trick from:
   // http://tech.puredanger.com/2007/06/15/double-checked-locking/
-  static class InstanceHolder {
+  private static final class InstanceHolder {
     /** singleton reference */
     static final FileBackedDictionary instance = new FileBackedDictionary();
   } // end class InstanceHolder
@@ -106,7 +112,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * Factory method to get <em>the</em> dictionary backed by a set of files contained
    * in the default WordNet search directory.
-   * @see FileManager for a description of the location of the default
+   * See {@link FileManager} for a description of the location of the default
    * WordNet search directory ({@code $WNSEARCHDIR}).
    */
   public static FileBackedDictionary getInstance() {
@@ -209,43 +215,58 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }};
   }
 
-  /** NOTE: Called at most once per POS */
   private static String getDatabaseSuffixName(final POS pos) {
-    if (false == POS_TO_FILENAME_ROOT.containsKey(pos)) {
+    final String toReturn = POS_TO_FILENAME_ROOT.get(pos);
+    if (toReturn == null) {
       throw new IllegalArgumentException("no filename for pos "+pos);
     }
-    return POS_TO_FILENAME_ROOT.get(pos);
+    return toReturn;
   }
 
-  private static final Map<POS, String> DATA_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+  private static final Map<POS, String> DATA_FILE_NAMES;
+  static {
+    DATA_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+    for (final POS pos : POS.CATS) {
+      DATA_FILE_NAMES.put(pos, "data." + getDatabaseSuffixName(pos));
+    }
+  }
 
   private static String getDataFilename(final POS pos) {
-    String toReturn = DATA_FILE_NAMES.get(pos);
+    final String toReturn = DATA_FILE_NAMES.get(pos);
     if (toReturn == null) {
-      toReturn = "data." + getDatabaseSuffixName(pos);
-      DATA_FILE_NAMES.put(pos, toReturn);
+      throw new IllegalArgumentException("no filename for pos "+pos);
     }
     return toReturn;
   }
 
-  private static final Map<POS, String> INDEX_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+  private static final Map<POS, String> INDEX_FILE_NAMES;
+  static {
+    INDEX_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+    for (final POS pos : POS.CATS) {
+      INDEX_FILE_NAMES.put(pos, "index." + getDatabaseSuffixName(pos));
+    }
+  }
 
   private static String getIndexFilename(final POS pos) {
-    String toReturn = INDEX_FILE_NAMES.get(pos);
+    final String toReturn = INDEX_FILE_NAMES.get(pos);
     if (toReturn == null) {
-      toReturn = "index." + getDatabaseSuffixName(pos);
-      INDEX_FILE_NAMES.put(pos, toReturn);
+      throw new IllegalArgumentException("no filename for pos "+pos);
     }
     return toReturn;
   }
 
-  private static final Map<POS, String> EXCEPTION_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+  private static final Map<POS, String> EXCEPTION_FILE_NAMES;
+  static {
+    EXCEPTION_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+    for (final POS pos : POS.CATS) {
+      EXCEPTION_FILE_NAMES.put(pos, getDatabaseSuffixName(pos) + ".exc");
+    }
+  }
 
   private static String getExceptionsFilename(final POS pos) {
-    String toReturn = EXCEPTION_FILE_NAMES.get(pos);
+    final String toReturn = EXCEPTION_FILE_NAMES.get(pos);
     if (toReturn == null) {
-      toReturn = getDatabaseSuffixName(pos) + ".exc";
-      EXCEPTION_FILE_NAMES.put(pos, toReturn);
+      throw new IllegalArgumentException("no filename for pos "+pos);
     }
     return toReturn;
   }
@@ -294,10 +315,10 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Word word = (Word) indexWordCache.get(cacheKey);
     if (word != null) {
-      ++getIndexWordAtCacheHit;
+      getIndexWordAtCacheHit++;
       cacheDebug(indexWordCache);
     } else {
-      ++getIndexWordAtCacheMiss;
+      getIndexWordAtCacheMiss++;
       cacheDebug(indexWordCache);
       final String filename = getIndexFilename(pos);
       final CharSequence line;
@@ -355,6 +376,51 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   static int lookupIndexWordCacheHit = 0;
   static int weirdLookupIndexWordCacheMiss = 0;
 
+  private static final Map<POS, BloomFilter<CharSequence>> INDEX_DATA_FILTERS;
+  static {
+    INDEX_DATA_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
+    for (final POS pos : POS.CATS) {
+      final BloomFilter<CharSequence> filter = getIndexDataFilter(pos);
+      if (filter != null) {
+        INDEX_DATA_FILTERS.put(pos, filter);
+      }
+      System.err.println("filter loaded: "+filter);
+    }
+  }
+
+  // look in classpath for filters
+  private static BloomFilter<CharSequence> getIndexDataFilter(final POS pos) {
+    try {
+      final String resourcename = "dict/" + pos.name() + ".bloom";
+      System.err.println("resourcename: "+resourcename);
+      // assume WN dict/ is in the classpath
+      final URL url = FileBackedDictionary.class.getClassLoader().getResource(resourcename);
+      if (url == null) {
+        log.info("resourcename: {} not found!", resourcename);
+        System.err.println("resourcename: "+resourcename+" not found!");
+        return null;
+      }
+      final URLConnection conn = url.openConnection();
+      final InputStream input = conn.getInputStream();
+      // fast CharStream created from InputStream (e.g., could be read from jar file)
+      final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(input));
+      @SuppressWarnings("unchecked")
+      final BloomFilter<CharSequence> filter = (BloomFilter<CharSequence>) ois.readObject();
+      return filter;
+    } catch (Exception e) {
+      log.info("caught {}", e);
+      System.err.println("caught!"+e);
+      return null;
+    }
+  }
+
+  private boolean maybeDefined(final CharSequence lemma, final POS pos) {
+    if (INDEX_DATA_FILTERS.isEmpty()) {
+      return true;
+    }
+    return INDEX_DATA_FILTERS.get(pos).contains(lemma);
+  }
+
   private static final Object NULL_INDEX_WORD = new Object();
 
   /** {@inheritDoc} */
@@ -363,22 +429,27 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
     if (indexWord != null && indexWord != NULL_INDEX_WORD) {
-      ++lookupIndexWordCacheHit;
+      lookupIndexWordCacheHit++;
       cacheDebug(indexWordCache);
     } else {
-      ++lookupIndexWordCacheMiss;
-      cacheDebug(indexWordCache);
-      final String filename = getIndexFilename(pos);
-      final int offset;
-      try {
-        offset = fileManager.getIndexedLinePointer(lemma, filename);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      if (offset >= 0) {
-        indexWord = getIndexWordAt(pos, offset);
-      } else {
-        indexWord = NULL_INDEX_WORD;
+      indexWord = NULL_INDEX_WORD;
+      // TODO check Bloom filters
+      if (false == maybeDefined(lemma, pos)) {
+        lookupIndexWordCacheMiss++;
+        cacheDebug(indexWordCache);
+        final String filename = getIndexFilename(pos);
+        final int offset;
+        try {
+          offset = fileManager.getIndexedLinePointer(lemma, filename);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        if (offset >= 0) {
+          indexWord = getIndexWordAt(pos, offset);
+        } else {
+          // if here && false == INDEX_DATA_FILTERS.isEmpty()
+          //   false positive
+        }
       }
       indexWordCache.put(cacheKey, indexWord);
     }
@@ -415,7 +486,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
         lookupBaseForms(someString, POS.ADJ),
         lookupBaseForms(someString, POS.ADV))));
     } else {
-        return morphy.morphstr(someString, pos);
+      return morphy.morphstr(someString, pos);
     }
   }
 
@@ -456,7 +527,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       }
     }
     // sometimes all morphstr() values will be generated and undefined for this POS
-    // FIXME really, its kind of annoying that morphy sometimes returns undefined variants
+    // FIXME annoying that morphy sometimes returns undefined variants
     if (morphs.isEmpty() == false && syns.isEmpty()) {
       //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
       return ImmutableList.of();
@@ -851,7 +922,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
     SearchGlossBySubstringIterator(final POS pos, final CharSequence substring) {
       this.syns = synsets(pos).iterator();
-      //XXX this.substring = Morphy.searchNormalize(substring.toString());
+      //XXX this.substring = Morphy.searchNormalize(substring.substring());
       this.substring = substring.toString();
     }
     public boolean hasNext() {
@@ -1020,6 +1091,58 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       return new Iterable<Relation> () {
         public Iterator<Relation> iterator() {
           return new POSRelationsIterator(pos, relationType);
+        }
+      };
+    }
+  }
+
+  /**
+   * @see DictionaryDatabase#exceptions
+   */
+  //TODO don't do this throw NoSuchElementException iterator stuff
+  private class POSExceptionsIterator implements Iterator<List<String>> {
+    private final POS pos;
+    private final String filename;
+    private int nextOffset = 0;
+    POSExceptionsIterator(final POS pos) {
+      this.pos = pos;
+      this.filename = getExceptionsFilename(pos);
+    }
+    public List<String> next() {
+      try {
+        final String line = fileManager.readLineAt(nextOffset, filename);
+        if (line == null) {
+          throw new NoSuchElementException();
+        }
+        nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+        final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
+        assert toReturn.size() >= 2;
+        return toReturn;
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    public boolean hasNext() {
+      // meant to be used with LookAheadIterator
+      return true;
+    }
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  } // end class POSExceptionsIterator
+
+  /** {@inheritDoc} */
+  public Iterable<List<String>> exceptions(final POS pos) {
+    if (pos == POS.ALL) {
+      return concat(
+        exceptions(POS.NOUN),
+        exceptions(POS.VERB),
+        exceptions(POS.ADJ),
+        exceptions(POS.ADV));
+    } else {
+      return new Iterable<List<String>> () {
+        public Iterator<List<String>> iterator() {
+          return new LookAheadIterator<List<String>>(new POSExceptionsIterator(pos));
         }
       };
     }
