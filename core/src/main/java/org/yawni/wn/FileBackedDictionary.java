@@ -430,7 +430,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       cacheDebug(indexWordCache);
     } else {
       indexWord = NULL_INDEX_WORD;
-      // TODO check Bloom filters
+      // consult the Bloom filter
       if (maybeDefined(lemma, pos)) {
         lookupIndexWordCacheMiss++;
         cacheDebug(indexWordCache);
@@ -448,9 +448,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           //   false positive
         }
       }
-      //FIXME maybe best to not add negative results (indexWord == NULL_INDEX_WORD)
-      // to the LRU cache
-      indexWordCache.put(cacheKey, indexWord);
+      // best not to add negative results (indexWord == NULL_INDEX_WORD)
+      // to the LRU cache - let Bloom filter / maybeDefined() == false handle this
+      if (indexWord != NULL_INDEX_WORD) {
+        indexWordCache.put(cacheKey, indexWord);
+      }
     }
     return indexWord != NULL_INDEX_WORD ? (Word) indexWord : null;
   }
@@ -744,7 +746,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     private final POS pos;
     private final String filename;
     private int nextOffset = 0;
-    private int offset = -1;
     private static final String TWO_SPACES = "  ";
 
     WordIterator(final POS pos) {
@@ -753,6 +754,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
     public Word next() {
       try {
+        int offset = -1;
         String line;
         do {
           if (nextOffset < 0) {
@@ -765,7 +767,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           }
           nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
-        //FIXME something seems wrong with this
         return new Word(line, offset, FileBackedDictionary.this);
       } catch (final IOException e) {
         throw new RuntimeException(e);
@@ -805,7 +806,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     private final POS pos;
     private final CharSequence substring;
     private final String filename;
-    private int nextOffset = 0;
+    private int nextOffset;
 
     SearchBySubstringIterator(final POS pos, final CharSequence substring) {
       this.pos = pos;
@@ -860,7 +861,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     private final POS pos;
     private final CharSequence prefix;
     private final String filename;
-    private int nextOffset = 0;
+    private int nextOffset;
     SearchByPrefixIterator(final POS pos, final CharSequence prefix) {
       this.pos = pos;
       //TODO really could String.trim() this result too since no
@@ -947,7 +948,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   private class POSSynsetsIterator implements Iterator<Synset> {
     private final POS pos;
     private final String filename;
-    private int nextOffset = 0;
+    private int nextOffset;
     POSSynsetsIterator(final POS pos) {
       this.pos = pos;
       this.filename = getDataFilename(pos);
@@ -1102,7 +1103,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   private class POSExceptionsIterator implements Iterator<List<String>> {
     private final POS pos;
     private final String filename;
-    private int nextOffset = 0;
+    private int nextOffset;
     POSExceptionsIterator(final POS pos) {
       this.pos = pos;
       this.filename = getExceptionsFilename(pos);
