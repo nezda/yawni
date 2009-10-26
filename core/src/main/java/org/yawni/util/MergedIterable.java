@@ -151,7 +151,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
       int i = -1;
       for (final Iterable<T> iterable : bases) {
         final Iterator<T> it = iterable.iterator();
-        ++i;
+        i++;
         this.bases[i] = it;
         if (it.hasNext()) {
           tops[i] = it.next();
@@ -160,6 +160,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
         }
       }
     }
+    
     /** {@inheritDoc} */
     public T next() {
       // find min() of non-SENTINEL tops, tag its Iterator again, and return that
@@ -193,6 +194,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
         return t;
       }
     }
+    
     /** {@inheritDoc} */
     // user's don't have to explicitly call this although that's a bit crazy
     public boolean hasNext() {
@@ -204,6 +206,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
       }
       return false;
     }
+    
     /** {@inheritDoc} */
     public void remove() {
       throw new UnsupportedOperationException();
