@@ -31,7 +31,7 @@ public interface Cache<K, V> {
    * different {@code value}s has only the affect of the last call (assuming there were
    * no intervening calls to {@code get}).
    */
-  public Object put(K key, V value);
+  public V put(K key, V value);
 
   /**
    * If {@code key} was used in a previous call to {@code put}, this call may
