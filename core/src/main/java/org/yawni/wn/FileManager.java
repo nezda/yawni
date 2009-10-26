@@ -83,7 +83,7 @@ public final class FileManager implements FileManagerInterface {
       }
     }
   } // end class NextLineOffsetCache
-  private NextLineOffsetCache nextLineOffsetCache = new NextLineOffsetCache();
+  private final NextLineOffsetCache nextLineOffsetCache = new NextLineOffsetCache();
 
   //
   // Constructors
