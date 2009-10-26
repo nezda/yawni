@@ -330,7 +330,7 @@ public enum RelationType {
 
   /**
    * @return the {@code RelationType} whose key matches {@code key}.
-   * @exception NoSuchElementException If {@code key} doesn't name any {@code RelationType}.
+   * @throws NoSuchElementException If {@code key} doesn't name any {@code RelationType}.
    */
   public static RelationType parseKey(final CharSequence key) {
     for (final RelationType pType : VALUES) {
