@@ -18,7 +18,7 @@
 package org.yawni.wn;
 
 import org.yawni.util.cache.Cache;
-import java.text.Normalizer.Form;
+//import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -109,7 +109,7 @@ class Morphy {
    * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
    * Changes ' ''s to '_' to allow searches to pass.
    *
-   * Also used in {@link FileBackedDictionary.SearchIterator} and
+   * <p> Also used in {@link FileBackedDictionary.SearchIterator} and
    * {@link FileBackedDictionary.StartsWithSearchIterator}.
    */
   static String searchNormalize(String origstr) {
@@ -174,11 +174,11 @@ class Morphy {
    * Unlike the original, returns <b>all</b> baseforms of origstr.
    * Converts '_' to ' '.
    *
-   * <p>Port of <code>morph.c</code> function <code>morphstr()</code>.
+   * <p> Port of <code>morph.c</code> function <code>morphstr()</code>.
    * <b>The original function returned nothing for words which were already
    * stemmed.</b>
    *
-   * <p>Algorithm:
+   * <p> Algorithm:
    * - normalize search string to database format
    * - if search string in exception list, add distinct exceptional variants
    * - if pos != verb, add any distinct base forms
@@ -457,7 +457,7 @@ class Morphy {
   /**
    * Must be an exact match in the dictionary.
    * (C version in {@code search.c} only returns {@code true}/{@code false})
-   * Similar to C function {@code index_lookup()}
+   * <p> Similar to C function {@code index_lookup()}
    */
   Word is_defined(final String lemma, final POS pos) {
     log.trace("is_defined lemma: {} {}", lemma, pos);
@@ -478,7 +478,7 @@ class Morphy {
   /**
    * Try to find baseform (lemma) of <b>individual word</b> {@code word}
    * in POS {@code pos}.
-   * Port of {@code morph.c morphword()}.
+   * <p> Port of {@code morph.c morphword()}.
    */
   private ImmutableList<String> morphword(final String wordStr, final POS pos) {
     if (wordStr == null || wordStr.length() == 0) {
@@ -560,7 +560,7 @@ class Morphy {
   /**
    * Find a preposition in the verb string and return its
    * corresponding word number.
-   * Port of {@code morph.c hasprep()}.
+   * <p> Port of {@code morph.c hasprep()}.
    */
   private int hasprep(final String s, final int wdcnt) {
     if (log.isDebugEnabled()) {
@@ -592,8 +592,8 @@ class Morphy {
    * off, check for validity, then try various morphs with the
    * rest of the phrase tacked on, trying to find a match.
    *
-   * Note: all letters in {@code s} are lowercase.
-   * Port of {@code morph.c morphprep()}
+   * <p> Note: all letters in {@code s} are lowercase.
+   * <p> Port of {@code morph.c morphprep()}
    */
   private String morphprep(final String s) {
     ImmutableList<String> lastwd = null;
@@ -652,7 +652,7 @@ class Morphy {
 
     final int offset = OFFSETS[POS.VERB.getWordNetCode()];
     final int cnt = CNTS[POS.VERB.getWordNetCode()];
-    for (int i = 0; i < cnt; ++i) {
+    for (int i = 0; i < cnt; i++) {
       final String exc_word = wordbase(firstWord, (i + offset));
       if (exc_word != null && exc_word.equals(firstWord) == false) {
         // ending is different
