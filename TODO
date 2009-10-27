@@ -90,40 +90,14 @@ Release TODOs
     - maybe want some default includes
   - if fast-boot be desirable, make FileManager.getFileStream() impl configurable ?
 
-- MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
-
 - bachelor party payment
   - last email sent around June 23, 2009 (subject: Bachelor Costs)
   - Justin thinks he got 1 payment from Jeramy Leonard
   - Luke has JLs check
 
-- Sweet composite / decorator Cache
-  - maybe a ForwardingCache
-
-//  - Bloom anti-match cache
-//
-//    if key in filter // ! this could be wrong; can't do this
-//      return emptyResult
-//
-//    result = search(key) // optionally includes hardCache search
-//
-//    if result.empty
-//      filter.add(key)
-//      return result
-//
-//  - best we can do is add same things to hard and soft filter
-//    once we have seen something, we can  
-//
-//  - add cache filter saturation protection
-//    - every size add()s, clear
-//    - forces refill, but prevents filter utility degradation
-//    - preserves expected FP probability behavior
-
 - Bloom cache
   - must pre-populate with index (Word) contents (1 filter per POS)
     - could also cache exceptions lists
-  - add optional indirection to indicate
-    - 
 
 // - do a Lucene Tokenizer / Analyzer integration - good performance test best
 //   - use tikluc demo
@@ -146,15 +120,6 @@ Release TODOs
 // - hyperlinking the glosses in the browser would be a good way to exercise this
 //    - basically, factors out tokenization and exercises Lucene plumbing
 
-- git checkin (on trunk) for my little javadoc change 
-  120b6d3dc3377f51c188b93b971d56fe56029b6c
-  somehow want to merge this into my LUCENE-2008  local branch which is wired to origin/tags/lucene_2_9_back_compat_tests_20091023a
-
-  git cherry-pick 120b6d3dc3377f51c188b93b971d56fe56029b6c
-  Automatic cherry-pick failed.  After resolving the conflicts,
-  mark the corrected paths with 'git add <paths>' or 'git rm <paths>' and commit the result.
-  When commiting, use the option '-c 120b6d3' to retain authorship and message.
-  
 // - learn new Lucene Token/Tokenizer/TokenStream/TokenFilter
 //   - AttributeSource
 //     - TokenStream
@@ -167,12 +132,11 @@ Release TODOs
 //     - Token (implements Attribute,  FlagsAttribute, OffsetAttribute, PayloadAttribute, PositionIncrementAttribute, TermAttribute, TypeAttribute)
 //   - AttributeSource container of AttributeImpls
 
-- bug: core: fix Bloom filter issue with non-String CharSequence hasshCode !!
-- feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
-- feature: 
-
 - issues
+  - bug: core: MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
+  - feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
   - bug: core: no meronyms for "capacity" ? (at least in GUI drop down)
+  + bug: core: fix BloomFilter issue with non-String CharSequence hashCode (feature)
   + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
   - bug: core: do not depend on default platform character encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
