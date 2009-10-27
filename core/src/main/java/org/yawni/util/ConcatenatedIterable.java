@@ -47,6 +47,15 @@ public final class ConcatenatedIterable<T> implements Iterable<T> {
       return concat(bases);
   }
 
+  public static <T>
+    Iterable<T> concat(final Iterable<T> base0, final Iterable<T> base1,
+                       final Iterable<T> base2, final Iterable<T> base3,
+                       final Iterable<T> base4) {
+      @SuppressWarnings("unchecked")
+      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3, base4 };
+      return concat(bases);
+  }
+
   /** Primary factory method so template parameters are deduced. */
   public static <T> Iterable<T> concat(final Iterable<T>... bases) {
     return new ConcatenatedIterable<T>(bases);
@@ -102,37 +111,20 @@ public final class ConcatenatedIterable<T> implements Iterable<T> {
     
     /** {@inheritDoc} */
     public T next() {
-      // find min() of non-SENTINEL tops, tag its Iterator again, and return that
-      // min item
-      int min = 0;
-      for (int i=1; i < tops.length; i++) {
+      // find first non-SENTINEL in tops
+      for (int i = 0; i < tops.length; i++) {
         if (tops[i] != SENTINEL) {
-          if (tops[min] == SENTINEL) {
-            min = i;
+          @SuppressWarnings("unchecked") // only SENTINEL is not a T
+          final T t = (T)tops[i];
+          if (bases[i].hasNext()) {
+            tops[i] = bases[i].next();
           } else {
-//            @SuppressWarnings("unchecked") // only SENTINEL is not a T
-//            final T minObj = (T)tops[min];
-//            @SuppressWarnings("unchecked")  // only SENTINEL is not a T
-//            final T currObj = (T)tops[i];
-//            if (minObj.compareTo(currObj) > 0) {
-              min = i;
-              break;
-//            }
+            tops[i] = SENTINEL;
           }
+          return t;
         }
       }
-      if (tops[min] == SENTINEL) {
-        throw new NoSuchElementException();
-      } else {
-        @SuppressWarnings("unchecked") // only SENTINEL is not a T
-        final T t = (T)tops[min];
-        if (bases[min].hasNext()) {
-          tops[min] = bases[min].next();
-        } else {
-          tops[min] = SENTINEL;
-        }
-        return t;
-      }
+      throw new NoSuchElementException();
     }
 
     /** {@inheritDoc} */
