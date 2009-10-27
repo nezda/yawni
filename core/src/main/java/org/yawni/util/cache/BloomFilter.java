@@ -32,17 +32,18 @@ import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Set;
+import org.yawni.util.CharSequences;
 
 /**
- * A Bloom filter implementation that uses a restricted version of the
- * {@link Set} interface. The set does not support traversal (i.e., {@link #iterator()) or removal
+ * A <a href="http://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a> implementation that uses a restricted version of the
+ * {@link Set} interface. The set does not support traversal, i.e., {@link #iterator iterator()}, or removal
  * operations and may report false positives on membership queries.
  * <p>
  * A Bloom filter is a space and time efficient probabilistic data structure that is used
  * to test whether an element is a member of a set. False positives are possible, but false
  * negatives are not. Elements can be added to the set, but not removed. The more elements
- * that are added to the set the larger the probability of false positives. While risking
- * false positives, Bloom filters have a space advantage over other data structures for
+ * that are added to the set, the larger the probability of false positives. While risking
+ * false positives, Bloom filters have a tunable space advantage over other data structures for
  * representing sets by not storing the data items.
  *
  * @author <a href="mailto:ben.manes@gmail.com">Ben Manes</a>
@@ -165,6 +166,18 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     size = 0;
   }
 
+  // feature: ensure hashCode() of all CharSequences are equal;
+  // this is a stronger condition than the CharSequence interface guarantees
+  private int objectHash(Object o) {
+    if (false == (o instanceof String) &&
+      o instanceof CharSequence) {
+      final CharSequence seq = (CharSequence)o;
+      return CharSequences.hashCode(seq);
+    } else {
+      return o.hashCode();
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -173,7 +186,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     if (size == 0) {
       return false;
     }
-    final int h = o.hashCode();
+    final int h = objectHash(o);
     final int expectedModCount = modCount;
     for (int i = 0; i < hashes; i++) {
       if (! getAt(indexValue(h, i), words)) {
@@ -190,7 +203,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
   @Override
   public boolean add(final E o) {
     boolean added = false;
-    final int h = o.hashCode();
+    final int h = objectHash(o);
     final int expectedModCount = modCount + 1;
     modCount++;
     for (int i = 0; i < hashes; i++) {
