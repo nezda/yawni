@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import org.junit.Test;
+import org.yawni.util.CharSequences;
 import static org.junit.Assert.*;
 
 public class BloomFilterTest {
@@ -64,6 +65,55 @@ public class BloomFilterTest {
     }
     final double fpRatio = falsePositives / (double)n;
     System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n", 
+      n, falsePositives, fpRatio);
+    //assert fpRatio <
+  }
+  @Test
+  public void test2() {
+    final int size = 100000;
+    final float ONE_PERCENT = 0.01f;
+    final float TEN_PERCENT = 0.1f;
+    final float desiredFpFatio = ONE_PERCENT;
+    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio);
+
+    System.err.println("filter: "+filter);
+
+    assertFalse("\"3\" is in this empty filter? "+filter, filter.contains(String.valueOf(3)));
+
+    final Set<Integer> hard = new HashSet<Integer>(size);
+
+    final Random rand = new Random(0);
+    while (hard.size() != size) {
+      final int next = rand.nextInt();
+      hard.add(next);
+      filter.add(String.valueOf(next));
+//      System.err.println("next: "+next+" "+filter);
+    }
+    // extremely unlikey
+    assertFalse("\"4\" is not in this filter "+filter.toString(), filter.contains(String.valueOf(4)));
+
+    for (final Integer i : hard) {
+      assertTrue(filter.contains(String.valueOf(i)));
+      // test CharSequence's weird hashCode
+      // i: "-1557994400" expected:<-469633325> but was:<468828627>
+      assertEquals("i: "+i, String.valueOf(i).hashCode(),
+        CharSequences.hashCode(new StringBuilder(String.valueOf(i))));
+      assertTrue(filter.contains(new StringBuilder(String.valueOf(i))));
+    }
+
+    int falsePositives = 0;
+    final int n = 10 * size;
+    for (int i = 0; i < n; i++) {
+      final int next = rand.nextInt();
+//      System.err.println("next: "+next);
+      final boolean inHard = hard.contains(next);
+      final boolean inFilter = filter.contains(String.valueOf(next));
+      if (! inHard && inFilter) {
+        falsePositives++;
+      }
+    }
+    final double fpRatio = falsePositives / (double)n;
+    System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n",
       n, falsePositives, fpRatio);
     //assert fpRatio <
   }
