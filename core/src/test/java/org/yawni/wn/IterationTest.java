@@ -320,6 +320,7 @@ public class IterationTest {
               }
               final WordSense.AdjPosition adjPosFlag = wordSense.getAdjPosition();
               if (adjPosFlag != WordSense.AdjPosition.NONE) {
+                assertTrue(pos == POS.ADJ);
                 //System.err.println(longMsg);
                 //System.err.println("AdjPositionFlags: "+adjPosFlag);
               }
