@@ -158,13 +158,13 @@ public class MorphyTest {
       { POS.NOUN.name(), "hangers-on", "hanger-on" },
       { POS.NOUN.name(), "hangers on", "hanger-on" }, // needs " " → "-"
       { POS.NOUN.name(), "letter bombs", "letter bomb" },
-      // needs "-" → "" { POS.NOUN.name(), "fire-bomb", "firebomb" },
+      // { POS.NOUN.name(), "fire-bomb", "firebomb" }, // needs "-" → ""
       { POS.NOUN.name(), "letter-bomb", "letter bomb" }, // needs "-" → " "
       // harder one: 
       // - needs to either not require getIndexedLinePointer() to operate on words OR 
       //   + return the nearest hit (maybe negated to indicate no normal match)
       // - could be really fast with a suffix index (reverse words)
-      // needs "" → " " { POS.NOUN.name(), "letterbomb", "letter bomb" }, // WN doesn't get this
+      // { POS.NOUN.name(), "letterbomb", "letter bomb" }, // needs "" → " " ; WN doesn't get this
       //{ POS.NOUN.name(), "hyper-active", "hyperactive" }, // WN doesn't get this
       { POS.NOUN.name(), "I ran", null }, // WN gets this as "Iran" - " " → "" seems bad unless a variant has "-" in same position (WN online doesn't do this)
       { POS.NOUN.name(), "be an", null }, // WN gets this as "bean" (WN online doesn't do this)
