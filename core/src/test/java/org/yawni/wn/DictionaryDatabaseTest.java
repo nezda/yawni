@@ -32,8 +32,8 @@ public class DictionaryDatabaseTest {
 
   /** 
    * test POS.ALL support
-   * + String[] lookupBaseForms(POS pos, String someString)
-   * - Synset[] lookupSynsets(POS pos, String someString)
+   * + List<String> lookupBaseForms(POS pos, String someString)
+   * - List<Synset> lookupSynsets(POS pos, String someString)
    * - Iterator<Relation> relations(POS pos)
    * - Iterator<Relation> relations(POS pos, RelationType relationType)
    * - Iterator<Word> words(POS pos)
