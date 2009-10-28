@@ -619,7 +619,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       } else if (lexnum < Lexnames.contents.length) {
         line = Lexnames.contents[lexnum][1];
       }
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
     if (line == null) {
