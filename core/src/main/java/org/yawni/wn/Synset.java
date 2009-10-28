@@ -56,7 +56,6 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Constructor
   //
-  @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   Synset(final String line, final FileBackedDictionary fileBackedDictionary) {
     this.fileBackedDictionary = fileBackedDictionary;
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
@@ -160,6 +159,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   /**
    * Returns the "gloss", or definition of this synset, and optionally some sample sentences.
    */
+  @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   public String getGloss() {
     final String line = fileBackedDictionary.getSynsetLineAt(getPOS(), offset);
     // parse gloss
