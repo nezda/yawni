@@ -19,7 +19,7 @@ package org.yawni.wn;
 import java.util.List;
 
 /**
- * A <code>RelationTarget</code> is the <i>source</i> or <i>target</i> of a {@link Relation}.
+ * A {@code RelationTarget} is the <em>source</em> or <em>target</em> of a {@link Relation}.
  * The target (and source) of a {@link SemanticRelation} is a {@link Synset};
  * the target (and source) of a {@link LexicalRelation} is a {@link WordSense}.
  *
@@ -33,32 +33,32 @@ public interface RelationTarget extends Iterable<WordSense> {
   public POS getPOS();
 
   /**
-   * Returns a description of the target.  For a <code>WordSense</code>, this is
-   * it's lemma; for a <code>Synset</code>, it's the concatenated lemma's of
-   * its <code>WordSense</code>s.
+   * Returns a description of the target.  For a {@code WordSense}, this is
+   * its lemma; for a {@code Synset}, it's the concatenated lemma's of
+   * its {@code WordSense}s.
    */
   public String getDescription();
 
   /**
    * Returns a long description of the target.  This is its description,
-   * appended by, if it exists, a dash and it's gloss.
+   * appended by, if it exists, a dash and its gloss.
    */
   public String getLongDescription();
 
   /**
-   * Returns the outgoing <code>Relation</code>s from this target -- those
-   * <code>Relation</code>s that have this object as their source.
+   * Returns the outgoing {@code Relation}s from this target -- those
+   * {@code Relation}s that have this object as their source.
    */
   public List<? extends Relation> getRelations();
 
-  /** Returns the outgoing <code>Relation</code>s of type {@code type}. */
+  /** Returns the outgoing {@code Relation}s of type {@code type}. */
   public List<? extends Relation> getRelations(RelationType type);
 
-  /** Returns the targets of the outgoing <code>Relation</code>s. */
+  /** Returns the targets of the outgoing {@code Relation}s. */
   public List<RelationTarget> getTargets();
 
   /**
-   * Returns the targets of the outgoing <code>Relation</code>s that have type
+   * Returns the targets of the outgoing {@code Relation}s that have type
    * {@code type}.
    */
   public List<RelationTarget> getTargets(RelationType type);
