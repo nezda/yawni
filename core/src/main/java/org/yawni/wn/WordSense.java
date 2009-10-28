@@ -78,7 +78,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   private short senseNumber;
   private short sensesTaggedFrequency;
   // only needs to be a byte since there are only 3 bits of flag values
-  private final byte flags;
+  private final byte adjPositionFlags;
 
   //
   // Constructor
@@ -88,7 +88,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     this.lemma = lemma;
     this.lexid = lexid;
     assert flags < Byte.MAX_VALUE;
-    this.flags = (byte) flags;
+    this.adjPositionFlags = (byte) flags;
     this.senseNumber = -1;
     this.sensesTaggedFrequency = -1;
   }
@@ -110,7 +110,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * Returns the natural-cased lemma representation of this {@code WordSense}
+   * Returns the natural-cased lemma representation of this {@code WordSense}.
    * Its lemma is its orthographic representation, for example <tt>"dog"</tt>
    * or <tt>"U.S.A."</tt> or <tt>"George Washington"</tt>.  Contrast to the
    * canonical lemma provided by {@link Word#getLemma()}.
@@ -124,15 +124,15 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return ImmutableList.of(this).iterator();
   }
 
-  String flagsToString() {
-    if (flags == 0) {
+  String adjFlagsToString() {
+    if (adjPositionFlags == 0) {
       return "NONE";
     }
     final StringBuilder flagString = new StringBuilder();
-    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
+    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags)) {
       flagString.append("predicative");
     }
-    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
+    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags)) {
       if (flagString.length() != 0) {
         flagString.append(',');
       }
@@ -140,7 +140,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       // while the database files seem to indicate it as attributive
       flagString.append("prenominal");
     }
-    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
+    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags)) {
       if (flagString.length() != 0) {
         flagString.append(',');
       }
@@ -153,7 +153,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * 1-indexed value whose order is relative to its {@link Word}.
    *
    * <p> Note that this value often varies across WordNet versions.
-   * For those senses which never occured in sense tagged corpora, it is
+   * For those senses which never occurred in sense tagged corpora, it is
    * arbitrarily chosen.
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html#toc4">'NOTES' in cntlist WordNet documentation</a>
    */
@@ -180,7 +180,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /** 
-   * Use this <code>WordSense</code>'s lemma as key to find its <code>Word</code>.
+   * Uses this <code>WordSense</code>'s lemma as key to find its <code>Word</code>.
    */
   // WordSense contains everything Word does - no need to expose this
   Word getWord() {
@@ -286,7 +286,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html"><tt>cntlist</tt></a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html"><tt>cntlist</tt></a>
    */
   public int getSensesTaggedFrequency() {
     if (sensesTaggedFrequency < 0) {
@@ -333,26 +333,26 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * @see AdjPosition
    */
   public AdjPosition getAdjPosition() {
-    if (flags == 0) {
+    if (adjPositionFlags == 0) {
       return AdjPosition.NONE;
     }
     assert getPOS() == POS.ADJ;
-    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, flags)) {
-      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags);
-      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags);
+    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags)) {
+      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
+      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
       return AdjPosition.PREDICATIVE;
     }
-    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags)) {
-      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, flags);
-      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags);
+    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags)) {
+      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
+      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
       return AdjPosition.ATTRIBUTIVE;
     }
-    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, flags)) {
-      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, flags);
-      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, flags);
+    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags)) {
+      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
+      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
       return AdjPosition.IMMEDIATE_POSTNOMINAL;
     }
-    throw new IllegalStateException("invalid flags "+flags);
+    throw new IllegalStateException("invalid flags "+adjPositionFlags);
   }
 
   int getLexid() {
@@ -360,8 +360,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   // published as long, stored as byte for max efficiency
-  long getFlags() {
-    return flags;
+  long getAdjPositionFlags() {
+    return adjPositionFlags;
   }
 
   //TODO expert only. maybe publish as EnumSet
@@ -454,9 +454,9 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       return lemma;
     }
     final StringBuilder description = new StringBuilder(lemma);
-    if (flags != 0) {
+    if (adjPositionFlags != 0) {
       description.append('(');
-      description.append(flagsToString());
+      description.append(adjFlagsToString());
       description.append(')');
     }
     final List<RelationTarget> targets = getTargets(RelationType.ANTONYM);
@@ -483,9 +483,9 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     //  buffer.append(") ");
     //}
     buffer.append(getLemma());
-    if (flags != 0) {
+    if (adjPositionFlags != 0) {
       buffer.append('(');
-      buffer.append(flagsToString());
+      buffer.append(adjFlagsToString());
       buffer.append(')');
     }
     final String gloss = getSynset().getGloss();
