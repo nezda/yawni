@@ -109,7 +109,7 @@ class WordWriter {
   }
 }
 
-class PointerWriter {
+class RelationWriter {
   // Synset → Synset (aka semantic)
   // WordSense → WordSense (aka lexical)
   public Appendable write(Appendable out) {

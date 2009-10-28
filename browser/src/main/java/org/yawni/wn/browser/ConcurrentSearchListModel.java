@@ -97,11 +97,13 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     }
     this.rowUpdateInterval = rowUpdateInterval;
   }
+  
   public void setJList(final JList jlist) {
     assert jlist != null;
     this.jlist = jlist;
     setFocusable(false);
   }
+
   /** {@inheritDoc} */
   public Object getElementAt(final int index) {
     if (index < filterItems.size()) {
@@ -110,21 +112,24 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       return null;
     }
   }
+
   /** {@inheritDoc} */
   public int getSize() {
     return filterItems.size();
   }
+
   private static abstract class CatchAndRelease implements Runnable {
     abstract void doRun();
     public void run() {
       try {
         doRun();
-      } catch(Throwable t) {
+      } catch (Throwable t) {
         //FIXME bad form - should log
         t.printStackTrace();
       }
     }
   } // end class CatchAndRelease
+  
   private void redisplay(final Iterable toDisplay, final String query) {
     //XXX System.err.println("doRedisplay submitted "+new Date());
     final Future submittedTask =
@@ -256,11 +261,13 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     final String query = query(evt);
     redisplay(search(query), query);
   }
+
   /** {@inheritDoc} */
   public void insertUpdate(final DocumentEvent evt) {
     final String query = query(evt);
     redisplay(search(query), query);
   }
+
   /** {@inheritDoc} */
   public void removeUpdate(final DocumentEvent evt) {
     final String query = query(evt);
@@ -271,7 +278,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     final Document doc = evt.getDocument();
     try {
       return doc.getText(0, doc.getLength());
-    } catch(BadLocationException ble) {
+    } catch (BadLocationException ble) {
       throw new RuntimeException(ble);
     }
   }

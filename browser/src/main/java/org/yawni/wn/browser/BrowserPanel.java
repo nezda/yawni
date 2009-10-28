@@ -174,7 +174,8 @@ public class BrowserPanel extends JPanel {
     });
 
     this.searchField.setInputVerifier(new InputVerifier() {
-      @Override public boolean verify(JComponent input) {
+      @Override
+      public boolean verify(JComponent input) {
         final JTextField searchField = (JTextField) input;
         // if the text in this field is different from the
         // text which the menus are currently for, need to
@@ -510,7 +511,8 @@ public class BrowserPanel extends JPanel {
     browser.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
   }
 
-  @Override public void setVisible(final boolean visible) {
+  @Override
+  public void setVisible(final boolean visible) {
     super.setVisible(visible);
     if (visible) {
       searchField.requestFocusInWindow();
@@ -601,7 +603,8 @@ public class BrowserPanel extends JPanel {
     final Action biggerFont;
     final Action smallerFont;
 
-    @Override public void paintComponent(final Graphics g) {
+    @Override
+    public void paintComponent(final Graphics g) {
       // bullets look better anti-aliased (still pretty big)
       final Graphics2D g2d = (Graphics2D) g;
       g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,

@@ -81,9 +81,6 @@ public class PopdownButton extends JButton {
     //XXX this.setPressedIcon(pressedAndSelectedIcon);
     //XXX this.setSelectedIcon(pressedAndSelectedIcon);
 
-    // not sure what this does
-    //this.setComponentPopupMenu(menu);
-
     // http://developer.apple.com/technotes/tn2007/tn2196.html#BUTTONS
     this.putClientProperty("JButton.buttonType", "textured");
     this.putClientProperty("JComponent.sizeVariant", "regular");
@@ -91,6 +88,7 @@ public class PopdownButton extends JButton {
     enterPressesWhenFocused(this);
 
     this.popupMenu = new JPopupMenu();
+
     // add a popup menu listener to update the button's selection state
     // when the menu is being dismissed.
     popupMenu.addPopupMenuListener(createPopupMenuListener());
@@ -100,7 +98,7 @@ public class PopdownButton extends JButton {
     // - http://explodingpixels.wordpress.com/2008/11/10/prevent-popup-menu-dismissal/
     // - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6350814
     // Install a special client property on the button to prevent it from
-    // closing of the popup when the down arrow is pressed.
+    // closing the popup when the down arrow is pressed.
     final JComboBox box = new JComboBox();
     final Object preventHide = box.getClientProperty("doNotCancelPopup");
     this.putClientProperty("doNotCancelPopup", preventHide);
@@ -196,6 +194,7 @@ public class PopdownButton extends JButton {
 
   // snipped from Apache Harmony JComboBox
   // selectWithKeyChar()
+  // UNUSED
   class DefaultKeySelectionManager implements JComboBox.KeySelectionManager, Serializable {
     private static final long serialVersionUID = 1L;
     

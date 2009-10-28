@@ -83,4 +83,3 @@ class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
     }
   }
 }
-
