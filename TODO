@@ -133,9 +133,10 @@ Release TODOs
 //   - AttributeSource container of AttributeImpls
 
 - issues
+  - feature: core: get tests to run from within Netbeans (possibly with Maven test scope dep on data subproject?)
   - bug: core: MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
   - feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
-  - bug: core: no meronyms for "capacity" ? (at least in GUI drop down)
+  < feature: gui: inherited meronyms not shown in GUI drop down; these are indirect via hypernyms (e.g., "capacity"#3's hypernym "volume" has direct meronyms)
   + bug: core: fix BloomFilter issue with non-String CharSequence hashCode (feature)
   + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
@@ -212,27 +213,32 @@ Release TODOs
       public Iterable<Relation> relations(final POS pos);
       public Iterable<Relation> relations(final RelationType relationType, final POS pos);
     
-  <POS>#<synset_offset> Synset
-  <sensekey> -> WordSense
+  <POS>#<synset_offset> → Synset
+  <sensekey> → WordSense
 
-  <prefix> Iterable<Word>
-  <suffix> Iterable<Word>
-  <regex> Iterable<Word>
-  <glob>
+  <prefix> → Iterable<Word> ** Iterable<WordSense> if case sensitive
+  <suffix> → Iterable<Word> ** Iterable<WordSense> if case sensitive
+  <regex>  → Iterable<Word> ** Iterable<WordSense> if case sensitive
+  <glob>   → Iterable<Word> ** Iterable<WordSense> if case sensitive
     - glob-style regexes (e.g., "*" means ".*", "p*za")
       http://jakarta.apache.org/oro/api/org/apache/oro/text/GlobCompiler.html
       http://stackoverflow.com/questions/1247772/is-there-an-equivalent-of-java-util-regex-for-glob-type-patterns
 
-  <lexname> Iterable<WordSense>
-  <AdjPosition> Iterable<WordSense>
-  <RelationType> Iterable<Relation>
-  <glossSubstring> Iterable<Synset>
+  <lexname> → Iterable<WordSense> (ideally, report error for undefined lexnames (easiest if it were an enum))
+  <AdjPosition> → Iterable<WordSense> (only applies to POS.ADJ)
+  <RelationType> → Iterable<Relation>
+  <glossSubstring> → Iterable<Synset>
     - gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (ie use Lucene)
 
   <random POS/Word/WordSense/Synset>
-    - good for unit tests and performance tests
+    - good for unit tests and performance tests or "Synset'o'the'day"
+    T random(rand, Class<T> clazz) // no good common bounds for clazz (except maybe package is org.yawni.wn)
+
   * many of these are just filters which require exhaustive iteration
     - these only make sense in substring search than (since its not stemmed)
+  * results sets can easily be large, so incremental display would be nice
+    - SearchFrame / ConcurrentSearchListModel shows List/Iterable<Word> this way
+  * result sets can be of many different types ({Word, Synset, WordSense} x {scalar, Iterable<T>})
 - feature: core: design a useful Visitor API and implement it with TreeIterator
 - bug: doc: note that Substring search will NOT search inflected forms in some kind of documentation?  maybe it should try these if it has no matches ?
 - bug: gui: when going back and forth between Search and Substring search
@@ -615,7 +621,7 @@ x feature: howto for developing in NetBeans ?
   ~ feature: gui: find-as-type (at least in substring search)
     - optimize re-fill, esp for short searches ('a')
       - caching recent searches would be effective (lotsa RAM?)
-      - adding char to search string never increases the numbder of search hits
+      - adding char to search string never increases the number of search hits
         - unless it is inserted not at the end of the current search string
       - results are always alphabetized - which conditions to adjacent searches
         have common prefix/suffix hit sub-lists ?
@@ -915,8 +921,8 @@ Performance
 < feature: core: convert over to CharSequence and consider using ByteCharBuffer
   - eliminates a lot of immediately discarded String objects
   - eliminates backing char[] storage reqs of longer lived Strings
-- feature: core: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to chop the memory requirements in half for these large strings.
-  - 16,557,481 letters (about 32 MB as char so about 16 MB as byte)
+< feature: core: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to chop the memory requirements in half for these large strings.
+  - 16,557,481 letters (about 32 MB as char so would be about 16 MB as byte)
 - bug: core: use WeakReference's/ WeakReference[] (really I think SoftReference's/SoftReference[])
   * Steele's original code referred to this (was not yet in JDK); see 
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
