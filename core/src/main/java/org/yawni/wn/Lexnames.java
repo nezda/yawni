@@ -23,6 +23,7 @@ package org.yawni.wn;
  * <cite>M. Ciaramita, Y. Altun. 2006. Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger</cite>
  * Supersense Tagging of Unknown Nouns in WordNet
  * TODO integrate descriptions into API
+ * FIXME would this make a better enum ?
  */
 class Lexnames {
   static final String contents [][] = {
