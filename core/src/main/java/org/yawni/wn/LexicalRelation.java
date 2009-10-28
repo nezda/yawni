@@ -17,7 +17,7 @@
 package org.yawni.wn;
 
 /**
- * A <code>LexicalRelation</code> encodes a lexical relationship between {@link WordSense}s.
+ * A {@code LexicalRelation} encodes a lexical relationship between {@link WordSense}s.
  */
 public final class LexicalRelation extends Relation {
   LexicalRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,

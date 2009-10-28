@@ -17,7 +17,7 @@
 package org.yawni.wn;
 
 /**
- * A <code>SemanticRelation</code> encodes a lexical relationship between {@link Synset}s.
+ * A {@code SemanticRelation} encodes a lexical relationship between {@link Synset}s.
  */
 public final class SemanticRelation extends Relation {
   SemanticRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
