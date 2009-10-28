@@ -18,4 +18,3 @@
  * Package containing various classes used to implement the browser.
  */
 package org.yawni.wn.browser;
-

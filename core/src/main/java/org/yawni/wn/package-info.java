@@ -18,4 +18,3 @@
  * Key package for all Yawni classes.
  */
 package org.yawni.wn;
-
