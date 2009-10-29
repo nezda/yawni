@@ -582,7 +582,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * sense information (does no harm though because it isn't referenced in its
    * WordNet), doesn't include entries for items with zero counts, doesn't
    * include synset offset, and formats adjective sense keys correctly (including
-   * {@code WordSense.AdjPosition} information).
+   * {@link WordSense.AdjPosition} information).
+   * 
+   * @see Word#getTaggedSenseCount()
    */
   String lookupCntlistDotRevLine(final CharSequence senseKey) {
     //TODO add caching
