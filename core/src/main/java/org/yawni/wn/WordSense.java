@@ -41,7 +41,7 @@ import static org.yawni.util.Utils.add;
  */
 public final class WordSense implements RelationTarget, Comparable<WordSense> {
   /**
-   * <em>Optional</em> restrictions for the position(s) an adjective can take
+   * <em>Optional</em> restrictions for the position(s) an {@linkplain POS#ADJ adjective} can take
    * relative to the noun it modifies. aka "adjclass".
    */
   public enum AdjPosition {
@@ -180,7 +180,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /** 
-   * Uses this <code>WordSense</code>'s lemma as key to find its <code>Word</code>.
+   * Uses this {@code WordSense}'s lemma as key to find its {@code Word}.
    */
   // WordSense contains everything Word does - no need to expose this
   Word getWord() {
@@ -286,7 +286,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * @see <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html"><tt>cntlist</tt></a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/cntlist.5WN.html"><tt>cntlist.rev</tt></a>
    */
   public int getSensesTaggedFrequency() {
     if (sensesTaggedFrequency < 0) {
