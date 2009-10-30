@@ -24,7 +24,6 @@ import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
 import org.yawni.util.cache.LRUCache;
-import org.yawni.util.LookAheadIterator;
 import org.yawni.util.MultiLevelIterable;
 import org.yawni.util.MutatedIterable;
 import org.yawni.util.Utils;
@@ -43,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.yawni.util.AbstractIterator;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
 
@@ -742,8 +742,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#words
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
-  private class WordIterator implements Iterator<Word> {
+  private class WordIterator extends AbstractIterator<Word> {
     private final POS pos;
     private final String filename;
     private int nextOffset = 0;
@@ -753,7 +752,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       this.pos = pos;
       this.filename = getIndexFilename(pos);
     }
-    public Word next() {
+    @Override
+    protected Word computeNext() {
       try {
         int offset = -1;
         String line;
@@ -764,7 +764,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           offset = nextOffset;
           line = fileManager.readLineAt(nextOffset, filename);
           if (line == null) {
-            throw new NoSuchElementException();
+            return endOfData();
           }
           nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
@@ -772,13 +772,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
-    }
-    public boolean hasNext() {
-      // meant to be used with LookAheadIterator
-      return true;
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class WordIterator
 
@@ -793,7 +786,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else {
       return new Iterable<Word>() {
         public Iterator<Word> iterator() {
-          return new LookAheadIterator<Word>(new WordIterator(pos));
+          return new WordIterator(pos);
         }
       };
     }
@@ -802,8 +795,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#searchBySubstring
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
-  private class SearchBySubstringIterator implements Iterator<Word> {
+  private class SearchBySubstringIterator extends AbstractIterator<Word> {
     private final POS pos;
     private final CharSequence substring;
     private final String filename;
@@ -814,7 +806,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       this.substring = Morphy.searchNormalize(substring.toString());
       this.filename = getIndexFilename(pos);
     }
-    public Word next() {
+    @Override
+    protected Word computeNext() {
       try {
         final int offset = fileManager.getMatchingLinePointer(nextOffset, substring, filename);
         if (offset >= 0) {
@@ -822,18 +815,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           nextOffset = fileManager.getNextLinePointer(offset, filename);
           return value;
         } else {
-          throw new NoSuchElementException();
+          return endOfData();
         }
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-    }
-    public boolean hasNext() {
-      // meant to be used with LookAheadIterator
-      return true;
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class SearchBySubstringIterator
 
@@ -848,7 +834,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else {
       return new Iterable<Word>() {
         public Iterator<Word> iterator() {
-          return new LookAheadIterator<Word>(new SearchBySubstringIterator(pos, substring));
+          return new SearchBySubstringIterator(pos, substring);
         }
       };
     }
@@ -857,8 +843,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#searchByPrefix
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
-  private class SearchByPrefixIterator implements Iterator<Word> {
+  private class SearchByPrefixIterator extends AbstractIterator<Word> {
     private final POS pos;
     private final CharSequence prefix;
     private final String filename;
@@ -870,7 +855,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       this.prefix = Morphy.searchNormalize(prefix.toString());
       this.filename = getIndexFilename(pos);
     }
-    public Word next() {
+    @Override
+    protected Word computeNext() {
       try {
         final int offset = fileManager.getPrefixMatchLinePointer(nextOffset, prefix, filename);
         if (offset >= 0) {
@@ -879,18 +865,11 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           nextOffset = fileManager.getNextLinePointer(offset, filename);
           return value;
         } else {
-          throw new NoSuchElementException();
+          return endOfData();
         }
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-    }
-    public boolean hasNext() {
-      // meant to be used with LookAheadIterator
-      return true;
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class SearchByPrefixIterator
 
@@ -905,7 +884,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else {
       return new Iterable<Word>() {
         public Iterator<Word> iterator() {
-          return new LookAheadIterator<Word>(new SearchByPrefixIterator(pos, prefix));
+          return new SearchByPrefixIterator(pos, prefix);
         }
       };
     }
@@ -916,8 +895,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#searchGlossBySubstring
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
-  private class SearchGlossBySubstringIterator implements Iterator<Synset> {
+  private class SearchGlossBySubstringIterator extends AbstractIterator<Synset> {
     private final Iterator<Synset> syns;
     private final CharSequence substring;
 
@@ -926,18 +904,13 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       //XXX this.substring = Morphy.searchNormalize(substring.substring());
       this.substring = substring.toString();
     }
-    public boolean hasNext() {
-      throw new UnsupportedOperationException("Not yet implemented.");
-    }
-    public Synset next() {
-      throw new UnsupportedOperationException("Not yet implemented");
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
+    @Override
+    protected Synset computeNext() {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   } // end class SearchGlossBySubstringIterator
-  
-  /** {@inheritDoc} */
+
+//  /** {@inheritDoc} */
 //  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
 //    throw new UnsupportedOperationException("Not yet implemented");
 //  }
@@ -945,8 +918,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#synsets
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
-  private class POSSynsetsIterator implements Iterator<Synset> {
+  private class POSSynsetsIterator extends AbstractIterator<Synset> {
     private final POS pos;
     private final String filename;
     private int nextOffset;
@@ -954,7 +926,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       this.pos = pos;
       this.filename = getDataFilename(pos);
     }
-    public Synset next() {
+    @Override
+    protected Synset computeNext() {
       try {
         String line;
         int offset;
@@ -965,7 +938,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
           line = fileManager.readLineAt(nextOffset, filename);
           offset = nextOffset;
           if (line == null) {
-            throw new NoSuchElementException();
+            return endOfData();
           }
           nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
         } while (line.startsWith("  ")); // first few lines start with "  "
@@ -973,13 +946,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-    }
-    public boolean hasNext() {
-      // meant to be used with LookAheadIterator
-      return true;
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class POSSynsetsIterator
 
@@ -994,7 +960,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else {
       return new Iterable<Synset> () {
         public Iterator<Synset> iterator() {
-          return new LookAheadIterator<Synset>(new POSSynsetsIterator(pos));
+          return new POSSynsetsIterator(pos);
         }
       };
     }
@@ -1100,8 +1066,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#exceptions
    */
-  //TODO don't do this throw NoSuchElementException iterator stuff
-  private class POSExceptionsIterator implements Iterator<List<String>> {
+  private class POSExceptionsIterator extends AbstractIterator<List<String>> {
     private final POS pos;
     private final String filename;
     private int nextOffset;
@@ -1109,11 +1074,12 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       this.pos = pos;
       this.filename = getExceptionsFilename(pos);
     }
-    public List<String> next() {
+    @Override
+    protected List<String> computeNext() {
       try {
         final String line = fileManager.readLineAt(nextOffset, filename);
         if (line == null) {
-          throw new NoSuchElementException();
+          return endOfData();
         }
         nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
         final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
@@ -1122,13 +1088,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-    }
-    public boolean hasNext() {
-      // meant to be used with LookAheadIterator
-      return true;
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class POSExceptionsIterator
 
@@ -1143,7 +1102,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else {
       return new Iterable<List<String>> () {
         public Iterator<List<String>> iterator() {
-          return new LookAheadIterator<List<String>>(new POSExceptionsIterator(pos));
+          return new POSExceptionsIterator(pos);
         }
       };
     }
