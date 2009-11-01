@@ -326,7 +326,7 @@ public class MorphyTest {
     int spaceAndDash = 0;
     for (final POS pos : POS.CATS) {
       for (final Word word : dictionary.words(pos)) {
-        final String lemma = word.getLemma();
+        final String lemma = word.getLowercasedLemma();
         if (lemma.indexOf("-") > 0 && lemma.indexOf(" ") > 0) {
           spaceAndDash++;
         //System.err.println("lemma: "+lemma+" spaceAndDash: "+spaceAndDash);
@@ -341,7 +341,7 @@ public class MorphyTest {
     int dashNotSpace = 0;
     for (final POS pos : POS.CATS) {
       for (final Word word : dictionary.words(pos)) {
-        final String lemma = word.getLemma();
+        final String lemma = word.getLowercasedLemma();
         if (lemma.indexOf('-') > 0) {
           dash++;
           final String noDash = lemma.replace("-", "");
@@ -379,7 +379,7 @@ public class MorphyTest {
   //  for(final POS pos : POS.CATS) {
   //    for(final Word word : dictionary.words(pos)) {
   //      for(final WordSense wordSense : word.getSenses()) {
-  //        final String lemma = wordSense.getLemma();
+  //        final String lemma = wordSense.getLowercasedLemma();
   //        for(final POS otherPOS : POS.CATS) {
   //          if(otherPOS == pos) {
   //            continue;

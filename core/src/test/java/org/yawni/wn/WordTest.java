@@ -33,18 +33,18 @@ public class WordTest {
     final int[] dashes = new int[30];
     final int[] periods = new int[30];
     for (final Word word : dictionary.words(POS.ALL)) {
-      final int currLen = Morphy.countWords(word.getLemma(), '-');
+      final int currLen = Morphy.countWords(word.getLowercasedLemma(), '-');
       lengths[currLen]++;
-      dashes[count(word.getLemma(), '-')]++;
+      dashes[count(word.getLowercasedLemma(), '-')]++;
 //      if (dashes[5] == 1) {
 //        //kiss-me-over-the-garden-gate
-//        System.err.println("word: "+word.getLemma());
+//        System.err.println("word: "+word.getLowercasedLemma());
 //        break;
 //      }
-      periods[count(word.getLemma(), '.')]++;
+      periods[count(word.getLowercasedLemma(), '.')]++;
 //      if (periods[4] == 1) {
 //        //d.p.r.k.
-//        System.err.println("word: "+word.getLemma());
+//        System.err.println("word: "+word.getLowercasedLemma());
 //        break;
 //      }
     }

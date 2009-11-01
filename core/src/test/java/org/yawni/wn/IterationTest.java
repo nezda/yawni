@@ -149,7 +149,7 @@ public class IterationTest {
       if (rand.nextFloat() < prefixDitchProportion) {
         continue;
       }
-      final String lemma = word.getLemma();
+      final String lemma = word.getLowercasedLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
         final Iterable<Word> matches = dictionary.searchByPrefix(prefix, pos);
@@ -173,7 +173,7 @@ public class IterationTest {
       if (rand.nextFloat() < substringDitchProportion) {
         continue;
       }
-      final String lemma = word.getLemma();
+      final String lemma = word.getLowercasedLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
         final Iterable<Word> matches = dictionary.searchBySubstring(prefix, pos);
@@ -187,7 +187,7 @@ public class IterationTest {
 
   private static boolean containsLemma(final Iterable<Word> words, final String lemma) {
     for (final Word word : words) {
-      if (word.getLemma().equals(lemma)) {
+      if (word.getLowercasedLemma().equals(lemma)) {
         return true;
       }
     }
@@ -305,7 +305,7 @@ public class IterationTest {
             }
             iteration_total_p_cnt += relationTypes.size();
             for (final WordSense wordSense : word.getSenses()) {
-              //final String lemma = word.getLemma();
+              //final String lemma = word.getLowercasedLemma();
               final Synset synset = wordSense.getSynset();
               final int taggedFreq = wordSense.getSensesTaggedFrequency();
               //String msg = i+" "+word+" taggedFreq: "+taggedFreq;
@@ -404,7 +404,7 @@ public class IterationTest {
   public void lookupSynsets() {
     logTest("lookupSynsets");
     for (final Word word : dictionary.words(POS.ALL)) {
-      final String str = word.getLemma();
+      final String str = word.getLowercasedLemma();
       // exhaustive -- all POS
       for (final POS pos : POS.CATS) {
         List<Synset> syns = dictionary.lookupSynsets(str, pos);
