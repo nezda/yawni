@@ -50,7 +50,7 @@ import java.util.RandomAccess;
  * TODO
  * - make this class package private and move it accordingly ?  just an implementation detail for now
  * - take another crack at Restleton
- * - run Google Collections 0.9 test suite on it
+ * - run Google Collections test suite on it
  * - copy Serializable functionality
  *
  * <p> Random notes

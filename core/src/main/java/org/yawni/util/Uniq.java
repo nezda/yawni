@@ -57,8 +57,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
   }
 
   /**
-   * <h4>TODO</h4>
-   * - support remove()
+   * TODO: - support remove()
    */
   private static class UniqIterator<T extends Object & Comparable<? super T>> implements Iterator<T> {
     private static final long serialVersionUID = 1L;

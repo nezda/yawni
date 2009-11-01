@@ -151,8 +151,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
    * {@code O(n * lg k)} if the sequence heads were stored in a priority
    * queue which will not be beneficial for small <tt>k</tt> (e.g., {@code k < 10}).
    *
-   * <h4>TODO</h4>
-   * - support remove()
+   * TODO - support remove()
    */
   private static class MergedIterator<T extends Object & Comparable<? super T>> implements Iterator<T> {
     private static final long serialVersionUID = 1L;

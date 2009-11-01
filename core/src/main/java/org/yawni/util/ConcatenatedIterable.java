@@ -80,8 +80,7 @@ public final class ConcatenatedIterable<T> implements Iterable<T> {
    * Implements simple concat logic and presents logic as an
    * {@code Iterator}.
    *
-   * <h4>TODO</h4>
-   * - support remove()
+   * TODO: - support remove()
    */
   private static class ConcatenatedIterator<T> implements Iterator<T> {
     private static final long serialVersionUID = 1L;
