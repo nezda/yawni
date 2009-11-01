@@ -777,13 +777,13 @@ public class BrowserPanel extends JPanel {
       getPopupMenu().add(new RelationTypeAction("Senses", pos, null));
       for (final RelationType relationType : word.getRelationTypes()) {
         // use word+pos custom labels for drop downs
-        final String label = String.format(relationType.getFormatLabel(word.getPOS()), word.getLemma());
+        final String label = String.format(relationType.getFormatLabel(word.getPOS()), word.getLowercasedLemma());
         //System.err.println("label: "+label+" word: "+word+" relationType: "+relationType);
         final JMenuItem item = getPopupMenu().add(new RelationTypeAction(label, pos, relationType));
       }
       if (pos == POS.VERB) {
         // use word+pos custom labels for drop downs
-        final String label = String.format("Sentence frames for verb %s", word.getLemma());
+        final String label = String.format("Sentence frames for verb %s", word.getLowercasedLemma());
         //System.err.println("label: "+label+" word: "+word+" relationType: "+relationType);
         final JMenuItem item = getPopupMenu().add(new VerbFramesAction(label));
       }
@@ -865,7 +865,7 @@ public class BrowserPanel extends JPanel {
   // used by substring search panel
   // FIXME synchronization probably insufficient
   synchronized void setWord(final Word word) {
-    searchField.setText(word.getLemma());
+    searchField.setText(word.getLowercasedLemma());
     displayOverview();
   }
 
@@ -1005,7 +1005,7 @@ public class BrowserPanel extends JPanel {
 
   /** Overview for single {@code Word} */
   private synchronized void displaySenses(final Word word) {
-    updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLemma());
+    updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     appendSenses(word, buffer, true);
     resultEditorPane.setText(buffer.toString());
@@ -1029,7 +1029,7 @@ public class BrowserPanel extends JPanel {
     final List<Synset> senses = word.getSynsets();
     final int taggedCount = word.getTaggedSenseCount();
     buffer.append("The ").append(word.getPOS().getLabel()).
-      append(" <b>").append(word.getLemma()).append("</b> has ").
+      append(" <b>").append(word.getLowercasedLemma()).append("</b> has ").
       append(senses.size()).append(" sense").append(senses.size() == 1 ? "" : "s").
       append(' ').
       append('(');
@@ -1107,7 +1107,7 @@ public class BrowserPanel extends JPanel {
    * each applicable sense.
    */
   private void displaySenseChain(final Word word, final RelationType relationType) {
-    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLemma());
+    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
     // count number of senses relationType applies to
@@ -1119,7 +1119,7 @@ public class BrowserPanel extends JPanel {
     }
     buffer.append("Applies to ").append(numApplicableSenses).append(" of the ").
       append(senses.size()).append(" senses").//(senses.length > 1 ? "s" : "")+
-      append(" of <b>").append(word.getLemma()).append("</b>\n");
+      append(" of <b>").append(word.getLowercasedLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
       if (senses.get(i).getTargets(relationType).isEmpty() == false) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
@@ -1264,11 +1264,11 @@ public class BrowserPanel extends JPanel {
     RelationType.ANTONYM);
 
   private void displayVerbFrames(final Word word) {
-    updateStatusBar(Status.VERB_FRAMES, word.getLemma());
+    updateStatusBar(Status.VERB_FRAMES, word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
     buffer.append(senses.size()).append(" sense").append((senses.size() > 1 ? "s" : "")).
-      append(" of <b>").append(word.getLemma()).append("</b>\n");
+      append(" of <b>").append(word.getLowercasedLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
       if (senses.get(i).getWordSense(word).getVerbFrames().isEmpty() == false) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
