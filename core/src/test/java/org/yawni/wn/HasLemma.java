@@ -10,19 +10,19 @@ import org.hamcrest.BaseMatcher;
 
 //different T's for factory method and matches()
 //"lemma" isLemmaOf(word)
-//- matches("lemma") => word.getLemma().equals("lemma")
+//- matches("lemma") => word.getLowercasedLemma().equals("lemma")
 //"lemma" isLemmaOf(wordSense)
 
 // inverted order (hasLemma("lemma")
 //word, hasLemma("lemma")
-//- matches(word) => "lemma".equals(word.getLemma())
+//- matches(word) => "lemma".equals(word.getLowercasedLemma())
 
 // maybe would be more properly implemented as IsLemmaOf ?
 // assertThat("'hood", isLemmaOf(wordSenseX))
 //
 // hack to support Word and WordSense which currently have no
 // common interface (e.g., GetLemma/HaveLemma/Lemma)
-public class HasLemma<T> extends BaseMatcher<T> {
+class HasLemma<T> extends BaseMatcher<T> {
   private final Object wordOrWordSense;
   
   private HasLemma(final Word word) {
@@ -34,7 +34,7 @@ public class HasLemma<T> extends BaseMatcher<T> {
   public boolean matches(Object operand) {
     String lemma = (String) operand;
     if (wordOrWordSense instanceof Word) {
-      return lemma.equals(((Word)wordOrWordSense).getLemma());
+      return lemma.equals(((Word)wordOrWordSense).getLowercasedLemma());
     } else if (wordOrWordSense instanceof WordSense) {
       return lemma.equals(((WordSense)wordOrWordSense).getLemma());
     } else {
