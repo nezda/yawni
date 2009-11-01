@@ -160,7 +160,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * <p> Note that different senses of this word may have different lemmas - this
    * is the canonical one (e.g., "cd" for "Cd", "CD", "cd").
    */
-  public String getLemma() {
+  public String getLowercasedLemma() {
     return lowerCasedLemma;
   }
 
@@ -291,7 +291,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       append('@').
       append(getPOS().getLabel()).
       append(": \"").
-      append(getLemma()).
+      append(getLowercasedLemma()).
       append("\"]").toString();
   }
 
@@ -301,7 +301,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   public int compareTo(final Word that) {
     // if these ' ' → '_' replaces aren't done resulting sort will not match
     // index files.
-    int result = WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLemma(), that.getLemma());
+    int result = WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLowercasedLemma(), that.getLowercasedLemma());
     if (result == 0) {
       result = this.getPOS().compareTo(that.getPOS());
     }
