@@ -24,6 +24,6 @@ public final class WordToLemma extends MutatedIterable<Word, String> {
   }
   @Override
   public String apply(final Word word) {
-    return word.getLemma();
+    return word.getLowercasedLemma();
   }
 }
