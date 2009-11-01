@@ -48,8 +48,8 @@ class BloomFilters {
 
 //      System.err.println(pos+" "+filter);
       for (final Word word : dictionary.words(pos)) {
-        filter.add(word.getLemma());
-        assert filter.contains(word.getLemma());
+        filter.add(word.getLowercasedLemma());
+        assert filter.contains(word.getLowercasedLemma());
       }
 //      int numExceptions = 0;
 //      int numExceptionInstances = 0;
@@ -66,7 +66,7 @@ class BloomFilters {
 //      System.err.printf("numExceptions: %,d numExceptionInstances: %,d\n",
 //        numExceptions, numExceptionInstances);
       for (final Word word : dictionary.words(pos)) {
-        assert filter.contains(word.getLemma());
+        assert filter.contains(word.getLowercasedLemma());
       }
       System.err.println("XXX "+pos+" "+filter);
       final String fname = pos.name()+".bloom";
