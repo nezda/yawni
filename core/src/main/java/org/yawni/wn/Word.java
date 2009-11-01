@@ -153,7 +153,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * Returns this {@code Word}'s <em>lowercased</em> lemma.  Its lemma is its orthographic
+   * Returns this {@code Word}'s <em>lowercased</em> lemma.  Its 'lemma' is its orthographic
    * representation, for example "<tt>dog</tt>" or "<tt>get up</tt>"
    * or "<tt>u.s.a.</tt>".
    * 
