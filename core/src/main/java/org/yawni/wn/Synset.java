@@ -200,7 +200,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
    */
   public WordSense getWordSense(final Word word) {
     for (final WordSense wordSense : wordSenses) {
-      if (wordSense.getLemma().equalsIgnoreCase(word.getLemma())) {
+      if (wordSense.getLemma().equalsIgnoreCase(word.getLowercasedLemma())) {
         return wordSense;
       }
     }

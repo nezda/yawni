@@ -113,7 +113,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * Returns the natural-cased lemma representation of this {@code WordSense}.
    * Its lemma is its orthographic representation, for example <tt>"dog"</tt>
    * or <tt>"U.S.A."</tt> or <tt>"George Washington"</tt>.  Contrast to the
-   * canonical lemma provided by {@link Word#getLemma()}.
+   * canonical lemma provided by {@link Word#getLowercasedLemma()}.
    */
   public String getLemma() {
     return lemma;
