@@ -90,9 +90,9 @@
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <argLine>
-          <!--   -Xmx256m -->
+            -Xmx256m -d32
+          <!-- -d32 -->
           <!--   -XX:CompileThreshold=1 -->
-            -d32
           </argLine>
           <systemProperties>
             <!-- Required to pass this system property through to the unit tests -->
