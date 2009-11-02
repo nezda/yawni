@@ -194,7 +194,7 @@ public class Searcher {
   public static void main(String[] args) throws Exception {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     final Appendable output = System.out;
-    final Scanner scanner = new Scanner(System.in);    
+    final Scanner scanner = new Scanner(System.in);
     while (scanner.hasNext()) {
       final String word = scanner.next();
       output.append(word);
