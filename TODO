@@ -89,14 +89,16 @@ Release TODOs
       ? how would errors be reported ?
     - maybe want some default includes
   - if fast-boot be desirable, make FileManager.getFileStream() impl configurable ?
-
-- bachelor party payment
-  - last email sent around June 23, 2009 (subject: Bachelor Costs)
-  - Justin thinks he got 1 payment from Jeramy Leonard
-  - Luke has JLs check
+  - for some reason, Apple JVM doesn't include Rhino?
+    - can be fetched from: http://repo1.maven.org/maven2/rhino/js/
+      <dependency>
+        <groupId>rhino</groupId>
+        <artifactId>js</artifactId>
+        <version>1.7R2</version>
+      </dependency>
 
 - Bloom cache
-  - must pre-populate with index (Word) contents (1 filter per POS)
+  - pre-populate with index (Word) contents (1 filter per POS)
     - could also cache exceptions lists
 
 // - do a Lucene Tokenizer / Analyzer integration - good performance test best
@@ -132,14 +134,22 @@ Release TODOs
 //     - Token (implements Attribute,  FlagsAttribute, OffsetAttribute, PayloadAttribute, PositionIncrementAttribute, TermAttribute, TypeAttribute)
 //   - AttributeSource container of AttributeImpls
 
+- can DFS Iterator be easily created with AbstractIterator with no explicit stack ?
+  - i.e., with a constant amount of extra space
+  - http://lingpipe-blog.com/2009/01/27/quiz-answer-continuation-passing-style-for-converting-visitors-to-iterators/
+
 - issues
+  - feature: core: doc: file:///Users/nezda/President%20of%20the%20United%20States.svg
+  - feature: core: in Word, consider caching senses since it is Iterable on it; getSense(n) would also be much cheaper
   - feature: core: get tests to run from within Netbeans (possibly with Maven test scope dep on data subproject?)
   - bug: core: MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
   - feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
   + feature: ditch inefficient LookaheadIterator for Google Collections AbstractIterator
   < feature: gui: inherited meronyms not shown in GUI drop down; these are indirect via hypernyms (e.g., "capacity"#3's hypernym "volume" has direct meronyms)
+  + feature: core: add BloomFilter anti-match optimization to lookupWord(String lemma, POS)
+  - feature: core: add BloomFilter anti-match optimization to other methods (e.g., getExceptions()); trickier for Morphy/lookupBaseForms()
   + bug: core: fix BloomFilter issue with non-String CharSequence hashCode (feature)
-  + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand
+  + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand; saves tons of RAM!
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
   - bug: core: do not depend on default platform character encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
   + bug: gui: factor into new browser subproject
@@ -187,15 +197,15 @@ Release TODOs
     - VERB_GROUP (example "turn")
   - bug: search for "LN added"'s
 
-- feature: doc: highlight WordNetLexicalComparator and describe where you might use it
-- feature: core: consider GetLemma interface
-  - bug: core: rename Word.getLemma() -> getLowercasedLemma() - not the same
+- feature: core: doc: highlight WordNetLexicalComparator and describe where you might use it
+< feature: core: consider GetLemmabinterface
+  + bug: core: rename Word.getLemma() -> getLowercasedLemma() - not the same
     - XXX beware: changing getLemma()'s behavior will break code! must update it to getLowercasedLemma()
       - do NetBeans rename refactor, then add new method
-    - new cased getLemma() would improve look of single case output (e.g., "Al Capone")
+- feature: gui: show cased getLemma() for single case Words (e.g., "Al Capone") in various messages; there are only equalsIgnoreCase() contracts in place here
 - more unit tests
-  - bug: test: searching examples (findRelationships() from JWNL)
-  - bug: test: add torture test outlined in Searcher (resursive parents / children)
+  - bug: core: test: searching examples (findRelationships() from JWNL)
+  - bug: core: test: add torture test outlined in Searcher (resursive parents / children)
 - feature: core: add expert query modes: attempt to integrate these without adding more API cruft (e.g., little language / "magic" strings ?)
   * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just
     add a bunch of overloaded methods or some kind of visitor
@@ -240,6 +250,8 @@ Release TODOs
     - good for unit tests and performance tests or "Synset'o'the'day"
     T random(rand, Class<T> clazz) // no good common bounds for clazz (except maybe package is org.yawni.wn)
 
+  <custom output format>  e.g., http://www.w3.org/TR/wordnet-rdf/
+
   * many of these are just filters which require exhaustive iteration
     - these only make sense in substring search than (since its not stemmed)
   * results sets can easily be large, so incremental display would be nice
@@ -251,7 +263,7 @@ Release TODOs
 - bug: gui: when going back and forth between Search and Substring search
   ? what happens ?
 + bug: "hypocrite" shows derivationally related forms menu option, but nothing shows up
-- feature: factor static, non-public inner classes out (simpler?)
+- feature: core: gui: factor static, non-public inner classes out (simpler?)
   - FileManager: *CharStream
 - bug: "Pertainym" word/label not actually shown, meaning demonstrated via example, e.g.
   "...are nouns related to viral"
@@ -275,7 +287,7 @@ Release TODOs
 x feature: implement Set<Word> interface ?
   ? not that useful, except for maybe size() (dubious value)
 < feature: adapative compressed form - gradually parse to "preparsed" form
-- feature: use appassembler to generate scripts
+- feature: gui: use appassembler to generate scripts
   - WNHOME
   - JVM args
 ~ bug: core: switch to slf4j (more library friendly?)
@@ -507,8 +519,6 @@ x feature: howto for developing in NetBeans ?
       user    0m28.612s
       sys     0m5.586s
       
-      
-                                    
   < feature: core: implement CharSequences#sameLetterDigitSequence
     - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
     ? where would this be used ? getindex() impl ?
@@ -540,17 +550,17 @@ x feature: howto for developing in NetBeans ?
     o "DOA" -> "d.o.a"
     o "BTU" -> "b.t.u."
     * many initials already have their period-free form in the data files
-  - feature: create lemmatizing Lucene analyzer
+  - feature: core: create lemmatizing Lucene analyzer
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
   - feature: core: nice interface to verb groups (http://wordnet.princeton.edu/man/wngroups.7WN)
   ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on
     class(es)? though could hide real bugs) 
-  - bug: doc: document sort orders of Word, WordSense, Synset, and Relation
+  - bug: core: doc: document sort orders of Word, WordSense, Synset, and Relation
     - Word: 
     - WordSense: xxx Synset (and then lemma for the few same-Synset ties (Doomsday, doomsday, Utopian, utopian)
     - Synset: 
     - Relation:
-  - feature: doc: document approximate runtime of various search algorithms
+  - feature: core: doc: document approximate runtime of various search algorithms
   ~ feature: core: add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" -> "cliche"))
     - an alternative is org.apache.lucene.analysis.ASCIIFoldingFilter
     - Normalizer requires Java 6 which excludes some platforms - could use reflection
@@ -562,8 +572,8 @@ x feature: howto for developing in NetBeans ?
       - merged.zip is only 31MB - maybe distribution should ship this way ?
       - similar merged.tbz is only 20MB - nice win
       ? I wonder how lzo would do ? (nice and fast)
-  < feature: reverse iteration
-  - feature: implement ConcurrentLRUCache - cleaning eldest entries is the hard part ?
+  < feature: core: reverse iteration
+  ~ feature: core: ConcurrentLRUCache
     - open source alternatives include Ben Manes' ConcurrentLinkedHashMap and Google Collections / Guauva (MapMaker)
     - file access is still synchronized: ThreadLocal file pointer would be best solution for this
     - ThreadSafetyTest time with:
@@ -571,7 +581,7 @@ x feature: howto for developing in NetBeans ?
       - ConcurrentLRUCache (LRU): about 38-40 seconds
       - ConcurrentLRUCache (): about XXX seconds
       - UnboundedCache (): about ∞ seconds -- OutOfMemoryException
-  < feature: GUI Maven target (and delete script) or use a local Java Web Start
+  < feature: gui: GUI Maven target (and delete script) or use a local Java Web Start
   < feature: convert CharStream interface to long's (from int's) to support huge files
   < feature: gui: make JList scroll-rate accelerate ? I swear I worked on this for large result sets - maybe the difference is scrolling in terms of JScrollBar or content ?
   ~ feature: core: should be able to use WordNet 3.0 UNIX distribution dict/ files on Windows
@@ -741,10 +751,10 @@ x feature: howto for developing in NetBeans ?
     * would need a UI element to clear the history as well!
     + undo should trigger focus shift to searchField ? (currently does)
   < feature: make substring search a "drawer" or splitpane like PDF search in Apple Preview
-  - feature: add WNHOME assumptions / prompt to splash screen OR installer to Web Start launcher
+  - feature: gui: add WNHOME assumptions / prompt to splash screen OR installer to Web Start launcher
     - could be as simple as prompting user if environment variable AND Java preference cannot be found
   - feature: add nice high res icon (design one :)
-  ~ feature: Java Web Start (aka JNLP)
+  ~ feature: gui: Java Web Start (aka JNLP)
     - works under ideal conditions, but thread safe singleton and misconfiguration
       means exceptions are wrapped in ExceptionInInitializer
     ? where would the default installation location be on Windows ? (e.g. where did 2.1 go?)
@@ -833,13 +843,13 @@ x feature: howto for developing in NetBeans ?
     - probably would be easier with XCode ? - limited Java support
     - still need to gather output of 'ant test' command
       - would it update javadoc refs too ?
-~ feature: revive browser
+~ feature: gui: revive browser
   + get this to at least compile again
   - where should this go ? 
     * not needed for library to function, although adds no dependencies
       very small increase in jar file size -- maybe who cares ??
     -> who cares - add browser package
-- bug: clean up (especially FIXMEs (and TODOs))
+- bug: core: audit, clean up FIXMEs and TODOs
   - factor some inner classes into outter, non-public classes
   - remove cruft / extra debug crap
 - feature: consider taking CharSequence for search in interface to allow use of mutable query "String"'s, etc (from user perspective, still fully backwards compat with String (Java 1.5-wise)
@@ -872,7 +882,7 @@ x feature: howto for developing in NetBeans ?
   ? will this filename remain the same ?
 - bug: core: how come Doomsday and Utopian came up as case ambiguous, but Moon, moon didn't ?
 
-- feature: doc: measure memory requirements
+- feature: core: doc: measure memory requirements
   - write program to generate report of each lexeme and relation
   - estimate this value -- outline has many of the details
   ? is there a tool to do this ?
@@ -888,8 +898,8 @@ x feature: howto for developing in NetBeans ?
   - all caches full
 
 Features / Enhancements
-- feature: phase in support for "ALLSENSES" (original WN libraries have this for core search routines (findtheinfo(...) and in_wn(...))
-< feature: create bounded length longest match algorithm and run over documents
+- feature: core: phase in support for "ALLSENSES" (original WN libraries have this for core search routines (findtheinfo(...) and in_wn(...))
+< feature: core: create bounded length longest match algorithm and run over documents
 < feature: re-write grind in Java with jflex and/or javacc
   - very old, suspect C code with scary comments in lex file in particular
 
@@ -933,6 +943,33 @@ Performance
 - bug: core: use WeakReference's/ WeakReference[] (really I think SoftReference's/SoftReference[])
   * Steele's original code referred to this (was not yet in JDK); see 
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
+  - look to Google Collections MapMaker for guidance
+    - does it make more sense to:
+      - make the caches have soft values
+      - make the interconnections between classes use soft references
+        Word's Synset[] (ALL paged in on demand)
+        Synset's List<WordSense> AND List<Relation>
+         - we could make many of these things lazy
+        WordSense's Synset
+        Relation's source (target is paged in on demand)
+
+        rough ASCII depiction of the interconnections:
+
+                        v----\
+        Word -+-> Synset -+-> WordSense
+                         \+-> Relation |-> Synset (src)
+                                       |-> WordSense (src)
+
+      - stemming use case only creates Words
+      - smart-case stemming needs WordSenses which need Synsets (requires NO Relations)
+      - only simple synonyms needs WordSenses and Synsets (requires NO Relations)
+      - inspect hypernyms (only requires 1 Relation)
+
+      ? what caches exist ?
+        - Cache<DatabaseKey, Word> indexWordCache
+        - Cache<DatabaseKey, Synset> synsetCache
+      ? could we add more caches ?
+        - WordSense's of a Word
 < feature: look for synchronization / liveness opportunities
 < feature: make amount of file to mmap configurable
   - test smaller values!!
