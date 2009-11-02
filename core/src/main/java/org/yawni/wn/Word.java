@@ -115,8 +115,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       //  //log.error("extra: {}", extra);
       //}
     } catch (final RuntimeException e) {
-      log.error("Word parse error on offset: {} line:\n\"{}\"",
-          offset, line);
+      log.error("Word parse error on offset: {} line:\n\"{}\"", offset, line);
       log.error("",  e);
       throw e;
     }
