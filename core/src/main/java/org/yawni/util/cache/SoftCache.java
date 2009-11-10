@@ -1,32 +1,29 @@
 package org.yawni.util.cache;
 
+import java.util.Map;
+
 /**
- * Cache based on {@link sun.misc.SoftCache}.
+ * Memory-sensitive {@code Cache} based on {@link sun.misc.SoftCache} which
+ * is based on {@link java.lang.ref.SoftReference}s.
  */
 public class SoftCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
-  private final sun.misc.SoftCache backingMap;
+  private final Map<K, V> backingMap;
 
+  @SuppressWarnings("unchecked")
   public SoftCache(final int initialCapacity) {
-    this.backingMap = new sun.misc.SoftCache(initialCapacity) {
-//      @Override
-//      protected Object fill(Object key) {
-//        return null;
-//      }
-    };
+    this.backingMap = (Map<K, V>) new sun.misc.SoftCache(initialCapacity);
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public synchronized V put(K key, V value) {
-    return (V) backingMap.put(key, value);
+    return backingMap.put(key, value);
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public synchronized V get(K key) {
-    return (V) backingMap.get(key);
+    return backingMap.get(key);
   }
 
   @Override
