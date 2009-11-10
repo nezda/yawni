@@ -20,6 +20,7 @@ import java.util.WeakHashMap;
 
 /**
  * Simple Cache based on {@link WeakHashMap}.
+ * All methods are thread-safe by brute-force synchronization.
  */
 public class WeakHashMapCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
