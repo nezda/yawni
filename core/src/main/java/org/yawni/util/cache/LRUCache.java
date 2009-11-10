@@ -16,7 +16,6 @@
  */
 package org.yawni.util.cache;
 
-import org.yawni.util.cache.Cache;
 import java.util.*;
 
 /**
