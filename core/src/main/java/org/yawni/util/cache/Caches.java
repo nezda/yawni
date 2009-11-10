@@ -5,10 +5,12 @@ package org.yawni.util.cache;
 
 public class Caches {
   public static <K, V> Cache<K, V> withCapacity(final int capacity) {
-    return new LRUCache<K, V>(capacity);
+    return new SoftCache<K, V>(capacity);
+//    return new LRUCache<K, V>(capacity);
 //    return new ConcurrentLRUCache<K, V>(capacity, LRU);
 //    return new ConcurrentLRUCache<K, V>(capacity, SECOND_CHANCE);
 //    return new ConcurrentLRUCache<K, V>(capacity);
+//    return new WeakHashMapCache<K, V>(capacity);
 //    return new UnboundedCache<K, V>(capacity);
   }
 }
