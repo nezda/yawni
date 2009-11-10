@@ -52,8 +52,8 @@ public class Relation implements Comparable<Relation> {
    * Used in {@code equals}.
    */
   private final int index;
-  private final RelationTarget source;
   private final byte relationTypeOrdinal;
+  private final RelationTarget source;
 
   //
   // Constructor
@@ -87,7 +87,7 @@ public class Relation implements Comparable<Relation> {
     } else if (source instanceof Synset) {
       return new SemanticRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
     } else {
-      throw new IllegalStateException();
+      throw new IllegalArgumentException();
     }
   }
 
@@ -167,7 +167,7 @@ public class Relation implements Comparable<Relation> {
 
   /** {@inheritDoc} */
   public int compareTo(final Relation that) {
-    // order by src Synset
+    // order by source Synset
     // then by 'index' field
     int result;
     result = this.getSource().getSynset().compareTo(that.getSource().getSynset());
