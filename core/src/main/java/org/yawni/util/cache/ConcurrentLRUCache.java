@@ -20,7 +20,7 @@ import org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy;
 import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
 
 /**
- * A fixed-capacity {@code Cache} that stores the {@code n} values associate
+ * A fixed-capacity {@code Cache} that stores the {@code n} values associated
  * with the {@code n} most recently accessed keys.
  */
 public class ConcurrentLRUCache<K, V> implements Cache<K, V> {
