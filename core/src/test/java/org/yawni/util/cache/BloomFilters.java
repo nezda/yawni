@@ -29,8 +29,8 @@ import org.yawni.wn.POS;
 import org.yawni.wn.Word;
 
 /**
- * Utility class to generate and serialized BloomFilters representing the
- * content of a given WordNet version.  These are optionally
+ * Utility class to generate and serialized {@link BloomFilter}s representing the
+ * content of a given WordNet version; these filters are optionally
  * packaged in the data jar.
  */
 class BloomFilters {
@@ -43,8 +43,6 @@ class BloomFilters {
         count++;
       }
       final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(count, fpProb);
-      //FIXME need to provide customizable hashCode() since CharSequence's hashCode()
-      // is not well defined
 
 //      System.err.println(pos+" "+filter);
       for (final Word word : dictionary.words(pos)) {
@@ -81,7 +79,8 @@ class BloomFilters {
         new ObjectInputStream(
           new BufferedInputStream(
             new FileInputStream(fname)));
-      BloomFilter<CharSequence> resurrected = (BloomFilter<CharSequence>)ois.readObject();
+      @SuppressWarnings("unchecked")
+      final BloomFilter<CharSequence> resurrected = (BloomFilter<CharSequence>)ois.readObject();
       System.err.println("equal?: "+resurrected.equals(filter));
 //      assert resurrected.equals(filter);
     }
