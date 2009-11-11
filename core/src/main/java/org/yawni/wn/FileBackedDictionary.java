@@ -141,10 +141,13 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   //
   // Entity lookup caching
   //
-  final int DEFAULT_CACHE_CAPACITY = 10000;//100000;
+  static final int DEFAULT_CACHE_CAPACITY = 10000;//100000;
   private final Cache<DatabaseKey, Object> synsetCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
+  // single cache which uses 2 kinds kinds of keys (keeps utilization high)
+  // - POSOffsetDatabaseKey (getIndexWordAt direct-hit cache) and StringPOSDatabaseKey (lookupWord query cache)
   private final Cache<DatabaseKey, Object> indexWordCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
 
+  // generic custom hashing interface
   static interface DatabaseKey {
     @Override public int hashCode();
     @Override public boolean equals(Object that);
@@ -153,49 +156,57 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   static class POSOffsetDatabaseKey implements DatabaseKey {
     private final int offset;
     private final byte posOrdinal;
-
     POSOffsetDatabaseKey(final POS pos, final int offset) {
       this.offset = offset;
       this.posOrdinal = (byte) pos.ordinal();
     }
-
     @Override
     public boolean equals(final Object object) {
+      // if indexWordCache is shared by getIndexWordAt() and lookupWord()
+      // collisions can happen
+      //assert object instanceof POSOffsetDatabaseKey : object;
       if (object instanceof POSOffsetDatabaseKey) {
         final POSOffsetDatabaseKey that = (POSOffsetDatabaseKey)object;
         return that.posOrdinal == this.posOrdinal && that.offset == this.offset;
       }
       return false;
     }
-
     @Override
     public int hashCode() {
       return (offset * 10) + posOrdinal;
+    }
+    @Override
+    public String toString() {
+      return "[POSOffsetDatabaseKey offset: "+offset+" "+POS.fromOrdinal(posOrdinal)+"]";
     }
   } // end class POSOffsetDatabaseKey
 
   static class StringPOSDatabaseKey implements DatabaseKey {
     private final CharSequence key;
     private final byte posOrdinal;
-
     StringPOSDatabaseKey(final CharSequence key, final POS pos) {
       this.key = key;
       this.posOrdinal = (byte)pos.ordinal();
     }
-
     @Override
     public boolean equals(final Object object) {
+      // if indexWordCache is shared by getIndexWordAt() and lookupWord()
+      // collisions can happen
+      //assert object instanceof StringPOSDatabaseKey : object;
       if (object instanceof StringPOSDatabaseKey) {
         final StringPOSDatabaseKey that = (StringPOSDatabaseKey)object;
         return that.posOrdinal == this.posOrdinal && Utils.equals(that.key, this.key);
       }
       return false;
     }
-
     @Override
     public int hashCode() {
       // FIXME crap hashCode ?
       return posOrdinal ^ CharSequences.hashCode(key);
+    }
+    @Override
+    public String toString() {
+      return "[StringPOSDatabaseKey key: "+key+" "+POS.fromOrdinal(posOrdinal)+"]";
     }
   } // end class StringPOSDatabaseKey
 
