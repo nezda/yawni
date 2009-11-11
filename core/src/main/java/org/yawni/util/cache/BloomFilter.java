@@ -166,8 +166,11 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     size = 0;
   }
 
-  // feature: ensure hashCode() of all CharSequences are equal;
-  // this is a stronger condition than the CharSequence interface guarantees
+  /**
+   * Feature: ensure hashCode() of all {@link CharSequence}s are equal;
+   * this is a stronger condition than the {@code CharSequence} interface
+   * guarantees.
+   */
   private int objectHash(Object o) {
     if (false == (o instanceof String) &&
       o instanceof CharSequence) {
