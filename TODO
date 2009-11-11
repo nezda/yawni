@@ -477,8 +477,8 @@ x feature: howto for developing in NetBeans ?
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp target/yawni-core-2.0.0-SNAPSHOT.jar edu.brandeis.cs.steele.wn.browser.Searcher > /dev/null
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | src/test/cpp/wnlemmatizer > /dev/null
 
-      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp browser/target/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
-      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
 
       # verified same search results with and without filters
       # NOTE: redirecting to disk rather than /dev/null increases XXX wrong
@@ -518,6 +518,11 @@ x feature: howto for developing in NetBeans ?
       real    0m33.618s
       user    0m28.612s
       sys     0m5.586s
+
+      only put matches into SoftCache (let Bloom filter handle non matches)
+      real    0m25.552s
+      user    0m21.326s
+      sys     0m5.491s
       
   < feature: core: implement CharSequences#sameLetterDigitSequence
     - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
@@ -916,8 +921,7 @@ WordNet features (unexposed)
   - $WNHOME/dict/cntlist.rev
   - is $WNHOME/dict/cntlist.rev - mappings to the previous versions senses ?
   ? is this the same as index.sense / sense.idx on Windows ?
-    - cntlist.rev is a superset of index.sense
-      - their formats are similar
+    - cntlist.rev is a superset of index.sense - their formats are similar
       cut -d" " -f1,3,4 dict/index.sense > index.sense.no_offsets
       egrep -v " 0\s*$" index.sense.no_offsets > index.sense.no_offsets.non_zero
       wc -l dict/cntlist.rev index.sense.no_offsets.non_zero
@@ -944,12 +948,18 @@ Performance
   * Steele's original code referred to this (was not yet in JDK); see 
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
   - look to Google Collections MapMaker for guidance
+
+    graphs = new MapMaper.softKeys().weakValues()
+    says weakValues() are poor choice for cache (suggests softValues())
+
     - does it make more sense to:
       - make the caches have soft values
       - make the interconnections between classes use soft references
+      - the interconnectinos which exist
         Word's Synset[] (ALL paged in on demand)
         Synset's List<WordSense> AND List<Relation>
-         - we could make many of these things lazy
+         - we could make many of these things lazy / on-the-fly (e.g., clone the tokenizer)
+         * in particular, its likely only a few Relations will be used (e.g., HYPERNYM)
         WordSense's Synset
         Relation's source (target is paged in on demand)
 
@@ -960,16 +970,34 @@ Performance
                          \+-> Relation |-> Synset (src)
                                        |-> WordSense (src)
 
-      - stemming use case only creates Words
+      - stemming use case only needs Words
       - smart-case stemming needs WordSenses which need Synsets (requires NO Relations)
-      - only simple synonyms needs WordSenses and Synsets (requires NO Relations)
-      - inspect hypernyms (only requires 1 Relation)
+      - only simple synonyms needs Synsets and WordSenses (requires NO Relations)
+      - only hypernyms requires instances of only 1 Relation
 
       ? what caches exist ?
         - Cache<DatabaseKey, Word> indexWordCache
         - Cache<DatabaseKey, Synset> synsetCache
+        - compare the lifetimes of Word and Synset
+          - 1 Word pages in n Synsets and keeps hard refs to them
+          - nothing maintains refs to Word (∴ makes a lot of sense to cache Words)
+            - the memory commitment of a cached Word increases when its Synsets are paged in
+              - the amount of WordNet which can be kept alive by the cache can grow pretty large
+                - Words bring in batches of Synsets
+                - Synsets bring in batches of WordSenses
+                - Synsets bring in batches of Relations 
+                  - these can select/retain wide swaths of hyponyms and hypernyms
+                * Relations seem like biggest cross-connecting memory leak hazard ?
+                  - even though they only have hard links in 1 direction, once the 
+                    symmetric Relation (e.g., HYPONYM/HYPERNYM) is cached, both subgraphs
+                    are snared
+                    ... X -> Y
+                        X <- Y ...
       ? could we add more caches ?
         - WordSense's of a Word
+      
+      - must have test to compare performance with
+        - e.g., unit tests take about 50% longer without synsetCache (didn't dig in to which one; presume threaded antagonizers)
 < feature: look for synchronization / liveness opportunities
 < feature: make amount of file to mmap configurable
   - test smaller values!!
