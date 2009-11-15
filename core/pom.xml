@@ -95,12 +95,14 @@
           <!--   -XX:CompileThreshold=1 -->
           </argLine>
           <!-- Required to pass this system property through to the unit tests -->
+          <!--
           <systemProperties>
             <property>
               <name>WNHOME</name>
               <value>${WNHOME}</value>
             </property>
           </systemProperties>
+          -->
         </configuration>
       </plugin>
       <!-- TODO move to parent pom -->
@@ -264,12 +266,12 @@
       <artifactId>slf4j-jdk14</artifactId>
       <version>1.5.8</version>
     </dependency>
-    -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-nop</artifactId>
       <version>1.5.8</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
