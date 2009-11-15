@@ -27,9 +27,10 @@ import org.yawni.wn.DictionaryDatabase;
 import org.yawni.wn.FileBackedDictionary;
 import org.yawni.wn.POS;
 import org.yawni.wn.Word;
+import org.yawni.wn.WordNetLexicalComparator;
 
 /**
- * Utility class to generate and serialized {@link BloomFilter}s representing the
+ * Utility class to generate and serialize {@link BloomFilter}s representing the
  * content of a given WordNet version; these filters are optionally
  * packaged in the data jar.
  */
@@ -42,7 +43,7 @@ class BloomFilters {
       for (final Word word : dictionary.words(pos)) {
         count++;
       }
-      final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(count, fpProb);
+      final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(count, fpProb, WordNetLexicalComparator.TO_LOWERCASE_INSTANCE);
 
 //      System.err.println(pos+" "+filter);
       for (final Word word : dictionary.words(pos)) {

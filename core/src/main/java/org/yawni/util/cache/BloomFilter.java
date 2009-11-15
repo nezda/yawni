@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Set;
-import org.yawni.util.CharSequences;
 
 /**
  * A <a href="http://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a> implementation that uses a restricted version of the
@@ -49,8 +48,9 @@ import org.yawni.util.CharSequences;
  * @author <a href="mailto:ben.manes@gmail.com">Ben Manes</a>
  */
 public final class BloomFilter<E> extends AbstractSet<E> implements Serializable {
-  private static final long serialVersionUID = 2;
-  
+  private static final long serialVersionUID = 3;
+
+  private final Hasher<E> hasher;
   private long[] words;
   private int size;
   private final double probability;
@@ -66,6 +66,18 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    */
   private volatile transient int modCount = 0;
 
+  private static final Hasher  DEFAULT_HASHER = new Hasher() {
+    public int hashCode(Object e) {
+      return e.hashCode();
+    }
+  };
+
+  private static <E> Hasher<E> hasher() {
+    @SuppressWarnings("unchecked")
+    final Hasher<E> hasher = (Hasher<E>)DEFAULT_HASHER;
+    return hasher;
+  }
+
   /**
    * Creates a Bloom filter that can store up to an expected maximum capacity with an acceptable probability
    * that a membership query will result in a false positive. The filter will size itself based on the given
@@ -74,10 +86,24 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    * @param capacity    The expected maximum number of elements to be inserted into the Bloom filter.
    * @param probability The acceptable false positive probability for membership queries.
    */
-  public BloomFilter(int capacity, double probability) {
+  public BloomFilter(final int capacity, final double probability) {
+    this(capacity, probability, BloomFilter.<E>hasher());
+  }
+
+  /**
+   * Creates a Bloom filter that can store up to an expected maximum capacity with an acceptable probability
+   * that a membership query will result in a false positive. The filter will size itself based on the given
+   * parameters.
+   *
+   * @param capacity    The expected maximum number of elements to be inserted into the Bloom filter.
+   * @param probability The acceptable false positive probability for membership queries.
+   * @param hasher
+   */
+  public BloomFilter(final int capacity, final double probability, final Hasher<E> hasher) {
     if ((capacity <= 0) || (probability <= 0) || (probability >= 1)) {
       throw new IllegalArgumentException();
     }
+    this.hasher = hasher;
     this.capacity = max(capacity, Long.SIZE);
     this.bits = bits(capacity, probability);
     this.length = bits / Long.SIZE;
@@ -166,19 +192,8 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     size = 0;
   }
 
-  /**
-   * Feature: ensure hashCode() of all {@link CharSequence}s are equal;
-   * this is a stronger condition than the {@code CharSequence} interface
-   * guarantees.
-   */
-  private int objectHash(Object o) {
-    if (false == (o instanceof String) &&
-      o instanceof CharSequence) {
-      final CharSequence seq = (CharSequence)o;
-      return CharSequences.hashCode(seq);
-    } else {
-      return o.hashCode();
-    }
+  private int objectHash(final Object o) {
+    return hasher.hashCode(o);
   }
 
   /**

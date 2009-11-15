@@ -24,6 +24,17 @@ import org.yawni.util.CharSequences;
 import static org.junit.Assert.*;
 
 public class BloomFilterTest {
+  private static final Hasher<CharSequence> CHARSEQUENCE_HASHER = new Hasher<CharSequence>() {
+    public int hashCode(Object o) {
+      if (false == (o instanceof String) &&
+          o instanceof CharSequence) {
+       final CharSequence seq = (CharSequence)o;
+       return CharSequences.hashCode(seq);
+     } else {
+       return o.hashCode();
+     }
+    }
+  };
   @Test
   public void testRandomIntegers() {
     final int size = 100000;
@@ -75,7 +86,7 @@ public class BloomFilterTest {
     final double ONE_PERCENT = 0.01;
     final double TEN_PERCENT = 0.1;
     final double desiredFpFatio = ONE_PERCENT;
-    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio);
+    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio, CHARSEQUENCE_HASHER);
 
     System.err.println("filter: "+filter);
 
@@ -125,7 +136,7 @@ public class BloomFilterTest {
     final double ONE_PERCENT = 0.01;
     final double TEN_PERCENT = 0.1;
     final double desiredFpFatio = ONE_PERCENT;
-    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio);
+    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio, CHARSEQUENCE_HASHER);
 
     System.err.println("filter: "+filter);
 
