@@ -249,6 +249,7 @@ public final class FileManager implements FileManagerInterface {
     }
   } // end class RAFCharStream
 
+
   /**
    * {@link ByteBuffer} {@code CharStream} implementation.
    * This {@code CharStream} is boots very quickly (little slower than
@@ -262,10 +263,12 @@ public final class FileManager implements FileManagerInterface {
     private final ByteBuffer bbuff;
     //private final ByteCharBuffer bbuff;
     private final StringBuilder stringBuffer;
+    private final int capacity;
 
     NIOCharStream(final String filename, final ByteBuffer bbuff) throws IOException {
       super(filename);
       this.bbuff = bbuff;
+      this.capacity = bbuff.capacity();
       this.stringBuffer = new StringBuilder();
     }
     NIOCharStream(final String filename, final RandomAccessFile raf) throws IOException {
@@ -322,13 +325,13 @@ public final class FileManager implements FileManagerInterface {
       }
       return stringBuffer.toString();
     }
-    /** Modifies <tt>position</tt> field */
+    /** Modifies {@code position} field */
     private int scanToSpace() {
       // scan from current position to first ' '
       // reset buffer
       stringBuffer.setLength(0);
       char c;
-      while (position < bbuff.capacity()) {
+      while (position < capacity) {
         c = (char) bbuff.get(position++);
         if (c == ' ') {
           return position - 1;
@@ -340,7 +343,7 @@ public final class FileManager implements FileManagerInterface {
     private int scanForwardToLineBreak() {
       return scanForwardToLineBreak(false /* don't buffer */);
     }
-    /** Modifies <tt>position</tt> field */
+    /** Modifies {@code position} field */
     private int scanForwardToLineBreak(final boolean buffer) {
       // scan from current position to first ("\r\n"|"\r"|"\n")
       boolean done = false;
@@ -350,7 +353,7 @@ public final class FileManager implements FileManagerInterface {
         stringBuffer.setLength(0);
       }
       char c;
-      while (done == false && position < bbuff.capacity()) {
+      while (done == false && position < capacity) {
         c = (char) bbuff.get(position++);
         switch (c) {
           case '\r':
@@ -358,7 +361,7 @@ public final class FileManager implements FileManagerInterface {
             c = (char) bbuff.get(position++);
             if (c != '\n') {
               // put it back
-              --position;
+              position--;
             } else {
               crnl = true;
             }
@@ -382,7 +385,6 @@ public final class FileManager implements FileManagerInterface {
       throw new UnsupportedOperationException();
     }
   } // end class NIOCharStream
-
   /**
    * Fast {@code CharStream} created from InputStream (e.g., can be read from jar file)
    * backed by a byte[].  This {@code CharStream} is slowest to boot
