@@ -387,24 +387,32 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   static int weirdLookupIndexWordCacheMiss = 0;
 
   private static final Map<POS, BloomFilter<CharSequence>> INDEX_DATA_FILTERS;
+  private static final Map<POS, BloomFilter<CharSequence>> EXCEPTIONS_FILTERS;
   static {
     INDEX_DATA_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
+    EXCEPTIONS_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
+    
     for (final POS pos : POS.CATS) {
-      final BloomFilter<CharSequence> filter = getIndexDataFilter(pos);
-      if (filter != null) {
-        INDEX_DATA_FILTERS.put(pos, filter);
+      // assume WN dict/ is in the classpath
+      final String indexDataResourceName = "dict/" + pos.name() + ".bloom";
+      final BloomFilter<CharSequence> indexDataFilter = getResource(indexDataResourceName);
+      if (indexDataFilter != null) {
+        INDEX_DATA_FILTERS.put(pos, indexDataFilter);
+      }
+      final String exceptionsResourceName = "dict/" + pos.name() + ".exc.bloom";
+      final BloomFilter<CharSequence> exceptionsFilter = getResource(exceptionsResourceName);
+      if (exceptionsFilter != null) {
+        EXCEPTIONS_FILTERS.put(pos, exceptionsFilter);
       }
     }
   }
 
   // look in classpath for filters
-  private static BloomFilter<CharSequence> getIndexDataFilter(final POS pos) {
+  private static BloomFilter<CharSequence> getResource(final String resourceName) {
     try {
-      // assume WN dict/ is in the classpath
-      final String resourcename = "dict/" + pos.name() + ".bloom";
-      final URL url = FileBackedDictionary.class.getClassLoader().getResource(resourcename);
+      final URL url = FileBackedDictionary.class.getClassLoader().getResource(resourceName);
       if (url == null) {
-        log.info("resourcename: {} not found!", resourcename);
+        log.info("resourceName: {} not found!", resourceName);
         return null;
       }
       final URLConnection conn = url.openConnection();
@@ -426,6 +434,13 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       return true;
     }
     return INDEX_DATA_FILTERS.get(pos).contains(lemma);
+  }
+
+  private boolean maybeException(final CharSequence lemma, final POS pos) {
+    if (EXCEPTIONS_FILTERS.isEmpty()) {
+      return true;
+    }
+    return EXCEPTIONS_FILTERS.get(pos).contains(lemma);
   }
 
   private static final Object NULL_INDEX_WORD = new Object();
@@ -557,6 +572,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * Port of {@code morph.c exc_lookup()}
    */
   ImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
+    if (! maybeException(someString, pos)) {
+      return ImmutableList.of();
+    }
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(someString, pos);
     final ImmutableList<String> cached = exceptionsCache.get(cacheKey);
     if (cached != null) {
