@@ -206,7 +206,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         // This memory optimization allows this.synsets as an int[] until this
         // method is called to avoid needing to store both the offset and synset
         // arrays.
-        // TODO This might be better as a Soft or Weak reference
+        // TODO This might be better as a Soft or Weak -Reference
         final Synset[] syns = new Synset[synsetOffsets.length];
         for (int i = 0; i < synsetOffsets.length; i++) {
           syns[i] = fileBackedDictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
@@ -216,14 +216,14 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       }
       // else assert this.synsets instanceof List<Synset> already
       @SuppressWarnings("unchecked")
-      List<Synset> toReturn = (List<Synset>)this.synsets;
+      final List<Synset> toReturn = (List<Synset>)this.synsets;
       return toReturn;
     }
   }
 
   /**
    * All senses of this word.
-   * @return all senses of this word.
+   * @return All senses of this word.
    */
   public List<WordSense> getSenses() {
     //TODO consider caching senses - we are Iterable on it and getSense would also be much cheaper
