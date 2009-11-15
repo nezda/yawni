@@ -67,23 +67,45 @@ class BloomFilters {
       for (final Word word : dictionary.words(pos)) {
         assert filter.contains(word.getLowercasedLemma());
       }
-      System.err.println("XXX "+pos+" "+filter);
       final String fname = pos.name()+".bloom";
+      System.err.println(fname+" "+filter);
+      serialize(filter, fname);
+    }
+    for (final POS pos : POS.CATS) {
+      int count = 0;
+      for (final List<String> exceptions : dictionary.exceptions(pos)) {
+        //count += exceptions.size() - 1;
+        count++;
+      }
+      final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(count, fpProb, WordNetLexicalComparator.TO_LOWERCASE_INSTANCE);
+      for (final List<String> exceptions : dictionary.exceptions(pos)) {
+//        for (final String exception : exceptions.subList(1, exceptions.size())) {
+        final String exception = exceptions.get(0);
+//          assert exception.indexOf('_') < 0 : "exception: "+exception;
+          assert exception.indexOf(' ') < 0 : "exception: "+exception;
+          filter.add(exception);
+          assert filter.contains(exception);
+//        }
+      }
+      final String fname = pos.name()+".exc.bloom";
+      System.err.println(fname+" "+filter);
+      serialize(filter, fname);
+    }
+  }
+
+  private static void serialize(final BloomFilter filter, final String fname) throws Exception {
       final ObjectOutputStream oos =
         new ObjectOutputStream(
           new BufferedOutputStream(
             new FileOutputStream(fname)));
       oos.writeObject(filter);
       oos.close();
-
       final ObjectInputStream ois =
         new ObjectInputStream(
           new BufferedInputStream(
             new FileInputStream(fname)));
       @SuppressWarnings("unchecked")
       final BloomFilter<CharSequence> resurrected = (BloomFilter<CharSequence>)ois.readObject();
-      System.err.println("equal?: "+resurrected.equals(filter));
-//      assert resurrected.equals(filter);
-    }
+      assert resurrected.equals(filter);
   }
 }
