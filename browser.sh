@@ -14,7 +14,7 @@ java='java'
 #unset WNHOME
 #wnhome=$WNHOME
 unset WNHOME
-#CLASSPATH=./core/target/jwordnet-core-$VERSION.jar:./data/target/jwordnet-data-$VERSION.jar
+#CLASSPATH=./core/target/yawni-core-$VERSION.jar:./data/target/yawni-data-$VERSION.jar
 echo "WNHOME: $WNHOME wnhome: $wnhome";
 MVN_REPO=$HOME/.m2/repository/
 # classpath when slf4j is not "shaded" into jar
@@ -34,3 +34,5 @@ JVM_ARGS+=(-d32)
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
 $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wn.browser.Browser "$@"
+
+#java -cp $HOME/.m2/repository/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar:$HOME/.m2/repository/org/slf4j/slf4j-nop/1.5.8/slf4j-nop-1.5.8.jar:target/classes/:target/test-classes/ org.yawni.util.cache.BloomFilters
