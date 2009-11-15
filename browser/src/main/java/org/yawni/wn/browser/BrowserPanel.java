@@ -47,10 +47,6 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.geom.*;
 import java.awt.font.*;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -914,6 +910,7 @@ public class BrowserPanel extends JPanel {
     for (final POS pos : POS.CATS) {
       List<String> forms = dictionary().lookupBaseForms(inputString, pos);
       if (forms == null) {
+        assert false;
         forms = ImmutableList.of(inputString);
       } else {
         //XXX debug crap
@@ -924,7 +921,7 @@ public class BrowserPanel extends JPanel {
             break;
           }
         }
-        if (forms.isEmpty() == false && found == false) {
+        if (! forms.isEmpty() && ! found) {
           System.err.println("    BrowserPanel inputString: \"" + inputString +
             "\" not found in forms: " + forms);
         }
