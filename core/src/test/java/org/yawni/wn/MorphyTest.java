@@ -80,6 +80,18 @@ public class MorphyTest {
     return false;
   }
 
+  private static boolean baseFormContainsUpperCase(final Iterable<String> baseForms) {
+    for (final String baseForm : baseForms) {
+      for (int i = 0, n = baseForm.length(); i < n; i++) {
+        final char c = baseForm.charAt(i);
+        if (Character.isUpperCase(c)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   @Test
   public void testCharSequenceTokenizer() {
     //CharSequenceTokenizer tokens = new CharSequenceTokenizer("1 2 3");
@@ -202,6 +214,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "talk", "talk" }, // note asymmetric property: "talk" → {"talk"}, "talks" → {"talk", "talks"}
       { POS.NOUN.name(), "wounded", "wounded" },
       { POS.NOUN.name(), "wounding", "wounding" },
+      { POS.NOUN.name(), "'s Gravenhage", "'s Gravenhage" },
       { POS.VERB.name(), "wounded", "wound" },
       { POS.VERB.name(), "wound", "wind" },
       { POS.ADJ.name(), "wounded", "wounded" },
@@ -261,14 +274,23 @@ public class MorphyTest {
 
   @Test
   public void testLookupWord() {
-    assertNull(dictionary.lookupWord("", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("dog", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("DOG", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("ad blitz", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("ad_blitz", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("AD BLITZ", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("wild-goose chase", POS.NOUN));
-    assertNotNull(dictionary.lookupWord("wild-goose_chase", POS.NOUN));
+    String lemma;
+    lemma = "";
+    assertNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "dog";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "DOG";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "ad blitz";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "ad_blitz";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "AD BLITZ";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "wild-goose chase";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
+    lemma = "wild-goose_chase";
+    assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
   }
 
   // could add explicit checks for this in API methods but that's pretty tedious
@@ -299,10 +321,10 @@ public class MorphyTest {
           String msg = "ok";
           if (false == restems.contains(lemma)) {
             msg = "restems: " + restems + " doesn't contain lemma: " + lemma;
-            ++issues;
+            issues++;
             boolean nonCaseIssue = false == containsIgnoreCase(lemma, restems);
             if (nonCaseIssue) {
-              ++nonCaseIssues;
+              nonCaseIssues++;
             }
             System.err.println(
               "issues: " + issues + " nonCases: " + nonCaseIssues +
@@ -313,8 +335,10 @@ public class MorphyTest {
             //System.err.println(pos+" lemma: "+lemma+" restems: "+restems);
           }
           assertTrue(msg, restems.contains(lemma));
-          // note this considers case variants distinct
+          // note that this considers case variants distinct
           assertTrue(areUnique(restems));
+          // case variants are present
+          //assertFalse(word+" "+wordSense+" restems: "+restems, baseFormContainsUpperCase(restems));
         }
       }
     }
