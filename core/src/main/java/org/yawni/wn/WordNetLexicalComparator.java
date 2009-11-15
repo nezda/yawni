@@ -1,6 +1,7 @@
 package org.yawni.wn;
 
 import java.util.Comparator;
+import org.yawni.util.cache.Hasher;
 
 /**
  * {@link Comparator} for {@code CharSequence}s which considers {@code ' '}
@@ -9,7 +10,7 @@ import java.util.Comparator;
  * ({@link #TO_LOWERCASE_INSTANCE}).  This encodes the natural sort order of
  * the {@link Word}s of WordNet <code>index.<em>pos</em></code> files.
  */
-public final class WordNetLexicalComparator implements Comparator<CharSequence> {
+public final class WordNetLexicalComparator implements Comparator<CharSequence>, Hasher<CharSequence> {
   /**
    * {@code WordNetLexicalComparator} for use with {@code Word} lemmas which are all already lowercased.
    */
@@ -32,12 +33,10 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence> 
   public int compare(final CharSequence s1, final CharSequence s2) {
     final int s1Len = s1.length();
     final int s2Len = s2.length();
-    int o1 = 0;
-    int o2 = 0;
-    int result;
+    int result, o1, o2;
+    o1 = o2 = 0;
     final int end = s1Len < s2Len ? s1Len : s2Len;
-    char c1;
-    char c2;
+    char c1, c2;
     while (o1 < end) {
       c1 = s1.charAt(o1++);
       c2 = s2.charAt(o2++);
@@ -55,6 +54,22 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence> 
       }
     }
     return s1Len - s2Len;
+  }
+
+  public int hashCode(final Object obj) {
+    if (!(obj instanceof CharSequence)) {
+      return obj.hashCode();
+    }
+    final CharSequence seq = (CharSequence) obj;
+    int hash = 0, multiplier = 1;
+    for (int i = seq.length() - 1; i >= 0; i--) {
+      char c = Character.toLowerCase(seq.charAt(i));
+      c = c == ' ' ? '_' : c;
+      hash += c * multiplier;
+      int shifted = multiplier << 5;
+      multiplier = shifted - multiplier;
+    }
+    return hash;
   }
 
   @Override
