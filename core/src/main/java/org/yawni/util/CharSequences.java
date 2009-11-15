@@ -28,17 +28,33 @@ public class CharSequences {
    * @see java.lang.String#hashCode()
    */
   public static int hashCode(final CharSequence seq) {
-    if (seq instanceof String) {
+    return hashCode(seq, false);
+  }
+
+  /**
+   * @see java.lang.String#hashCode()
+   */
+  public static int hashCode(final CharSequence seq, final boolean ignoreCase) {
+    if (! ignoreCase && seq instanceof String) {
       return seq.hashCode();
     }
     // s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]*31^(n-n)
     // 31 = 2^0 + 2^1 + 2^2 + 2^3 + 2^4 = 2^5 - 1
     // 2^4 * 2*16
     int hash = 0, multiplier = 1;
-    for (int i = seq.length() - 1; i >= 0; i--) {
-      hash += seq.charAt(i) * multiplier;
-      int shifted = multiplier << 5;
-      multiplier = shifted - multiplier;
+    if (! ignoreCase) {
+      for (int i = seq.length() - 1; i >= 0; i--) {
+        hash += seq.charAt(i) * multiplier;
+        int shifted = multiplier << 5;
+        multiplier = shifted - multiplier;
+      }
+    } else {
+      // ignoreCase
+      for (int i = seq.length() - 1; i >= 0; i--) {
+        hash += Character.toLowerCase(seq.charAt(i)) * multiplier;
+        int shifted = multiplier << 5;
+        multiplier = shifted - multiplier;
+      }
     }
     return hash;
   }
