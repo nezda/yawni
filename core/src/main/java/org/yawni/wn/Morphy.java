@@ -99,7 +99,7 @@ class Morphy {
   Morphy(final FileBackedDictionary dictionary) {
     this.dictionary = dictionary;
     // 0 capacity is for performance debugging
-    final int morphyCacheCapacity = dictionary.DEFAULT_CACHE_CAPACITY;
+    final int morphyCacheCapacity = FileBackedDictionary.DEFAULT_CACHE_CAPACITY;
     this.morphyCache = Caches.withCapacity(morphyCacheCapacity);
   }
 
