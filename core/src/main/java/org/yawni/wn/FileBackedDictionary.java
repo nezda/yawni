@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.yawni.util.AbstractIterator;
-import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.StringTokenizer;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
