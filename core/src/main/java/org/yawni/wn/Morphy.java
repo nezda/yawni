@@ -226,14 +226,14 @@ class Morphy {
 
     // First try exception list
     ImmutableList<String> tmp = dictionary.getExceptions(str, pos);
-    if (tmp.isEmpty() == false && tmp.get(1).equals(str) == false) {
+    if (! tmp.isEmpty() && ! tmp.get(1).equals(str)) {
       // force next time to pass null
       svcnt = 1;
       // add variants from exception list
       // verb.exc line "saw see"
       //  e.g., input: "saw" output: "see", "saw"
-      //ONLY root: toReturn.add(underScoreToSpace(tmp[1]));
-      for (int i = tmp.size() - 1; i >= 0; --i) {
+      // ONLY root: toReturn.add(underScoreToSpace(tmp[1]));
+      for (int i = tmp.size() - 1; i >= 0; i--) {
         toReturn.add(underScoreToSpace(tmp.get(i)));
       }
       phase1Done = true;
@@ -326,7 +326,7 @@ class Morphy {
         }
 
         tmp = morphword(wordStr, pos);
-        if (false == tmp.isEmpty()) {
+        if (! tmp.isEmpty()) {
           checkLosingVariants(tmp, "morphstr() losing colloc word variant?");
           searchstr += tmp.get(0);
         } else {
@@ -363,12 +363,12 @@ class Morphy {
 
       assert searchstr != null;
 
-      if (morphWords.isEmpty() == false) {
+      if (! morphWords.isEmpty()) {
         checkLosingVariants(morphWords, "morphstr()");
         assert morphWords.get(0) != null;
         searchstr += morphWords.get(0);
       } else {
-        // morphWords is null
+        // morphWords isEmpty()
         assert wordStr != null;
         //LN is this adding the last word of the collocation ?
         searchstr += wordStr;
@@ -384,7 +384,7 @@ class Morphy {
       //XXX     " morphWords: "+morphWords+
       //XXX     " toReturn: "+toReturn);
       word = null;
-      if (searchstr.equals(str) == false && null != (word = is_defined(searchstr, pos))) {
+      if (! searchstr.equals(str) && null != (word = is_defined(searchstr, pos))) {
         log.debug("stem hit:\"{}\" {}", searchstr, pos);
         addTrueCaseLemmas(word, toReturn);
       } else if (origWordCount > 1) {
@@ -426,8 +426,8 @@ class Morphy {
       svcnt = 1; // LN pushes us back to above case (for subsequent calls) all this is destined for death anyway
       assert str != null;
       tmp = dictionary.getExceptions(str, pos);
-      if (tmp.isEmpty() == false && tmp.get(1).equals(str) == false) {
-        for (int i = 1; i < tmp.size(); ++i) {
+      if (! tmp.isEmpty() && ! tmp.get(1).equals(str)) {
+        for (int i = 1; i < tmp.size(); i++) {
           toReturn.add(underScoreToSpace(tmp.get(i)));
         }
       }
@@ -467,7 +467,7 @@ class Morphy {
   static <T> ImmutableList<T> addUnique(T item, ImmutableList<T> items) {
     if (items.isEmpty()) {
       items = ImmutableList.of(item);
-    } else if (false == items.contains(item)) {
+    } else if (! items.contains(item)) {
       final List<T> appended = new ArrayList<T>(items);
       appended.add(item);
       items = ImmutableList.copyOf(appended);
@@ -486,7 +486,7 @@ class Morphy {
     }
     // first look for word on exception list
     final ImmutableList<String> tmp = dictionary.getExceptions(wordStr, pos);
-    if (tmp.isEmpty() == false) {
+    if (! tmp.isEmpty()) {
       // found it in exception list
       // LN skips first one because of modified getExceptions semantics
       return tmp.subList(1, tmp.size());
@@ -569,7 +569,7 @@ class Morphy {
     for (int wdnum = 2; wdnum <= wdcnt; ++wdnum) {
       int startIdx = s.indexOf('_');
       assert startIdx >= 0;
-      ++startIdx; // bump past '_'
+      startIdx++; // bump past '_'
       for (final String prep : PREPOSITIONS) {
         // if matches a known preposition on a word boundary
         if (s.regionMatches(startIdx, prep, 0, prep.length()) &&
@@ -611,7 +611,7 @@ class Morphy {
     }
 
     final String firstWord = s.substring(0, rest);
-    if (isPossibleVerb(firstWord) == false) {
+    if (! isPossibleVerb(firstWord)) {
       return null;
     }
 
@@ -620,12 +620,12 @@ class Morphy {
 
     final ImmutableList<String> exc_words = dictionary.getExceptions(firstWord, POS.VERB);
     if (log.isDebugEnabled() &&
-        exc_words.isEmpty() == false && exc_words.get(1).equals(firstWord) == false) {
+        ! exc_words.isEmpty() && ! exc_words.get(1).equals(firstWord)) {
       log.debug("exc_words " + exc_words +
           " found for firstWord \"" + firstWord + "\" but exc_words[1] != firstWord");
     }
     String retval = null;
-    if (exc_words.isEmpty() == false && exc_words.get(1).equals(firstWord) == false) {
+    if (! exc_words.isEmpty() && ! exc_words.get(1).equals(firstWord)) {
       if (exc_words.size() != 2) {
         if (log.isWarnEnabled()) {
           log.warn("losing exception list variant(s)?!: "+exc_words);
@@ -654,7 +654,7 @@ class Morphy {
     final int cnt = CNTS[POS.VERB.getWordNetCode()];
     for (int i = 0; i < cnt; i++) {
       final String exc_word = wordbase(firstWord, (i + offset));
-      if (exc_word != null && exc_word.equals(firstWord) == false) {
+      if (exc_word != null && ! exc_word.equals(firstWord)) {
         // ending is different
         retval = exc_word + s.substring(rest);
         if (log.isDebugEnabled()) {
@@ -678,13 +678,13 @@ class Morphy {
       }
     }
     retval = firstWord + s.substring(rest);
-    if (false == s.equals(retval)) {
+    if (! s.equals(retval)) {
       // this makes no sense -- copied from morph.c
       return retval;
     }
     if (lastwd != null) {
       retval = firstWord + end;
-      if (false == s.equals(retval)) {
+      if (! s.equals(retval)) {
         return retval;
       }
     }
@@ -701,7 +701,7 @@ class Morphy {
 
   private boolean isPossibleVerb(final CharSequence word) {
     for (int i = 0, n = word.length(); i < n; i++) {
-      if (Character.isLetterOrDigit(word.charAt(i)) == false &&
+      if (! Character.isLetterOrDigit(word.charAt(i)) &&
           word.charAt(i) != '-') {
         // added minor extension to allow verbs containing dashes
         return false;
