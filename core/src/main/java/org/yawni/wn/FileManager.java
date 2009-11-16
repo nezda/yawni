@@ -29,7 +29,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.JarURLConnection;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
@@ -318,7 +317,7 @@ public final class FileManager implements FileManagerInterface {
     @Override
     String readLineWord() throws IOException {
       final int s = position;
-      scanToSpace();
+      bufferUntilSpace();
       final int e = scanForwardToLineBreak();
       if ((e - s) <= 0) {
         return null;
@@ -326,10 +325,9 @@ public final class FileManager implements FileManagerInterface {
       return stringBuffer.toString();
     }
     /** Modifies {@code position} field */
-    private int scanToSpace() {
+    private int bufferUntilSpace() {
       // scan from current position to first ' '
-      // reset buffer
-      stringBuffer.setLength(0);
+      resetBuffer(true /* doBuffer */);
       char c;
       while (position < capacity) {
         c = (char) bbuff.get(position++);
@@ -344,14 +342,11 @@ public final class FileManager implements FileManagerInterface {
       return scanForwardToLineBreak(false /* don't buffer */);
     }
     /** Modifies {@code position} field */
-    private int scanForwardToLineBreak(final boolean buffer) {
+    private int scanForwardToLineBreak(final boolean doBuffer) {
       // scan from current position to first ("\r\n"|"\r"|"\n")
       boolean done = false;
       boolean crnl = false;
-      if (buffer) {
-        // reset buffer
-        stringBuffer.setLength(0);
-      }
+      resetBuffer(doBuffer);
       char c;
       while (done == false && position < capacity) {
         c = (char) bbuff.get(position++);
@@ -371,7 +366,7 @@ public final class FileManager implements FileManagerInterface {
             done = true;
             break;
           default:
-            if (buffer) {
+            if (doBuffer) {
               stringBuffer.append(c);
             }
         }
@@ -383,6 +378,11 @@ public final class FileManager implements FileManagerInterface {
       // scan backwards to first \n
       // - if immediately preceding char is \n, keep going
       throw new UnsupportedOperationException();
+    }
+    private void resetBuffer(final boolean doBuffer) {
+      if (doBuffer) {
+        stringBuffer.setLength(0);
+      }
     }
   } // end class NIOCharStream
   /**
@@ -421,7 +421,7 @@ public final class FileManager implements FileManagerInterface {
         int bytesRead = input.read(buffer, totalBytesRead, len - totalBytesRead);
         totalBytesRead += bytesRead;
       }
-      // coud resize buffer
+      // could resize buffer
       if (len != totalBytesRead) {
         throw new RuntimeException("Read error. Only read "+totalBytesRead+" of "+len+" for "+filename);
       }
