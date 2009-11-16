@@ -162,6 +162,43 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       return ImmutableList.copyOf(elementsAsCollection);
     }
   }
+  public static <E> ImmutableList<E> copyOf(final Iterator<? extends E> elements) {
+    if (! elements.hasNext()) {
+      return ImmutableList.of();
+    }
+    final E e0 = elements.next();
+    if (! elements.hasNext()) {
+      return ImmutableList.of(e0);
+    }
+    final E e1 = elements.next();
+    if (! elements.hasNext()) {
+      return ImmutableList.of(e0, e1);
+    }
+    final E e2 = elements.next();
+    if (! elements.hasNext()) {
+      return ImmutableList.of(e0, e1, e2);
+    }
+    final E e3 = elements.next();
+    if (! elements.hasNext()) {
+      return ImmutableList.of(e0, e1, e2, e3);
+    }
+    final E e4 = elements.next();
+    if (! elements.hasNext()) {
+      return ImmutableList.of(e0, e1, e2, e3, e4);
+    }
+    // give up; copy em' into temp var
+    final Collection<E> elementsAsCollection = new ArrayList<E>();
+    elementsAsCollection.add(e0);
+    elementsAsCollection.add(e1);
+    elementsAsCollection.add(e2);
+    elementsAsCollection.add(e3);
+    elementsAsCollection.add(e4);
+    do {
+      elementsAsCollection.add(elements.next());
+    } while (elements.hasNext());
+    // recursive call
+    return ImmutableList.copyOf(elementsAsCollection);
+  }
 
   private ImmutableList() {}
 
