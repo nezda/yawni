@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.yawni.util.AbstractIterator;
+import org.yawni.util.CharSequenceTokenizer;
+import org.yawni.util.StringTokenizer;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
 
@@ -588,8 +590,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       final int offset = fileManager.getIndexedLinePointer(someString, filename);
       if (offset >= 0) {
         final String line = fileManager.readLineAt(offset, filename);
-        //FIXME slow regex split
-        final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
+        final ImmutableList<String> toReturn = ImmutableList.copyOf(new StringTokenizer(line, " "));
         assert toReturn.size() >= 2;
         exceptionsCache.put(cacheKey, toReturn);
         return toReturn;
