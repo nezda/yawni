@@ -152,22 +152,22 @@ public class MorphyTest {
       { POS.NOUN.name(), "dogs", "dog" },
       { POS.NOUN.name(), "geese", "goose", "geese" },
       { POS.NOUN.name(), "handfuls", "handful" },
-      { POS.NOUN.name(), "villas", "villa" }, // exposed true case bug
-      { POS.NOUN.name(), "Villa", "Villa" }, // exposed true case bug
+      { POS.NOUN.name(), "villas", "Villa", "villa" }, // exposed true case bug
+      { POS.NOUN.name(), "Villa", "Villa", "villa" }, // exposed true case bug
       { POS.NOUN.name(), "br", "Br", "BR" }, // exposed true case bug
       { POS.NOUN.name(), "heiresses", "heiress" }, 
         //WN missing derivationally relation to neuter form "heir" - intentional?
       { POS.NOUN.name(), "heiress", "heiress" },
       { POS.NOUN.name(), "George W. \t\tBush", "George W. Bush" }, // WN doesn't get this (extra internal space) (WN online does - probably better input string preprocessing)
       { POS.NOUN.name(), "george w. bush", "George W. Bush" },
-      //{ POS.NOUN.name(), "f.d. roosevelt", "F. D. Roosevelt" }, // WN doesn't get this
+      //{ POS.NOUN.name(), "f.d. roosevelt", "F. D. Roosevelt" }, // WN doesn't get this (weird entry HAS extra internal space)
       //{ POS.NOUN.name(), "u.s", "u.s."}, // WN gets this via "US"
       //WN doesn't get this either (missing ".") { POS.NOUN.name(), "george w bush", "George W. Bush" },
       { POS.NOUN.name(), "mice", "mouse", "mice" },
       { POS.NOUN.name(), "internal-combustion engine", "internal-combustion engine" }, // simple reflexive test
       { POS.NOUN.name(), "internal combustion engine", "internal-combustion engine" }, // exercise getindex() logic; WN doesn't get this
       { POS.NOUN.name(), "internal combustion engines", "internal-combustion engine" }, // exercise getindex() logic; WN doesn't get this
-      { POS.NOUN.name(), "hangers-on", "hanger-on" },
+      { POS.NOUN.name(), "hangers-on", "hanger-on", "hangers-on" },
       { POS.NOUN.name(), "hangers on", "hanger-on" }, // needs " " → "-"
       { POS.NOUN.name(), "letter bombs", "letter bomb" },
       // { POS.NOUN.name(), "fire-bomb", "firebomb" }, // needs "-" → ""
@@ -182,8 +182,8 @@ public class MorphyTest {
       { POS.NOUN.name(), "be an", null }, // WN gets this as "bean" (WN online doesn't do this)
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
       { POS.NOUN.name(), "_slovaks_", "Slovak" },
-      { POS.NOUN.name(), "superheroes", "superhero" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
-      { POS.NOUN.name(), "businessmen", "businessmen", "businessman" },
+      { POS.NOUN.name(), "superheroes", "superhero", "superheroes" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
+      { POS.NOUN.name(), "businessmen", "businessman", "businessmen" },
       { POS.NOUN.name(), "_", null },
       { POS.NOUN.name(), "\n", null },
       { POS.NOUN.name(), "\ndog", null },
@@ -200,12 +200,13 @@ public class MorphyTest {
       { POS.NOUN.name(), " -", null },
       { POS.NOUN.name(), "- ", null },
       { POS.NOUN.name(), "armful", "armful" },
-      { POS.NOUN.name(), "attorneys general", "attorney general" },
-      { POS.NOUN.name(), "axes", "ax", "axis", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
-      { POS.NOUN.name(), "bases", "basis", "basis" },
+      { POS.NOUN.name(), "attorneys general", "attorney general", "Attorney General" },
+      { POS.NOUN.name(), "axes", "axis", "ax", "axes", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
+      { POS.NOUN.name(), "bases", "basis", "base", "bases" }, // NOTE: noun "basis" ?
       { POS.NOUN.name(), "boxesful", "boxful" },
       //{ POS.NOUN.name(), "bachelor of art", "Bachelor of Arts" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
-      { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" }, 
+      { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" },
+      { POS.NOUN.name(), "cd", "Cd", "cd", "CD" },
       { POS.NOUN.name(), "lines of business", "line of business" },
       { POS.NOUN.name(), "SS", "SS" },
       { POS.NOUN.name(), "mamma's boy", "mamma's boy" },
@@ -216,7 +217,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "wounding", "wounding" },
       { POS.NOUN.name(), "'s Gravenhage", "'s Gravenhage" },
       { POS.VERB.name(), "wounded", "wound" },
-      { POS.VERB.name(), "wound", "wind" },
+      { POS.VERB.name(), "wound", "wind", "wound" },
       { POS.ADJ.name(), "wounded", "wounded" },
       { POS.VERB.name(), "dogs", "dog" },
       { POS.VERB.name(), "abided by", "abide by" },
@@ -253,13 +254,14 @@ public class MorphyTest {
       for (int i = 2; i < testElements.length; ++i) {
         goldStems.add(testElements[i]);
       }
+      assertTrue("goldStems: "+goldStems, areUnique(goldStems));
       final List<String> baseForms = stem(unstemmed, pos);
       String msg = "unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms;
       assertTrue(msg, baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
       //System.err.println(msg);
       assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
       //TODO on failure, could try other POS
-      if (baseForms.size() >= 2) {
+      if (baseForms.size() >= 2 && ! goldStems.equals(baseForms)) {
         //TODO tighten up this test - don't allow any extra unspecified variants
         // note this considers case variants distinct
         System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
