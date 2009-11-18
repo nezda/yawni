@@ -107,7 +107,52 @@ public class BrowserPanel extends JPanel {
   private EnumMap<POS, RelationTypeComboBox> posBoxes;
   private final Action slashAction;
   private final JLabel statusLabel;
-//  private final int pad = 5;
+
+  private static class ActionHelper {
+    private static final Map<String, Action> ACTIONS;
+    private static final String SELECT_ALL_CUT = "SELECT_ALL_CUT";
+    static {
+      final DefaultEditorKit dek = new DefaultEditorKit();
+      ACTIONS = new HashMap<String, Action>();
+      final Action[] actionsArray = dek.getActions();
+      for (int i = 0; i < actionsArray.length; i++) {
+        final Action a = actionsArray[i];
+        //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
+        ACTIONS.put((String)a.getValue(Action.NAME), a);
+      }
+      assert ACTIONS.containsKey(DefaultEditorKit.selectAllAction);
+      assert ACTIONS.containsKey(DefaultEditorKit.cutAction);
+      // goal: composite action: selectAllAction + cutAction
+      ACTIONS.put(SELECT_ALL_CUT, 
+        compose(ACTIONS.get(DefaultEditorKit.selectAllAction),
+        ACTIONS.get(DefaultEditorKit.cutAction)
+        ));
+    }
+    private static Action compose(final Action... actions) {
+      assert actions.length >= 2;
+      String name = "";
+      int ai = 0;
+      for (final Action action : actions) {
+        final String aname = (String) action.getValue(Action.NAME);
+        assert aname != null && aname.length() > 0;
+        name += aname;
+        if (ai != actions.length - 1) {
+          name +="-";
+        }
+      }
+      return new AbstractAction(name) {
+        private static final long serialVersionUID = 1L;
+        public void actionPerformed(final ActionEvent e) {
+          for (final Action action : actions) {
+            action.actionPerformed(e);
+          }
+        }
+      };
+    }
+    static Action selectAllCut() {
+      return ACTIONS.get(SELECT_ALL_CUT);
+    }
+  } // end class ActionHelper
 
   public BrowserPanel(final Browser browser) {
     this.browser = browser;
@@ -121,6 +166,9 @@ public class BrowserPanel extends JPanel {
     this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
     this.searchField.putClientProperty("JTextField.variant", "search");
+    this.searchField.putClientProperty("JTextField.Search.CancelAction", 
+      ActionHelper.selectAllCut()
+      );
 
     this.searchField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(final DocumentEvent evt) {
@@ -595,7 +643,7 @@ public class BrowserPanel extends JPanel {
    */
   private static class StyledTextPane extends JTextPane {
     private static final long serialVersionUID = 1L;
-    Map<Object, Action> actions;
+    static Map<Object, Action> actions;
     final Action biggerFont;
     final Action smallerFont;
 
@@ -609,7 +657,7 @@ public class BrowserPanel extends JPanel {
     }
 
     StyledTextPane() {
-      //XXX final Action bigger = actions.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
+      //XXX final Action bigger = ACTIONS.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
       //TODO move to StyledTextPane
       //TODO add Ctrl++ / Ctrl+- to Menu shortcuts (View?)
       // 1. define styles for various sizes (there are already Actions for this?)
@@ -785,7 +833,6 @@ public class BrowserPanel extends JPanel {
       }
     }
   } // end class RelationTypeComboBox
-
 
   /**
    * Displays information related to a given POS + RelationType
