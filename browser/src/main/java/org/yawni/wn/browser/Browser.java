@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Vector;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.basic.*;
@@ -47,7 +48,7 @@ public class Browser extends JFrame {
   }
 
   private static final long serialVersionUID = 1L;
-  // Check that we are on Mac OS X.  This is crucial to loading and using the OSXAdapter class.
+  // see if we're Mac OS X; crucial to loading and using the OSXAdapter class
   static final boolean IS_MAC_OS_X = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
   static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
@@ -56,21 +57,18 @@ public class Browser extends JFrame {
   private final Dimension minSize;
   private final JMenuBar mainMenuBar;
   private final JMenu fileMenu;
-  private final JMenuItem miSearch;
-  private final JMenuItem miQuit;
   private final JMenu helpMenu;
-  private final JMenuItem miAbout;
   private final BrowserPanel browserPanel;
   private final MoveMouseListener browserFrameMouseListener;
   private MoveMouseListener searchWindowMouseListener;
   private SearchFrame searchWindow;
 
   // FIXME ditch this magic number
-  final Icon BLANK_ICON = new BlankIcon(14, 14);
+  static final Icon BLANK_ICON = new BlankIcon(14, 14);
   final int pad = 5;
   private final Border textAreaBorder;
 
-  public Browser() {
+  private Browser() {
     super(Application.getInstance().getName() + " Browser");
     // ⌾ \u233e APL FUNCTIONAL SYMBOL CIRCLE JOT
     // ⊚ \u229a CIRCLED RING OPERATOR
@@ -103,15 +101,31 @@ public class Browser extends JFrame {
     this.mainMenuBar = new JMenuBar();
     this.fileMenu = new JMenu("File");
 
+    final Action newWindowAction = new AbstractAction("New Window") {
+      private static final long serialVersionUID = 1L;
+      private final int fake = init();
+      int init() {
+        final KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_N, MENU_MASK);
+        putValue(Action.MNEMONIC_KEY, keyStroke.getKeyCode());
+        putValue(Action.ACCELERATOR_KEY, keyStroke);
+        putValue(Action.SMALL_ICON, BLANK_ICON);
+        return 0;
+      }
+      public void actionPerformed(final ActionEvent evt) {
+        newWindow();
+      }
+    };
+    this.fileMenu.add(new JMenuItem(newWindowAction));
+
     final Action searchAction = new AbstractAction("Substring Search") {
       private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
-        final KeyStroke findKeyStroke = KeyStroke.getKeyStroke(
+        final KeyStroke keyStroke = KeyStroke.getKeyStroke(
           KeyEvent.VK_F,
           KeyEvent.SHIFT_DOWN_MASK | MENU_MASK);
-        putValue(Action.MNEMONIC_KEY, findKeyStroke.getKeyCode());
-        putValue(Action.ACCELERATOR_KEY, findKeyStroke);
+        putValue(Action.MNEMONIC_KEY, keyStroke.getKeyCode());
+        putValue(Action.ACCELERATOR_KEY, keyStroke);
         putValue(Action.SMALL_ICON, BLANK_ICON);
         //putValue(Action.SMALL_ICON, browserPanel.createFindIcon(14, true));
         return 0;
@@ -120,10 +134,27 @@ public class Browser extends JFrame {
         showSearchWindow(browserPanel.getSearchText());
       }
     };
-    this.miSearch = new JMenuItem(searchAction);
-    this.fileMenu.add(miSearch);
+    this.fileMenu.add(new JMenuItem(searchAction));
+
     this.browserPanel.addMenuItems(this, this.fileMenu);
     this.fileMenu.addSeparator();
+
+    final Action closeWindowAction = new AbstractAction("Close") {
+      private static final long serialVersionUID = 1L;
+      private final int fake = init();
+      int init() {
+        //putValue(Action.MNEMONIC_KEY, KeyEvent.VK_W);
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, MENU_MASK));
+        putValue(Action.SMALL_ICON, BLANK_ICON);
+        return 0;
+      }
+      public void actionPerformed(final ActionEvent evt) {
+        quitAction(Browser.this);
+      }
+    };
+    this.fileMenu.add(new JMenuItem(closeWindowAction));
+
+    // on non-OS X, quit goes on File menu, About goes on Help menu
 
     final Action quitAction = new AbstractAction("Quit") {
       private static final long serialVersionUID = 1L;
@@ -135,15 +166,13 @@ public class Browser extends JFrame {
         return 0;
       }
       public void actionPerformed(final ActionEvent evt) {
-        PreferencesManager.saveSettings(Browser.this);
-        System.exit(0);
+        quitAction(Browser.this);
       }
     };
-    this.miQuit = new JMenuItem(quitAction);
-    this.miQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, MENU_MASK));
-    this.fileMenu.add(miQuit);
+    this.fileMenu.add(new JMenuItem(quitAction));
     this.mainMenuBar.add(fileMenu);
     this.mainMenuBar.add(Box.createHorizontalGlue());
+
     this.helpMenu = new JMenu("Help");
     this.mainMenuBar.add(helpMenu);
 
@@ -262,8 +291,7 @@ public class Browser extends JFrame {
             options[0]);
       }
     };
-    this.miAbout = new JMenuItem(aboutAction);
-    this.helpMenu.add(miAbout);
+    this.helpMenu.add(new JMenuItem(aboutAction));
     this.mainMenuBar.add(helpMenu);
     setJMenuBar(mainMenuBar);
 
@@ -301,13 +329,29 @@ public class Browser extends JFrame {
       }
     });
 
-    //pack();
-    // centers the window
-    //setLocationRelativeTo(null);
-    PreferencesManager.loadSettings(this);
-    //setVisible(true);
-
     browserPanel.debug();
+  }
+
+  private static final Vector<Browser> BROWSERS = new Vector<Browser>();
+
+  private static synchronized void newWindow() {
+    final Browser browser = new Browser();
+    final String frameName = browser.getName();
+    browser.setName(frameName + "-" + BROWSERS.size());
+    BROWSERS.add(browser);
+    PreferencesManager.loadSettings(browser);
+    browser.setVisible(true);
+  }
+
+  private static synchronized void quitAction(final Browser thiz) {
+    final boolean removed = BROWSERS.remove(thiz);
+    assert removed;
+    PreferencesManager.saveSettings(thiz);
+    thiz.setVisible(false);
+    thiz.dispose();
+    if (BROWSERS.isEmpty()) {
+      System.exit(0);
+    }
   }
 
   private void showSearchWindow(final String searchText) {
@@ -371,7 +415,7 @@ public class Browser extends JFrame {
     //}
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
-        new Browser().setVisible(true);
+        newWindow();
         final long guiLoadDone = System.currentTimeMillis();
         System.err.println("guiLoadTime: "+(guiLoadDone - start)+"ms");
       }
