@@ -28,6 +28,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
+import org.yawni.wn.browser.ActionHelper;
 
 // TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JDialog {
@@ -145,6 +146,9 @@ class SearchFrame extends JDialog {
     this.searchField.setDocument(new SearchFieldDocument());
     // rounded corners and magnifying glass icon on OS X
     this.searchField.putClientProperty("JTextField.variant", "search");
+    this.searchField.putClientProperty("JTextField.Search.CancelAction",
+      ActionHelper.selectAllCut()
+      );
     this.searchField.addKeyListener(windowHider);
     this.searchField.addKeyListener(listArrowNav);
     multiClickSelectAll(this.searchField);
