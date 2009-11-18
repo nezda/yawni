@@ -239,6 +239,7 @@ everything
 ? children - irregular
 
 - issues
+  + feature: gui: support multiple independent, concurrent Browser frames (OS X style)
   + bug: core: can't find "'s Gravenhage" in gui ; BloomFilter hashcode considered case and space != underscore; added Hasher interface
   - feature: core: doc: file:///Users/nezda/President%20of%20the%20United%20States.svg
   - feature: core: in Word, consider caching senses since it is Iterable on it; getSense(n) would also be much cheaper
@@ -256,7 +257,7 @@ everything
   + bug: gui: factor into new browser subproject
   < feature: start "new browser" remote branch -- JSplitPane-based, maybe LGPL dependencies
   - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux
-  - bug: gui: OS X search field (x) no longer works
+  + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
   ~ feature: core: tolerate not having data.<POS> files (i.e., only index.<POS> files) to allow use as a resource-light, data driven stemmer
     - this may "just work"
   - feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
