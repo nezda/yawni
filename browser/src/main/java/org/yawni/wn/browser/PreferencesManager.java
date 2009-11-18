@@ -212,7 +212,7 @@ class PreferencesManager implements AWTEventListener {
   // move or use an ugly shutdown hook to make sure saves work
 
   static void loadSettings(final JFrame frame) {
-    // "Window settings"
+    // "org.yawni.wn.browser.Browser-0"
     final String name = frame.getName();
     //System.err.println("load name: " + name);
     final int x = prefs.getInt(name + ".x", -1);
@@ -223,7 +223,7 @@ class PreferencesManager implements AWTEventListener {
     frame.setSize(new Dimension(w, h));
     frame.validate();
 
-    if(x >= 0 && y >= 0) {
+    if (x >= 0 && y >= 0) {
       frame.setLocation(x, y);
     } else {
       frame.setLocationRelativeTo(null);
@@ -232,7 +232,7 @@ class PreferencesManager implements AWTEventListener {
 
   static void saveSettings(final JFrame frame) {
     final String name = frame.getName();
-    System.err.println("save name: " + name);
+    //System.err.println("save name: " + name);
     prefs.putInt(name + ".x", frame.getX());
     prefs.putInt(name + ".y", frame.getY());
     prefs.putInt(name + ".width", frame.getWidth());
