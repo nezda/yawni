@@ -138,16 +138,117 @@ Release TODOs
   - i.e., with a constant amount of extra space
   - http://lingpipe-blog.com/2009/01/27/quiz-answer-continuation-passing-style-for-converting-visitors-to-iterators/
 
+- Ted Pederson's WordNet stop list; "normally used as function words"
+  I, a, an, as, at, by, he, his, me, or, thou, us, who
+  - missing it
+  - Paul R. Dunn's stop list; Christiane Fellbaum adds that they are often ADVERB
+    (author of Visuwords: dunnbypaul.net
+    - ActionScript / Flash
+    - PHP
+    )
+the
+this
+that
+those
+these
+a
+and
+or
+nor
+because
+whenever
+whereas
+unless
+if
+than
+has
+am
+are
+is
+do
+does
+doth
+bring
+had
+was
+did
+got
+took
+brought
+were
+been
+seen
+? taken - irregular
+cannot
+to
+for
+with
+without
+of
+from
+against
+into
+upon
+toward
+since
+until
+I
+me
+you
+he
+him
+she
+her
+it
+we
+us
+they
+them
+everybody
+everyone
+anyone
+oneself
+myself
+yourself
+himself
+herself
+itself
+ourselves
+yourselves
+themselves
+my
+mine
+your
+yours
+his
+her
+hers
+its
+our
+ours
+their
+theirs
+which
+what
+shall
+could
+would
+should
+ought
+everything
+? children - irregular
+
 - issues
+  + bug: core: can't find "'s Gravenhage" in gui ; BloomFilter hashcode considered case and space != underscore; added Hasher interface
   - feature: core: doc: file:///Users/nezda/President%20of%20the%20United%20States.svg
   - feature: core: in Word, consider caching senses since it is Iterable on it; getSense(n) would also be much cheaper
-  - feature: core: get tests to run from within Netbeans (possibly with Maven test scope dep on data subproject?)
+  + feature: core: get tests to run from within Netbeans (possibly with Maven test scope dep on data subproject?)
   - bug: core: MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
   - feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
   + feature: ditch inefficient LookaheadIterator for Google Collections AbstractIterator
   < feature: gui: inherited meronyms not shown in GUI drop down; these are indirect via hypernyms (e.g., "capacity"#3's hypernym "volume" has direct meronyms)
   + feature: core: add BloomFilter anti-match optimization to lookupWord(String lemma, POS)
-  - feature: core: add BloomFilter anti-match optimization to other methods (e.g., getExceptions()); trickier for Morphy/lookupBaseForms()
+  + feature: core: add BloomFilter anti-match optimization to other methods (e.g., getExceptions()); trickier for Morphy/lookupBaseForms()
   + bug: core: fix BloomFilter issue with non-String CharSequence hashCode (feature)
   + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand; saves tons of RAM!
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
@@ -158,7 +259,7 @@ Release TODOs
   - bug: gui: OS X search field (x) no longer works
   ~ feature: core: tolerate not having data.<POS> files (i.e., only index.<POS> files) to allow use as a resource-light, data driven stemmer
     - this may "just work"
-  - feature: gui: OS X using reflectin, ala OSXAdapter, override handleQuit(), handleAbout()
+  - feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
   - bug: gui: substring search keyboard focus skips Substring/Prefix radio button group
   ~ bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other ∴ JDialog
     Old English: 
@@ -359,7 +460,7 @@ x feature: howto for developing in NetBeans ?
     + load data files from InputStream(s) (from jar) (loading from web via web start would be sweet too)
     - final ReadableByteChannel channel = Channels.newChannel(Class.getResource().openStream());
     + make this a separate jar file (data subproject)
-- bug: core: morphy shouldn't produce results which cannot be found in WN for that POS
+- bug: core: morphy shouldn't produce results which cannot be found in WN for that POS (* unless they are from the exceptions file)
   + bug: (data bug) search failures? in lookupSynsets()
     * contrast these to "geese" / "goose" which works
       [fedayee, fedayeen] NOUN - backwards in exc file 
@@ -557,7 +658,7 @@ x feature: howto for developing in NetBeans ?
     * many initials already have their period-free form in the data files
   - feature: core: create lemmatizing Lucene analyzer
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
-  - feature: core: nice interface to verb groups (http://wordnet.princeton.edu/man/wngroups.7WN)
+  - feature: core: nice interface to verb groups; add a field (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/man/wngroups.7WN)
   ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on
     class(es)? though could hide real bugs) 
   - bug: core: doc: document sort orders of Word, WordSense, Synset, and Relation
@@ -674,9 +775,7 @@ x feature: howto for developing in NetBeans ?
     * fill in numbers matrix style for bonus points
   - feature: gui: highlight query word in red like wnb in HTML results ? (bold now)
   < feature: make L&F preferences (default.xml) based
-  - bug: gui: SearchFrame always takes text of BrowserPanel even if it was
-    indirectly, automatically populated via clicking on a SearchFrame list item
-    search result
+  - bug: gui: SearchFrame always takes text of BrowserPanel even if it was indirectly, automatically populated via clicking on a SearchFrame list item search result
     - tricky because this field is used to store state used by POS RelationType menus
     - perfect use for SnapBack
   < feature: gui: add Undo/Redo to SearchFrame's searchField like BrowserPanel
@@ -903,7 +1002,7 @@ x feature: howto for developing in NetBeans ?
   - all caches full
 
 Features / Enhancements
-- feature: core: phase in support for "ALLSENSES" (original WN libraries have this for core search routines (findtheinfo(...) and in_wn(...))
+~ feature: core: phase in support for "ALLSENSES" (original WN libraries have this for core search routines (findtheinfo(...) and in_wn(...))
 < feature: core: create bounded length longest match algorithm and run over documents
 < feature: re-write grind in Java with jflex and/or javacc
   - very old, suspect C code with scary comments in lex file in particular
@@ -948,6 +1047,9 @@ Performance
   * Steele's original code referred to this (was not yet in JDK); see 
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
   - look to Google Collections MapMaker for guidance
+
+    Yonik's SimpleStringInterner for lockless pooling
+      or maybe ConcurrentLinkedQueue
 
     graphs = new MapMaper.softKeys().weakValues()
     says weakValues() are poor choice for cache (suggests softValues())
