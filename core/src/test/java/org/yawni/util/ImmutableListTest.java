@@ -33,6 +33,7 @@ public class ImmutableListTest {
     ImmutableList<Integer> result = ImmutableList.of();
     assertTrue(result instanceof ImmutableList.Nothington);
     listTest(expResult, result);
+    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     assertTrue(resultFromArray instanceof ImmutableList.Nothington);
     listTest(result, resultFromArray);
@@ -46,6 +47,7 @@ public class ImmutableListTest {
     ImmutableList<Integer> result = ImmutableList.of(e0);
     assertTrue(result instanceof ImmutableList.Singleton);
     listTest(expResult, result);
+    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     assertTrue(resultFromArray instanceof ImmutableList.Singleton);
     listTest(result, resultFromArray);
@@ -65,6 +67,7 @@ public class ImmutableListTest {
     listTest(expResult1, result);
     listTest(expResult2, result);
     listTest(expResult3, result);
+    listTest(expResult1, ImmutableList.copyOf(expResult1.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     assertTrue(resultFromArray instanceof ImmutableList.Doubleton);
     listTest(result, resultFromArray);
@@ -80,6 +83,7 @@ public class ImmutableListTest {
     ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2);
     assertTrue(result instanceof ImmutableList.Tripleton);
     listTest(expResult, result);
+    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     assertTrue(resultFromArray instanceof ImmutableList.Tripleton);
     listTest(result, resultFromArray);
@@ -96,6 +100,7 @@ public class ImmutableListTest {
     ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2, e3);
     assertTrue(result instanceof ImmutableList.Quadrupleton);
     listTest(expResult, result);
+    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     assertTrue(resultFromArray instanceof ImmutableList.Quadrupleton);
     listTest(result, resultFromArray);
@@ -113,6 +118,7 @@ public class ImmutableListTest {
     ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2, e3, e4);
     assertTrue(result instanceof ImmutableList.Quintupleton);
     listTest(expResult, result);
+    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     assertTrue(resultFromArray instanceof ImmutableList.Quintupleton);
     listTest(result, resultFromArray);
@@ -131,6 +137,7 @@ public class ImmutableListTest {
     ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2, e3, e4, e5);
     //assertTrue(result instanceof ImmutableList.Restleton);
     listTest(expResult, result);
+    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
     ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
     //assertTrue(resultFromArray instanceof ImmutableList.Restleton);
     listTest(result, resultFromArray);
@@ -217,7 +224,7 @@ public class ImmutableListTest {
   }
   @Test
   public void testNewArray() {
-    Integer[] reference = new Integer[]{};
+    Integer[] reference = new Integer[0];
     int length = 0;
     Integer[] expResult = reference;
     Integer[] result = ImmutableList.newArray(reference, length);
