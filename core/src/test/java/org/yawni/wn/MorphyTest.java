@@ -226,6 +226,10 @@ public class MorphyTest {
       { POS.VERB.name(), "asked for it", "ask for it" },
       { POS.VERB.name(), "accounting for", "account for" },
       { POS.VERB.name(), "was", "be", "was" }, // 2 "stems", 1 baseform
+      { POS.VERB.name(), "founded", "found" },
+      { POS.VERB.name(), "found", "find", "found"},
+      { POS.VERB.name(), "founder", "founder" },
+      { POS.ADJ.name(), "founder", "founder" },
       { POS.NOUN.name(), "was", "WA" }, // weird- de-pluralizing Washington state abbr
       { POS.VERB.name(), "cannonball along", "cannonball along" },
       //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, // WN doesn't get this
