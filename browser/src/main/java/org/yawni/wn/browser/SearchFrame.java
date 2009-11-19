@@ -28,12 +28,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
-import org.yawni.wn.browser.ActionHelper;
 
 // TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JDialog {
   private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
-  private static final long serialVersionUID = 1L;
 
   private final Dimension minSize;
   private final Browser browser;
@@ -147,7 +145,7 @@ class SearchFrame extends JDialog {
     // rounded corners and magnifying glass icon on OS X
     this.searchField.putClientProperty("JTextField.variant", "search");
     this.searchField.putClientProperty("JTextField.Search.CancelAction",
-      ActionHelper.selectAllCut()
+      ActionHelper.clear()
       );
     this.searchField.addKeyListener(windowHider);
     this.searchField.addKeyListener(listArrowNav);
@@ -155,7 +153,6 @@ class SearchFrame extends JDialog {
 
     // use slash key ("/") to initiate search like vi, gmail, ...
     final Action slashAction = new AbstractAction("Slash") {
-      private static final long serialVersionUID = 1L;
       public void actionPerformed(final ActionEvent evt) {
         searchField.selectAll();
         searchField.grabFocus();
@@ -210,7 +207,6 @@ class SearchFrame extends JDialog {
 
     // build re-active searching ListModel + DocumentListener
     this.searchListModel = new ConcurrentSearchListModel() {
-      private static final long serialVersionUID = 1L;
       @Override
       public Iterable search(final String query) {
         // performs the actual search
@@ -476,7 +472,6 @@ class SearchFrame extends JDialog {
   private void addConstraintButtons(final JComponent constraintPanel) {
     final ButtonGroup group = new ButtonGroup();
     class SubstringAction extends AbstractAction {
-      private static final long serialVersionUID = 1L;
       SubstringAction() {
         super("Substring");
       }
@@ -487,7 +482,6 @@ class SearchFrame extends JDialog {
       }
     } // end class SubstringAction
     class PrefixAction extends AbstractAction {
-      private static final long serialVersionUID = 1L;
       PrefixAction() {
         super("Prefix");
       }
@@ -498,7 +492,6 @@ class SearchFrame extends JDialog {
       }
     } // end class PrefixAction
     class GlossSubstringAction extends AbstractAction {
-      private static final long serialVersionUID = 1L;
       GlossSubstringAction() {
         super("Gloss Substring");
       }
