@@ -47,7 +47,6 @@ public class Browser extends JFrame {
     setSystemProperties();
   }
 
-  private static final long serialVersionUID = 1L;
   // see if we're Mac OS X; crucial to loading and using the OSXAdapter class
   static final boolean IS_MAC_OS_X = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
   static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -83,7 +82,6 @@ public class Browser extends JFrame {
     //getRootPane().putClientProperty("apple.awt.draggableWindowBackground", Boolean.TRUE);
 
     this.textAreaBorder = new BasicBorders.MarginBorder() {
-      private static final long serialVersionUID = 1L;
       private final Insets insets = new Insets(pad, pad, pad, pad);
       @Override
       public Insets getBorderInsets(final Component c) {
@@ -102,7 +100,6 @@ public class Browser extends JFrame {
     this.fileMenu = new JMenu("File");
 
     final Action newWindowAction = new AbstractAction("New Window") {
-      private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
         final KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_N, MENU_MASK);
@@ -118,7 +115,6 @@ public class Browser extends JFrame {
     this.fileMenu.add(new JMenuItem(newWindowAction));
 
     final Action searchAction = new AbstractAction("Substring Search") {
-      private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
         final KeyStroke keyStroke = KeyStroke.getKeyStroke(
@@ -140,7 +136,6 @@ public class Browser extends JFrame {
     this.fileMenu.addSeparator();
 
     final Action closeWindowAction = new AbstractAction("Close") {
-      private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
         //putValue(Action.MNEMONIC_KEY, KeyEvent.VK_W);
@@ -157,7 +152,6 @@ public class Browser extends JFrame {
     // on non-OS X, quit goes on File menu, About goes on Help menu
 
     final Action quitAction = new AbstractAction("Quit") {
-      private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
         putValue(Action.MNEMONIC_KEY, KeyEvent.VK_Q);
@@ -177,7 +171,6 @@ public class Browser extends JFrame {
     this.mainMenuBar.add(helpMenu);
 
     final Action aboutAction = new AbstractAction("About") {
-      private static final long serialVersionUID = 1L;
       private final int fake = init();
       int init() {
         //putValue(Action.SMALL_ICON, BLANK_ICON);
