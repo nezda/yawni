@@ -102,7 +102,7 @@
           <debug>true</debug>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
-          <compilerArgument>-Xlint</compilerArgument>
+          <compilerArgument>-Xlint:{-serial}</compilerArgument>
           <compilerArguments> 
             <Xmaxerrs>10000000</Xmaxerrs>
             <Xmaxwarns>10000000</Xmaxwarns>
