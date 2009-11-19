@@ -57,8 +57,6 @@ import org.yawni.util.*;
  * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
  */
 public abstract class ConcurrentSearchListModel extends AbstractListModel implements DocumentListener {
-  private static final long serialVersionUID = 1L;
-
   private List filterItems;
   private final ExecutorService service;
   private int rowUpdateInterval;
