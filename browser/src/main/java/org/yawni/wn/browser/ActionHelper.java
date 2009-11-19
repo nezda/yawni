@@ -6,10 +6,15 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.TextAction;
 
+// TODO
+// call this EditorKitHelper / StyledEditorKitHelper
 class ActionHelper {
   private static final Map<String, Action> ACTIONS;
   private static final String SELECT_ALL_CUT = "SELECT_ALL_CUT";
+  private static final String CLEAR = "CLEAR";
   static {
     final DefaultEditorKit dek = new DefaultEditorKit();
     ACTIONS = new HashMap<String, Action>();
@@ -23,6 +28,14 @@ class ActionHelper {
     assert ACTIONS.containsKey(DefaultEditorKit.cutAction);
     // goal: composite action: selectAllAction + cutAction
     ACTIONS.put(SELECT_ALL_CUT, compose(ACTIONS.get(DefaultEditorKit.selectAllAction), ACTIONS.get(DefaultEditorKit.cutAction)));
+    ACTIONS.put(CLEAR, new TextAction("clear") {
+      public void actionPerformed(ActionEvent e) {
+        final JTextComponent target = getTextComponent(e);
+        if (target != null) {
+          target.setText("");
+        }
+      }
+    });
   }
 
   private static Action compose(final Action... actions) {
@@ -50,5 +63,8 @@ class ActionHelper {
 
   static Action selectAllCut() {
     return ACTIONS.get(SELECT_ALL_CUT);
+  }
+  static Action clear() {
+    return ACTIONS.get(CLEAR);
   }
 }
