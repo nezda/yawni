@@ -42,7 +42,6 @@ import javax.swing.event.*;
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4694797
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
 public class PopdownButton extends JButton {
-  private static final long serialVersionUID = 1L;
   private final JPopupMenu popupMenu;
   private boolean shouldHandlePopupWillBecomeInvisible = true;
 
@@ -120,7 +119,6 @@ public class PopdownButton extends JButton {
 
   private Action createButtonAction(final String label) {
     final AbstractAction action = new AbstractAction(label) {
-      private static final long serialVersionUID = 1L;
 
       public void actionPerformed(final ActionEvent evt) {
         if (false == isEnabled()) {
@@ -196,8 +194,6 @@ public class PopdownButton extends JButton {
   // selectWithKeyChar()
   // UNUSED
   class DefaultKeySelectionManager implements JComboBox.KeySelectionManager, Serializable {
-    private static final long serialVersionUID = 1L;
-    
     public int selectionForKey(char aKey, final ComboBoxModel aModel) {
       int currentSelection = -1;
       final Object selectedItem = aModel.getSelectedItem();
