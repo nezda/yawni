@@ -121,7 +121,7 @@ public class BrowserPanel extends JPanel {
     this.searchField.setBackground(Color.WHITE);
     this.searchField.putClientProperty("JTextField.variant", "search");
     this.searchField.putClientProperty("JTextField.Search.CancelAction", 
-      ActionHelper.selectAllCut()
+      ActionHelper.clear()
       );
 
     this.searchField.getDocument().addDocumentListener(new DocumentListener() {
