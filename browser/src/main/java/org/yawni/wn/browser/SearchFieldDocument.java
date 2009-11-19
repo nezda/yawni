@@ -19,12 +19,10 @@ package org.yawni.wn.browser;
 import javax.swing.text.*;
 
 /**
- * java.swing.text.Document to constrain a search field
+ * {@link javax.swing.text.Document} to constrain a search field
  * to non-junk.
  */
 class SearchFieldDocument extends PlainDocument {
-  private static final long serialVersionUID = 1L;
-
   private final int MAX_LEN = 256;
 
   @Override
@@ -71,13 +69,14 @@ class SearchFieldDocument extends PlainDocument {
       //final String toReplace = getText(offset, length);
       //System.err.println("toReplace: \""+toReplace+"\""+
       //    " (length: "+length+") with \""+text+"\" (length: "+text.length()+")");
+      // prevent slash when text is selected from deleting word
+      if ("/".equals(text)) {
+        return;
+      }
       text = scrub(text, offset);
     }
     //System.err.printf("length: %s text: \"%s\"\n", length, text);
-    if (text != null && text.length() != 0) {
-      // prevent slash when text is selected from deleting word
-      super.replace(offset, length, text, attr);
-    }
+    super.replace(offset, length, text, attr);
   }
 
   // allow all inserts to run, just some wth empty strings
@@ -96,8 +95,8 @@ class SearchFieldDocument extends PlainDocument {
     String toInsert = proposedNewText;
     // - bound total document length to MAX_LEN
     toInsert = toInsert.substring(0, Math.min(toInsert.length(), MAX_LEN));
-    // ignore navigation-only slash
-    toInsert = toInsert.replace("/", "");
+//    // ignore navigation-only slash
+//    toInsert = toInsert.replace("/", "");
     // - normalize any internal whitespace
     //   - corner case: allow it to end with up to 1 space or hyphen
     return toInsert;
