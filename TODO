@@ -1,13 +1,8 @@
 - WordNet supersenses (WNSS) (Ciaramita and Altun, 2006)
   Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger
-    http://sourceforge.net/projects/supersensetag/
-    - accelerate C++ version
-      - use more const references
-      - map -> hash_map
-      - set -> hash_set
-      - Fs::equate() should be assign() or assignment operator =
-      - OS X Accelerate library - can this work with STL vector<T> ?
-    - consider porting to Java
+  http://sourceforge.net/projects/supersensetag/
+  - Java port "underway" by Jordi Atserias | Yahoo! Research (sourceforge user: batalla)
+    - https://supersensetag.svn.sourceforge.net/svnroot/supersensetag/branches/SSTjava/
 
 Examples apps
 - Using the 'Alignment API' with Wordnet
@@ -97,10 +92,6 @@ Release TODOs
         <version>1.7R2</version>
       </dependency>
 
-- Bloom cache
-  - pre-populate with index (Word) contents (1 filter per POS)
-    - could also cache exceptions lists
-
 // - do a Lucene Tokenizer / Analyzer integration - good performance test best
 //   - use tikluc demo
 //     - indexed reuters docs: http://192.168.1.66:8880/skwish/meta?id=10500
@@ -141,7 +132,7 @@ Release TODOs
 - Ted Pederson's WordNet stop list; "normally used as function words"
   I, a, an, as, at, by, he, his, me, or, thou, us, who
   - missing it
-  - Paul R. Dunn's stop list; Christiane Fellbaum adds that they are often ADVERB
+  - Paul R. Dunn's stop list; Christiane Fellbaum adds that they are often ADV
     (author of Visuwords: dunnbypaul.net
     - ActionScript / Flash
     - PHP
