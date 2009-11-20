@@ -34,7 +34,6 @@ class SearchFrame extends JDialog {
   private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
 
   private final Dimension minSize;
-  private final Browser browser;
   private final BrowserPanel browserPanel;
   private final JComponent searchPanel;
   private final JTextField searchField;
@@ -66,7 +65,6 @@ class SearchFrame extends JDialog {
     // doesn't add anything
     //getRootPane().putClientProperty("Window.style", "small");
     
-    this.browser = browser;
     this.browserPanel = browserPanel;
     this.setVisible(false);
     this.pos = POS.valueOf(prefs.get("searchPOS", POS.ALL.name()));
@@ -78,6 +76,7 @@ class SearchFrame extends JDialog {
       public void keyTyped(final KeyEvent evt) {
         if (evt.getKeyChar() == 'w' &&
           (evt.getModifiers() & Browser.MENU_MASK) != 0) {
+          System.err.println("keyTyped "+evt);
           setVisible(false);
         }
       }
@@ -101,10 +100,10 @@ class SearchFrame extends JDialog {
         if (evt.getKeyCode() == KeyEvent.VK_UP ||
             evt.getKeyCode() == KeyEvent.VK_DOWN) {
           final int size = resultList.getModel().getSize();
-          Integer nextSi = null;
           if (size == 0) {
             return;
           }
+          Integer nextSi = null;
           final int si = resultList.getSelectedIndex();
           if (si < 0) {
             nextSi = 0;
