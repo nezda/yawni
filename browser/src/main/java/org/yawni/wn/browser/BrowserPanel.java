@@ -27,6 +27,7 @@ import org.yawni.wn.RelationType;
 import org.yawni.wn.Synset;
 import org.yawni.wn.Word;
 import org.yawni.wn.WordSense;
+import static org.yawni.wn.RelationType.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -68,7 +70,6 @@ import java.util.prefs.*;
 public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
-  private static final long serialVersionUID = 1L;
   private DictionaryDatabase dictionary;
 
   DictionaryDatabase dictionary() {
@@ -151,8 +152,6 @@ public class BrowserPanel extends JPanel {
     });
 
     this.undoManager = new UndoManager() {
-      private static final long serialVersionUID = 1L;
-
       @Override public boolean addEdit(UndoableEdit ue) {
         //System.err.println("ue: "+ue);
         return super.addEdit(ue);
@@ -191,8 +190,6 @@ public class BrowserPanel extends JPanel {
     });
 
     final Action searchAction = new AbstractAction("Search") {
-      private static final long serialVersionUID = 1L;
-
       public void actionPerformed(final ActionEvent event) {
         if (event.getSource() == searchField) {
           // doClick() will generate another event
@@ -208,8 +205,6 @@ public class BrowserPanel extends JPanel {
     this.searchButton.getActionMap().put("Search", searchAction);
 
     this.slashAction = new AbstractAction("Slash") {
-      private static final long serialVersionUID = 1L;
-
       public void actionPerformed(final ActionEvent event) {
         searchField.grabFocus();
       }
@@ -264,8 +259,6 @@ public class BrowserPanel extends JPanel {
 
     //TODO move to StyledTextPane (already an action for this?)
     final Action scrollDown = new AbstractAction() {
-      private static final long serialVersionUID = 1L;
-
       public void actionPerformed(final ActionEvent event) {
         final int max = jsb.getMaximum();
         final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, +1);
@@ -279,8 +272,6 @@ public class BrowserPanel extends JPanel {
 
     //TODO move to StyledTextPane (already an action for this?)
     final Action scrollUp = new AbstractAction() {
-      private static final long serialVersionUID = 1L;
-
       public void actionPerformed(final ActionEvent event) {
         //final int max = jsb.getMaximum();
         final int inc = resultEditorPane.getScrollableUnitIncrement(jsp.getViewportBorderBounds(), SwingConstants.VERTICAL, -1);
@@ -524,8 +515,6 @@ public class BrowserPanel extends JPanel {
   // non-static class UndoAction cross references RedoAction and
   // other non-static fields
   class UndoAction extends AbstractAction {
-    private static final long serialVersionUID = 1L;
-
     UndoAction() {
       super("Undo");
       setEnabled(false);
@@ -559,8 +548,6 @@ public class BrowserPanel extends JPanel {
   // non-static class RedoAction cross references UndoAction and
   // other non-static fields
   class RedoAction extends AbstractAction {
-    private static final long serialVersionUID = 1L;
-
     RedoAction() {
       super("Redo");
       setEnabled(false);
@@ -593,10 +580,9 @@ public class BrowserPanel extends JPanel {
 
   /**
    * Nice looking SansSerif HTML rendering JTextPane.
-   * http://www.jroller.com/jnicho02/entry/using_css_with_htmleditorpane
+   * @see http://www.jroller.com/jnicho02/entry/using_css_with_htmleditorpane
    */
   private static class StyledTextPane extends JTextPane {
-    private static final long serialVersionUID = 1L;
     static Map<Object, Action> actions;
     final Action biggerFont;
     final Action smallerFont;
@@ -640,15 +626,12 @@ public class BrowserPanel extends JPanel {
       //     beep
 
       this.biggerFont = new StyledEditorKit.StyledTextAction("Bigger Font") {
-        private static final long serialVersionUID = 1L;
         final int fake = init();
-
         private int init() {
           putValue(Action.SMALL_ICON, createFontScaleIcon(16, true));
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK));
           return 0;
         }
-
         public void actionPerformed(final ActionEvent evt) {
           //System.err.println("bigger");//: "+evt);
           newFontSize(18);
@@ -657,15 +640,12 @@ public class BrowserPanel extends JPanel {
         }
       };
       this.smallerFont = new StyledEditorKit.StyledTextAction("Smaller Font") {
-        private static final long serialVersionUID = 1L;
         final int fake = init();
-
         private int init() {
           putValue(Action.SMALL_ICON, createFontScaleIcon(16, false));
           putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK));
           return 0;
         }
-
         public void actionPerformed(final ActionEvent evt) {
           //System.err.println("smaller");//: "+evt);
           newFontSize(14);
@@ -737,7 +717,6 @@ public class BrowserPanel extends JPanel {
   private class RelationTypeComboBox extends PopdownButton {
     // FIXME if user changes text field contents and selects menu, bad things will happen
     // FIXME text in HTML pane looks bold at line wraps
-    private static final long serialVersionUID = 1L;
     private final POS pos;
 
     RelationTypeComboBox(final POS pos) {
@@ -769,7 +748,7 @@ public class BrowserPanel extends JPanel {
       });
     }
 
-    /** populate with <code>RelationType</code>s which apply to pos+word */
+    /** populate with {@code RelationType}s which apply to pos+word */
     void updateFor(final POS pos, final Word word) {
       getPopupMenu().removeAll();
       getPopupMenu().add(new RelationTypeAction("Senses", pos, null));
@@ -789,10 +768,9 @@ public class BrowserPanel extends JPanel {
   } // end class RelationTypeComboBox
 
   /**
-   * Displays information related to a given POS + RelationType
+   * Displays information related to a given {@linkplain POS} + {@linkplain RelationType}
    */
-  class RelationTypeAction extends AbstractAction {
-    private static final long serialVersionUID = 1L;
+  private class RelationTypeAction extends AbstractAction {
     private final POS pos;
     private final RelationType relationType;
 
@@ -802,31 +780,60 @@ public class BrowserPanel extends JPanel {
       this.relationType = relationType;
     }
 
+    @Override
+    public String toString() {
+      return "[RelationTypeAction "+relationType+" "+pos+"]";
+    }
+
     public void actionPerformed(final ActionEvent evt) {
-      //FIXME have to do morphstr logic here
-      final String inputString = BrowserPanel.this.searchField.getText().trim();
-      Word word = BrowserPanel.this.dictionary().lookupWord(inputString, pos);
-      if (word == null) {
-        final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
-        assert forms.isEmpty() == false : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), pos);
-        assert forms.isEmpty() == false;
-      }
-      if (relationType == null) {
-        //FIXME bad form to use stderr
-        System.err.println(word);
-        displaySenses(word);
-      } else {
-        displaySenseChain(word, relationType);
-      }
+      final SwingWorker worker = new SwingWorker<Void, Void>() {
+        @Override
+        public Void doInBackground() {
+          //FIXME have to do morphstr logic here
+          final String inputString = BrowserPanel.this.searchField.getText().trim();
+          Word word = BrowserPanel.this.dictionary().lookupWord(inputString, pos);
+          if (word == null) {
+            final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
+            assert ! forms.isEmpty() : "searchField contents must have changed";
+            word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), pos);
+            assert ! forms.isEmpty();
+           }
+          if (relationType == null) {
+            //FIXME bad form to use stderr
+            System.err.println(word);
+            displaySenses(word);
+          } else {
+            displaySenseChain(word, relationType);
+          }
+          return null;
+        }
+
+        @Override
+        protected void done() {
+          try {
+            get();
+          } catch (InterruptedException ignore) {
+          } catch (java.util.concurrent.ExecutionException e) {
+            final Throwable cause = e.getCause();
+            final String why;
+            if (cause != null) {
+              why = cause.getMessage();
+            } else {
+              why = e.getMessage();
+            }
+            //FIXME bad form to use stderr
+            System.err.println(RelationTypeAction.this+" failure; " + why);
+          }
+        }
+      };
+      worker.execute();
     }
   } // end class RelationTypeAction
+  
   /**
-   * Displays information related to a given POS + RelationType
+   * Displays information related to a given {@linkplain POS} + {@linkplain RelationType}
    */
   class VerbFramesAction extends AbstractAction {
-    private static final long serialVersionUID = 1L;
-
     VerbFramesAction(final String label) {
       super(label);
     }
@@ -970,6 +977,9 @@ public class BrowserPanel extends JPanel {
     INTRO("Enter search word and press return"),
     OVERVIEW("Overview of %s"),
     SEARCHING("Searching..."),
+    SEARCHING4("Searching...."),
+    SEARCHING5("Searching....."),
+    SEARCHING6("Searching......"),
     SYNONYMS("Synonyms search for %s \"%s\""),
     NO_MATCHES("No matches found."),
     RELATION("\"%s\" search for %s \"%s\""),
@@ -998,7 +1008,12 @@ public class BrowserPanel extends JPanel {
   // TODO For RelationType searches, show same text as combo box (e.g., "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
-    this.statusLabel.setText(status.get(args));
+    final String text = status.get(args);
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        BrowserPanel.this.statusLabel.setText(text);
+      }
+    });
   }
 
   /** Overview for single {@code Word} */
@@ -1014,10 +1029,10 @@ public class BrowserPanel extends JPanel {
    * Core search routine; renders all information about {@code Word} into {@code buffer}
    * as HTML.
    * 
-   * TODO
-   * Factor out this logic into a result data structure like findtheinfo_ds() does
+   * <h3>TODO</h3>
+   * Factor out this logic into a "results" data structure like findtheinfo_ds() does
    * to separate logic from presentation.
-   * Nice XML format would open up some nice possibilities for web services, commandline,
+   * A nice XML format would open up some nice possibilities for web services, commandline,
    * and this traditional GUI application.
    */
   private void appendSenses(final Word word, final StringBuilder buffer, final boolean verbose) {
@@ -1061,8 +1076,8 @@ public class BrowserPanel extends JPanel {
       //  "if searchstr is in a head synset, all of the head synset's satellites"
       buffer.append(sense.getLongDescription(verbose));
       if (verbose) {
-        final List<RelationTarget> similarTos = sense.getTargets(RelationType.SIMILAR_TO);
-        if (similarTos.isEmpty() == false) {
+        final List<RelationTarget> similarTos = sense.getTargets(SIMILAR_TO);
+        if (! similarTos.isEmpty()) {
           buffer.append("<br>\n");
           buffer.append("Similar to:");
           buffer.append("<ul>\n");
@@ -1075,8 +1090,8 @@ public class BrowserPanel extends JPanel {
           buffer.append("</ul>\n");
         }
 
-        final List<RelationTarget> seeAlsos = sense.getTargets(RelationType.SEE_ALSO);
-        if (seeAlsos.isEmpty() == false) {
+        final List<RelationTarget> seeAlsos = sense.getTargets(SEE_ALSO);
+        if (! seeAlsos.isEmpty()) {
           if (similarTos.isEmpty()) {
             buffer.append("<br>");
           }
@@ -1105,13 +1120,13 @@ public class BrowserPanel extends JPanel {
    * each applicable sense.
    */
   private void displaySenseChain(final Word word, final RelationType relationType) {
-    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
+//    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
     // count number of senses relationType applies to
     int numApplicableSenses = 0;
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (senses.get(i).getTargets(relationType).isEmpty() == false) {
+      if (! senses.get(i).getTargets(relationType).isEmpty()) {
         numApplicableSenses++;
       }
     }
@@ -1119,7 +1134,7 @@ public class BrowserPanel extends JPanel {
       append(senses.size()).append(" senses").//(senses.length > 1 ? "s" : "")+
       append(" of <b>").append(word.getLowercasedLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (senses.get(i).getTargets(relationType).isEmpty() == false) {
+      if (! senses.get(i).getTargets(relationType).isEmpty()) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
 
         // honestly, I don't even know why there are 2 RelationTypes here ??
@@ -1146,7 +1161,7 @@ public class BrowserPanel extends JPanel {
         //attributeType: null
 
         //take2
-        RelationType inheritanceType = RelationType.HYPERNYM;
+        RelationType inheritanceType = HYPERNYM;
         RelationType attributeType = relationType;
         switch (relationType) {
           case HYPONYM:
@@ -1166,18 +1181,20 @@ public class BrowserPanel extends JPanel {
     }
     resultEditorPane.setText(buffer.toString());
     resultEditorPane.setCaretPosition(0); // scroll to top
+    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
   }
 
   /**
-   * Adds information from {@code Relation}s.  Base method signature of recursive method
+   * Adds information from {@linkplain Relation}s; base method signature of recursive method
    * {@linkplain #appendSenseChain()}.
    */
-  void appendSenseChain(
+  private void appendSenseChain(
     final StringBuilder buffer,
     final WordSense rootWordSense,
     final RelationTarget sense,
     final RelationType inheritanceType,
     final RelationType attributeType) {
+    updateStatusBar(Status.SEARCHING);
     appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
   }
 
@@ -1188,10 +1205,12 @@ public class BrowserPanel extends JPanel {
   //XXX return "<li>* ";
   }
 
+  private static final AtomicInteger counter = new AtomicInteger();
+
   /**
-   * Recursivly adds information from {@code Relation}s.
+   * Recursively adds information from {@code Relation}s to {@code buffer}.
    */
-  void appendSenseChain(
+  private void appendSenseChain(
     final StringBuilder buffer,
     final WordSense rootWordSense,
     final RelationTarget sense,
@@ -1199,6 +1218,16 @@ public class BrowserPanel extends JPanel {
     final RelationType attributeType,
     final int tab,
     Link ancestors) {
+
+    final int currCount = counter.incrementAndGet();
+    if (currCount % 15 == 0) {
+      updateStatusBar(Status.SEARCHING4);
+    } else if (currCount % 10 == 0) {
+      updateStatusBar(Status.SEARCHING5);
+    } else if (currCount % 5 == 0) {
+      updateStatusBar(Status.SEARCHING);
+    }
+
     buffer.append(listOpen());
     buffer.append(sense.getLongDescription());
     buffer.append("</li>\n");
@@ -1241,7 +1270,7 @@ public class BrowserPanel extends JPanel {
         return;
       }
     }
-    if (ancestors == null || ancestors.contains(sense) == false) {
+    if (ancestors == null || ! ancestors.contains(sense)) {
 //      System.err.println("ancestors == null || does not contain sense "+sense+
 //        " "+attributeType+" ancestors: "+ancestors);
       ancestors = new Link(sense, ancestors);
@@ -1254,12 +1283,13 @@ public class BrowserPanel extends JPanel {
 //      System.err.println("ancestors != null || contains sense "+sense+" "+attributeType);
     }
   }
+
   //FIXME red DERIVATIONALLY_RELATED shows Sense 2 which has no links!?
   private static final EnumSet<RelationType> NON_RECURSIVE_RELATION_TYPES = EnumSet.of(
-    RelationType.DERIVATIONALLY_RELATED,
-    RelationType.MEMBER_OF_TOPIC_DOMAIN, RelationType.MEMBER_OF_USAGE_DOMAIN, RelationType.MEMBER_OF_REGION_DOMAIN,
-    RelationType.DOMAIN_OF_TOPIC, RelationType.DOMAIN_OF_USAGE, RelationType.DOMAIN_OF_REGION,
-    RelationType.ANTONYM);
+    DERIVATIONALLY_RELATED,
+    MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_USAGE_DOMAIN, MEMBER_OF_REGION_DOMAIN,
+    DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION,
+    ANTONYM);
 
   private void displayVerbFrames(final Word word) {
     updateStatusBar(Status.VERB_FRAMES, word.getLowercasedLemma());
@@ -1268,7 +1298,7 @@ public class BrowserPanel extends JPanel {
     buffer.append(senses.size()).append(" sense").append((senses.size() > 1 ? "s" : "")).
       append(" of <b>").append(word.getLowercasedLemma()).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (senses.get(i).getWordSense(word).getVerbFrames().isEmpty() == false) {
+      if (! senses.get(i).getWordSense(word).getVerbFrames().isEmpty()) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
         //TODO show the synset ?
         buffer.append("<ul>\n");
