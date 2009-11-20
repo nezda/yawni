@@ -51,8 +51,6 @@ class ActionHelper {
       }
     }
     return new AbstractAction(name) {
-      private static final long serialVersionUID = 1L;
-
       public void actionPerformed(final ActionEvent e) {
         for (final Action action : actions) {
           action.actionPerformed(e);
