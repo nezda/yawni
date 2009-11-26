@@ -74,9 +74,12 @@ class SearchFrame extends JDialog {
     final KeyListener windowHider = new KeyAdapter() {
       @Override
       public void keyTyped(final KeyEvent evt) {
-        if (evt.getKeyChar() == 'w' &&
+        if (evt.getKeyChar() == '\u0017') {
+//          System.err.println("GOTCHA! "+evt+" ctrl mod: "+((evt.getModifiers() & Event.CTRL_MASK) != 0));
+          setVisible(false);
+        }
+        else if (evt.getKeyChar() == 'w' &&
           (evt.getModifiers() & Browser.MENU_MASK) != 0) {
-          System.err.println("keyTyped "+evt);
           setVisible(false);
         }
       }
