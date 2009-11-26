@@ -286,7 +286,11 @@ public class Browser extends JFrame {
     };
     this.helpMenu.add(new JMenuItem(aboutAction));
     this.mainMenuBar.add(helpMenu);
-    setJMenuBar(mainMenuBar);
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        setJMenuBar(mainMenuBar);
+      }
+    });
 
     final WindowAdapter closer = new WindowAdapter() {
       @Override
