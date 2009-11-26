@@ -6,26 +6,33 @@
     <title>Yawni Browser</title>
     <vendor>Luke Nezda</vendor>
     <homepage href="http://www.fatbread.com/" />
-    <description>Java Swing browser for WordNet</description>
-    <!-- not a 64x64 icon - rejected ? -->
+    <description>Yawni Browser</description>
+    <description kind="short">Java Swing browser for WordNet</description>
+    <offline-allowed/>
+    <!-- not a 64x64 icon -->
     <icon href="http://www.fatbread.com/american-flag.png"/>
-    <!--
-    <shortcut>
-       <desktop/>
-       <menu/>
+    <shortcut online="false">
+      <desktop/>
+      <menu submenu="Yawni Browser"/>
     </shortcut>
-    -->
   </information>
-  <offline-allowed/>
   <security>
     <all-permissions/>
   </security>
-
+  <update check="background" policy="prompt-update" />
   <resources>
-    <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions"/>
+    <!-- <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions" /> -->
+    <!-- <j2se java-vm-args="-d32" version="1.6+" initial-heap-size="64m" java-vm-args="-enableassertions" /> -->
+    <!-- any other java-vm-args causes OS X problems ("title" in menu bar becomes "com.sun.javaws.Main", instead of "Yawni Browser") -->
+    <j2se version="1.6+" java-vm-args="-d32"/>
     <!-- <jar href="yawni-2.0.0-SNAPSHOT.jar"/> -->
-    <jar href="${pom.artifactId}-${pom.version}.jar"/>
+    <jar href="yawni-browser-2.0.0-SNAPSHOT.jar"/>
+    <jar href="yawni-core-2.0.0-SNAPSHOT.jar"/>
+    <jar href="yawni-data-2.0.0-SNAPSHOT.jar"/>
     <!-- <extension name="yawni-data" href="yawni-data.jnlp"/> -->
+    <property name="swing.aatext" value="true"/>
+    <property name="awt.useSystemAAFontSettings" value="on"/>
+    <property name="file.encoding" value="US-ASCII"/>
     <!-- attempt to work around minor javaws bug
       http://lists.apple.com/archives/java-dev/2005/Mar/msg00426.html -->
     <property name="apple.awt.brushMetalLook" value="true"/>
@@ -33,6 +40,9 @@
     <property name="apple.awt.textantialiasing" value="on"/>
     <property name="apple.laf.useScreenMenuBar" value="true"/>
     <property name="apple.awt.showGrowBox" value="false"/>
+    <property name="apple.awt.graphics.UseQuartz" value="true"/>
+    <property name="sun.swing.enableImprovedDragGesture" value="true"/>
+    <property name="org.yawni.wn.browser.deploymentInformation" value="Java Web Start"/>
   </resources>
 
   <!-- some platform specific WNHOME defaults -->
@@ -50,13 +60,5 @@
   <resources os="Windows">
     <property name="WNHOME" value="c:\Program Files\WordNet\2.1\"/>
   </resources>
-
-  <resources>
-    <property name="swing.aatext" value="true"/>
-    <property name="awt.useSystemAAFontSettings" value="on"/>
-    <property name="file.encoding" value="US-ASCII"/>
-  </resources>
-
-  <application-desc main-class="org.yawni.wn.browser.Browser">
-  </application-desc>
+  <application-desc main-class="org.yawni.wn.browser.Browser"/>
 </jnlp>
