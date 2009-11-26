@@ -1195,6 +1195,7 @@ public class BrowserPanel extends JPanel {
     final RelationType inheritanceType,
     final RelationType attributeType) {
     updateStatusBar(Status.SEARCHING);
+    counter.set(0);
     appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
   }
 
@@ -1219,13 +1220,18 @@ public class BrowserPanel extends JPanel {
     final int tab,
     Link ancestors) {
 
+    // could go with spinner
+    // \|/-\|/-\|/
+    // TODO just go with standard indeterminate progress indicator
+    // 
     final int currCount = counter.incrementAndGet();
-    if (currCount % 15 == 0) {
+    if (currCount == 10) {
       updateStatusBar(Status.SEARCHING4);
-    } else if (currCount % 10 == 0) {
+    } else if (currCount == 20) {
       updateStatusBar(Status.SEARCHING5);
-    } else if (currCount % 5 == 0) {
-      updateStatusBar(Status.SEARCHING);
+    } else if (currCount == 30) {
+      updateStatusBar(Status.SEARCHING6);
+      counter.set(0);
     }
 
     buffer.append(listOpen());
