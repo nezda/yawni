@@ -229,8 +229,37 @@ ought
 everything
 ? children - irregular
 
+
+MacBook Pro ATI 1600 failures thread
+  http://discussions.apple.com/thread.jspa?threadID=1697470&start=195&tstart=0
+  turn off Quartz Extreme (VLC won't work I guess?)
+  defaults write /Library/Preferences/com.apple.windowserver GLCompositor -dict tileHeight -int 0 tileWidth -int 0
+
+  Distorted Video was fixed for Nvidia chipset issues
+    http://support.apple.com/kb/TS2377
+
+  <repositories>
+    <repository>
+      <id>maven2-repository.dev.java.net</id>
+      <name>Java.net Repository for Maven</name>
+      <url>http://download.java.net/maven/2/</url>
+    </repository>
+  </repositories>
+
+  <dependency>
+    <groupId>com.explodingpixels</groupId>
+    <artifactId>mac_widgets</artifactId>
+    <version>0.9.5</version>
+  </dependency>
+
 - issues
-  + feature: gui: support multiple independent, concurrent Browser frames (OS X style)
+  - bug: gui: SearchFrame dialog should render with brushedMetal on OS X (Apple bug)
+  - feature: gui: require zero Java Webstart permissions (no preferences saving)
+  - feature: bug: count and report how many Word or WordSense hits for "inhertited" searches
+  - bug: project icon!
+  - bug: gui: OS X: app bar says "com.sun.javaws.Main" instead of "Yawni Browser"; clearly missing -Xdock:name="Yawni Browser"
+  + bug: core: doc: note that stems are true case in DictionaryDatabase#getLemma()
+  + feature: gui: support multiple independent, concurrent Browser frames (OS X style "Multi Document Interface(MDI))
   + bug: core: can't find "'s Gravenhage" in gui ; BloomFilter hashcode considered case and space != underscore; added Hasher interface
   - feature: core: doc: file:///Users/nezda/President%20of%20the%20United%20States.svg
   - feature: core: in Word, consider caching senses since it is Iterable on it; getSense(n) would also be much cheaper
@@ -247,7 +276,7 @@ everything
   - bug: core: do not depend on default platform character encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
   + bug: gui: factor into new browser subproject
   < feature: start "new browser" remote branch -- JSplitPane-based, maybe LGPL dependencies
-  - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux
+  - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux; weird have to listen for  (0x17, etb)
   + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
   ~ feature: core: tolerate not having data.<POS> files (i.e., only index.<POS> files) to allow use as a resource-light, data driven stemmer
     - this may "just work"
