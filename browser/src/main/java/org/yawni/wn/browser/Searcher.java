@@ -165,7 +165,7 @@ public class Searcher {
     System.out.println(xmlString);
   }
 
-  private static void lemmatize(final DictionaryDatabase dictionary, final String word, final Appendable output) throws Exception {
+  private static void trueCaseLemmatize(final DictionaryDatabase dictionary, final String word, final Appendable output) throws Exception {
     for (final POS pos : POS.CATS) {
       boolean posShown = false;
       for (final String lemma : dictionary.lookupBaseForms(word, pos)) {
@@ -199,7 +199,7 @@ public class Searcher {
       final String word = scanner.next();
       output.append(word);
       output.append(' ');
-      lemmatize(dictionary, word, output);
+      trueCaseLemmatize(dictionary, word, output);
       output.append('\n');
     }
   }
