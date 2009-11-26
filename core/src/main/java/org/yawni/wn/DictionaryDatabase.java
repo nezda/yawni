@@ -50,9 +50,10 @@ public interface DictionaryDatabase {
   //public String lookupBaseForm(final POS pos, final String derivationLemma);
 
   /**
-   * Return all base forms (aka "lemmas", "stems") of {@code someString} in {@code pos}.
+   * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems") of {@code someString} in {@code pos}.
    * Utilizes an implementation of the {@code morphstr()} and {@code getindex()} algorithms.
-   * @param someString
+   * See {@link WordSense#getLemma()} for a description of "true cased" base forms.
+   * @param someString someString does <em>not</em> need to be a base form
    * @param pos The part-of-speech.
    * @return an immutable list of the baseform(s) of {@code someString}
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
