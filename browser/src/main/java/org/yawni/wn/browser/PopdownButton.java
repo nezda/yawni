@@ -19,10 +19,10 @@ package org.yawni.wn.browser;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.*;
-import java.io.Serializable;
-import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.event.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a labeled CommandButton with an associated JPopupMenu.  The menu can
@@ -33,17 +33,21 @@ import javax.swing.event.*;
  *   <li> popup width is as wide as the contents, button width is only wide enough to accomodate label and
  *   icon across platforms </li>
  *   <li> down arrow indicates combobox-like behavior </li>
- *   <li> looks good across look & feels </li>
+ *   <li> looks good across look {@literal &} feels </li>
  *   <li> activation by keyboard (spacebar and Enter) and mouse click support </li>
- * <br> TODO tab / shift+tab navigation from menu - maybe arrows too?
- * <br> TODO type-to-navigate popup menu (like JComboBox - code can be copied from there)
+ *   <li> type-prefix-to-navigate popup menu (like JComboBox) </li>
+ * </ul>
+ * <p> TODO tab / shift+tab navigation from menu - maybe arrows too? complicated because would require
+ * coordination among group of PopdownButtons and focus manager.
  */
 // These issues seems to have been avoided:
-// FIXME if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
+//   if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
 // Mouse click event missed after use JPopupMenu
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4694797
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
 public class PopdownButton extends JButton {
+  private static final Logger log = LoggerFactory.getLogger(PopdownButton.class.getName());
+  
   private final JPopupMenu popupMenu;
   private boolean shouldHandlePopupWillBecomeInvisible = true;
 
@@ -74,36 +78,21 @@ public class PopdownButton extends JButton {
 
     this.setVerticalTextPosition(AbstractButton.CENTER);
     this.setHorizontalTextPosition(AbstractButton.LEADING);
-    //System.err.println("hor align: " + this.getHorizontalAlignment());
-    //System.err.println("gap: " + this.getIconTextGap());
-    // setup the default button state.
-    //XXX this.setIcon(defaultIcon);
-    //XXX this.setDisabledIcon(pressedAndSelectedIcon);
-    //XXX this.setPressedIcon(pressedAndSelectedIcon);
-    //XXX this.setSelectedIcon(pressedAndSelectedIcon);
-
+    
     // http://developer.apple.com/technotes/tn2007/tn2196.html#BUTTONS
     this.putClientProperty("JButton.buttonType", "textured");
     this.putClientProperty("JComponent.sizeVariant", "regular");
 
     enterPressesWhenFocused(this);
 
-    this.popupMenu = new JPopupMenu();// {
-//  @Override
-//  protected void processKeyEvent(KeyEvent evt) {
-////    MenuSelectionManager.defaultManager().processKeyEvent(evt);
-////    if (evt.isConsumed()) {
-////      return;
-////    }
-//  }
+    this.popupMenu = new JPopupMenu();
+    // should popupMenu be a focus cycle root?
+    //this.popupMenu.
+    
+    this.setComponentPopupMenu(popupMenu);
 
-  // can we use the MenuKeyListener interface ?
-  //
-  // mimic ComboBoxModel with
-  // JPopupMenu
-  //   public MenuElement[] getSubElements() {
-//    };
     popupMenu.setLightWeightPopupEnabled(false);
+//    System.err.println("popupMenu: "+popupMenu.isLightWeightPopupEnabled());
     popupMenu.addMenuKeyListener(new DefaultMenuKeyListener());
 
     // add a popup menu listener to update the button's selection state
@@ -139,7 +128,7 @@ public class PopdownButton extends JButton {
     final AbstractAction action = new AbstractAction(label) {
       public void actionPerformed(final ActionEvent evt) {
         if (false == isEnabled()) {
-          System.err.println("not enabled");
+          log.warn("not enabled");
           return;
         }
         // if the popup menu is currently showing, then hide it.
@@ -175,6 +164,7 @@ public class PopdownButton extends JButton {
       }
 
       public void popupMenuCanceled(final PopupMenuEvent evt) {
+        log.debug("cancelled {}", evt);
         // the popup menu has been canceled externally (either by
         // pressing escape or clicking off of the popup menu). update
         // the button's state to reflect the menu dismissal.
@@ -190,14 +180,12 @@ public class PopdownButton extends JButton {
   }
 
   private void showPopupMenu() {
+    // show the menu below the button, and slightly to the right.
     final Insets margins = this.getMargin();
     final int px = 5;
     final int py = 1 + this.getHeight() - margins.bottom;
     popupMenu.pack();
     popupMenu.show(this, px, py);
-    //System.err.println("focusable?: "+popupMenu.isFocusable());
-    // show the menu below the button, and slightly to the right.
-    //popupMenu.show(this, 5, this.getHeight());
   }
 
   public AbstractButton getButton() {
@@ -213,29 +201,36 @@ public class PopdownButton extends JButton {
     DefaultMenuKeyListener() {
       // assume single-level menu
     }
+    private final StringBuffer keySequence = new StringBuffer();
+    private final Timer timer = new Timer(1000, new ActionListener() {
+      public void actionPerformed(final ActionEvent evt) {
+        log.trace("timer popped");
+        clearKeySequence();
+        timer.stop();
+      }
+    });
+    private void clearKeySequence() {
+      keySequence.setLength(0);
+    }
     public void menuKeyTyped(final MenuKeyEvent evt) {
-      System.err.println("typed: "+evt);
+      log.debug("typed: {}", evt);
 //      System.err.println("  "+Arrays.toString(evt.getPath()));
 //      for (int i = 0; i < evt.getPath().length; i++) {
 //        System.err.println("  "+i+": "+evt.getPath()[i]);
 //      }
       final MenuElement[] elements = getPopupMenu().getSubElements();
-      for (int i = 0; i < elements.length; i++) {
-        System.err.println("  SUB["+i+"]: "+text(elements[i]));
+      if (log.isTraceEnabled()) {
+        for (int i = 0; i < elements.length; i++) {
+          log.trace("  SUB[{}]: {}", i, text(elements[i]));
+        }
       }
       final int selectionForKey = selectionForKey(evt.getKeyChar());
       if (selectionForKey >= 0) {
-        System.err.println("  SELECTED SUB["+selectionForKey+"]: "+text(elements[selectionForKey]));
-        // TODO select path
+        log.debug("  SELECTED SUB[{}]: {}", selectionForKey, text(elements[selectionForKey]));
+        // select path
         setSelectedItem(elements[selectionForKey]);
-//        SwingUtilities.invokeLater(new Runnable() {
-//          public void run() {
-//            getPopupMenu().getSelectionModel().setSelectedIndex(selectionForKey);
-//          }
-//        });
-        //elements[selectionForKey].
       } else {
-        System.err.println("  SELECTED null");
+        log.debug("  SELECTED null");
       }
     }
     public void menuKeyPressed(final MenuKeyEvent evt) {
@@ -245,115 +240,66 @@ public class PopdownButton extends JButton {
     private void printClasses(Object o) {
       Class clazz = o.getClass();
       do {
-        System.err.println("clazz: "+clazz);
+        log.debug("clazz: {}", clazz);
         clazz = clazz.getSuperclass();
       } while (clazz != null);
       System.err.println();
     }
     private void setSelectedItem(final MenuElement element) {
-      System.err.println("SELECT "+element);
-      printClasses(element);
+      log.trace("SELECT {}", element);
+//      printClasses(element);
       final JMenuItem item = (JMenuItem) element;
       MenuSelectionManager.defaultManager().setSelectedPath(new MenuElement[]{getPopupMenu(), item});
-//XXX      MenuSelectionManager.defaultManager().setSelectedPath(new MenuElement[]{item});
-      //setSelectedPath(MenuElement[] path)
-//      SwingUtilities.invokeLater(new Runnable() {
-//        public void run() {
-//          item.setSelected(true);
-//          item.repaint();
-//        }
-//      });
     }
     private String text(final MenuElement element) {
       final Component comp = element.getComponent();
-//      printClasses(comp);
       if (! (comp instanceof JMenuItem)) {
         return element.toString();
       } else {
         final JMenuItem item = (JMenuItem) comp;
         return item.getText();
       }
-//      return " :: "+comp.getClass()+" :: "+element.toString();
     }
     private int getSelectedIndex() {
       return getPopupMenu().getSelectionModel().getSelectedIndex();
     }
     private int getSize() {
-      //throw new UnsupportedOperationException();
       return getPopupMenu().getSubElements().length;
     }
     private MenuElement getElementAt(int i) {
       return getPopupMenu().getSubElements()[i];
     }
-    public int selectionForKey(char aKey) {
-      int currentSelection = getSelectedIndex();
-
-      aKey = Character.toLowerCase(aKey);
-
-      for (int i = ++currentSelection, c = getSize(); i < c; i++) {
+    public int selectionForKey(final char keyChar) {
+      keySequence.append(keyChar);
+      timer.start();
+      int result = findNextOccurence();
+      if (result != -1) {
+        return result;
+      } else {
+        clearKeySequence();
+        keySequence.append(keyChar);
+        return findNextOccurence();
+      }
+    }
+    private int findNextOccurence() {
+      final String beginPart = keySequence.toString().toUpperCase();
+      int selectedIndex = getSelectedIndex();
+      // key presses assumed to be attempting to continue current
+      // match or navigate to NEXT match
+      for (int i = selectedIndex + 1; i < getSize(); i++) {
         final MenuElement elem = getElementAt(i);
-        if (elem != null && elem.toString() != null) {
-          final String v = text(elem).toLowerCase();
-          if (v.length() > 0 && v.charAt(0) == aKey) {
-            return i;
-          }
+        if (text(elem).toUpperCase().startsWith(beginPart)) {
+          return i;
         }
       }
-
-      for (int i = 0; i < currentSelection; i++) {
+      // start from beginning if no match from currentSelection
+      for (int i = 0; i <= selectedIndex; i++) {
         final MenuElement elem = getElementAt(i);
-        if (elem != null && elem.toString() != null) {
-          final String v = text(elem).toLowerCase();
-          if (v.length() > 0 && v.charAt(0) == aKey) {
-            return i;
-          }
+        if (text(elem).toUpperCase().startsWith(beginPart)) {
+          return i;
         }
       }
       return -1;
     }
   } // end class DefaultMenuKeyListener
-
-  // snipped from Apache Harmony JComboBox
-  // selectionForKey()
-  // TODO would need to incorporate ComboBoxModel into PopdownButton
-  // UNUSED
-  static class DefaultKeySelectionManager implements JComboBox.KeySelectionManager, Serializable {
-    public int selectionForKey(char aKey, final ComboBoxModel aModel) {
-      int currentSelection = -1;
-      final Object selectedItem = aModel.getSelectedItem();
-
-      if (selectedItem != null) {
-        for (int i = 0, c = aModel.getSize(); i < c; i++) {
-          if (selectedItem == aModel.getElementAt(i)) {
-            currentSelection = i;
-            break;
-          }
-        }
-      }
-
-      //final String pattern = ("" + aKey).toLowerCase();
-      aKey = Character.toLowerCase(aKey);
-
-      for (int i = ++currentSelection, c = aModel.getSize(); i < c; i++) {
-        final Object elem = aModel.getElementAt(i);
-        if (elem != null && elem.toString() != null) {
-          final String v = elem.toString().toLowerCase();
-          if (v.length() > 0 && v.charAt(0) == aKey) {
-            return i;
-          }
-        }
-      }
-
-      for (int i = 0; i < currentSelection; i++) {
-        final Object elem = aModel.getElementAt(i);
-        if (elem != null && elem.toString() != null) {
-          final String v = elem.toString().toLowerCase();
-          if (v.length() > 0 && v.charAt(0) == aKey) {
-            return i;
-          }
-        }
-      }
-      return -1;
-    }
-  } // end class DefaultKeySelectionManager
 }
