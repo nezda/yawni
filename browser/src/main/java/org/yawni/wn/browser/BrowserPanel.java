@@ -71,7 +71,6 @@ public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
   private DictionaryDatabase dictionary;
-
   DictionaryDatabase dictionary() {
     return FileBackedDictionary.getInstance();
   }
@@ -106,17 +105,23 @@ public class BrowserPanel extends JPanel {
   private final RedoAction redoAction;
   private final StyledTextPane resultEditorPane;
   private EnumMap<POS, RelationTypeComboBox> posBoxes;
+  private RelationTypeComboBox nounPOSBox;
+  private RelationTypeComboBox verbPOSBox;
+  private RelationTypeComboBox adjPOSBox;
+  private RelationTypeComboBox advPOSBox;
   private final Action slashAction;
   private final JLabel statusLabel;
 
-  public BrowserPanel(final Browser browser) {
+  BrowserPanel(final Browser browser) {
     this.browser = browser;
+    this.setName(getClass().getName());
     super.setLayout(new BorderLayout());
 
     //XXX DBG browser.addWindowFocusListener(new FocusWatcher());
     //XXX DBG browser.addWindowListener(new FocusWatcher2());
 
     this.searchField = new JTextField();
+    this.searchField.setName("searchField");
     SearchFrame.multiClickSelectAll(searchField);
     this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
@@ -201,6 +206,7 @@ public class BrowserPanel extends JPanel {
       }
     };
     this.searchButton = new JButton(searchAction);
+    this.searchButton.setName("searchButton");
     this.searchButton.setFocusable(false);
     this.searchButton.getActionMap().put("Search", searchAction);
 
@@ -327,6 +333,7 @@ public class BrowserPanel extends JPanel {
     jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     this.add(jsp, BorderLayout.CENTER);
     this.statusLabel = new JLabel();
+    this.statusLabel.setName("statusLabel");
     this.statusLabel.setBorder(BorderFactory.createEmptyBorder(0 /*top*/, 3 /*left*/, 3 /*bottom*/, 0 /*right*/));
     this.add(this.statusLabel, BorderLayout.SOUTH);
     updateStatusBar(Status.INTRO);
@@ -709,8 +716,8 @@ public class BrowserPanel extends JPanel {
   } // end class StyledTextPane
 
   /**
-   * Command button encapsulates a button (for a pos) which controls a
-   * menu that is dynamically populated with RelationTypeAction(s).
+   * Encapsulates a button (for a POS) which controls a
+   * menu that is dynamically populated with {@link RelationTypeAction}(s).
    * - handles Slash (search)
    * - interactive updates via updateFor()
    */
@@ -722,6 +729,7 @@ public class BrowserPanel extends JPanel {
     RelationTypeComboBox(final POS pos) {
       //super(Utils.capitalize(pos.getLabel())+" \u25BE\u25bc"); // large: \u25BC ▼ small: \u25BE ▾
       super(Utils.capitalize(pos.getLabel()));
+      this.setName("RelationTypeComboBox::"+getText());
       this.pos = pos;
       getPopupMenu().addMenuKeyListener(new MenuKeyListener() {
         public void menuKeyPressed(final MenuKeyEvent evt) {
@@ -854,16 +862,17 @@ public class BrowserPanel extends JPanel {
 
   private void makePOSComboBoxes() {
     this.posBoxes = new EnumMap<POS, RelationTypeComboBox>(POS.class);
-
     for (final POS pos : POS.CATS) {
       final RelationTypeComboBox comboBox = new RelationTypeComboBox(pos);
-
       comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
-
       this.posBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
     }
+//    nounPOSBox = posBoxes.get(POS.NOUN);
+//    verbPOSBox = posBoxes.get(POS.VERB);
+//    adjPOSBox = posBoxes.get(POS.ADJ);
+//    advPOSBox = posBoxes.get(POS.ADV);
   }
 
   // used by substring search panel
