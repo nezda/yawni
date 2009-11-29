@@ -211,6 +211,12 @@ class PreferencesManager implements AWTEventListener {
   // TODO use background thread to update current window position on
   // move or use an ugly shutdown hook to make sure saves work
 
+  // how to clear stored preferences ?
+  // On OS X:
+  //   ~/Library/Preferences/org.yawni.wn.plist
+  //   Editable with Property List Editor
+  // On Linux:
+  //   ?
   static void loadSettings(final JFrame frame) {
     // "org.yawni.wn.browser.Browser-0"
     final String name = frame.getName();
@@ -220,7 +226,9 @@ class PreferencesManager implements AWTEventListener {
     final int w = prefs.getInt(name + ".width", 640);
     final int h = prefs.getInt(name + ".height", 480);
     //FIXME interpret width / height 0 as preferred
-    frame.setSize(new Dimension(w, h));
+    final Dimension dim = new Dimension(w, h);
+    frame.setPreferredSize(dim);
+    frame.setSize(dim);
     frame.validate();
 
     if (x >= 0 && y >= 0) {
