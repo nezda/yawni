@@ -59,6 +59,7 @@ class SearchFrame extends JDialog {
 
   SearchFrame(final Browser browser, final BrowserPanel browserPanel) {
     super(browser, "Substring Search");
+    this.setName(getClass().getName());
     // this is the preferred way to set brushMetalRounded
     // http://lists.apple.com/archives/Java-dev/2007/Nov/msg00081.html
     getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
@@ -70,7 +71,7 @@ class SearchFrame extends JDialog {
     this.pos = POS.valueOf(prefs.get("searchPOS", POS.ALL.name()));
     this.searchType = SearchType.valueOf(prefs.get("searchType", SearchType.SUBSTRING.name()));
 
-    // Command+W
+    // Command+W / Control+W
     final KeyListener windowHider = new KeyAdapter() {
       @Override
       public void keyTyped(final KeyEvent evt) {
@@ -133,6 +134,9 @@ class SearchFrame extends JDialog {
     };
 
     this.searchPanel = new JPanel();
+//    final UnifiedTitleBar unifiedTitleBar = new UnifiedTitleBar(this);
+//    this.addWindowFocusListener(unifiedTitleBar);
+//    this.searchPanel = unifiedTitleBar;
 
     final MoveMouseListener searchWindowMouseListener = new MoveMouseListener(searchPanel);
     this.addMouseListener(searchWindowMouseListener);
