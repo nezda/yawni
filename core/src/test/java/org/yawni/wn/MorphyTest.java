@@ -146,7 +146,7 @@ public class MorphyTest {
   }
 
   @Test
-  public void test1() {
+  public void coreTest() {
     String[][] unstemmedStemmedCases = new String[][] {
       // { POS, <unstemmed>, <stemmed> }
       { POS.NOUN.name(), "dogs", "dog" },
@@ -212,7 +212,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "mamma's boy", "mamma's boy" },
       { POS.NOUN.name(), "15_minutes", "15 minutes" },
       { POS.NOUN.name(), "talks", "talk", "talks" },
-      { POS.NOUN.name(), "talk", "talk" }, // note asymmetric property: "talk" → {"talk"}, "talks" → {"talk", "talks"}
+      { POS.NOUN.name(), "talk", "talk" }, // note asymmetry: "talk" → {"talk"}, "talks" → {"talk", "talks"}
       { POS.NOUN.name(), "wounded", "wounded" },
       { POS.NOUN.name(), "wounding", "wounding" },
       { POS.NOUN.name(), "'s Gravenhage", "'s Gravenhage" },
@@ -227,8 +227,8 @@ public class MorphyTest {
       { POS.VERB.name(), "accounting for", "account for" },
       { POS.VERB.name(), "was", "be", "was" }, // 2 "stems", 1 baseform
       { POS.VERB.name(), "founded", "found" },
+      { POS.VERB.name(), "founder", "founder" }, // note asymmetries: "founder" → {"founder"}, "founded" → {"found"}, "found" → {"find", "found"}
       { POS.VERB.name(), "found", "find", "found"},
-      { POS.VERB.name(), "founder", "founder" },
       { POS.ADJ.name(), "founder", "founder" },
       { POS.NOUN.name(), "was", "WA" }, // weird- de-pluralizing Washington state abbr
       { POS.VERB.name(), "cannonball along", "cannonball along" },
