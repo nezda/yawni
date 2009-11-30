@@ -15,9 +15,11 @@ Bugs and Features
 
   summarize:
     - things to do
-      grep "[-~] \(bug\|feature\):" TODO | less -S
+      grep "[-~] \(bug\|feature\):" TODO | less -iSEX
       - core:
       - gui:
+    - next targets: 
+      grep ⊚ TODO | tail -n+2 | less -iSEX
 
 Yawni Subprojects
 + core
@@ -131,7 +133,7 @@ Release TODOs
 
 - Ted Pederson's WordNet stop list; "normally used as function words"
   I, a, an, as, at, by, he, his, me, or, thou, us, who
-  - missing it
+  - missing 'it'
   - Paul R. Dunn's stop list; Christiane Fellbaum adds that they are often ADV
     (author of Visuwords: dunnbypaul.net
     - ActionScript / Flash
@@ -229,35 +231,57 @@ ought
 everything
 ? children - irregular
 
+- http://en.wikipedia.org/wiki/File:Flag_of_the_United_States.svg
 
-MacBook Pro ATI 1600 failures thread
-  http://discussions.apple.com/thread.jspa?threadID=1697470&start=195&tstart=0
-  turn off Quartz Extreme (VLC won't work I guess?)
-  defaults write /Library/Preferences/com.apple.windowserver GLCompositor -dict tileHeight -int 0 tileWidth -int 0
+- interesting JavaDoc paragraph from JComboBox docs
+   * <p>
+   * <strong>Warning:</strong> Swing is not thread safe. For more
+   * information see <a
+   * href="package-summary.html#threading">Swing's Threading
+   * Policy</a>.
+  - Lucene docs should use this since they have awesome package-level docs
 
-  Distorted Video was fixed for Nvidia chipset issues
-    http://support.apple.com/kb/TS2377
-
-  <repositories>
-    <repository>
-      <id>maven2-repository.dev.java.net</id>
-      <name>Java.net Repository for Maven</name>
-      <url>http://download.java.net/maven/2/</url>
-    </repository>
-  </repositories>
-
-  <dependency>
-    <groupId>com.explodingpixels</groupId>
-    <artifactId>mac_widgets</artifactId>
-    <version>0.9.5</version>
-  </dependency>
+- NetBeans consuming 573MB Real Mem; ouch
 
 - issues
-  - bug: gui: SearchFrame dialog should render with brushedMetal on OS X (Apple bug)
-  - feature: gui: require zero Java Webstart permissions (no preferences saving)
-  - feature: bug: count and report how many Word or WordSense hits for "inhertited" searches
-  - bug: project icon!
+  - feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); http://tips4java.wordpress.com/2009/11/29/text-prompt/
+    * verify with author that Apache License is OK ?
+    - italics, medium alpha
+    - may be better to put prompt 1/4 or 1/5 from top in results area; OS X Dictionary says
+
+      Type a word to look up in… (horizontally centered, gray-ish/alpha, normal, serif font, ≈2x normal size (plenty of room))
+      New Oxford American Dictionary (horizontally centered, gray-ish/alpha, italics, serif font, ≈2x normal size (plenty of room))
+  - feature: gui: rename ActionHelper to StyledActionHelper or something; factor all similar code into it
+  - feature: core: refactoring: consider optimizing CharSequences.parseInt/parseLong (à la http://nadeausoftware.com/articles/2009/08/java_tip_how_parse_integers_quickly)
+  - bug: gui: SearchFrame dialog should render with apple.awt.brushMetalLook on OS X (Apple bug)
+  - feature: gui: bundle as native OS X app
+  + feature: gui: add prefix-typing navigation of PopdownButton content (like JComboBox)
+    - DefaultKeySelectionManager
   - bug: gui: OS X: app bar says "com.sun.javaws.Main" instead of "Yawni Browser"; clearly missing -Xdock:name="Yawni Browser"
+    - OS X Java Web Start bug: JnlpxArgs.getArgumentList: Internal Error: remaining custArgsMaxLen: -1110 < vmArgsPropertyStr.length: 72 dropping vmArgsPropertyStr
+    - interesting alternative syntax: 
+        <param name="java_arguments" value="-Djnlp.packEnabled=true">
+      ? what JNLP version added this ?
+  + bug: gui: OS X: if app window focus changes while a PopdownButton JPopupMenu is showing, it stays above ALL other application windows ! known bug; only affects heavyweight popups which OS X uses exclusively
+    - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4812585
+  - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
+  - feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
+  + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
+  - feature: gui: require zero Java Webstart permissions (no preferences saving)
+  - feature: gui: count and report how many Word or WordSense hits for "inhertited" searches
+  - bug: ⊚ add nice high res project icon (design one :)
+    - what are typical icon sizes ?
+      * 512×512 pixel image (for Finder icons in Mac OS X v10.5 and later)
+      * 128×128 pixel image (for Finder icons in all versions of Mac OS X)
+      * 32×32 pixel image (hint for Finder icons)
+      * 16×16 pixel image (hint for Finder icons)
+      * A mask that defines the image’s edges so that the operating system can determine which regions are clickable
+    - scoured Interfacelift, found Bombia Design and asked for a quote
+      To whom it may concern:
+      I am the primary developer of the open source project "Yawni" (Yet Another WordNet API) (http://sourceforge.net/projects/yawni/), a graphical and programmatic interface to WordNet  (http://wordnet.princeton.edu/).  I have been working hard on both the "back end" and UI of the project and even have a concept for an icon.  My concept is a yawning cat (I like this one: http://www.joua.net/paddington/yawn.jpg), possibly vectorized à la vectormagic.com.  I found your portfolios via Interfacelift and was curious what it would cost me to have you create a scalable icon for the project. Obviously I don't have much to spend on this free and open source project, but I think a memorable icon is an important way to promote a project.
+      Kind regards,
+      - Luke
+      Dallas, Texas, USA
   + bug: core: doc: note that stems are true case in DictionaryDatabase#getLemma()
   + feature: gui: support multiple independent, concurrent Browser frames (OS X style "Multi Document Interface(MDI))
   + bug: core: can't find "'s Gravenhage" in gui ; BloomFilter hashcode considered case and space != underscore; added Hasher interface
@@ -272,25 +296,22 @@ MacBook Pro ATI 1600 failures thread
   + feature: core: add BloomFilter anti-match optimization to other methods (e.g., getExceptions()); trickier for Morphy/lookupBaseForms()
   + bug: core: fix BloomFilter issue with non-String CharSequence hashCode (feature)
   + feature: core: make Synset.getGloss() lazy/optional value - read & parse on demand; saves tons of RAM!
-  - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
-  - bug: core: do not depend on default platform character encoding; reading WordNet data files should be ASCII, reading UI should be UTF-8
+  - bug: core: ⊚ do not depend on default platform character encoding; mainly effects Unicode input like "résumé"; reading WordNet data files should be ASCII, reading UI should be UTF-8
   + bug: gui: factor into new browser subproject
   < feature: start "new browser" remote branch -- JSplitPane-based, maybe LGPL dependencies
-  - bug: gui: CTRL+W doesn't close (hide) Substring Search window on Linux; weird have to listen for  (0x17, etb)
-  + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
+  ~ bug: gui: needs_test: CTRL+W doesn't close (hide) Substring Search window on Linux; weird have to listen for  (0x17, etb: end of transmission block)
   ~ feature: core: tolerate not having data.<POS> files (i.e., only index.<POS> files) to allow use as a resource-light, data driven stemmer
     - this may "just work"
-  - feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
   - bug: gui: substring search keyboard focus skips Substring/Prefix radio button group
-  ~ bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other ∴ JDialog
+  + bug: gui: main AND substring search frames open, moving one frame to another desktop should move the other ∴ JDialog
     Old English: 
     - this behavior is called a dialog ("modal" means the dialog must be dismissed before the main screen is available for use again)
-      - Apple fail: JDialog doesn't respect brushedMetal !
-      - JWindow respects brushedMetal, but has no native close controls
+      - Apple fail: JDialog doesn't respect apple.awt.brushMetalLook !
+      - JWindow respects apple.awt.brushMetalLook, but has no native close or resize controls
         - thought about slide out drawer, but apparently this is hard (http://forums.java.net/jive/thread.jspa?threadID=30506)
         - swingx JXCollapsiblePane could be nice solution -- essentially frame-internal drawer / JSplitPane with slide / fade effects
     ? why doesn't drag-from-non-menu-bar move app to another desktop ?
-  - bug: gui: jnlp version doesn't use brushedMetal
+  + bug: gui: jnlp version doesn't use apple.awt.brushMetalLook
     - 99% fixed -- client property, not system property (for jnlp)
       getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
       - introduced some code duplication
@@ -328,7 +349,7 @@ MacBook Pro ATI 1600 failures thread
 - more unit tests
   - bug: core: test: searching examples (findRelationships() from JWNL)
   - bug: core: test: add torture test outlined in Searcher (resursive parents / children)
-- feature: core: add expert query modes: attempt to integrate these without adding more API cruft (e.g., little language / "magic" strings ?)
+- feature: core: ⊚ add expert query modes: attempt to integrate these without adding API cruft (e.g., little language / "magic" strings ?)
   * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just
     add a bunch of overloaded methods or some kind of visitor
   - (was feature: type/property search / filter)
@@ -382,8 +403,8 @@ MacBook Pro ATI 1600 failures thread
   * result sets can be of many different types ({Word, Synset, WordSense} x {scalar, Iterable<T>})
 - feature: core: design a useful Visitor API and implement it with TreeIterator
 - bug: doc: note that Substring search will NOT search inflected forms in some kind of documentation?  maybe it should try these if it has no matches ?
-- bug: gui: when going back and forth between Search and Substring search
-  ? what happens ?
+x bug: gui: when going back and forth between Search and Substring search
+  ? what happens ? not sure what this meant
 + bug: "hypocrite" shows derivationally related forms menu option, but nothing shows up
 - feature: core: gui: factor static, non-public inner classes out (simpler?)
   - FileManager: *CharStream
@@ -428,13 +449,14 @@ x feature: howto for developing in NetBeans ?
 + bug: address/check any closed bugs of JWNL
 ~ bug: gui: remove junk trace output in GUI
 ~ bug: gui: switch everything over to Command + F (in addition to slash '/') - document this change
-- bug: remove totally experimental crap from release (Scala, ...)
++ bug: remove totally experimental crap from release (Scala, ...)
 - bug: SearchFrame POS popup not receiving any keyboard input 
+  ? no longer reproducible ?
   - depending on how it is selected, input continues to go directly to searchField
-~ bug: gui: audit UI and functionality
+~ bug: gui: audit UI and functionality; compare to wnb, WordNet Online, OS X Dictionary, etc.
   - compare to wnb - color, history, help, redisplay overview button, specific-sense filter
   - compare to WordNet online - color
-  - compare to OS X dictionary - history, color and font variation, font size buttons, right-click menus, option-click search from defintion
+  - compare to OS X Dictionary - history, color and font variation, font size buttons, right-click menus, option-click search from defintion
 - feature: show "generic frame number" in interface ? (these are for experts)
 + feature: cache WordSense getSensesTaggedFrequency()
 - bug: doc: document that we don't do Serialization (use sense keys ?)
@@ -473,7 +495,7 @@ x feature: howto for developing in NetBeans ?
     source:trunk/examples/distance.rb
     source:trunk/examples/hypernymTree.rb
     source:trunk/examples/gcs.rb
-~ feature: core: read data files from jar
++ feature: core: read data files from jar
   ? what test cases remain?
   + use subproject to build this (data only 8.6MBMB zipped!)
   + URL+ByteArrayInputStream CharStream implementation 
@@ -481,7 +503,7 @@ x feature: howto for developing in NetBeans ?
     + load data files from InputStream(s) (from jar) (loading from web via web start would be sweet too)
     - final ReadableByteChannel channel = Channels.newChannel(Class.getResource().openStream());
     + make this a separate jar file (data subproject)
-- bug: core: morphy shouldn't produce results which cannot be found in WN for that POS (* unless they are from the exceptions file)
++ bug: core: morphy shouldn't produce results which cannot be found in WN for that POS (* unless they are from the exceptions file)
   + bug: (data bug) search failures? in lookupSynsets()
     * contrast these to "geese" / "goose" which works
       [fedayee, fedayeen] NOUN - backwards in exc file 
@@ -490,7 +512,7 @@ x feature: howto for developing in NetBeans ?
     - also seems to happen for [cathar, cathari, Cathari] NOUN
     * looked like multi-stemming bug (N wounds -> N wound -> N wind)
     ? are these issues all related to exceptions ?
-  - bug: core: noisy, scary logging in lookupSynsets()
+  + bug: core: noisy, scary logging in lookupSynsets()
 + feature: core: T[] -> List<T> API improvement - use NetBeans to do this
   - key here is ImmutableList<T>
     - Collections.emptyList()
@@ -533,7 +555,7 @@ x feature: howto for developing in NetBeans ?
         - this could prove quite confusing!
     - look at Google Collections impl - looks very simple - contains size and offset fields and 
       disallows null members which seems crazy? (not general) forgot RandomAccess marker interface
-~ feature: gui: make bullets look better 
++ feature: gui: make bullets look better 
   - list-style: url... .gif
   - anti-aliasing (doesn't fix size, but far less jaggy looking)
 + feature: core: POS.ALL search support (esp for stems) - use Uniq to populate this
@@ -547,7 +569,16 @@ x feature: howto for developing in NetBeans ?
   + searchByPrefix()
   + searchBySubstring()
   + relations()
-- feature: add GUI unit tests with WindowLicker
+~ feature: add GUI unit/functional tests with FEST-swing
+  * http://easytesting.org/swing/wiki/pmwiki.php
+    - filed http://java.dzone.com/news/festive-functional-tests-swing
+  * http://java.dzone.com/news/festive-functional-tests-swing
+  + decent keyboard-nav test of core search window
+  + test PopdownButton Enter key with mouse in it (was hard problem to solve!)
+  - test SearchFrame
+    - validate JList contents
+  - test font zoom
+  - test multiple windows
 < feature: core: add generated unit tests with ScalaCheck
 + bug: gui: fix wonky POS button menu behavior (behaves very differently across different LookAndFeels)
   - consider making POS buttons toggle buttons - have window closing auto-toggle them
@@ -679,16 +710,15 @@ x feature: howto for developing in NetBeans ?
     * many initials already have their period-free form in the data files
   - feature: core: create lemmatizing Lucene analyzer
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
-  - feature: core: nice interface to verb groups; add a field (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/man/wngroups.7WN)
-  ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on
-    class(es)? though could hide real bugs) 
+  - feature: core: ⊚ nice interface to verb groups; add a field (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/man/wngroups.7WN)
+  ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on class(es)? though could hide real bugs) 
   - bug: core: doc: document sort orders of Word, WordSense, Synset, and Relation
     - Word: 
     - WordSense: xxx Synset (and then lemma for the few same-Synset ties (Doomsday, doomsday, Utopian, utopian)
     - Synset: 
     - Relation:
   - feature: core: doc: document approximate runtime of various search algorithms
-  ~ feature: core: add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" -> "cliche"))
+  ~ feature: core: ⊚ add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" -> "cliche"))
     - an alternative is org.apache.lucene.analysis.ASCIIFoldingFilter
     - Normalizer requires Java 6 which excludes some platforms - could use reflection
     - aka words with diacritics: http://en.wikipedia.org/wiki/List_of_English_words_with_diacritics
@@ -700,7 +730,7 @@ x feature: howto for developing in NetBeans ?
       - similar merged.tbz is only 20MB - nice win
       ? I wonder how lzo would do ? (nice and fast)
   < feature: core: reverse iteration
-  ~ feature: core: ConcurrentLRUCache
+  < feature: core: ConcurrentLRUCache
     - open source alternatives include Ben Manes' ConcurrentLinkedHashMap and Google Collections / Guauva (MapMaker)
     - file access is still synchronized: ThreadLocal file pointer would be best solution for this
     - ThreadSafetyTest time with:
@@ -711,7 +741,7 @@ x feature: howto for developing in NetBeans ?
   < feature: gui: GUI Maven target (and delete script) or use a local Java Web Start
   < feature: convert CharStream interface to long's (from int's) to support huge files
   < feature: gui: make JList scroll-rate accelerate ? I swear I worked on this for large result sets - maybe the difference is scrolling in terms of JScrollBar or content ?
-  ~ feature: core: should be able to use WordNet 3.0 UNIX distribution dict/ files on Windows
+  < feature: core: should be able to use WordNet 3.0 UNIX distribution dict/ files on Windows
   + bug: fix always-singleton for WordSense.AdjPosition flags accessor
   + bug: source files not being interpretted as UTF-8 -- uncommented line in pom.xml
     + can be checked by looking for Unicode arrow as in RELATED TO → (verb) cat#1
@@ -775,8 +805,9 @@ x feature: howto for developing in NetBeans ?
     - make (*valid*) selected index stay synced to Browser
       - enter key could sync to Browser ?
     - consider alternate sorts for results (longest first, shortest first, "gloss-corpus" frequency ranked?)
-  - feature: gui: content autocomplete in text fields (esp if there's only 1 completion left)
-  < feature: make Browser statusbar exactly the same height as iTunes one (include re-sizer handle) (POLS: Principle of Least Surprise)
+  - feature: gui: ⊚ content auto complete in text fields (esp if there's only 1 completion left)
+  - feature: make Browser statusbar exactly the same height as iTunes one (include re-sizer handle) (POLS: Principle of Least Surprise)
+    - check out mac_widgets BottomBar
   < feature: issue searches and generate output for multiple POS in parallel with pool of 4 worker threads
     ? do this in library ? almost every search and search component could
       be run against the POS DB files in parallel - trick is coalescing the results
@@ -834,7 +865,7 @@ x feature: howto for developing in NetBeans ?
     - use javax.swing.Timer to act on single clicks which turn out NOT to be multi-clicks
       http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=2&t=009927
     AbstractButton.getMultiClickThreshhold() may be useful
-  - feature: gui: generate the little Mac magnifying glass icon with Java2D and make it the substring menu icon
+  < feature: gui: generate the little Mac magnifying glass icon with Java2D and make it the substring menu icon
   + feature: gui: what is the "standard" undo/redo icon ?
     ~ macvim (7.1r27) ones look pretty official (includes the swishy orange undo arrow)
       + emailed author and requested SVG version but he never responded
@@ -853,18 +884,15 @@ x feature: howto for developing in NetBeans ?
     + generate associated icons: simple anti-aliased small/large bold sans font "A" (mimics OS X icons))
       http://weblogs.java.net/blog/kirillcool/archive/2005/07/how_to_create_s.html
     + add menu options
-  ~ bug: gui: anti-aliasing not settable via Java 1.5 web start (known web start
-    bug) - make a generic recursive function to set it on JComponent in an
-    application
-    ? what is swing.useSystemFontSettings (http://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html#application_desc)
-      which is a respected web start property
-  - bug: gui: SearchFrame / Browser window switch on OS X has ugly, slow, visible repaint with BrushedMetal L&F
+  < bug: gui: anti-aliasing not settable via Java 1.5 web start (known web start bug) - make a generic recursive function to set it on JComponent in an application
+    ? what is swing.useSystemFontSettings (http://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html#application_desc) which is a respected web start property
+  < bug: gui: SearchFrame / Browser window switch on OS X has ugly, slow, visible repaint with apple.awt.brushMetalLook L&F
     - possible fixes in:
       http://developer.apple.com/technotes/tn2007/tn2196.html
       - use Quartz rendering pipeline options ?
   < bug: gui: native Linux (GTK) L&F seems to work on lcc64 only ? java6 only ? 64-bit JVM only ?
   < feature: gui: hyperlink word senses in glosses using new http://wordnet.princeton.edu/glosstags
-  - feature: gui: add font zoom buttons to BrowserPanel (could use same ones created for the menu or maybe a little larger)
+  < feature: gui: add font zoom buttons to BrowserPanel (could use same ones created for the menu or maybe a little larger)
   - feature: gui: add edit menu and copy, paste, select all, +undo, +redo to it
   - feature: gui: add back/forward (history) buttons to BrowserPanel (just trigger undo)
   - feature: gui: in search fields, filter input and show history
@@ -878,8 +906,7 @@ x feature: howto for developing in NetBeans ?
   < feature: make substring search a "drawer" or splitpane like PDF search in Apple Preview
   - feature: gui: add WNHOME assumptions / prompt to splash screen OR installer to Web Start launcher
     - could be as simple as prompting user if environment variable AND Java preference cannot be found
-  - feature: add nice high res icon (design one :)
-  ~ feature: gui: Java Web Start (aka JNLP)
+  + feature: gui: Java Web Start (aka JNLP)
     - works under ideal conditions, but thread safe singleton and misconfiguration
       means exceptions are wrapped in ExceptionInInitializer
     ? where would the default installation location be on Windows ? (e.g. where did 2.1 go?)
@@ -895,7 +922,7 @@ x feature: howto for developing in NetBeans ?
   + bug: "Bigger Font"/"Smaller Font" option lost on any content update of BrowserPanel
     - load/store this as a preference and default it to large 
     - wrap up the other font size variants
-  ~ feature: work on concurrency / snappiness
+  < feature: work on concurrency / snappiness
     + make substring / prefix radiobutton switch re-issue search
     + make substring results start coming back ASAP
     + nice opportunity for CompositeComparator (ended up calling this MergedIterable
@@ -945,7 +972,7 @@ x feature: howto for developing in NetBeans ?
     + fixed huge amount of extra spaces in HTML lists
   + feature: gui: odd tab/focus issue with JList in SearchFrame
   + feature: gui: add Cmd+W to close Substring Search window on OS X
-  - feature: gui: add ? to close Substring Search window on Windows and Linux
+  x feature: gui: add ? to close Substring Search window on Windows and Linux
   + feature: gui: add hot key to open search too (Cmd+f)
   + feature: gui: fix Quit in File menu
   + on OSX, menus are "correct"
@@ -968,7 +995,7 @@ x feature: howto for developing in NetBeans ?
     - probably would be easier with XCode ? - limited Java support
     - still need to gather output of 'ant test' command
       - would it update javadoc refs too ?
-~ feature: gui: revive browser
++ feature: gui: revive browser
   + get this to at least compile again
   - where should this go ? 
     * not needed for library to function, although adds no dependencies
@@ -982,7 +1009,7 @@ x feature: howto for developing in NetBeans ?
   + findbugs (http://findbugs.cs.umd.edu/demo/jnlp/findbugs.jnlp)
   + CPD - looks good (http://pmd.sourceforge.net/cpd.jnlp)
 + bug: make line ends native in files and svn
-~ feature: work on Morphy
+< feature: work on Morphy
   * add exact match in 1 spot
   - simplify various parallel arrays (SUFX, ADDR, OFFSETS, CNTS)
   - see getindex() feature
