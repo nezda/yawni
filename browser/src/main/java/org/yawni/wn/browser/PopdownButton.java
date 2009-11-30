@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *   <li> down arrow indicates combobox-like behavior </li>
  *   <li> looks good across look {@literal &} feels </li>
  *   <li> activation by keyboard (spacebar and Enter) and mouse click support </li>
- *   <li> type-prefix-to-navigate popup menu (like JComboBox) </li>
+ *   <li> type-element-prefix-to-navigate popup menu (like JComboBox) </li>
  * </ul>
  * <p> TODO tab / shift+tab navigation from menu - maybe arrows too? complicated because would require
  * coordination among group of PopdownButtons and focus manager.
@@ -185,7 +185,28 @@ public class PopdownButton extends JButton {
     final int px = 5;
     final int py = 1 + this.getHeight() - margins.bottom;
     popupMenu.pack();
+    final MenuElement[] elements = popupMenu.getSubElements();
+    if (elements.length > 0 && elements[0] instanceof JMenuItem) {
+//      System.err.println("customizing...");
+//      final JMenuItem item0 = (JMenuItem) elements[0];
+
+//      item0.setSelected(true);
+//      item0.setArmed(false);
+//      item0.setArmed(true);
+
+//      System.err.println("isBorderPained: "+item0.isBorderPainted());
+//      System.err.println("isOpaque: "+item0.isOpaque());
+//      System.err.println("isSelected: "+item0.isSelected());
+//      System.err.println("isArmed: "+item0.isArmed());
+//      System.err.println("isFocusPainted: "+item0.isFocusPainted());
+//      System.err.println("border: "+item0.getBorder());
+//      System.err.println("border opaque: "+item0.getBorder().isBorderOpaque());
+//      item0.setFocusPainted(true);
+    }
     popupMenu.show(this, px, py);
+//    final boolean focused = popupMenu.requestFocusInWindow();
+//    final boolean focused = popupMenu.requestFocus(false);
+//    System.err.println("popup focused?: "+focused);
   }
 
   public AbstractButton getButton() {
@@ -228,7 +249,7 @@ public class PopdownButton extends JButton {
       if (selectionForKey >= 0) {
         log.debug("  SELECTED SUB[{}]: {}", selectionForKey, text(elements[selectionForKey]));
         // select path
-        setSelectedItem(elements[selectionForKey]);
+        setArmedItem(elements[selectionForKey]);
       } else {
         log.debug("  SELECTED null");
       }
@@ -243,13 +264,14 @@ public class PopdownButton extends JButton {
         log.debug("clazz: {}", clazz);
         clazz = clazz.getSuperclass();
       } while (clazz != null);
-      System.err.println();
+      log.debug(""); // blank line
     }
-    private void setSelectedItem(final MenuElement element) {
-      log.trace("SELECT {}", element);
+    private void setArmedItem(final MenuElement element) {
+      log.trace("ARMED {}", element);
 //      printClasses(element);
       final JMenuItem item = (JMenuItem) element;
       MenuSelectionManager.defaultManager().setSelectedPath(new MenuElement[]{getPopupMenu(), item});
+      assert item.isArmed();
     }
     private String text(final MenuElement element) {
       final Component comp = element.getComponent();
