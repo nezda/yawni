@@ -860,6 +860,17 @@ public class BrowserPanel extends JPanel {
     }
   } // end class VerbFramesAction
 
+  void dismissPOSComboBoxPopup() {
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        for (final POS pos : POS.CATS) {
+          final RelationTypeComboBox comboBox = BrowserPanel.this.posBoxes.get(pos);
+          comboBox.getPopupMenu().setVisible(false);
+        }
+      }
+    });
+  }
+
   private void makePOSComboBoxes() {
     this.posBoxes = new EnumMap<POS, RelationTypeComboBox>(POS.class);
     for (final POS pos : POS.CATS) {
