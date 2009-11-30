@@ -18,6 +18,7 @@ package org.yawni.wn.browser;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.fest.swing.annotation.GUITest;
 import org.junit.Test;
@@ -53,60 +54,81 @@ public class BrowserFestTest {
     final JTextComponentFixture searchField = window.textBox("searchField");
     final Component searchFieldComponent = searchField.component();
     assertThat(searchFieldComponent).isNotNull();
-
     searchField.focus();
     assertThat(searchFieldComponent.hasFocus()).isTrue();
-
-    window.textBox("searchField").enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    searchField.enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
     window.label("statusLabel").requireText("Overview of kitten");
-//    window.robot.moveMouse(searchField);
     final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
-    // triggers RelationTypeComboBox showing JPopupMenu
-    //window.button("RelationTypeComboBox::Noun").focus().pressAndReleaseKeys(KeyEvent.VK_ENTER);
     // transfer focus from searchField to Noun button with keyboard
-//    System.err.println("focusOwner: "+browser.getFocusOwner());
-    window.textBox("searchField").pressAndReleaseKeys(KeyEvent.VK_TAB);
-    // doesn't work
-//    window.robot.type('\t');
-    // not necessary
-//    window.robot.waitForIdle();
-
-//    System.err.println("focusOwner: "+browser.getFocusOwner());
+    searchField.pressAndReleaseKeys(KeyEvent.VK_TAB);
     assertThat(nounButton.component().hasFocus()).isTrue();
+    // triggers Noun RelationTypeComboBox to show JPopupMenu
     nounButton.pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    // key stroke goes to popup
+    window.robot.type('s');
 
-//    System.err.println("moving mouse...");
-//    window.robot.moveMouse(searchField);
-//    System.err.println("mouse moved.");
-//    System.err.println("focusOwner: "+browser.getFocusOwner());
-    
+    // only need popup to verify correctness
     final JPopupMenu popupMenu = nounButton.component().getComponentPopupMenu();
     assertThat(popupMenu).isNotNull();
     final JPopupMenuFixture popup = new JPopupMenuFixture(window.robot, popupMenu);
-//    popup.requireFocused();
-//    popup.focus();
-    assertThat('s' == KeyEvent.VK_S);
-    assertThat('e' == KeyEvent.VK_E);
-//    popup.pressAndReleaseKeys('d');
-    window.robot.type('d');
-//    popup.pressAndReleaseKeys('d');
-//    popup.pressAndReleaseKeys('s', 'e');
+    window.robot.waitForIdle();
+    popup.requireVisible();
+    final JMenuItem sensesItem = popup.menuItemWithPath("Senses").component();
+    assertThat(sensesItem.isArmed()).isTrue();
+    assertThat(sensesItem.hasFocus()).isFalse();
+//    assertThat(sensesItem.isSelected()).isFalse();
+    
+    assertThat(popup.menuItemWithPath("Derivationally related forms").component().isArmed()).isFalse();
+
+    // key stroke goes to popup
+    window.robot.type('s');
+    window.robot.type('e');
+    assertThat(sensesItem.isArmed()).isTrue();
+
+    // hit enter
+    window.robot.pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    window.label("statusLabel").requireText("Synonyms search for noun \"kitten\"");
   }
 
   @Ignore
   @GUITest
   @Test
-  public void kittenMouseTest() {
-    window.textBox("searchField").enterText("kitten");
+  public void mouseTest() {
+    window.textBox("searchField").enterText("puppy");
     window.button("searchButton").click();
-    window.label("statusLabel").requireText("Overview of kitten");
-    // triggers RelationTypeComboBox showing JPopupMenu
+    window.label("statusLabel").requireText("Overview of puppy");
+    // triggers Noun RelationTypeComboBox to show JPopupMenu
     window.button("RelationTypeComboBox::Noun").click();
-    final JPopupMenu popupMenu = window.button("RelationTypeComboBox::Noun").component().getComponentPopupMenu();
-    assertThat(popupMenu).isNotNull();
-    final JPopupMenuFixture popup = new JPopupMenuFixture(window.robot, popupMenu);
+//    final JPopupMenu popupMenu = window.button("RelationTypeComboBox::Noun").component().getComponentPopupMenu();
+//    assertThat(popupMenu).isNotNull();
+//    final JPopupMenuFixture popup = new JPopupMenuFixture(window.robot, popupMenu);
 //    popup.pressAndReleaseKeys('s', 'e');
 //    popupMenu.pressAndReleaseKeys('s', 'e');
 //    window.menuItem("Senses").requireEnabled();
+  }
+
+  @GUITest
+  @Test
+  public void popdownButtonTortureTest() {
+    window.textBox("searchField").enterText("calf");
+    window.button("searchButton").click();
+    window.label("statusLabel").requireText("Overview of calf");
+    // triggers Noun RelationTypeComboBox to show JPopupMenu
+    final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
+    nounButton.click();
+    final JPopupMenu popupMenu = nounButton.component().getComponentPopupMenu();
+    final JPopupMenuFixture popup = new JPopupMenuFixture(window.robot, popupMenu);
+    popup.requireVisible();
+    nounButton.click();
+    popup.requireNotVisible();
+    nounButton.pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    popup.requireVisible();
+    nounButton.click(); // 1
+    nounButton.pressAndReleaseKeys(KeyEvent.VK_SPACE); // 2
+    nounButton.click(); // 3
+    nounButton.pressAndReleaseKeys(KeyEvent.VK_ENTER); // 4
+    nounButton.click(); // 5
+    // odd number of "clicks" should leave popup not visible
+    popup.requireNotVisible();
   }
 }
