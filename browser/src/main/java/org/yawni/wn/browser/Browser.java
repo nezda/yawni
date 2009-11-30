@@ -304,6 +304,23 @@ class Browser extends JFrame {
       }
     };
     this.addWindowListener(closer);
+    final WindowFocusListener windowFocusListener = new WindowAdapter() {
+      @Override
+      public void windowLostFocus(final WindowEvent evt) {
+        // tell BrowserPanel to close any open popups
+        // work around Sun bug http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4812585
+        // effecting heavyweight JPopupMenus
+        log.debug("evt: {}", evt);
+        // almost works except if Window focus goes from:
+        //   BrowserPanel → SearchFrame → <another app>
+        // popup stays visible; ideally we'd have some notion of "application" focus
+//        if (evt.getOppositeWindow() == null) {
+//          browserPanel.dismissPOSComboBoxPopup();
+//        }
+        browserPanel.dismissPOSComboBoxPopup();
+      }
+    };
+    this.addWindowFocusListener(windowFocusListener);
 
     validate();
 
