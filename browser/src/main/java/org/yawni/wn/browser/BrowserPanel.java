@@ -16,7 +16,6 @@
  */
 package org.yawni.wn.browser;
 
-import java.io.IOException;
 import org.yawni.util.ImmutableList;
 import org.yawni.util.Utils;
 import org.yawni.wn.DictionaryDatabase;
@@ -37,8 +36,6 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -48,21 +45,15 @@ import java.awt.Toolkit;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.geom.*;
-import java.awt.font.*;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
 import javax.swing.undo.*;
 import java.util.prefs.*;
 
@@ -77,24 +68,7 @@ public class BrowserPanel extends JPanel {
     return FileBackedDictionary.getInstance();
   }
   private final Browser browser;
-//  private boolean hasFocus = false;
 
-//  private class FocusWatcher implements WindowFocusListener {
-//    public void windowGainedFocus(final WindowEvent evt) {
-//      //DBG System.err.println("gained");
-//      hasFocus = true;
-//    }
-//    public void windowLostFocus(final WindowEvent evt) {
-//      //DBG System.err.println("lost");
-//      hasFocus = false;
-//    }
-//  } // end class FocusWatcher
-//
-//  private class FocusWatcher2 extends WindowAdapter {
-//    public void windowDeactivated(final WindowEvent evt) {
-//      //DBG System.err.println("deactivated");
-//    }
-//  }
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
   private JTextField searchField;
   // whenever this is true, the content of search field has changed
@@ -115,9 +89,6 @@ public class BrowserPanel extends JPanel {
     this.setName(getClass().getName());
     super.setLayout(new BorderLayout());
 
-    //XXX DBG browser.addWindowFocusListener(new FocusWatcher());
-    //XXX DBG browser.addWindowListener(new FocusWatcher2());
-
     this.searchField = new JTextField();
     this.searchField.setName("searchField");
     SearchFrame.multiClickSelectAll(searchField);
@@ -132,34 +103,32 @@ public class BrowserPanel extends JPanel {
 //      ActionHelper.clear()
 //      );
 
-    this.searchField.getDocument().addDocumentListener(new DocumentListener() {
-      public void changedUpdate(final DocumentEvent evt) {
-        assert searchField.getDocument() == evt.getDocument();
-//        searchFieldChanged = true;
-      }
-
-      public void insertUpdate(final DocumentEvent evt) {
-        assert searchField.getDocument() == evt.getDocument();
-//        searchFieldChanged = true;
-      }
-
-      public void removeUpdate(final DocumentEvent evt) {
-        assert searchField.getDocument() == evt.getDocument();
-//        searchFieldChanged = true;
-      }
-
-      String getModText(final DocumentEvent evt) {
-        try {
-          final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
-          return change;
-        } catch (BadLocationException ble) {
-          throw new RuntimeException(ble);
-        }
-      }
-    });
+//    this.searchField.getDocument().addDocumentListener(new DocumentListener() {
+//      public void changedUpdate(final DocumentEvent evt) {
+//        assert searchField.getDocument() == evt.getDocument();
+//      }
+//
+//      public void insertUpdate(final DocumentEvent evt) {
+//        assert searchField.getDocument() == evt.getDocument();
+//      }
+//
+//      public void removeUpdate(final DocumentEvent evt) {
+//        assert searchField.getDocument() == evt.getDocument();
+//      }
+//
+//      String getModText(final DocumentEvent evt) {
+//        try {
+//          final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
+//          return change;
+//        } catch (BadLocationException ble) {
+//          throw new RuntimeException(ble);
+//        }
+//      }
+//    });
 
     this.undoManager = new UndoManager() {
-      @Override public boolean addEdit(UndoableEdit ue) {
+      @Override
+      public boolean addEdit(UndoableEdit ue) {
         //System.err.println("ue: "+ue);
         return super.addEdit(ue);
       }
@@ -363,48 +332,6 @@ public class BrowserPanel extends JPanel {
     return icon;
   }
 
-  private static Icon createFontScaleIcon(final int dimension, final boolean bold) {
-    return new ImageIcon(createFontScaleImage(dimension, bold));
-  }
-
-  static BufferedImage createFontScaleImage(final int dimension, final boolean bold) {
-    // new RGB image with transparency channel
-    final BufferedImage image = new BufferedImage(dimension, dimension,
-      BufferedImage.TYPE_INT_ARGB);
-    // create new graphics and set anti-aliasing hints
-    final Graphics2D graphics = (Graphics2D) image.getGraphics().create();
-    // set completely transparent
-    for (int col = 0; col < dimension; col++) {
-      for (int row = 0; row < dimension; row++) {
-        image.setRGB(col, row, 0x0);
-      }
-    }
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-      RenderingHints.VALUE_ANTIALIAS_ON);
-    graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-    final char letter = 'A';
-    // Lucida Sans Regular 12pt Plain
-    graphics.setFont(new Font(
-      "Arial", //"Lucida Sans Regular", //"Serif",//"Arial",
-      bold ? Font.BOLD : Font.PLAIN,
-      dimension -
-      (bold ? 1 : 3)));
-    graphics.setPaint(Color.BLACK);
-    final FontRenderContext frc = graphics.getFontRenderContext();
-    final TextLayout mLayout = new TextLayout("" + letter, graphics.getFont(), frc);
-    final float x = (float) (-.5 + (dimension - mLayout.getBounds().getWidth()) / 2);
-    final float y = dimension - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
-    graphics.drawString("" + letter, x, y);
-    if (bold) {
-      // overspray a little
-      graphics.drawString("" + letter, x + 0.5f, y + 0.5f);
-    }
-    graphics.dispose();
-    return image;
-  }
-
   static ImageIcon createFindIcon(final int dimension, final boolean bold) {
     return new ImageIcon(createFindImage(dimension, bold));
   }
@@ -591,158 +518,6 @@ public class BrowserPanel extends JPanel {
       }
     }
   } // end class RedoAction
-
-  /**
-   * Nice looking SansSerif HTML rendering JTextPane.
-   * @see http://www.jroller.com/jnicho02/entry/using_css_with_htmleditorpane
-   */
-  private static class StyledTextPane extends JTextPane {
-    static Map<Object, Action> actions;
-    final Action biggerFont;
-    final Action smallerFont;
-
-    public void clear() {
-      // NOTE: this doesn't work as expected; see JEditorPane.setText() docs
-      // super.setText("");
-      try {
-        read(new ByteArrayInputStream(new byte[0]), "");
-      } catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-
-    @Override
-    public void setText(final String text) {
-      if (text == null || text.length() == 0) {
-        clear();
-      } else {
-        super.setText(text);
-      }
-//      System.err.println("text::"+text);
-//      new Exception().printStackTrace(System.err);
-//      System.err.println("text:::"+getText());
-    }
-
-    @Override
-    public void paintComponent(final Graphics g) {
-      // bullets look better anti-aliased (still pretty big)
-      final Graphics2D g2d = (Graphics2D) g;
-      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-      super.paintComponent(g);
-    }
-
-    StyledTextPane() {
-      //XXX final Action bigger = ACTIONS.get(HTMLEditorKit.FONT_CHANGE_BIGGER);
-      //TODO move to StyledTextPane
-      //TODO add Ctrl++ / Ctrl+- to Menu shortcuts (View?)
-      // 1. define styles for various sizes (there are already Actions for this?)
-      //
-      // font-size-48
-      // font-size-36
-      // font-size-24
-      // font-size-18
-      // font-size-16
-      // font-size-14
-      // font-size-12
-      // font-size-10
-      // font-size-8
-      //
-      //TODO steps
-      // bigger
-      //   if size != max
-      //     get next larger size and set its style
-      //   else
-      //     beep
-      //
-      // smaller
-      //   if size != min
-      //     get next smaller size and set its style
-      //   else
-      //     beep
-
-      this.biggerFont = new StyledEditorKit.StyledTextAction("Bigger Font") {
-        final int fake = init();
-        private int init() {
-          putValue(Action.SMALL_ICON, createFontScaleIcon(16, true));
-          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK));
-          return 0;
-        }
-        public void actionPerformed(final ActionEvent evt) {
-          //System.err.println("bigger");//: "+evt);
-          newFontSize(18);
-          smallerFont.setEnabled(true);
-          this.setEnabled(false);
-        }
-      };
-      this.smallerFont = new StyledEditorKit.StyledTextAction("Smaller Font") {
-        final int fake = init();
-        private int init() {
-          putValue(Action.SMALL_ICON, createFontScaleIcon(16, false));
-          putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK));
-          return 0;
-        }
-        public void actionPerformed(final ActionEvent evt) {
-          //System.err.println("smaller");//: "+evt);
-          newFontSize(14);
-          biggerFont.setEnabled(true);
-          this.setEnabled(false);
-        }
-      };
-      // this is the starting font size
-      this.smallerFont.setEnabled(false);
-    }
-
-    private void newFontSize(int fontSize) {
-      //XXX NOTE: not all sizes are defined, only
-      // 48 36 24 18 16 14 12 10 8
-      selectAll();
-      getActionTable().get("font-size-" + fontSize).actionPerformed(new ActionEvent(StyledTextPane.this, 0, ""));
-      setCaretPosition(0); // scroll to top
-      final StyleSheet styleSheet = ((HTMLEditorKit) getStyledEditorKit()).getStyleSheet();
-      // setting this style makes this font size change stick
-      styleSheet.addRule("body {font-size: " + fontSize + ";}");
-    }
-
-    @Override
-    protected HTMLEditorKit createDefaultEditorKit() {
-      final HTMLEditorKit kit = new HTMLEditorKit();
-      final StyleSheet styleSheet = kit.getStyleSheet();
-      // add a CSS rule to force body tags to use the default label font
-      // instead of the value in javax.swing.text.html.default.csss
-      //XXX final Font font = UIManager.getFont("Label.font");
-      //XXX String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-      //XXX          "font-size: " + font.getSize() + "pt; }";
-      //XXX final String bodyRule = "body { font-family: " + font.getFamily() + "; }";
-      //XXX styleSheet.addRule(bodyRule);
-
-      styleSheet.addRule("body {font-family:sans-serif;}");
-      styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
-      //FIXME text-indent:-10pt; causes the odd bolding bug
-      //XXX styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
-      //XXX XXX styleSheet.addRule("ul {list-style-type:none; display:block;}");
-      //XXX styleSheet.addRule("ul ul {list-style-type:circle };");
-      //XXX XXX styleSheet.addRule("ul ul {list-style-type:circle };");
-      styleSheet.addRule("ul {margin-left:12pt; margin-bottom:0pt;}");
-      //getDocument().putProperty("multiByte", false);
-      return kit;
-    }
-
-    // The following method allows us to find an
-    // action provided by the editor kit by its name.
-    Map<Object, Action> getActionTable() {
-      if (actions == null) {
-        actions = new HashMap<Object, Action>();
-        final Action[] actionsArray = getStyledEditorKit().getActions();
-        for (int i = 0; i < actionsArray.length; i++) {
-          final Action a = actionsArray[i];
-          //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
-          actions.put(a.getValue(Action.NAME), a);
-        }
-      }
-      return actions;
-    }
-  } // end class StyledTextPane
 
   /**
    * Encapsulates a button (for a POS) which controls a
