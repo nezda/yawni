@@ -16,6 +16,7 @@
  */
 package org.yawni.wn.browser;
 
+import java.io.IOException;
 import org.yawni.util.ImmutableList;
 import org.yawni.util.Utils;
 import org.yawni.wn.DictionaryDatabase;
@@ -48,6 +49,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.geom.*;
 import java.awt.font.*;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -105,10 +107,6 @@ public class BrowserPanel extends JPanel {
   private final RedoAction redoAction;
   private final StyledTextPane resultEditorPane;
   private EnumMap<POS, RelationTypeComboBox> posBoxes;
-  private RelationTypeComboBox nounPOSBox;
-  private RelationTypeComboBox verbPOSBox;
-  private RelationTypeComboBox adjPOSBox;
-  private RelationTypeComboBox advPOSBox;
   private final Action slashAction;
   private final JLabel statusLabel;
 
@@ -125,10 +123,14 @@ public class BrowserPanel extends JPanel {
     SearchFrame.multiClickSelectAll(searchField);
     this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
-    this.searchField.putClientProperty("JTextField.variant", "search");
-    this.searchField.putClientProperty("JTextField.Search.CancelAction", 
-      ActionHelper.clear()
-      );
+
+//    final TextPrompt textPropmt = new TextPrompt("Type a word to lookup in WordNet…", searchField);
+//    textPropmt.changeAlpha(0.5f);
+
+//    this.searchField.putClientProperty("JTextField.variant", "search");
+//    this.searchField.putClientProperty("JTextField.Search.CancelAction",
+//      ActionHelper.clear()
+//      );
 
     this.searchField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(final DocumentEvent evt) {
@@ -255,6 +257,11 @@ public class BrowserPanel extends JPanel {
     this.add(searchAndRelationsPanel, BorderLayout.NORTH);
 
     this.resultEditorPane = new StyledTextPane();
+    this.resultEditorPane.setName("resultEditorPane");
+
+//    final TextPrompt textPropmt = new TextPrompt("Type a word to lookup in WordNet…", resultEditorPane);
+//    textPropmt.changeAlpha(0.5f);
+
     this.resultEditorPane.setBorder(browser.textAreaBorder());
     this.resultEditorPane.setBackground(Color.WHITE);
     // http://www.groupsrv.com/computers/about179434.html
@@ -295,7 +302,7 @@ public class BrowserPanel extends JPanel {
     this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), resultEditorPane.smallerFont);
     this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.smallerFont);
 
-    final String[] extraKeys = new String[]{
+    final String[] extraKeys = new String[] {
       "pressed",
       "shift pressed",
       "meta pressed",
@@ -594,6 +601,28 @@ public class BrowserPanel extends JPanel {
     final Action biggerFont;
     final Action smallerFont;
 
+    public void clear() {
+      // NOTE: this doesn't work as expected; see JEditorPane.setText() docs
+      // super.setText("");
+      try {
+        read(new ByteArrayInputStream(new byte[0]), "");
+      } catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    @Override
+    public void setText(final String text) {
+      if (text == null || text.length() == 0) {
+        clear();
+      } else {
+        super.setText(text);
+      }
+//      System.err.println("text::"+text);
+//      new Exception().printStackTrace(System.err);
+//      System.err.println("text:::"+getText());
+    }
+
     @Override
     public void paintComponent(final Graphics g) {
       // bullets look better anti-aliased (still pretty big)
@@ -797,7 +826,6 @@ public class BrowserPanel extends JPanel {
       final SwingWorker worker = new SwingWorker<Void, Void>() {
         @Override
         public Void doInBackground() {
-          //FIXME have to do morphstr logic here
           final String inputString = BrowserPanel.this.searchField.getText().trim();
           Word word = BrowserPanel.this.dictionary().lookupWord(inputString, pos);
           if (word == null) {
@@ -809,6 +837,7 @@ public class BrowserPanel extends JPanel {
           if (relationType == null) {
             //FIXME bad form to use stderr
             System.err.println(word);
+            log.info("{}", word);
             displaySenses(word);
           } else {
             displaySenseChain(word, relationType);
@@ -880,10 +909,6 @@ public class BrowserPanel extends JPanel {
       this.posBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
     }
-//    nounPOSBox = posBoxes.get(POS.NOUN);
-//    verbPOSBox = posBoxes.get(POS.VERB);
-//    adjPOSBox = posBoxes.get(POS.ADJ);
-//    advPOSBox = posBoxes.get(POS.ADV);
   }
 
   // used by substring search panel
