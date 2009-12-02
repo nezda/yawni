@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.awt.event.KeyEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.text.JTextComponent;
 import org.fest.swing.annotation.GUITest;
 import org.junit.Test;
 import org.fest.swing.fixture.FrameFixture;
@@ -47,6 +48,35 @@ public class BrowserFestTest {
   public void tearDown() {
     window.cleanUp();
   }
+
+  @GUITest
+  @Test
+  public void noMatchTest() {
+    final JTextComponentFixture searchField = window.textBox("searchField");
+    searchField.focus().requireFocused();
+    searchField.enterText("performant").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    window.label("statusLabel").requireText("No matches found.");
+    window.button("RelationTypeComboBox::Noun").requireDisabled();
+    window.button("RelationTypeComboBox::Verb").requireDisabled();
+    window.button("RelationTypeComboBox::Adjective").requireDisabled();
+    window.button("RelationTypeComboBox::Adverb").requireDisabled();
+  }
+
+  @GUITest
+  @Test
+  public void unfortunateGerbilTestKeyboardTest() {
+    final JTextComponentFixture searchField = window.textBox("searchField");
+    searchField.focus().requireFocused();
+    searchField.enterText("gerbil").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    window.label("statusLabel").requireText("Overview of gerbil");
+    final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
+    // clear searchField
+    searchField.enterText(" ").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+
+    // since Noun triggers an action that looks at the searchField's text
+    // and expects it to be compatible with itself, it must be disabled
+    nounButton.requireDisabled();
+  }
   
   @GUITest
   @Test
@@ -54,14 +84,13 @@ public class BrowserFestTest {
     final JTextComponentFixture searchField = window.textBox("searchField");
     final Component searchFieldComponent = searchField.component();
     assertThat(searchFieldComponent).isNotNull();
-    searchField.focus();
-    assertThat(searchFieldComponent.hasFocus()).isTrue();
+    searchField.focus().requireFocused();
     searchField.enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
     window.label("statusLabel").requireText("Overview of kitten");
     final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
     // transfer focus from searchField to Noun button with keyboard
     searchField.pressAndReleaseKeys(KeyEvent.VK_TAB);
-    assertThat(nounButton.component().hasFocus()).isTrue();
+    nounButton.requireFocused();
     // triggers Noun RelationTypeComboBox to show JPopupMenu
     nounButton.pressAndReleaseKeys(KeyEvent.VK_ENTER);
     // key stroke goes to popup
@@ -130,5 +159,31 @@ public class BrowserFestTest {
     nounButton.click(); // 5
     // odd number of "clicks" should leave popup not visible
     popup.requireNotVisible();
+  }
+
+  @GUITest
+  @Test
+  public void hyponymsThenNoMatchTest() {
+    final JTextComponentFixture searchField = window.textBox("searchField");
+    searchField.enterText("kid").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
+    nounButton.click();
+    final JPopupMenu popupMenu = nounButton.component().getComponentPopupMenu();
+    final JPopupMenuFixture popup = new JPopupMenuFixture(window.robot, popupMenu);
+//    popup.menuItemWithPath("Hypernyms (kid is a kind of...)").click();
+
+    // key stroke goes to popup
+    window.robot.type('h');
+    window.robot.type('y');
+    window.robot.type('p');
+    window.robot.type('e');
+    window.robot.pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    
+    searchField.enterText("performant").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    window.label("statusLabel").requireText("No matches found.");
+    searchField.enterText("").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+//    searchField.enterText(" ").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+    window.label("statusLabel").requireText("No matches found.");
+//    window.label("statusLabel").requireText("Enter search word and press return");
   }
 }
