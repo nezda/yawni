@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * <p> TODO tab / shift+tab navigation from menu - maybe arrows too? complicated because would require
  * coordination among group of PopdownButtons and focus manager.
+ *
+ * <p> Similar to OS X {@code NSPopUpButton} in {@code "Pull Down"} mode.
  */
 // These issues seems to have been avoided:
 //   if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
