@@ -40,7 +40,7 @@ import java.util.prefs.*;
  *        To invoke a browser on a local database stored at {@code <dir>}. </li>
  * </ul>
  */
-class Browser extends JFrame {
+class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(Browser.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(Browser.class);
   static {
@@ -386,6 +386,12 @@ class Browser extends JFrame {
 
   Border textAreaBorder() {
     return textAreaBorder;
+  }
+
+  public void uncaughtException(Thread t, Throwable e) {
+    System.err.format("caught %s on %s. rethrowing...\n", t, e);
+    log.error("caught {} on {}. rethrowing...", t, e);
+    throw new RuntimeException(e);
   }
 
   /**
