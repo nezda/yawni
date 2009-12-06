@@ -95,13 +95,14 @@ public class BrowserPanel extends JPanel {
     this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
 
-//    final TextPrompt textPropmt = new TextPrompt("Type a word to lookup in WordNet…", searchField);
-//    textPropmt.changeAlpha(0.5f);
+//    final TextPrompt textPrompt = new TextPrompt(
+//      "Type a word to lookup in WordNet…", searchField, resultEditorPane);
+//    textPrompt.changeAlpha(0.5f);
 
-//    this.searchField.putClientProperty("JTextField.variant", "search");
-//    this.searchField.putClientProperty("JTextField.Search.CancelAction",
-//      ActionHelper.clear()
-//      );
+    this.searchField.putClientProperty("JTextField.variant", "search");
+    this.searchField.putClientProperty("JTextField.Search.CancelAction",
+      ActionHelper.clear()
+      );
 
 //    this.searchField.getDocument().addDocumentListener(new DocumentListener() {
 //      public void changedUpdate(final DocumentEvent evt) {
@@ -228,8 +229,10 @@ public class BrowserPanel extends JPanel {
     this.resultEditorPane = new StyledTextPane();
     this.resultEditorPane.setName("resultEditorPane");
 
-//    final TextPrompt textPropmt = new TextPrompt("Type a word to lookup in WordNet…", resultEditorPane);
-//    textPropmt.changeAlpha(0.5f);
+    final TextPrompt textPrompt = new TextPrompt(
+      "Type a word to lookup in WordNet…", searchField, resultEditorPane);
+    textPrompt.changeAlpha(0.5f);
+    textPrompt.setName("textPrompt");
 
     this.resultEditorPane.setBorder(browser.textAreaBorder());
     this.resultEditorPane.setBackground(Color.WHITE);
