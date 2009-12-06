@@ -45,7 +45,7 @@ import javax.swing.text.html.StyleSheet;
  */
 class StyledTextPane extends JTextPane {
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-  
+
   static Map<Object, Action> actions;
   final Action biggerFont;
   final Action smallerFont;
