@@ -257,6 +257,10 @@ everything
 - review Scott Violet's fabric and Password app
 
 - issues
+  - feature: core: gui: use custom XML format internally and render it to HTML in a custom EditorKit; XML format can be used in multiple places
+  - bug: core: upgrade poms to build in any environment and test this (no jarsign resource, no data jar, WNHOME, WNSEARCHDIR set, etc.) continuuous integration 
+  - bug: core: Morphy's morphprep() has some useful looking logic short circuite; easiest fix is to check some examples against C version's output
+  - feature: core: false-positive tests: generate random collocations and prepositional phrases and see if they 1) produce stems 2) are in WordNet
   < feature: gui: use web-start friendly preferences; this is hard
   ~ feature: gui: use TextPrompt to display "No matches found."; non-stanard because searchField will not be empty for this case
   < feature: gui: use custom custom ListCellRenderer to implement properly-cased display in SearchFrame
@@ -264,10 +268,6 @@ everything
   + bug: gui: Undo and Redo menu icons are too big! also, crop the wasted edge space out of the source .pngs
   - bug: gui: on Windows, alt-F4 should close windows, not Ctrl+W
   ~ bug: gui: register UncaughtExceptionHandler to avoid silent exception swallowing; show a dialog
-  - bug: core: upgrade poms to build in any environment and test this (no jarsign resource, no data jar, WNHOME, WNSEARCHDIR set, etc.) continuuous integration 
-  - bug: core: Morphy's morphprep() has some useful looking logic short circuited
-      - easiest fix is to check some examples against C version's output
-  - feature: core: false-positive tests: generate random collocations and prepositional phrases and see if they 1) produce stems 2) are in WordNet
   + bug: gui: search for "performant", result pane shows single bullet (status shows "No matches found"); caused by weird leak/bug/issue in JEditorPane + DefaultStyledDocument
   + bug: gui: leak in JEditorPane / DefaultStyledDocument; solution add a clear() method
   ~ feature: informal poll of Mihai (Snow Leopard) and Richard to see what version of OS X they hae (Tiger, Leopard, Snow Leopard?)
