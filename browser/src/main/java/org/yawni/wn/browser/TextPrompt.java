@@ -46,16 +46,10 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
 
   private final JTextComponent sourceTextComponent;
   private final JTextComponent targetTextComponent;
-//  private final Document sourceTextComponentDocument;
-//  private final Document targetTextComponentDocument;
   
   private Show show;
   private boolean showPromptOnce;
   private int focusLost;
-
-//  public TextPrompt(final String text, final JTextComponent textComponent) {
-//    this(text, textComponent, Show.ALWAYS);
-//  }
 
   // default configuration:
   //   Listen for content/Document AND focus changes on textComponent (typically a JTextField)
@@ -82,8 +76,6 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
                     final JTextComponent targetTextComponent) {
     this.sourceTextComponent = sourceTextComponent;
     this.targetTextComponent = targetTextComponent;
-//    this.sourceTextComponentDocument = sourceTextComponent.getDocument();
-//    this.targetTextComponentDocument = targetTextComponent.getDocument();
     
     setShow(Show.ALWAYS);
 
@@ -92,10 +84,8 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     setAlignmentX(CENTER_ALIGNMENT);
     setAlignmentY(0.2f);
 //    setFont(targetTextComponent.getFont().deriveFont("Serif", Font.ITALIC, 24.0f));
-    setFont(new Font("Serif", Font.ITALIC | Font.BOLD, 24));
+    setFont(new Font("Serif", Font.ITALIC, 24));
     setForeground(targetTextComponent.getForeground());
-    // not sure why it needs a border with insets determined by targetTextComponent
-//    setBorder(new EmptyBorder(targetTextComponent.getInsets()));
 
     sourceTextComponent.addFocusListener(this);
     sourceTextComponent.getDocument().addDocumentListener(this);
@@ -103,9 +93,8 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
 //    targetTextComponent.getDocument().addDocumentListener(this);
     targetTextComponent.addPropertyChangeListener("document", this);
 
-    // maybe BoxLayout would be better ?
-//    targetTextComponent.setLayout(new BorderLayout());
     targetTextComponent.setLayout(new BoxLayout(targetTextComponent, BoxLayout.Y_AXIS));
+    // put gap
     targetTextComponent.add(Box.createVerticalStrut(getFontMetrics(getFont()).getHeight()));
     targetTextComponent.add(this);
     checkForPrompt();
@@ -139,25 +128,25 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     super.setForeground(withAlpha);
   }
 
-  /**
-   * Convenience method to change the style of the current Font. The style
-   * values are found in the Font class. Common values might be:
-   * Font.BOLD, Font.ITALIC and Font.BOLD + Font.ITALIC.
-   *
-   * @param style value representing the the new style of the Font.
-   */
-  public void changeStyle(int style, float size) {
-    setFont(getFont().deriveFont(style, size));
-  }
+//  /**
+//   * Convenience method to change the style of the current Font. The style
+//   * values are found in the Font class. Common values might be:
+//   * Font.BOLD, Font.ITALIC and Font.BOLD + Font.ITALIC.
+//   *
+//   * @param style value representing the the new style of the Font.
+//   */
+//  public void changeStyle(int style, float size) {
+//    setFont(getFont().deriveFont(style, size));
+//  }
 
-  /**
-   * Get the Show property
-   *
-   * @return the Show property.
-   */
-  public Show getShow() {
-    return show;
-  }
+//  /**
+//   * Get the Show property
+//   *
+//   * @return the Show property.
+//   */
+//  public Show getShow() {
+//    return show;
+//  }
 
   /**
    * Set the prompt Show property to control when the promt is shown;
@@ -195,18 +184,6 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     this.showPromptOnce = showPromptOnce;
   }
 
-  @Override
-  public void setVisible(final boolean b) {
-    System.err.println("TextPrompt.setVisible: "+b);
-//    SwingUtilities.invokeLater(
-//      new Runnable() {
-//        public void run() {
-          super.setVisible(b);
-//        }
-//      }
-//    );
-  }
-
   /**
    * Check whether the prompt should be visible or not. The visibility
    * will change on updates to the Document and on focus changes.
@@ -233,10 +210,8 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
       }
     } else {
       if (show == Show.ALWAYS || show == Show.FOCUS_LOST) {
-        System.err.println("checkForPrompt(true)");
         setVisible(true);
       } else {
-        System.err.println("checkForPrompt(false)");
         setVisible(false);
       }
     }
@@ -244,79 +219,36 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
 
   /** {@inheritDoc} {@link FocusListener} */
   public void focusGained(FocusEvent evt) {
-//    System.err.println("focusGained src: "+evt.getSource());
-    System.err.println("focusGained");
     checkForPrompt();
   }
 
   /** {@inheritDoc} {@link FocusListener} */
   public void focusLost(FocusEvent evt) {
-//    System.err.println("focusLost src: "+evt.getSource());
-    System.err.println("focusLost");
     focusLost++;
     checkForPrompt();
   }
 
   /** {@inheritDoc} {@link DocumentListener} */
   public void insertUpdate(DocumentEvent evt) {
-    final Document doc = evt.getDocument();boolean isSource = false;
-    if (doc.equals(sourceTextComponent.getDocument())) {
-      isSource = true;
-    } else {
-//      assert doc.equals(targetTextComponent.getDocument());
-      if (! doc.equals(targetTextComponent.getDocument())) {
-        System.err.println("oh god 0");
-      }
-    }
-    System.err.println("ins "+(isSource ? "isSource" : "isTarget")+": "+new java.util.Date());
-//    assert doc == sourceTextComponentDocument || doc == targetTextComponent :
-//      "new doc: "+doc+" srcDoc: "+sourceTextComponentDocument+
-//      " targDoc: "+targetTextComponentDocument;
     checkForPrompt();
-    // * if document changes via setDocument(), doesn't fire any events!
+    // NOTE: if document is replaced via setDocument(), 
+    // no insert, remove, or change updates events are fired!
+    // However, the "document" property is changed and this can
+    // be listened for
   }
 
   /** {@inheritDoc} {@link DocumentListener} */
-  public void removeUpdate(DocumentEvent evt) {
-    final Document doc = evt.getDocument();
-    boolean isSource = false;
-    if (doc.equals(sourceTextComponent.getDocument())) {
-      isSource = true;
-    } else {
-//      assert doc.equals(targetTextComponent.getDocument());
-      if (! doc.equals(targetTextComponent.getDocument())) {
-        System.err.println("oh god 1");
-      }
-    }
-    System.err.println("rmv "+(isSource ? "isSource" : "isTarget")+": "+evt+" "+new java.util.Date());
-//    assert doc == sourceTextComponentDocument || doc == targetTextComponent :
-//      "new doc: "+doc+" srcDoc: "+sourceTextComponentDocument+
-//      " targDoc: "+targetTextComponentDocument;
+  public void removeUpdate(final DocumentEvent evt) {
     checkForPrompt();
   }
 
   /** {@inheritDoc} {@link DocumentListener} */
-  public void changedUpdate(DocumentEvent evt) {
-    final Document doc = evt.getDocument();
-    boolean isSource = false;
-    if (doc.equals(sourceTextComponent.getDocument())) {
-      isSource = true;
-    } else {
-//      assert doc.equals(targetTextComponent.getDocument());
-      if (! doc.equals(targetTextComponent.getDocument())) {
-        System.err.println("oh god 2");
-      }
-    }
-//    assert doc == sourceTextComponentDocument || doc == targetTextComponent :
-//      "new doc: "+doc+" srcDoc: "+sourceTextComponentDocument+
-//      " targDoc: "+targetTextComponentDocument;
-    System.err.println("chg "+(isSource ? "isSource" : "isTarget")+": "+evt+" "+new java.util.Date());
+  public void changedUpdate(final DocumentEvent evt) {
   }
 
   public void propertyChange(final PropertyChangeEvent evt) {
-    System.err.println("propertyChange");
+    // triggered by targetTextComponent.setDocument() calls
     if ("document".equals(evt.getPropertyName())) {
-      System.err.println("setDocument() event "+evt);
       checkForPrompt();
     }
   }
