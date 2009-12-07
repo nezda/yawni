@@ -18,6 +18,7 @@ package org.yawni.wn.browser;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
+import java.math.BigDecimal;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
@@ -25,6 +26,7 @@ import org.fest.swing.annotation.GUITest;
 import org.junit.Test;
 import org.fest.swing.fixture.FrameFixture;
 import org.fest.swing.fixture.JButtonFixture;
+import org.fest.swing.fixture.JLabelFixture;
 import org.fest.swing.fixture.JPopupMenuFixture;
 import org.fest.swing.fixture.JTextComponentFixture;
 import org.junit.After;
@@ -32,6 +34,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import static org.fest.assertions.Assertions.assertThat;
 
+//@Ignore
 public class BrowserFestTest {
   private FrameFixture window;
   private Browser browser;
@@ -47,6 +50,26 @@ public class BrowserFestTest {
   @After
   public void tearDown() {
     window.cleanUp();
+  }
+
+  @GUITest
+  @Test
+  public void textPromptTest() {
+    final JLabelFixture textPrompt = window.label("textPrompt");
+    final JTextComponentFixture resultEditorPane = window.textBox("resultEditorPane");
+    final JTextComponentFixture searchField = window.textBox("searchField");
+    final JTextComponent searchFieldComponent = searchField.component();
+    final JTextComponent resultEditorPaneComponent = resultEditorPane.component();
+    textPrompt.requireVisible();
+    for (int i = 0; i < 3; i++) {
+      searchField.enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
+      textPrompt.requireNotVisible();
+      window.label("statusLabel").requireText("Overview of kitten");
+      searchField.pressAndReleaseKeys(KeyEvent.VK_BACK_SPACE).pressAndReleaseKeys(KeyEvent.VK_ENTER);
+      assertThat(searchFieldComponent.getDocument().getLength()).isEqualTo(0);
+      assertThat(resultEditorPaneComponent.getDocument().getLength()).isEqualTo(0);
+      textPrompt.requireVisible();
+    }
   }
 
   @GUITest
@@ -82,9 +105,10 @@ public class BrowserFestTest {
   @Test
   public void kittenKeyboardTest() {
     final JTextComponentFixture searchField = window.textBox("searchField");
-    final Component searchFieldComponent = searchField.component();
+    final JTextComponent searchFieldComponent = searchField.component();
     assertThat(searchFieldComponent).isNotNull();
-    searchField.focus().requireFocused();
+    searchField.requireFocused(); // defaults to focused
+//    searchField.focus().requireFocused();
     searchField.enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
     window.label("statusLabel").requireText("Overview of kitten");
     final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
