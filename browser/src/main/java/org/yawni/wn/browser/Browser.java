@@ -128,7 +128,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
         putValue(Action.MNEMONIC_KEY, keyStroke.getKeyCode());
         putValue(Action.ACCELERATOR_KEY, keyStroke);
         putValue(Action.SMALL_ICON, BLANK_ICON);
-        //putValue(Action.SMALL_ICON, browserPanel.createFindIcon(14, true));
+        putValue(Action.SMALL_ICON, BrowserPanel.createFindIcon(14));
         return 0;
       }
       public void actionPerformed(final ActionEvent evt) {
