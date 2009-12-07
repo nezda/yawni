@@ -151,8 +151,9 @@ class PreferencesManager implements AWTEventListener {
     //TODO loadDefaults();
     final String defaultLnFName = "System";
     //final String defaultLnFName = "CrossPlatform";
-    String lnfName = prefs.get("lookAndFeel", defaultLnFName);
-    //lnfName = "GTK";
+    String lnfName;
+    lnfName = prefs.get("lookAndFeel", defaultLnFName);
+//    lnfName = "GTK";
     //lnfName = "CrossPlatform";
     LookAndFeel.valueOf(lnfName).set();
   }
