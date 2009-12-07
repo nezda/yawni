@@ -229,6 +229,8 @@ public class MorphyTest {
       { POS.VERB.name(), "founded", "found" },
       { POS.VERB.name(), "founder", "founder" }, // note asymmetries: "founder" → {"founder"}, "founded" → {"found"}, "found" → {"find", "found"}
       { POS.VERB.name(), "found", "find", "found"},
+      { POS.VERB.name(), "names of", null},
+      { POS.VERB.name(), "names of association football", null},
       { POS.ADJ.name(), "founder", "founder" },
       { POS.NOUN.name(), "was", "WA" }, // weird- de-pluralizing Washington state abbr
       { POS.VERB.name(), "cannonball along", "cannonball along" },
