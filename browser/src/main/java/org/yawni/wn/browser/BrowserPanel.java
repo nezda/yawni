@@ -39,7 +39,9 @@ import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.MediaTracker;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.*;
@@ -231,7 +233,9 @@ public class BrowserPanel extends JPanel {
 
     final TextPrompt textPrompt = new TextPrompt(
       "Type a word to lookup in WordNet…", searchField, resultEditorPane);
-    textPrompt.changeAlpha(0.5f);
+    //textPrompt.changeAlpha(0.5f);
+    final Color disabledControlTextColor = new Color(108, 108, 108);
+    textPrompt.setForeground(disabledControlTextColor);
     textPrompt.setName("textPrompt");
 
     this.resultEditorPane.setBorder(browser.textAreaBorder());
@@ -324,81 +328,33 @@ public class BrowserPanel extends JPanel {
   }
 
   private static Icon createUndoIcon() {
-    final Icon icon = new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
+    final ImageIcon icon = new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
+    assert icon.getImageLoadStatus() == MediaTracker.COMPLETE;
     assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
-    return icon;
+    final int height = 18;
+    final int width = -1; // maintains aspect ratio
+    final Image img = icon.getImage();
+    return new ImageIcon(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
   }
 
   private static Icon createRedoIcon() {
-    final Icon icon = new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
+    final ImageIcon icon = new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
+    assert icon.getImageLoadStatus() == MediaTracker.COMPLETE;
     assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
-    return icon;
+    final int height = 18;
+    final int width = -1; // maintains aspect ratio
+    final Image img = icon.getImage();
+    return new ImageIcon(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
   }
 
-  static ImageIcon createFindIcon(final int dimension, final boolean bold) {
-    return new ImageIcon(createFindImage(dimension, bold));
-  }
-
-  static BufferedImage createFindImage(final int dimension, final boolean bold) {
-    // new RGB image with transparency channel
-    final BufferedImage image = new BufferedImage(dimension, dimension,
-      BufferedImage.TYPE_INT_ARGB);
-    // create new graphics and set anti-aliasing hints
-    final Graphics2D graphics = (Graphics2D) image.getGraphics().create();
-    // set completely transparent
-    for (int col = 0; col < dimension; col++) {
-      for (int row = 0; row < dimension; row++) {
-        image.setRGB(col, row, 0x0);
-      }
-    }
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-      RenderingHints.VALUE_ANTIALIAS_ON);
-    graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-    //XXX make magnifying glass
-    // circle (upper left)
-    // handle lower right @ 135% CW from TDC
-    // drawOval(x,y,w,h)
-    System.err.println("stroke: " + ((BasicStroke) graphics.getStroke()).getEndCap());
-    System.err.printf("  caps: %s %d %s %d %s %d\n",
-      "CAP_BUTT", BasicStroke.CAP_BUTT,
-      "CAP_ROUND", BasicStroke.CAP_ROUND,
-      "CAP_SQUARE", BasicStroke.CAP_SQUARE);
-    graphics.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-    int x = 1;
-    int y = 1;
-    int w = (int) ((dimension - (x * 2)) * .75);
-    int h = w;
-    System.err.println("w: " + w);
-    // handle
-    //int x1 = ;
-    //int y1 = ;
-    //int x2 = ;
-    //int y2 = ;
-
-    //XXX graphics.setPaint(new Color(0, 0, 196));
-    graphics.setPaint(Color.BLACK);
-    //graphics.drawOval(x, y, w, h);
-    graphics.draw(new Ellipse2D.Double(1, 1, w, h));
-
-    //final char letter = 'A';
-    //graphics.setPaint(Color.BLACK);
-    //final FontRenderContext frc = graphics.getFontRenderContext();
-    //final TextLayout mLayout = new TextLayout("" + letter, graphics.getFont(), frc);
-    //final float x = (float) (-.5 + (dimension - mLayout.getBounds()
-    //      .getWidth()) / 2);
-    //final float y = dimension
-    //  - (float) ((dimension - mLayout.getBounds().getHeight()) / 2);
-
-
-    //graphics.drawString("" + letter, x, y);
-    //if(bold) {
-    //  // overspray a little
-    //  graphics.drawString("" + letter, x + 0.5f, y + 0.5f);
-    //}
-    graphics.dispose();
-    return image;
+  static ImageIcon createFindIcon(final int dimension) {
+    final ImageIcon icon = new ImageIcon(BrowserPanel.class.getResource("FindIcon.png"));
+    assert icon.getImageLoadStatus() == MediaTracker.COMPLETE;
+    assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
+    final int height = dimension;
+    final int width = -1; // maintains aspect ratio
+    final Image img = icon.getImage();
+    return new ImageIcon(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
   }
 
   void debug() {
