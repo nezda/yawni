@@ -32,21 +32,16 @@ import static org.yawni.wn.RelationType.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.MediaTracker;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -84,6 +79,7 @@ public class BrowserPanel extends JPanel {
   private final StyledTextPane resultEditorPane;
   private EnumMap<POS, RelationTypeComboBox> posBoxes;
   private final Action slashAction;
+  private final TextPrompt textPrompt;
   private final JLabel statusLabel;
 
   BrowserPanel(final Browser browser) {
@@ -97,37 +93,10 @@ public class BrowserPanel extends JPanel {
     this.searchField.setDocument(new SearchFieldDocument());
     this.searchField.setBackground(Color.WHITE);
 
-//    final TextPrompt textPrompt = new TextPrompt(
-//      "Type a word to lookup in WordNet…", searchField, resultEditorPane);
-//    textPrompt.changeAlpha(0.5f);
-
     this.searchField.putClientProperty("JTextField.variant", "search");
     this.searchField.putClientProperty("JTextField.Search.CancelAction",
       ActionHelper.clear()
       );
-
-//    this.searchField.getDocument().addDocumentListener(new DocumentListener() {
-//      public void changedUpdate(final DocumentEvent evt) {
-//        assert searchField.getDocument() == evt.getDocument();
-//      }
-//
-//      public void insertUpdate(final DocumentEvent evt) {
-//        assert searchField.getDocument() == evt.getDocument();
-//      }
-//
-//      public void removeUpdate(final DocumentEvent evt) {
-//        assert searchField.getDocument() == evt.getDocument();
-//      }
-//
-//      String getModText(final DocumentEvent evt) {
-//        try {
-//          final String change = searchField.getDocument().getText(evt.getOffset(), evt.getLength());
-//          return change;
-//        } catch (BadLocationException ble) {
-//          throw new RuntimeException(ble);
-//        }
-//      }
-//    });
 
     this.undoManager = new UndoManager() {
       @Override
@@ -231,7 +200,7 @@ public class BrowserPanel extends JPanel {
     this.resultEditorPane = new StyledTextPane();
     this.resultEditorPane.setName("resultEditorPane");
 
-    final TextPrompt textPrompt = new TextPrompt(
+    textPrompt = new TextPrompt(
       "Type a word to lookup in WordNet…", searchField, resultEditorPane);
     //textPrompt.changeAlpha(0.5f);
     final Color disabledControlTextColor = new Color(108, 108, 108);
@@ -317,6 +286,8 @@ public class BrowserPanel extends JPanel {
     this.add(jsp, BorderLayout.CENTER);
     this.statusLabel = new JLabel();
     this.statusLabel.setName("statusLabel");
+    // default value
+//    this.statusLabel.setVerticalAlignment(SwingConstants.CENTER);
     this.statusLabel.setBorder(BorderFactory.createEmptyBorder(0 /*top*/, 3 /*left*/, 3 /*bottom*/, 0 /*right*/));
     this.add(this.statusLabel, BorderLayout.SOUTH);
     updateStatusBar(Status.INTRO);
@@ -753,7 +724,8 @@ public class BrowserPanel extends JPanel {
    * of the main window.
    */
   private enum Status {
-    INTRO("Enter search word and press return"),
+//    INTRO("Enter search word and press return"),
+    INTRO(" "), // space
     OVERVIEW("Overview of %s"),
     SEARCHING("Searching..."),
     SEARCHING4("Searching...."),
@@ -787,9 +759,16 @@ public class BrowserPanel extends JPanel {
   // TODO For RelationType searches, show same text as combo box (e.g., "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
+    
     final String text = status.get(args);
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
+//        if (status == Status.NO_MATCHES) {
+//          textPrompt.setText(text);
+//          textPrompt.setVisible(true);
+//          BrowserPanel.this.statusLabel.setText(" ");
+//          return;
+//        }
         BrowserPanel.this.statusLabel.setText(text);
       }
     });
