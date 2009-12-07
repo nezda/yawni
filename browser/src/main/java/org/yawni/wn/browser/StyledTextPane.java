@@ -58,7 +58,7 @@ class StyledTextPane extends JTextPane {
 //      } catch (IOException ex) {
 //        throw new RuntimeException(ex);
 //      }
-    // better alternative may be
+    // better alternative
     setDocument(getEditorKit().createDefaultDocument());
   }
 
