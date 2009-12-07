@@ -243,18 +243,56 @@ everything
 
 - NetBeans consuming 573MB Real Mem; ouch
 
+- issues with checking out and building yawni
+  - data sub-project currently needs my jar signature
+  - core depends on data
+    - couldn't figure out how to make this dependency <optional>; maybe no project-interal concept exists
+  - uncommented WNHOME system property
+    - got burned by WordNet version
+    - got burned by WNSEARCHDIR still referencing old version
+  - JL found bug in our version of Morphy
+    - "fix" already in yawni
+    - fix disables logic which may be important; at a minimum, leaves a bunch of dead code in morphprep()
+
+- review Scott Violet's fabric and Password app
+
 - issues
+  < feature: gui: use web-start friendly preferences; this is hard
+  ~ feature: gui: use TextPrompt to display "No matches found."; non-stanard because searchField will not be empty for this case
+  < feature: gui: use custom custom ListCellRenderer to implement properly-cased display in SearchFrame
+  - bug: gui: fix rendering of key bindings on menus (not Control+N, ^+N); test with GTK theme on OS X
+  + bug: gui: Undo and Redo menu icons are too big! also, crop the wasted edge space out of the source .pngs
+  - bug: gui: on Windows, alt-F4 should close windows, not Ctrl+W
+  ~ bug: gui: register UncaughtExceptionHandler to avoid silent exception swallowing; show a dialog
+  - bug: core: upgrade poms to build in any environment and test this (no jarsign resource, no data jar, WNHOME, WNSEARCHDIR set, etc.) continuuous integration 
+  - bug: core: Morphy's morphprep() has some useful looking logic short circuited
+      - easiest fix is to check some examples against C version's output
+  - feature: core: false-positive tests: generate random collocations and prepositional phrases and see if they 1) produce stems 2) are in WordNet
+  + bug: gui: search for "performant", result pane shows single bullet (status shows "No matches found"); caused by weird leak/bug/issue in JEditorPane + DefaultStyledDocument
+  + bug: gui: leak in JEditorPane / DefaultStyledDocument; solution add a clear() method
+  ~ feature: informal poll of Mihai (Snow Leopard) and Richard to see what version of OS X they hae (Tiger, Leopard, Snow Leopard?)
+  - feature: gui: should clearing searchfield automatically clear previous result set ?
+    - at least disable controls ? (like POS dropdowns)
+  < feature: gui: "placard" (not BottomBar) which shows (font) zoom level, etc.
+  < feature: gui: View menu / dropdown somewhere for advanced options; is this too advanced to make so available to regular user, e.g.,
+    Show Synset Offsets / Hide Synset Offsets
   - feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); http://tips4java.wordpress.com/2009/11/29/text-prompt/
     * verify with author that Apache License is OK ?
+    - text "Type a word to lookup in WordNet…" requires more width in searchField than we have
+    - doesn't work in combination with OS X features (but does look  kinda cool, if a little textually busy)
+      searchField.putClientProperty("JTextField.variant", "search");
+      searchField.putClientProperty("JTextField.Search.CancelAction"...
+    - we already have a similar prompt in our "status bar"
+    - maybe searchField focus should control resultEditorPane content ?
     - italics, medium alpha
     - may be better to put prompt 1/4 or 1/5 from top in results area; OS X Dictionary says
 
       Type a word to look up in… (horizontally centered, gray-ish/alpha, normal, serif font, ≈2x normal size (plenty of room))
       New Oxford American Dictionary (horizontally centered, gray-ish/alpha, italics, serif font, ≈2x normal size (plenty of room))
-  - feature: gui: rename ActionHelper to StyledActionHelper or something; factor all similar code into it
+  - feature: gui: rename ActionHelper to StyledActionHelper or something; factor all similar code into it (or it into similar code), i.e., StyledTextPane
   - feature: core: refactoring: consider optimizing CharSequences.parseInt/parseLong (à la http://nadeausoftware.com/articles/2009/08/java_tip_how_parse_integers_quickly)
   - bug: gui: SearchFrame dialog should render with apple.awt.brushMetalLook on OS X (Apple bug)
-  - feature: gui: bundle as native OS X app
+  - feature: gui: bundle as native OS X app; http://mojo.codehaus.org/osxappbundle-maven-plugin/
   + feature: gui: add prefix-typing navigation of PopdownButton content (like JComboBox)
     - DefaultKeySelectionManager
   - bug: gui: OS X: app bar says "com.sun.javaws.Main" instead of "Yawni Browser"; clearly missing -Xdock:name="Yawni Browser"
@@ -865,7 +903,7 @@ x feature: howto for developing in NetBeans ?
     - use javax.swing.Timer to act on single clicks which turn out NOT to be multi-clicks
       http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=2&t=009927
     AbstractButton.getMultiClickThreshhold() may be useful
-  < feature: gui: generate the little Mac magnifying glass icon with Java2D and make it the substring menu icon
+  + feature: gui: generate the little Mac magnifying glass icon with Java2D and make it the substring menu icon; used DrawIt
   + feature: gui: what is the "standard" undo/redo icon ?
     ~ macvim (7.1r27) ones look pretty official (includes the swishy orange undo arrow)
       + emailed author and requested SVG version but he never responded
