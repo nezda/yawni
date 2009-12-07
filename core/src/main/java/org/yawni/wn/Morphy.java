@@ -588,25 +588,30 @@ class Morphy {
   }
 
   /**
-   * Assume that the verb is the first word in the phrase.  Strip it
-   * off, check for validity, then try various morphs with the
-   * rest of the phrase tacked on, trying to find a match.
-   *
    * <p> Note: all letters in {@code s} are lowercase.
    * <p> Port of {@code morph.c morphprep()}
    */
   private String morphprep(final String s) {
-    ImmutableList<String> lastwd = null;
+    // Assume that the verb is the first word in the phrase.  Strip it
+    // off, check for validity, then try various morphs with the
+    // rest of the phrase tacked on, trying to find a match.
+    
+    ImmutableList<String> lastwd = ImmutableList.of();
     String end = null;
     final int rest = s.indexOf('_');
     final int last = s.lastIndexOf('_');
     if (rest != last) {
       // implies more than 2 words (required for prepositional phrase)
-      if (lastwd != null) {
+      //XXX OLD COMMENT FIXME loosing some words from morphword ?
+      // FIXME lastwd always empty here
+      final String lastWordStr = s.substring(last + 1);
+      lastwd = morphword(lastWordStr, POS.NOUN);
+      if (! lastwd.isEmpty()) {
         // last word found as a NOUN
         checkLosingVariants(lastwd, "morphprep()");
-        // end = s[2:-1*] * noun stemmed form of last word
-        end = s.substring(rest, last) + lastwd.get(0);
+        // end = s[2:-1*] + (noun stemmed form of last word)
+        end = s.substring(rest, last + 1) + lastwd.get(0);
+        assert end.charAt(0) == '_';
       }
     }
 
@@ -638,8 +643,9 @@ class Morphy {
           log.debug("returning "+word);
         }
         return retval;
-      } else if (lastwd != null) {
+      } else if (! lastwd.isEmpty()) {
         assert end != null;
+        assert end.charAt(0) == '_';
         retval = exc_words.get(1) + end;
         if (null != (word = is_defined(retval, POS.VERB))) {
           if (log.isDebugEnabled()) {
@@ -666,7 +672,9 @@ class Morphy {
             log.debug("returning "+word);
           }
           return retval;
-        } else if (lastwd != null) {
+        } else if (! lastwd.isEmpty()) {
+          assert end != null;
+          assert end.charAt(0) == '_';
           retval = exc_word + end;
           if (null != (word = is_defined(retval, POS.VERB))) {
             if (log.isDebugEnabled()) {
@@ -682,7 +690,9 @@ class Morphy {
       // this makes no sense -- copied from morph.c
       return retval;
     }
-    if (lastwd != null) {
+    if (! lastwd.isEmpty()) {
+      assert end != null;
+      assert end.charAt(0) == '_';
       retval = firstWord + end;
       if (! s.equals(retval)) {
         return retval;
