@@ -16,9 +16,7 @@
  */
 package org.yawni.wn.browser;
 
-import java.awt.Component;
 import java.awt.event.KeyEvent;
-import java.math.BigDecimal;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
