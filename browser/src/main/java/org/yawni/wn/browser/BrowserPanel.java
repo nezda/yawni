@@ -16,7 +16,6 @@
  */
 package org.yawni.wn.browser;
 
-import org.yawni.util.ImmutableList;
 import org.yawni.util.Utils;
 import org.yawni.wn.DictionaryDatabase;
 import org.yawni.wn.FileBackedDictionary;
@@ -52,32 +51,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.undo.*;
-import java.util.prefs.*;
+import org.yawni.wn.WordCaseUtils;
+//import java.util.prefs.*;
 
 /**
  * The main panel of browser.
  */
 public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
-  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
-  private DictionaryDatabase dictionary;
+//  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
   DictionaryDatabase dictionary() {
     return FileBackedDictionary.getInstance();
   }
   private final Browser browser;
+  private String currentlyDisplayedValue;
 
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-  private JTextField searchField;
-  // whenever this is true, the content of search field has changed
-  // and is not synced with the display
-//  private boolean searchFieldChanged;
-  private String displayedValue;
+  private final JTextField searchField;
   private final JButton searchButton;
   private final UndoManager undoManager;
   private final UndoAction undoAction;
   private final RedoAction redoAction;
   private final StyledTextPane resultEditorPane;
-  private EnumMap<POS, RelationTypeComboBox> posBoxes;
+  private final EnumMap<POS, RelationTypeComboBox> posBoxes;
   private final Action slashAction;
   private final TextPrompt textPrompt;
   private final JLabel statusLabel;
@@ -126,7 +122,7 @@ public class BrowserPanel extends JPanel {
         // text which the menus are currently for, need to
         // re-issue the search
         final String inputString = searchField.getText().trim();
-        if (false == inputString.equals(displayedValue)) {
+        if (! inputString.equals(currentlyDisplayedValue)) {
           // issue fresh search
           searchButton.doClick();
           // don't yield focus
@@ -140,8 +136,7 @@ public class BrowserPanel extends JPanel {
     final Action searchAction = new AbstractAction("Search") {
       public void actionPerformed(final ActionEvent event) {
         if (event.getSource() == searchField) {
-          // doClick() will generate another event
-          // via searchButton
+          // doClick() will generate another event via searchButton
           searchButton.doClick();
           return;
         }
@@ -159,14 +154,14 @@ public class BrowserPanel extends JPanel {
       }
     };
 
-    makePOSComboBoxes();
+    this.posBoxes = makePOSComboBoxes();
 
     final JPanel searchAndRelationsPanel = new JPanel(new GridBagLayout());
     final GridBagConstraints c = new GridBagConstraints();
 
     c.gridy = 0;
     c.gridx = 0;
-    // T,L,B,R
+    // Top,Left,Bottom,Right
     c.insets = new Insets(3, 3, 0, 3);
     c.fill = GridBagConstraints.HORIZONTAL;
     //c.anchor = GridBagConstraints.WEST;
@@ -282,7 +277,7 @@ public class BrowserPanel extends JPanel {
     jsp.getHorizontalScrollBar().setFocusable(false);
     // OS X usability guidelines recommend this
     jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//    jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     this.add(jsp, BorderLayout.CENTER);
     this.statusLabel = new JLabel();
     this.statusLabel.setName("statusLabel");
@@ -365,9 +360,6 @@ public class BrowserPanel extends JPanel {
     final List<Component> components = new ArrayList<Component>();
     components.add(this.searchField);
     components.addAll(this.posBoxes.values());
-    //for(final RelationTypeComboBox box : this.posBoxes.values()) {
-    //  components.add(box.menu);
-    //}
     browser.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
   }
 
@@ -375,7 +367,10 @@ public class BrowserPanel extends JPanel {
   public void setVisible(final boolean visible) {
     super.setVisible(visible);
     if (visible) {
-      searchField.requestFocusInWindow();
+      final boolean gotFocus = searchField.requestFocusInWindow();
+      if (! gotFocus) {
+        log.error("searchField.requestFocusInWindow() failed!");
+      }
     }
   }
 
@@ -397,8 +392,7 @@ public class BrowserPanel extends JPanel {
         searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.undo();
       } catch (final CannotUndoException ex) {
-        System.err.println("Unable to undo: " + ex);
-        ex.printStackTrace();
+        log.error("Unable to undo: {}", ex, ex);
       }
       updateUndoState();
       BrowserPanel.this.redoAction.updateRedoState();
@@ -430,8 +424,7 @@ public class BrowserPanel extends JPanel {
         searchField.requestFocusInWindow();
         BrowserPanel.this.undoManager.redo();
       } catch (final CannotRedoException ex) {
-        System.err.println("Unable to redo: " + ex);
-        ex.printStackTrace();
+        log.error("Unable to redo: {}", ex, ex);
       }
       updateRedoState();
       BrowserPanel.this.undoAction.updateUndoState();
@@ -586,9 +579,9 @@ public class BrowserPanel extends JPanel {
       Word word = BrowserPanel.this.dictionary().lookupWord(inputString, POS.VERB);
       if (word == null) {
         final List<String> forms = dictionary().lookupBaseForms(inputString, POS.VERB);
-        assert forms.isEmpty() == false : "searchField contents must have changed";
+        assert ! forms.isEmpty() : "searchField contents must have changed";
         word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), POS.VERB);
-        assert forms.isEmpty() == false;
+        assert ! forms.isEmpty();
       }
       displayVerbFrames(word);
     }
@@ -605,25 +598,26 @@ public class BrowserPanel extends JPanel {
     });
   }
 
-  private void makePOSComboBoxes() {
-    this.posBoxes = new EnumMap<POS, RelationTypeComboBox>(POS.class);
+  private EnumMap<POS, RelationTypeComboBox> makePOSComboBoxes() {
+    final EnumMap<POS, RelationTypeComboBox> newPOSBoxes = new EnumMap<POS, RelationTypeComboBox>(POS.class);
     for (final POS pos : POS.CATS) {
       final RelationTypeComboBox comboBox = new RelationTypeComboBox(pos);
       comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
-      this.posBoxes.put(pos, comboBox);
+      newPOSBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
     }
+    return newPOSBoxes;
   }
 
   // used by substring search panel
   // FIXME synchronization probably insufficient
   synchronized void setWord(final Word word) {
-    searchField.setText(word.getLowercasedLemma());
+//    searchField.setText(word.getLowercasedLemma());
+    searchField.setText(WordCaseUtils.getDominantCasedLemma(word));
     displayOverview();
   }
 
-  // 
   private synchronized void preload() {
     final Runnable preloader = new Runnable() {
       public void run() {
@@ -648,10 +642,18 @@ public class BrowserPanel extends JPanel {
   /**
    * Generic search and output generation code
    */
+
+  /**
+   * Renders high-level description of all {@linkplain Word}s
+   * for all {@linkplain POS} with forms compatible with
+   * the current input string.  Includes a short per-{@code POS}
+   * summary, deivision between {@code POS} sections, and activating
+   * the appropriate {@code POS} relation menu buttons.
+   */
   private synchronized void displayOverview() {
     // TODO normalize internal space
     final String inputString = searchField.getText().trim();
-    this.displayedValue = inputString;
+    this.currentlyDisplayedValue = inputString;
     if (inputString.length() == 0) {
       resultEditorPane.setFocusable(false);
       updateStatusBar(Status.INTRO);
@@ -667,22 +669,20 @@ public class BrowserPanel extends JPanel {
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
       List<String> forms = dictionary().lookupBaseForms(inputString, pos);
-      if (forms == null) {
-        assert false;
-        forms = ImmutableList.of(inputString);
-      } else {
-        //XXX debug crap
-        boolean found = false;
-        for (final String form : forms) {
-          if (form.equals(inputString)) {
-            found = true;
-            break;
-          }
+      assert forms != null;
+      //XXX debug crap
+      boolean found = false;
+      for (final String form : forms) {
+        if (form.equals(inputString)) {
+          found = true;
+          break;
         }
-        if (! forms.isEmpty() && ! found) {
-          System.err.println("    BrowserPanel inputString: \"" + inputString +
-            "\" not found in forms: " + forms);
-        }
+      }
+      if (! forms.isEmpty() && ! found) {
+//        System.err.println("    BrowserPanel inputString: \"" + inputString +
+//          "\" not found in forms: " + forms);
+        log.error("    BrowserPanel inputString: \"{}\" not found in forms: {}",
+          inputString, forms);
       }
       boolean enabled = false;
       //XXX System.err.println("  BrowserPanel forms: \""+Arrays.asList(forms)+"\" pos: "+pos);
@@ -706,7 +706,7 @@ public class BrowserPanel extends JPanel {
       }
       posBoxes.get(pos).setEnabled(enabled);
       definitionExists |= enabled;
-    }
+    } // end POS loop
 
     if (definitionExists) {
       updateStatusBar(Status.OVERVIEW, inputString);
@@ -759,7 +759,6 @@ public class BrowserPanel extends JPanel {
   // TODO For RelationType searches, show same text as combo box (e.g., "running"
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
-    
     final String text = status.get(args);
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
@@ -800,7 +799,7 @@ public class BrowserPanel extends JPanel {
     final List<Synset> senses = word.getSynsets();
     final int taggedCount = word.getTaggedSenseCount();
     buffer.append("The ").append(word.getPOS().getLabel()).
-      append(" <b>").append(word.getLowercasedLemma()).append("</b> has ").
+      append(" <b>").append(WordCaseUtils.getDominantCasedLemma(word)).append("</b> has ").
       append(senses.size()).append(" sense").append(senses.size() == 1 ? "" : "s").
       append(' ').
       append('(');
@@ -829,9 +828,6 @@ public class BrowserPanel extends JPanel {
         buffer.append(posFreeLexCat);
         buffer.append("&gt; ");
       }
-      //XXX how do you get to/from the satellite
-      //from http://wordnet.princeton.edu/man/wn.1WN:
-      //  "if searchstr is in a head synset, all of the head synset's satellites"
       buffer.append(sense.getLongDescription(verbose));
       if (verbose) {
         final List<RelationTarget> similarTos = sense.getTargets(SIMILAR_TO);
@@ -874,11 +870,10 @@ public class BrowserPanel extends JPanel {
   }
 
   /**
-   * Renders single {@code Word + RelationType}.  Calls recursive {@linkplain #appSenseChain()} method for
+   * Renders single {@code Word + RelationType}; calls recursive {@link #appendSenseChain()} method for
    * each applicable sense.
    */
   private void displaySenseChain(final Word word, final RelationType relationType) {
-//    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
     // count number of senses relationType applies to
@@ -959,9 +954,9 @@ public class BrowserPanel extends JPanel {
 
   private String listOpen() {
     return "<li>";
-  //return "<li>• ";
-  //return "<li>\u2022 ";
-  //XXX return "<li>* ";
+//  return "<li>• ";
+//  return "<li>\u2022 ";
+//  XXX return "<li>* ";
   }
 
   private static final AtomicInteger counter = new AtomicInteger();
@@ -981,7 +976,6 @@ public class BrowserPanel extends JPanel {
     // could go with spinner
     // \|/-\|/-\|/
     // TODO just go with standard indeterminate progress indicator
-    // 
     final int currCount = counter.incrementAndGet();
     if (currCount == 10) {
       updateStatusBar(Status.SEARCHING4);
@@ -1005,7 +999,7 @@ public class BrowserPanel extends JPanel {
         } else {
           srcMatch = relation.getSource().getSynset().equals(rootWordSense.getSynset());
         }
-        if (srcMatch == false) {
+        if (! srcMatch) {
 //          System.err.println("rootWordSense: " + rootWordSense +
 //            " inheritanceType: " + inheritanceType + " attributeType: " + attributeType);
           System.err.println(">"+relation);
