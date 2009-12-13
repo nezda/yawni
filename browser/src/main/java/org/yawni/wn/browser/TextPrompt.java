@@ -83,8 +83,9 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     setHorizontalTextPosition(CENTER);
     setAlignmentX(CENTER_ALIGNMENT);
     setAlignmentY(0.2f);
-//    setFont(targetTextComponent.getFont().deriveFont("Serif", Font.ITALIC, 24.0f));
-    setFont(new Font("Serif", Font.ITALIC, 24));
+//    setFont(targetTextComponent.getFont().deriveFont(Font.ITALIC, 24.0f));
+//    setFont(new Font("Serif", Font.ITALIC, 24));
+    setFont(new Font("Serif", Font.PLAIN, 24));
     setForeground(targetTextComponent.getForeground());
 
     sourceTextComponent.addFocusListener(this);
@@ -94,7 +95,7 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     targetTextComponent.addPropertyChangeListener("document", this);
 
     targetTextComponent.setLayout(new BoxLayout(targetTextComponent, BoxLayout.Y_AXIS));
-    // put gap
+    // put space above equal to 1 blank line of text
     targetTextComponent.add(Box.createVerticalStrut(getFontMetrics(getFont()).getHeight()));
     targetTextComponent.add(this);
     checkForPrompt();
