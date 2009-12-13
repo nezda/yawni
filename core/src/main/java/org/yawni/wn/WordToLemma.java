@@ -18,12 +18,15 @@ package org.yawni.wn;
 
 import org.yawni.util.MutatedIterable;
 
+/**
+ * @see WordCaseUtils#getDominantCasedLemma(org.yawni.wn.Word)
+ */
 public final class WordToLemma extends MutatedIterable<Word, String> {
   public WordToLemma(final Iterable<Word> iterable) {
     super(iterable);
   }
   @Override
   public String apply(final Word word) {
-    return word.getLowercasedLemma();
+    return WordCaseUtils.getDominantCasedLemma(word);
   }
 }
