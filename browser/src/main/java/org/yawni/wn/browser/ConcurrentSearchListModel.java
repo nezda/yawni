@@ -28,19 +28,19 @@ import org.yawni.util.*;
 /**
  * Built for easy extension:
  * <ul>
- * <li> implements ListModel -- built to display large <code>Iterable</code>s</li>
- * <li> results to display / filter are updated via an <code>Iterable</code> which
- *   is traversed in its own thread -- keeps filtering logic decoupled</li>
- * <li> implements <code>DocumentListener</code> for search field which will interactively issue
+ * <li> implements {@code ListModel}; built to display large {@code Iterable}s</li>
+ * <li> results to display / filter are updated via an {@code Iterable} which
+ *   is traversed in its own thread; keeps filtering logic decoupled</li>
+ * <li> implements {@code DocumentListener} for search field which will interactively issue
  *   queries via method:
- *     <blockquote><code>abstract public Iterable search(final String query)</code></blockquote>
+ *     {@code abstract public Iterable search(final String query)}
  *   </li>
  *   <ul>
  *   <li> this method will be called in a separate thread and should ideally
  *     support thread interruption</li>
- *   <li> gets query from search field from <code>DocumentEvent</code> via the <code>Document</code></li>
+ *   <li> gets query from search field from {@code DocumentEvent} via the {@code Document}</li>
  *   </ul>
- * <li> uses <code>JList</code> reference to maintain display correctness and optimize responsiveness</li>
+ * <li> uses {@code JList} reference to maintain display correctness and optimize responsiveness</li>
  * </ul>
  *
  * <h4>XXX (older prose design notes) XXX</h4>
@@ -48,11 +48,11 @@ import org.yawni.util.*;
  * events every n adds (n can be picked to fill the visible screen asap) (TODO end).
  * Traverses Iterable in a separate (single) thread and updates the model and
  * periodically signals the view on the event thread
- * (<code>SwingUtilities.invokeLater</code>).
+ * ({@code SwingUtilities.invokeLater}).
  *
- * <p><b>fireXxx() methods must only be called from the event thread
- * (JCiP, pp. 195) (e.g., via SwingUtilities.invokeAndWait() or
- * SwingUtilities.invokeLater().</b>
+ * <p><strong>fireXxx() methods must only be called from the event thread
+ * (JCiP, pp. 195) (e.g., via {@code SwingUtilities.invokeAndWait()} or
+ * {@code SwingUtilities.invokeLater()}.</strong>
  *
  * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
  */
@@ -61,8 +61,9 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   private final ExecutorService service;
   private int rowUpdateInterval;
 
-  /** <code>jlist</code> should be focusable <i>if</i> it has contents (ie not empty)
-   * <b>and</b> its values are <u>not changing</u>
+  /** 
+   * {@code jlist} should be focusable <em>if</em> it has contents (ie not empty)
+   * <strong>and</strong> its values are <u>not changing</u>
    */
   private void setFocusable(final boolean focusable) {
     jlist.clearSelection();
@@ -116,6 +117,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     return filterItems.size();
   }
 
+  // UncaughtExceptionHandler is better
   private static abstract class CatchAndRelease implements Runnable {
     abstract void doRun();
     public void run() {
