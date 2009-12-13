@@ -216,6 +216,11 @@ public class MorphyTest {
       { POS.NOUN.name(), "wounded", "wounded" },
       { POS.NOUN.name(), "wounding", "wounding" },
       { POS.NOUN.name(), "'s Gravenhage", "'s Gravenhage" },
+      { POS.NOUN.name(), "parts of speech", "part of speech" },
+      { POS.NOUN.name(), "read/write memory", "read/write memory"},
+      //{ POS.NOUN.name(), "read write memory", "read/write memory"}, // WN doesn't get this
+      { POS.NOUN.name(), "roma", "rom", "roma", "Roma"}, // "Rom" is the singular form of "Roma": this is reflected in the exceptions file, but missing elsewhere; "roma" (is artifact of exceptions file)
+      { POS.NOUN.name(), "rom", "ROM"}, // only "read-only memory"
       { POS.VERB.name(), "wounded", "wound" },
       { POS.VERB.name(), "wound", "wind", "wound" },
       { POS.ADJ.name(), "wounded", "wounded" },
