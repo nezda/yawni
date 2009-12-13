@@ -90,7 +90,7 @@ public class IterationTest {
     for (final POS pos : POS.CATS) {
       final Iterable<Word> leadingDashPrefix = dictionary.searchByPrefix("-", pos);
       assertTrue(isEmpty(leadingDashPrefix));
-      final Iterable<String> leadingDashPrefixLemma = new WordToLemma(dictionary.searchByPrefix("-", pos));
+      final Iterable<String> leadingDashPrefixLemma = new WordToLowercasedLemma(dictionary.searchByPrefix("-", pos));
       assertTrue(isEmpty(leadingDashPrefixLemma));
       final Iterable<Word> leadingSpacePrefix = dictionary.searchByPrefix(" ", pos);
       assertTrue(isEmpty(leadingSpacePrefix));
@@ -120,7 +120,7 @@ public class IterationTest {
     assertTrue(isEmpty(anyLeadingDashPrefix));
 
     final Iterable<String> runs = Utils.uniq(
-        new WordToLemma(MergedIterable.merge(true,
+        new WordToLowercasedLemma(MergedIterable.merge(true,
             dictionary.searchByPrefix("run", POS.NOUN),
             dictionary.searchByPrefix("run", POS.VERB))));
     assertTrue(Utils.isUnique(runs, true));
