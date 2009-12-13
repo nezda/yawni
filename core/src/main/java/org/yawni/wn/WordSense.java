@@ -190,8 +190,19 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * Build 'sensekey'.  Used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>
-   * @see <a href="http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3">http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3</a>
+   * Build '{@code sensekey}'; used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>.
+   * <p>
+   * High-level description:
+   * <blockquote>{@code lemma}<b>%</b>{@code ss_type}<b>:</b>{@code lex_filenum}<b>:</b>{@code lex_id}<b>:</b>{@code head_word}<b>:</b>{@code head_id}</blockquote>
+   * <ul>
+   *   <li> {@code lemma} is lowercase, spaces are represented as underscores </li>
+   *   <li> {@code sstype} is {@link POS}; see {@link POS#getWordNetCode()} </li>
+   *   <li> {@code lex_filenum} is {@link Synset#lexfilenum()} </li>
+   *   <li> {@code lex_id} is {@link WordSense#getLexid()} </li>
+   *   <li> {@code head_word:head_id} only applies to adjectives </li>
+   * </ul>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3">
+   * http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3</a>
    */
   //TODO cache this ? does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
   // power users might be into this: https://sourceforge.net/tracker/index.php?func=detail&aid=2009619&group_id=33824&atid=409470
@@ -226,7 +237,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
         2 /* lex_filenum length */ + 2 /* lexid length */ + 
         searchWord.length() + 2 /* headSense lexid length */ + 5 /* delimiters */;
       senseKey = new StringBuilder(keyLength);
-      for (int i = 0, n = getLemma().length(); i != n; ++i) {
+      for (int i = 0, n = getLemma().length(); i != n; i++) {
         senseKey.append(Character.toLowerCase(getLemma().charAt(i)));
       }
       senseKey.append('%');
@@ -242,7 +253,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       }
       senseKey.append(lexid);
       senseKey.append(':');
-      for (int i = 0, n = searchWord.length(); i != n; ++i) {
+      for (int i = 0, n = searchWord.length(); i != n; i++) {
         senseKey.append(Character.toLowerCase(searchWord.charAt(i)));
       }
       senseKey.append(':');
@@ -263,7 +274,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       final int keyLength = getLemma().length() + 1 /* POS code length */ + 
         2 /* lex_filenum length */ + 2 /* lexid length */ + 5 /* delimiters */;
       senseKey = new StringBuilder(keyLength);
-      for (int i = 0, n = getLemma().length(); i != n; ++i) {
+      for (int i = 0, n = getLemma().length(); i != n; i++) {
         senseKey.append(Character.toLowerCase(getLemma().charAt(i)));
       }
       senseKey.append('%');
