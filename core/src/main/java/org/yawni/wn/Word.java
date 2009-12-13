@@ -16,6 +16,7 @@
  */
 package org.yawni.wn;
 
+import java.lang.ref.SoftReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
@@ -57,6 +58,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * of the first call of {@link #getSynsets()}.
    */
   private Object synsets;
+  private SoftReference<List<WordSense>> senses;
 
   private Set<RelationType> relationTypes;
   private final byte posOrdinal;
@@ -114,6 +116,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       //if(false == extra.isEmpty()) {
       //  //log.error("extra: {}", extra);
       //}
+      senses = new SoftReference<List<WordSense>>(null);
     } catch (final RuntimeException e) {
       log.error("Word parse error on offset: {} line:\n\"{}\"", offset, line);
       log.error("",  e);
@@ -180,10 +183,10 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   // little tricky to implement efficiently once we switch to ImmutableList
-  // if we maintain the sometimes offets / sometimes Synsets optimization because somewhat inefficient to store Integer vs int
+  // if we maintain the sometimes-offets/sometimes-Synsets optimization because somewhat inefficient to store Integer vs int
   // still much smaller than Synset objects, and still prevents "leaks"
-  //public int getSenseCount() {
-  //}
+//  public int getSenseCount() {
+//  }
 
   public int getTaggedSenseCount() {
     return taggedSenseCount;
@@ -200,7 +203,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   public List<Synset> getSynsets() {
     // careful with this.synsets
-    synchronized(this) {
+    synchronized (this) {
       if (this.synsets instanceof int[]) {
         final int[] synsetOffsets = (int[])synsets;
         // This memory optimization allows this.synsets as an int[] until this
@@ -226,17 +229,22 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * @return All senses of this word.
    */
   public List<WordSense> getSenses() {
-    //TODO consider caching senses - we are Iterable on it and getSense would also be much cheaper
-    final WordSense[] senses = new WordSense[getSynsets().size()];
-    int senseNumberMinusOne = 0;
-    for (final Synset synset : getSynsets()) {
-      final WordSense wordSense = synset.getWordSense(this);
-      senses[senseNumberMinusOne] = wordSense;
-      assert senses[senseNumberMinusOne] != null :
-        this+" null WordSense at senseNumberMinusOne: "+senseNumberMinusOne;
-      senseNumberMinusOne++;
+    // caching senses since we are Iterable on it; should make getSense cheaper too
+    List<WordSense> toReturn = senses.get();
+    if (toReturn == null) {
+      final WordSense[] sensesArray = new WordSense[getSynsets().size()];
+      int senseNumberMinusOne = 0;
+      for (final Synset synset : getSynsets()) {
+        final WordSense wordSense = synset.getWordSense(this);
+        sensesArray[senseNumberMinusOne] = wordSense;
+        assert sensesArray[senseNumberMinusOne] != null :
+          this + " null WordSense at senseNumberMinusOne: " + senseNumberMinusOne;
+        senseNumberMinusOne++;
+      }
+      toReturn = ImmutableList.of(sensesArray);
+      senses = new SoftReference<List<WordSense>>(toReturn);
     }
-    return ImmutableList.of(senses);
+    return toReturn;
   }
 
   /**
