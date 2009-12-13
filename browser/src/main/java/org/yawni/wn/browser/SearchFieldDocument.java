@@ -103,9 +103,8 @@ class SearchFieldDocument extends PlainDocument {
   }
 
   private boolean isClean(final String proposedNewText, final int insOffset) {
-    for (int i = 0, len = proposedNewText.length();
-        i < len; i++) {
-      if (false == Character.isLetterOrDigit(proposedNewText.charAt(i))) {
+    for (int i = 0, len = proposedNewText.length(); i < len; i++) {
+      if (! Character.isLetterOrDigit(proposedNewText.charAt(i))) {
         return false;
       }
     }
