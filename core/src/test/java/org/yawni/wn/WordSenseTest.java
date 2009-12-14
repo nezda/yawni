@@ -3,13 +3,48 @@ package org.yawni.wn;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class WordSenseTest {
   private static DictionaryDatabase dictionary;
   @BeforeClass
   public static void init() {
     dictionary = FileBackedDictionary.getInstance();
+  }
+
+  @Test
+  public void testSpecificLexicalRelations() {
+    System.err.println("testSpecificLexicalRelations");
+    final WordSense viral = dictionary.lookupWord("viral", POS.ADJ).getSense(1);
+    final WordSense virus = dictionary.lookupWord("virus", POS.NOUN).getSense(1);
+    assertThat(viral.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(virus);
+    assertThat(virus.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(viral);
+
+    final WordSense hypocrite = dictionary.lookupWord("hypocrite", POS.NOUN).getSense(1);
+    final WordSense hypocritical = dictionary.lookupWord("hypocritical", POS.ADJ).getSense(1);
+
+    // relation missing from WordNet 3.0!
+    // assertThat(hypocrite.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocritical);
+    // relation missing from WordNet 3.0!
+    // assertThat(hypocritical.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocrite);
+
+    final WordSense hypocrisy = dictionary.lookupWord("hypocrisy", POS.NOUN).getSense(1);
+    assertThat(hypocritical.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocrisy);
+    assertThat(hypocrisy.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocritical);
+  }
+
+  @Test
+  public void testLexicalRelations() {
+    System.err.println("testRelations");
+    for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
+      for (final LexicalRelation relation : sense.getRelations()) {
+        assertThat(relation.isLexical()).isTrue();
+        //assertTrue("! type.isLexical(): "+relation, relation.getType().isLexical());
+        if (relation.getType().isLexical() == false) {
+          //System.err.println("CONFUSED "+relation);
+        }
+      }
+    }
   }
 
   /**
@@ -20,21 +55,7 @@ public class WordSenseTest {
     System.err.println("testSenseKey");
     for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
       // NOTE: String != StringBuilder ! (use .toString() or contentEquals())
-      assertEquals(sense.getSenseKey().toString(), getSenseKey(sense).toString());
-    }
-  }
-
-  @Test
-  public void testLexicalRelations() {
-    System.err.println("testRelations");
-    for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
-      for (final LexicalRelation relation : sense.getRelations()) {
-        assertTrue(relation.isLexical());
-        //assertTrue("! type.isLexical(): "+relation, relation.getType().isLexical());
-        if (relation.getType().isLexical() == false) {
-          //System.err.println("CONFUSED "+relation);
-        }
-      }
+      assertThat(sense.getSenseKey().toString()).isEqualTo(getSenseKey(sense).toString());
     }
   }
 
@@ -47,7 +68,7 @@ public class WordSenseTest {
   }
 
   private String oldAdjClusterSenseKey(final WordSense sense) {
-    final List<RelationTarget> adjsses = sense.getSynset().getTargets(RelationType.SIMILAR_TO);
+    final List<RelationTarget> adjsses = sense.getSynset().getRelationTargets(RelationType.SIMILAR_TO);
     assert adjsses.size() == 1;
     final Synset adjss = (Synset) adjsses.get(0);
     // if satellite, key lemma in cntlist.rev
