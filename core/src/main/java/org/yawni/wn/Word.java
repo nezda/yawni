@@ -133,7 +133,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * The relation types available for this word.
+   * The relation types available for this {@code Word}.
    */
   public Set<RelationType> getRelationTypes() {
     if (relationTypes == null) {
@@ -143,8 +143,11 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       // RelationType.INSTANCE_HYPONYM
       // RelationType.HYPONYM
       final EnumSet<RelationType> localRelationTypes = EnumSet.noneOf(RelationType.class);
-      for (final Synset synset : getSynsets()) {
-        for (final Relation relation : synset.getRelations()) {
+      for (final Synset sense : getSynsets()) {
+        for (final Relation relation : sense.getRelations()) {
+      // some RelationTypes do not apply to ALL WordSenses of their Synset, i.e., RelationTypes.DERIVATIONALLY_RELATED
+//      for (final WordSense sense : getWordSenses()) {
+//        for (final Relation relation : sense.getRelations()) {
           final RelationType relationType = relation.getType();
           localRelationTypes.add(relationType);
         }
@@ -194,7 +197,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
 
   /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
-    return getSenses().iterator();
+    return getWordSenses().iterator();
   }
 
   /**
@@ -225,10 +228,10 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * All senses of this word.
-   * @return All senses of this word.
+   * All {@code WordSense}s of this {@code Word}.
+   * @return All {@code WordSense}s of this {@code Word}.
    */
-  public List<WordSense> getSenses() {
+  public List<WordSense> getWordSenses() {
     // caching senses since we are Iterable on it; should make getSense cheaper too
     List<WordSense> toReturn = senses.get();
     if (toReturn == null) {
