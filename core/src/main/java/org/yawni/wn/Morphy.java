@@ -448,7 +448,7 @@ class Morphy {
   }
 
   private void addTrueCaseLemmas(final Word word, final List<String> lemmas) {
-    for (final WordSense wordSense : word.getSenses()) {
+    for (final WordSense wordSense : word.getWordSenses()) {
       // lemma's are already "cleaned"
       lemmas.add(wordSense.getLemma());
     }
