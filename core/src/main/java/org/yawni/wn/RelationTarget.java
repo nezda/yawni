@@ -55,13 +55,13 @@ public interface RelationTarget extends Iterable<WordSense> {
   public List<? extends Relation> getRelations(RelationType type);
 
   /** Returns the targets of the outgoing {@code Relation}s. */
-  public List<RelationTarget> getTargets();
+  public List<RelationTarget> getRelationTargets();
 
   /**
    * Returns the targets of the outgoing {@code Relation}s that have type
    * {@code type}.
    */
-  public List<RelationTarget> getTargets(RelationType type);
+  public List<RelationTarget> getRelationTargets(RelationType type);
 
   /** LN Added */
   public Synset getSynset();
