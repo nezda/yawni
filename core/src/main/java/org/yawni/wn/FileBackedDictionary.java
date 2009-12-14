@@ -563,6 +563,16 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return ImmutableList.copyOf(syns);
   }
 
+  /** {@inheritDoc} */
+  public Iterable<Synset> synsets(final String query) {
+    throw new UnsupportedOperationException("Not yet implemented.");
+  }
+
+  /** {@inheritDoc} */
+  public Iterable<WordSense> wordSenses(final String query) {
+    throw new UnsupportedOperationException("Not yet implemented.");
+  }
+
   private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
 
   /**

@@ -26,7 +26,7 @@ import java.util.List;
  */
 public interface DictionaryDatabase {
   /**
-   * Look up a {@code Word} in the database by its <b>lemma</b>.  The search is
+   * Look up a {@code Word} in the database by its <strong>lemma</strong>.  The search is
    * case-independent and phrases are separated by spaces (e.g., "look up", not
    * "look_up"), but otherwise {@code lemma}  must match the form in the
    * database exactly.  Similar to C function {@code index_lookup}.
@@ -39,15 +39,15 @@ public interface DictionaryDatabase {
    */
   public Word lookupWord(final CharSequence lemma, final POS pos);
 
-  ///**
-  // * Return the base form of an exceptional derivation, if an entry for it
-  // * exists in the database. e.g., returns "goose" from derivation query term
-  // * "geese" as {@code POS.NOUN}.
-  // * @param pos The part-of-speech.
-  // * @param derivationLemma A (possibly <i>inflected</i>) form of the word.
-  // * @return The <i>uninflected</i> word, or {@code null} if no exception entry exists.
-  // */
-  //public String lookupBaseForm(final POS pos, final String derivationLemma);
+//  /**
+//   * Return the base form of an exceptional derivation, if an entry for it
+//   * exists in the database. e.g., returns "goose" from derivation query term
+//   * "geese" as {@code POS.NOUN}.
+//   * @param pos The part-of-speech.
+//   * @param derivationLemma A (possibly <i>inflected</i>) form of the word.
+//   * @return The <i>uninflected</i> word, or {@code null} if no exception entry exists.
+//   */
+//  public String lookupBaseForm(final POS pos, final String derivationLemma);
 
   /**
    * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems") of {@code someString} in {@code pos}.
@@ -56,7 +56,8 @@ public interface DictionaryDatabase {
    * @param someString someString does <em>not</em> need to be a base form
    * @param pos The part-of-speech.
    * @return an immutable list of the baseform(s) of {@code someString}
-   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
+   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">
+   *   http://wordnet.princeton.edu/man/morphy.7WN.html</a>
    */
   public List<String> lookupBaseForms(final String someString, final POS pos);
 
@@ -70,72 +71,87 @@ public interface DictionaryDatabase {
   public List<Synset> lookupSynsets(final String someString, final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code Word}s in the database.
+   * Return an iterator of {@code Synset}s matching {@code query}.
+   * @param query
+   * @return An iterable of {@code Synset}s.
+   */
+  public Iterable<Synset> synsets(final String query);
+
+  /**
+   * Return an iterator of {@code WordSense}s matching {@code query}.
+   * @param query
+   * @return An iterable of {@code WordSense}s.
+   */
+  public Iterable<WordSense> wordSenses(final String query);
+
+  /**
+   * Return an iterator of <strong>all</strong> the {@code Word}s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
    */
   public Iterable<Word> words(final POS pos);
 
   /**
-   * Return an iterator of all the {@code Word}s whose <em>lemmas</em> contain {@code substring}
-   * as a <b>substring</b>.
+   * Return an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em> contain {@code substring}
+   * as a <strong>substring</strong>.
    * @param substring The substring to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
-   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html"><code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html">
+   *   <code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
    */
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
 
   /**
-   * Return an iterator of all the {@code Word}s whose <em>lemmas</em> <b>begin with</b> {@code prefix}.
+   * Return an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em> <strong>begin with</strong> {@code prefix}.
    * @param prefix The prefix to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
    */
   public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
 
-  /**
-   * Return an iterator of all the {@code Synset}s whose gloss <b>contains</b> {@code substring}
-   * <em>without stemming</em> (i.e., {@link #lookupBaseForms()}).
-   * @param substring The substring to search for.
-   * @param pos The part-of-speech.
-   * @return An iterable of {@code Synset}s.
-   */
   // Not yet implemented
-//  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
+//  /**
+//   * Return an iterator of all the {@code Synset}s whose gloss <strong>contains</strong> {@code substring}
+//   * <em>without stemming</em> (i.e., {@link #lookupBaseForms()}).
+//   * @param substring The substring to search for.
+//   * @param pos The part-of-speech.
+//   * @return An iterable of {@code Synset}s.
+//   */
+//   public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code Synset}s in the database.
+   * Return an iterator of <strong>all</strong> the {@code Synset}s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Synset}s.
    */
   public Iterable<Synset> synsets(final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code WordSense}s in the database.
+   * Return an iterator of <strong>all</strong> the {@code WordSense}s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of {@code WordSense}s.
    */
   public Iterable<WordSense> wordSenses(final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code Relation}s in the database.
+   * Return an iterator of <strong>all</strong> the {@code Relation}s in the database.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Relation}s.
    */
   public Iterable<Relation> relations(final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the {@code Relation}s in the database of
+   * Return an iterator of <strong>all</strong> the {@code Relation}s in the database of
    * type {@code RelationType}.
-   * @param relationType The {@code RelationType}. {@code null} implies <b>all</b> {@code RelationType}s.
+   * @param relationType The {@code RelationType}. {@code null} implies <strong>all</strong> {@code RelationType}s.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Relation}s of type {@code RelationType}.
    */
   public Iterable<Relation> relations(final RelationType relationType, final POS pos);
 
   /**
-   * Return an iterator of <b>all</b> the exceptions for the given part-of-speech.
+   * Return an iterator of <strong>all</strong> the exceptions for the given part-of-speech.
    * @param pos The part-of-speech.
    * @return An iterable of the exceptional strings.
    */
