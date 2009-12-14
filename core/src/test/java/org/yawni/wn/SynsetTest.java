@@ -20,8 +20,9 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SynsetTest {
   private static DictionaryDatabase dictionary;
@@ -35,11 +36,11 @@ public class SynsetTest {
     System.err.println("testSomeGlosses");
     final WordSense sentence = dictionary.lookupWord("sentence", POS.NOUN).getSense(1);
     final String sentenceGloss = "a string of words satisfying the grammatical rules of a language; \"he always spoke in grammatical sentences\"";
-    assertEquals(sentenceGloss, sentence.getSynset().getGloss());
+    assertThat(sentenceGloss).isEqualTo(sentence.getSynset().getGloss());
 
     final WordSense lexeme = dictionary.lookupWord("lexeme", POS.NOUN).getSense(1);
     final String lexemeGloss = "a minimal unit (as a word or stem) in the lexicon of a language; `go' and `went' and `gone' and `going' are all members of the English lexeme `go'";
-    assertEquals(lexemeGloss, lexeme.getSynset().getGloss());
+    assertThat(lexemeGloss).isEqualTo(lexeme.getSynset().getGloss());
   }
 
   @Test
@@ -48,7 +49,7 @@ public class SynsetTest {
     int count = 0;
     final int expectedCount = 117659;
     for (final Synset synset : dictionary.synsets(POS.ALL)) {
-      ++count;
+      count++;
       //if(++count > 10) break;
       // exercise toString() and getGloss()
       final String msg = count+" "+synset+"\n  "+synset.getGloss();
@@ -60,7 +61,7 @@ public class SynsetTest {
       final String msg4 = count+" "+synset+"\n  "+synset.getLongDescription();
       final String msg5 = count+" "+synset+"\n  "+synset.getLongDescription(true);
     }
-    assertEquals(count, expectedCount);
+    assertThat(count).isEqualTo(expectedCount);
     System.err.printf("tested %,d descriptions.\n", count);
   }
 
@@ -69,22 +70,22 @@ public class SynsetTest {
     System.err.println("testAntonym");
     // adj up#1 has ANTONYM adj down#1
     final Word upWord = dictionary.lookupWord("up", POS.ADJ);
-    assertTrue(upWord.getRelationTypes().contains(RelationType.ANTONYM));
+    assertThat(upWord.getRelationTypes()).contains(RelationType.ANTONYM);
     final WordSense up1 = upWord.getSense(1);
     final Word downWord = dictionary.lookupWord("down", POS.ADJ);
     final WordSense down1 = downWord.getSense(1);
-    assertTrue(up1.getTargets(RelationType.ANTONYM).contains(down1));
-    assertTrue(down1.getTargets(RelationType.ANTONYM).contains(up1));
+    assertThat(up1.getRelationTargets(RelationType.ANTONYM)).contains(down1);
+    assertThat(down1.getRelationTargets(RelationType.ANTONYM)).contains(up1);
 
     // adj beutifulu#1 has ANTONYM adj ugly#1
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1226746&group_id=33824&atid=409470
     final Word beautifulWord = dictionary.lookupWord("beautiful", POS.ADJ);
-    assertTrue(beautifulWord.getRelationTypes().contains(RelationType.ANTONYM));
+    assertThat(beautifulWord.getRelationTypes()).contains(RelationType.ANTONYM);
     final WordSense beautiful1 = beautifulWord.getSense(1);
     final Word uglyWord = dictionary.lookupWord("ugly", POS.ADJ);
     final WordSense ugly1 = uglyWord.getSense(1);
-    assertTrue(beautiful1.getTargets(RelationType.ANTONYM).contains(ugly1));
-    assertTrue(ugly1.getTargets(RelationType.ANTONYM).contains(beautiful1));
+    assertThat(beautiful1.getRelationTargets(RelationType.ANTONYM)).contains(ugly1);
+    assertThat(ugly1.getRelationTargets(RelationType.ANTONYM)).contains(beautiful1);
   }
 
   // test SEE_ALSO
@@ -95,13 +96,13 @@ public class SynsetTest {
     System.err.println("testPertainym");
     // adj presidential#1 has PERTAINYM noun president#3
     final Word presidentialWord = dictionary.lookupWord("presidential", POS.ADJ);
-    assertTrue(presidentialWord.getRelationTypes().contains(RelationType.PERTAINYM));
+    assertThat(presidentialWord.getRelationTypes()).contains(RelationType.PERTAINYM);
     final WordSense presidential1 = presidentialWord.getSense(1);
     final Word presidentWord = dictionary.lookupWord("president", POS.NOUN);
     final WordSense president3 = presidentWord.getSense(3);
-    assertTrue(presidential1.getTargets(RelationType.PERTAINYM).contains(president3));
+    assertThat(presidential1.getRelationTargets(RelationType.PERTAINYM)).contains(president3);
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1372493&group_id=33824&atid=409470
-    assertTrue(presidential1.getTargets(RelationType.DERIVED).isEmpty());
+    assertThat(presidential1.getRelationTargets(RelationType.DERIVED)).isEmpty();
   }
 
   @Test
@@ -119,7 +120,7 @@ public class SynsetTest {
     };
     //FIXME assert something here, don't just print
     for (final RelationType relationType : relationTypes) {
-      for (final RelationTarget target : word.getSense(7).getSynset().getTargets(relationType)) {
+      for (final RelationTarget target : word.getSense(7).getSynset().getRelationTargets(relationType)) {
         System.err.println(relationType + " target: " + target);
       }
     }
@@ -137,7 +138,7 @@ public class SynsetTest {
     };
     //FIXME assert something here, don't just print
     for (final RelationType relationType : relationTypes) {
-      for (final RelationTarget target : word.getSense(1).getSynset().getTargets(relationType)) {
+      for (final RelationTarget target : word.getSense(1).getSynset().getRelationTargets(relationType)) {
         System.err.println("  "+relationType+" target: "+target);
       }
     }
@@ -157,7 +158,7 @@ public class SynsetTest {
     final Word complete = dictionary.lookupWord("complete", POS.VERB);
     final WordSense complete1 = complete.getSense(1);
     //TODO compare with wnb and what its actually supposed to do
-    assertEquals(5, complete1.getVerbFrames().size());
+    assertThat(complete1.getVerbFrames()).hasSize(5);
     final Word finish = dictionary.lookupWord("finish", POS.VERB);
     final WordSense finish1 = finish.getSense(1);
   }
@@ -177,11 +178,11 @@ public class SynsetTest {
       RelationType.INSTANCE_HYPERNYM,
     };
     for (final RelationType relationType : relationTypes) {
-      final List<RelationTarget> targets = georgeBush.getSense(1).getSynset().getTargets(relationType);
+      final List<RelationTarget> targets = georgeBush.getSense(1).getSynset().getRelationTargets(relationType);
       //assertTrue("type: "+relationType, targets.isEmpty() == false);
       // woah - WordSense targets are different than Synset targets ??
       // at a minimum this needs to be documented
-      final List<RelationTarget> targetsAlt = georgeBush.getSense(1).getTargets(relationType);
+      final List<RelationTarget> targetsAlt = georgeBush.getSense(1).getRelationTargets(relationType);
 //      assertEquals("relationType: "+relationType, targets, targetsAlt);
       //assertTrue(targets == targetsAlt);
       for (final RelationTarget target : targets) {
@@ -213,7 +214,7 @@ public class SynsetTest {
   }
 
   private static void gather(final RelationTarget source, final RelationType type, final List<RelationTarget> accum) {
-    for (final RelationTarget target : source.getTargets(type)) {
+    for (final RelationTarget target : source.getRelationTargets(type)) {
       if (accum.contains(target)) {
         continue;
       }
@@ -243,11 +244,11 @@ public class SynsetTest {
         // check if isLexical, relation source and target are WordSenses,
         // else neither the source nor the target are WordSenses
         if (relation.isLexical()) {
-          assertTrue(relation.getSource() instanceof WordSense && 
-            relation.getTarget() instanceof WordSense);
+          assertThat(relation.getSource()).isInstanceOf(WordSense.class);
+          assertThat(relation.getTarget()).isInstanceOf(WordSense.class);
         } else {
-          assertTrue(relation.getSource() instanceof Synset &&
-            relation.getTarget() instanceof Synset);
+          assertThat(relation.getSource()).isInstanceOf(Synset.class);
+          assertThat(relation.getTarget()).isInstanceOf(Synset.class);
         }
       }
     }
@@ -267,8 +268,8 @@ public class SynsetTest {
     System.err.println("testSemanticRelations");
     for (final Synset synset : dictionary.synsets(POS.ALL)) {
       for (final SemanticRelation relation : synset.getSemanticRelations(null)) {
-        assertTrue(relation.isSemantic());
-        assertTrue("! isSemantic(): "+relation, relation.getType().isSemantic());
+        assertThat(relation.isSemantic()).isTrue();
+        assertThat(relation.getType().isSemantic()).isTrue(); // msg: "! isSemantic(): "+relation
       }
     }
   }
