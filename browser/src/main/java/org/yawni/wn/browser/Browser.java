@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -355,6 +357,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
 
   private static synchronized void newWindow() {
     final Browser browser = new Browser(BROWSERS.size());
+    Thread.setDefaultUncaughtExceptionHandler(browser);
     BROWSERS.add(browser);
     PreferencesManager.loadSettings(browser);
     browser.setVisible(true);
@@ -388,10 +391,81 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     return textAreaBorder;
   }
 
-  public void uncaughtException(Thread t, Throwable e) {
-    System.err.format("caught %s on %s. rethrowing...\n", t, e);
-    log.error("caught {} on {}. rethrowing...", t, e);
-    throw new RuntimeException(e);
+//  public void uncaughtException(Thread t, Throwable e) {
+//    System.err.format("caught %s on %s. rethrowing...\n", t, e);
+//    log.error("caught {} on {}. rethrowing...", t, e);
+//    throw new RuntimeException(e);
+//  }
+
+  // Exception that has been thrown. This is used to track if an exception
+  // is thrown while alerting the user to the current exception.
+  private Throwable throwable = null;
+
+  /**
+   * Invoked when an uncaught exception is encountered.  This will
+   * show a modal dialog alerting the user, and exit the app. This does
+   * <b>not</b> invoke <code>exit</code>.
+   *
+   * @param thread the thread the exception was thrown on
+   * @param throwable the thrown exception
+   * @see #getUncaughtExceptionDialog
+   */
+  public void uncaughtException(final Thread thread, final Throwable throwable) {
+    log.error("uncaughtException on {}", thread, throwable);
+    synchronized (this) {
+      if (this.throwable != null) {
+        log.error("doh! An exception was thrown while reporting an earlier one. exiting immediately...",
+          throwable);
+        System.exit(1);
+      } else {
+        this.throwable = throwable;
+      }
+    }
+    uncaughtException0();
+  }
+
+  /**
+   * Returns the dialog that is shown when an uncaught exception is
+   * encountered.
+   *
+   * @see #uncaughtException
+   * @return dialog to show when an uncaught exception is encountered
+   */
+  protected JDialog getUncaughtExceptionDialog(final Throwable t) {
+    final JOptionPane optionPane = new JOptionPane(
+      new Object[] {
+        "An unrecoverable error has occured.",
+        getName() + " will now exit.",
+        scrollableStackTrace(t)
+      },
+      JOptionPane.ERROR_MESSAGE);
+    return optionPane.createDialog(this, "Error");
+  }
+
+  private static JComponent scrollableStackTrace(final Throwable t) {
+    final JTextArea messagePane = new JTextArea();
+    messagePane.setLineWrap(false);
+    messagePane.setEditable(false);
+    final StringWriter stringWriter =  new StringWriter();
+    final PrintWriter printWriter = new PrintWriter(stringWriter, true);
+    t.printStackTrace(printWriter);
+    messagePane.setText(stringWriter.toString());
+    messagePane.setCaretPosition(0); // scroll to top
+    return new JScrollPane(messagePane);
+  }
+
+  private void uncaughtException0() {
+    Throwable throwable;
+    synchronized (this) {
+      throwable = this.throwable;
+    }
+    log.error("uncaughtException0() caught {}", throwable);
+    final JDialog dialog = getUncaughtExceptionDialog(throwable);
+    dialog.setSize(new Dimension(600, 400));
+    dialog.setResizable(true);
+    dialog.setLocationRelativeTo(null);
+    dialog.setVisible(true);
+    System.exit(1);
   }
 
   /**
