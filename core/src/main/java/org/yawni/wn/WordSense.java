@@ -29,7 +29,7 @@ import static org.yawni.util.Utils.add;
  *
  * <p> {@code WordSense}'s are linked by {@link Relation}s into a network of lexically related {@link Synset}s
  * and {@code WordSense}s.
- * {@link WordSense#getTargets WordSense.getTargets()} retrieves the targets of these links, and
+ * {@link WordSense#getRelationTargets WordSense.getRelationTargets()} retrieves the targets of these links, and
  * {@link WordSense#getRelations WordSense.getRelations()} retrieves the relations themselves.
  *
  * <p> Each {@code WordSense} has exactly one associated {@code Word} (however a given {@code Word} may have one
@@ -101,12 +101,24 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   // Accessors
   //
   
+  public POS getPOS() {
+    return synset.getPOS();
+  }
+
   public Synset getSynset() {
     return synset;
   }
 
-  public POS getPOS() {
-    return synset.getPOS();
+  /**
+   * If {@code word} lemma and {@code POS} is compatible with this 
+   * {@code WordSense}, return {@code this}, else return {@code null}.
+   * For API congruency with {@code Synset}.
+   */
+  public WordSense getWordSense(final Word word) {
+    if (word.getPOS() == getPOS() && getLemma().equalsIgnoreCase(word.getLowercasedLemma())) {
+      return this;
+    }
+    return null;
   }
 
   /**
@@ -210,7 +222,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     final String searchWord;
     final int headSense;
     if (getSynset().isAdjectiveCluster()) {
-      final List<RelationTarget> adjsses = getSynset().getTargets(RelationType.SIMILAR_TO);
+      final List<RelationTarget> adjsses = getSynset().getRelationTargets(RelationType.SIMILAR_TO);
       assert adjsses.size() == 1;
       final Synset adjss = (Synset) adjsses.get(0);
       // if satellite, key lemma in cntlist.rev
@@ -470,7 +482,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       description.append(adjFlagsToString());
       description.append(')');
     }
-    final List<RelationTarget> targets = getTargets(RelationType.ANTONYM);
+    final List<RelationTarget> targets = getRelationTargets(RelationType.ANTONYM);
     if (targets.isEmpty() == false) {
       // adj 'acidic' has more than 1 antonym ('alkaline' and 'amphoteric')
       for (final RelationTarget target : targets) {
@@ -541,11 +553,11 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return restrictRelations(type);
   }
 
-  public List<RelationTarget> getTargets() {
+  public List<RelationTarget> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
-  public List<RelationTarget> getTargets(final RelationType type) {
+  public List<RelationTarget> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
 
