@@ -328,7 +328,7 @@ public class MorphyTest {
     int nonCaseIssues = 0;
     for (final POS pos : POS.CATS) {
       for (final Word word : dictionary.words(pos)) {
-        for (final WordSense wordSense : word.getSenses()) {
+        for (final WordSense wordSense : word.getWordSenses()) {
           final String lemma = wordSense.getLemma();
           final List<String> restems = stem(lemma, pos);
           String msg = "ok";
@@ -415,7 +415,7 @@ public class MorphyTest {
   //  int nonCaseIssues = 0;
   //  for(final POS pos : POS.CATS) {
   //    for(final Word word : dictionary.words(pos)) {
-  //      for(final WordSense wordSense : word.getSenses()) {
+  //      for(final WordSense wordSense : word.getWordSenses()) {
   //        final String lemma = wordSense.getLowercasedLemma();
   //        for(final POS otherPOS : POS.CATS) {
   //          if(otherPOS == pos) {
