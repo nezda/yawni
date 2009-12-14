@@ -16,9 +16,10 @@
  */
 package org.yawni.wn;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class DictionaryDatabaseTest {
   private static DictionaryDatabase dictionary;
@@ -78,8 +79,8 @@ public class DictionaryDatabaseTest {
     }
     //System.err.println(str+": "+Arrays.toString(syns));
     syns = dictionary.lookupSynsets("compromise", POS.ALL);
-    assertTrue(isUnique(syns));
-    assertEquals(5, syns.size());
+    assertThat(isUnique(syns)).isTrue();
+    assertThat(syns.size()).isEqualTo(5);
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
