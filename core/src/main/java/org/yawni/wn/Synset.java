@@ -32,7 +32,7 @@ import static org.yawni.util.Utils.add;
  * {@code Synset}).
  *
  * <p> {@code Synset}'s are linked by {@link Relation}s into a network of related concepts; this is the <em>Net</em>
- * in WordNet.  {@link Synset#getTargets Synset.getTargets()} retrieves the targets of these links, and
+ * in WordNet.  {@link Synset#getRelationTargets Synset.getRelationTargets()} retrieves the targets of these links, and
  * {@link Synset#getRelations Synset.getRelations()} retrieves the relations themselves.
  *
  * @see WordSense
@@ -48,6 +48,13 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   /** offset in <code>data.<em>pos</em></code> file; {@code Synset.hereiam} in {@code wn.h} */
   private final int offset;
   private final ImmutableList<WordSense> wordSenses;
+  // TODO consider storing Relations indirectly
+  // (all have common source == this?)
+  // pos, synset offset, optionally Synset WordSense rank (NOT sense number which is Word-relative rank)
+  // also requires FileBackedDictionary ref
+  // increases Synset's direct 32-bit size
+  // to 4+1+4+2 = 11 B, though may be able to pack synset offset and rank into less bytes
+  // ! SoftReference is the way to go here !
   private final ImmutableList<Relation> relations;
   private final byte posOrdinal;
   private final byte lexfilenum;
@@ -331,7 +338,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.copyOf(list);
   }
 
-  public List<RelationTarget> getTargets() {
+  public List<RelationTarget> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
@@ -343,7 +350,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.of(targets);
   }
 
-  public List<RelationTarget> getTargets(final RelationType type) {
+  public List<RelationTarget> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
 
