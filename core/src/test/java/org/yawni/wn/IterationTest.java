@@ -304,7 +304,7 @@ public class IterationTest {
               //System.err.println("found ATTRIBUTE for word: "+word);
             }
             iteration_total_p_cnt += relationTypes.size();
-            for (final WordSense wordSense : word.getSenses()) {
+            for (final WordSense wordSense : word.getWordSenses()) {
               //final String lemma = word.getLowercasedLemma();
               final Synset synset = wordSense.getSynset();
               final int taggedFreq = wordSense.getSensesTaggedFrequency();
