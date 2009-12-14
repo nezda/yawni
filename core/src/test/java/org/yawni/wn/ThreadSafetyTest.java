@@ -60,7 +60,7 @@ public class ThreadSafetyTest {
       try {
         for (final Word word : dictionary.words(POS.ALL)) {
           ++wordsVisited;
-          for (final WordSense wordSense : word.getSenses()) {
+          for (final WordSense wordSense : word.getWordSenses()) {
             final String lemma = wordSense.getLemma();
             final Synset synset = wordSense.getSynset();
             String msg = id + " " + wordSense;
