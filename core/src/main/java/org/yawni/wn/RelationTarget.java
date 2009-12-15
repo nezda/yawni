@@ -22,6 +22,9 @@ import java.util.List;
  * A {@code RelationTarget} is the <em>source</em> or <em>target</em> of a {@link Relation}.
  * The target (and source) of a {@link SemanticRelation} is a {@link Synset};
  * the target (and source) of a {@link LexicalRelation} is a {@link WordSense}.
+ * {@code RelationTarget} acts as common interface to {@code Synset} and {@code WordSense},
+ * which form a composite pair, as evidenced by both being {@code Iterable<WordSense>} and
+ * having {@link #getSynset()}.
  *
  * <p> Note this class used to be called {@code PointerTarget}.
  *
@@ -30,11 +33,33 @@ import java.util.List;
  * @see WordSense
  */
 public interface RelationTarget extends Iterable<WordSense> {
+  /**
+   * Returns the outgoing {@code Relation}s from <em>this</em> target, i.e., those
+   * {@code Relation}s that have this object as their source.  For a {@code WordSense},
+   * this method returns all of the {@link LexicalRelation}s emanating from it,
+   * and all {@link SemanticRelation}s sourced at its {@link WordSense#getSynset()}.
+   * For a {@code Synset}, this method returns all {@link SemanticRelation}s sourced at it,
+   * and <em>all</em> {@link LexicalRelation}s emanating from <em>all</em> of its {@code WordSense}s.
+   */
+  public List<Relation> getRelations();
+
+  /** Filters {@link #getRelations()} by type {@code type}. */
+  public List<Relation> getRelations(RelationType type);
+
+  /** Returns the targets of the {@code Relation}s returned by {@link #getRelations()}. */
+  public List<RelationTarget> getRelationTargets();
+
+  /** Returns the targets of the {@code Relation}s returned by {@link #getRelationTargets(org.yawni.wn.RelationType)} */
+  public List<RelationTarget> getRelationTargets(RelationType type);
+
+  /** {@code Synset} returns itself, {@code WordSense} returns its {@code Synset} */
+  public Synset getSynset();
+
   public POS getPOS();
 
   /**
    * Returns a description of the target.  For a {@code WordSense}, this is
-   * its lemma; for a {@code Synset}, it's the concatenated lemma's of
+   * its lemma; for a {@code Synset}, it's the concatenated lemmas of
    * its {@code WordSense}s.
    */
   public String getDescription();
@@ -44,25 +69,4 @@ public interface RelationTarget extends Iterable<WordSense> {
    * appended by, if it exists, a dash and its gloss.
    */
   public String getLongDescription();
-
-  /**
-   * Returns the outgoing {@code Relation}s from this target -- those
-   * {@code Relation}s that have this object as their source.
-   */
-  public List<? extends Relation> getRelations();
-
-  /** Returns the outgoing {@code Relation}s of type {@code type}. */
-  public List<? extends Relation> getRelations(RelationType type);
-
-  /** Returns the targets of the outgoing {@code Relation}s. */
-  public List<RelationTarget> getRelationTargets();
-
-  /**
-   * Returns the targets of the outgoing {@code Relation}s that have type
-   * {@code type}.
-   */
-  public List<RelationTarget> getRelationTargets(RelationType type);
-
-  /** LN Added */
-  public Synset getSynset();
 }
