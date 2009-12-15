@@ -31,16 +31,75 @@ public class WordSenseTest {
     final WordSense hypocrisy = dictionary.lookupWord("hypocrisy", POS.NOUN).getSense(1);
     assertThat(hypocritical.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocrisy);
     assertThat(hypocrisy.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocritical);
+
+    final WordSense palatine = dictionary.lookupWord("palatine", POS.NOUN).getSense(1);
+    // roman2 is a hypernym of palatine
+    final WordSense roman2 = dictionary.lookupWord("roman", POS.NOUN).getSense(2);
+    // this will fail because the WordSense palatine has NO HYPERNYMs ? this is VERY confusing
+//    assertThat(palatine.getRelationTargets(RelationType.HYPERNYM)).contains(roman2);
+    assertThat(palatine.getRelationTargets(RelationType.HYPERNYM)).contains(roman2.getSynset());
+    // this will fail because the WordSense palatine's Synset's HYPERNYM targets are Synsets, NOT WordSenses
+//    assertThat(palatine.getSynset().getRelationTargets(RelationType.HYPERNYM)).contains(roman2);
+    assertThat(palatine.getSynset().getRelationTargets(RelationType.HYPERNYM)).contains(roman2.getSynset());
+
+    // Semantic (i.e., non-lexical) relations of a WordSense's Synset are not currently returned
+    // by getRelation*(*) methods which is confusing and error prone (burned me, the designer!).
+    //
+    //   public List<? extends Relation> getRelations()
+    //   public List<? extends Relation> getRelations(RelationType type);
+    //   public List<RelationTarget> getRelationTargets();
+    //   public List<RelationTarget> getRelationTargets(RelationType type);
+    //
+    // - Returning non-lexical relations from WordSense implementations of getRelation*(*) methods would
+    //   introduce a runtime asymmetry between Synset and WordSense;
+    // - WordSense versions would always return at least what Synset versions return, plus any defined
+    //   lexical relations.  WordSense implementation signatures would change* from:
+    //     public List<LexicalRelation> getRelation*(*)
+    //     - to -
+    //     public List<Relation> getRelation*(*)
+    //   - Synset implementation signatures are already :
+    //       public List<Relation> getRelation*(*),
+    //     because ALL relations are <em>stored</em> in Synset's relations field (implementation detail).
+    //   - Synset does however provide the addtional accessor
+    //       public List<SemanticRelation> getSemanticRelations(final RelationType type)
+    //   - Could easily add complementary Synset method:
+    //       public List<SemanticRelation> getSemanticRelations()
+    //   - and complemenatary WordSense methods:
+    //       public List<LexicalRelation> getLexicalRelations(RelationType type)
+    //       public List<LexicalRelation> getLexicalRelations()
+    //
+    // * Current <? extends Relation> generic parameterization of RelationTarget prohibits mixing Lexical
+    //   and Semantic -Relations UNLESS we return base, Relation, rather than either subclass.
+    //
+    // RelationTarget's purpose(s):
+    // - Acts as common interface to Synset and WordSense, which form a composite pair, as evidenced by both
+    //   being Iterable<WordSense> and having getSynset()
+    // - Original, primary purpose is to provide class for getRelationTarget(*) methods.
+    // - Both are indepently Iterable<WordSense> without this interface.
+    // - Defines common getDescription() / getLongDescription() methods.
+    //   ? maybe this is better implemented by visitor API ?
+    //     visit(WordSenseVisitor), visit(SynsetVisitor)
+    //   ? maybe a collection of interfaces would be better ?
+    //     (Iterable<WordSense>)
+    //     GetSynset
+    //     GetDescription
+    //     GetLongDescription
+    //
+    // Note related issues manifest themselves in Word.getRelationTypes() which causes bad decisions to be
+    // made in BrowserPanel.RelationTypeComboBox.void updateFor(POS pos, Word word)
+    //
+    // This will need to be carefuly documented and exhaustively unit tested.
+    //   RelationTarget getRelation*(*) methods return maximal set of ...
   }
 
   @Test
   public void testLexicalRelations() {
     System.err.println("testRelations");
     for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
-      for (final LexicalRelation relation : sense.getRelations()) {
-        assertThat(relation.isLexical()).isTrue();
+      for (final Relation relation : sense.getRelations()) {
+        assertThat(relation.isLexical() ^ ! relation.getSource().equals(sense)).isTrue();
         //assertTrue("! type.isLexical(): "+relation, relation.getType().isLexical());
-        if (relation.getType().isLexical() == false) {
+        if (! relation.getType().isLexical()) {
           //System.err.println("CONFUSED "+relation);
         }
       }
