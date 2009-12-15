@@ -316,6 +316,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.copyOf(list);
   }
 
+  // consider getSemanticRelations()
+
   /**
    * Returns <em>only</em> {@link SemanticRelation}s
    * which have this synset as their source that have
