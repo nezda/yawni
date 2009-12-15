@@ -548,31 +548,12 @@ public class BrowserPanel extends JPanel {
           try {
             get();
           } catch (InterruptedException ignore) {
-          } catch (java.util.concurrent.ExecutionException e) {
-//            final Throwable cause = e.getCause();
-//            final String why;
-//            if (cause != null) {
-//              why = cause.getMessage();
-//            } else {
-//              why = e.getMessage();
-//            }
-//            //FIXME bad form to use stderr
-//            System.err.println("intercepted: "+RelationTypeAction.this+" failure; " + why);
-            throw new RuntimeException(e);
+          } catch (java.util.concurrent.ExecutionException ee) {
+            throw new RuntimeException(ee);
           }
         }
       };
       worker.execute();
-//      try {
-//        //worker.execute();
-//        worker.get();
-//      } catch (InterruptedException ie) {
-//        // ignore
-//        System.err.println("caught ie: "+ie);
-//      } catch (ExecutionException ee) {
-//        System.err.println("caught ee: "+ee);
-//        ee.printStackTrace(System.err);
-//      }
     }
   } // end class RelationTypeAction
   
@@ -630,12 +611,13 @@ public class BrowserPanel extends JPanel {
   }
 
   private synchronized void preload() {
-    final Runnable preloader = new Runnable() {
-      public void run() {
+    final SwingWorker preloadWorker = new SwingWorker<Void, Void>() {
+      @Override
+      public Void doInBackground() {
         // issue search for word which occurs as all POS to
         // so all data files will be preloaded
         // some words in all 4 pos
-        //   clear, down, fast, fine, firm, flush, foward, second, 
+        //   clear, down, fast, fine, firm, flush, foward, second,
         // Note: lookupWord() only touches index.<pos> files
         final String inputString = "clear";
         for (final POS pos : POS.CATS) {
@@ -645,9 +627,20 @@ public class BrowserPanel extends JPanel {
             word.toString();
           }
         }
+        return null;
+      }
+
+      @Override
+      protected void done() {
+        try {
+          get();
+        } catch (InterruptedException ignore) {
+        } catch (java.util.concurrent.ExecutionException ee) {
+          throw new RuntimeException(ee);
+        }
       }
     };
-    new Thread(preloader).start();
+    preloadWorker.execute();
   }
 
   /**
