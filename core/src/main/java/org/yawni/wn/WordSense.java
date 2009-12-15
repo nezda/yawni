@@ -112,7 +112,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   /**
    * If {@code word} lemma and {@code POS} is compatible with this 
    * {@code WordSense}, return {@code this}, else return {@code null}.
-   * For API congruency with {@code Synset}.
+   * Provied for API congruency with {@code Synset}.
    */
   public WordSense getWordSense(final Word word) {
     if (word.getPOS() == getPOS() && getLemma().equalsIgnoreCase(word.getLowercasedLemma())) {
@@ -361,18 +361,18 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     }
     assert getPOS() == POS.ADJ;
     if (AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags)) {
-      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
-      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
+      assert ! AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
+      assert ! AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
       return AdjPosition.PREDICATIVE;
     }
     if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags)) {
-      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
-      assert false == AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
+      assert ! AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
+      assert ! AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
       return AdjPosition.ATTRIBUTIVE;
     }
     if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags)) {
-      assert false == AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
-      assert false == AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
+      assert ! AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
+      assert ! AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
       return AdjPosition.IMMEDIATE_POSTNOMINAL;
     }
     throw new IllegalStateException("invalid flags "+adjPositionFlags);
@@ -483,7 +483,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       description.append(')');
     }
     final List<RelationTarget> targets = getRelationTargets(RelationType.ANTONYM);
-    if (targets.isEmpty() == false) {
+    if (! targets.isEmpty()) {
       // adj 'acidic' has more than 1 antonym ('alkaline' and 'amphoteric')
       for (final RelationTarget target : targets) {
         description.append(" (vs. ");
@@ -524,20 +524,20 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   // Relations
   //
   
-  private List<LexicalRelation> restrictRelations(final RelationType type) {
+  private List<Relation> restrictRelations(final RelationType type) {
     final List<Relation> relations = synset.getRelations();
-    List<LexicalRelation> list = null;
+    List<Relation> list = null;
     for (int i = 0, n = relations.size(); i < n; i++) {
       final Relation relation = relations.get(i);
-      if (relation.getSource().equals(this) == false) {
+      // consider all isSemantic Relations, but only isLexical Relations
+      // which have this as their source
+      if (relation.isLexical() && ! relation.getSource().equals(this)) {
         continue;
       }
       if (type != null && type != relation.getType()) {
         continue;
       }
-      assert relation.getSource() == this;
-      final LexicalRelation lexicalRelation = (LexicalRelation) relation;
-      list = add(list, lexicalRelation);
+      list = add(list, relation);
     }
     if (list == null) {
       return ImmutableList.of();
@@ -545,11 +545,11 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return ImmutableList.copyOf(list);
   }
 
-  public List<LexicalRelation> getRelations() {
+  public List<Relation> getRelations() {
     return restrictRelations(null);
   }
 
-  public List<LexicalRelation> getRelations(final RelationType type) {
+  public List<Relation> getRelations(final RelationType type) {
     return restrictRelations(type);
   }
 
