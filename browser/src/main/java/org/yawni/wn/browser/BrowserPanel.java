@@ -16,6 +16,7 @@
  */
 package org.yawni.wn.browser;
 
+import java.util.concurrent.ExecutionException;
 import org.yawni.util.Utils;
 import org.yawni.wn.DictionaryDatabase;
 import org.yawni.wn.FileBackedDictionary;
@@ -530,7 +531,6 @@ public class BrowserPanel extends JPanel {
             final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
             assert ! forms.isEmpty() : "searchField contents must have changed";
             word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), pos);
-            assert ! forms.isEmpty();
            }
           if (relationType == null) {
             //FIXME bad form to use stderr
@@ -549,19 +549,30 @@ public class BrowserPanel extends JPanel {
             get();
           } catch (InterruptedException ignore) {
           } catch (java.util.concurrent.ExecutionException e) {
-            final Throwable cause = e.getCause();
-            final String why;
-            if (cause != null) {
-              why = cause.getMessage();
-            } else {
-              why = e.getMessage();
-            }
-            //FIXME bad form to use stderr
-            System.err.println(RelationTypeAction.this+" failure; " + why);
+//            final Throwable cause = e.getCause();
+//            final String why;
+//            if (cause != null) {
+//              why = cause.getMessage();
+//            } else {
+//              why = e.getMessage();
+//            }
+//            //FIXME bad form to use stderr
+//            System.err.println("intercepted: "+RelationTypeAction.this+" failure; " + why);
+            throw new RuntimeException(e);
           }
         }
       };
       worker.execute();
+//      try {
+//        //worker.execute();
+//        worker.get();
+//      } catch (InterruptedException ie) {
+//        // ignore
+//        System.err.println("caught ie: "+ie);
+//      } catch (ExecutionException ee) {
+//        System.err.println("caught ee: "+ee);
+//        ee.printStackTrace(System.err);
+//      }
     }
   } // end class RelationTypeAction
   
@@ -689,7 +700,7 @@ public class BrowserPanel extends JPanel {
       final SortedSet<String> noCaseForms = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       for (final String form : forms) {
         if (noCaseForms.contains(form)) {
-          // block no case dups ("hell"/"Hell", "villa"/"Villa")
+          // block no case duplicates ("hell"/"Hell", "villa"/"Villa")
           continue;
         }
         noCaseForms.add(form);
@@ -726,7 +737,7 @@ public class BrowserPanel extends JPanel {
   private enum Status {
 //    INTRO("Enter search word and press return"),
     INTRO(" "), // space
-    OVERVIEW("Overview of %s"),
+    OVERVIEW("Overview of “%s”"),
     SEARCHING("Searching..."),
     SEARCHING4("Searching...."),
     SEARCHING5("Searching....."),
@@ -798,7 +809,7 @@ public class BrowserPanel extends JPanel {
     }
     final List<Synset> senses = word.getSynsets();
     final int taggedCount = word.getTaggedSenseCount();
-    buffer.append("The ").append(word.getPOS().getLabel()).
+    buffer.append("The ").append("<span>").append(word.getPOS().getLabel()).append("</span>").
       append(" <b>").append(WordCaseUtils.getDominantCasedLemma(word)).append("</b> has ").
       append(senses.size()).append(" sense").append(senses.size() == 1 ? "" : "s").
       append(' ').
@@ -830,7 +841,7 @@ public class BrowserPanel extends JPanel {
       }
       buffer.append(sense.getLongDescription(verbose));
       if (verbose) {
-        final List<RelationTarget> similarTos = sense.getTargets(SIMILAR_TO);
+        final List<RelationTarget> similarTos = sense.getRelationTargets(SIMILAR_TO);
         if (! similarTos.isEmpty()) {
           buffer.append("<br>\n");
           buffer.append("Similar to:");
@@ -844,7 +855,7 @@ public class BrowserPanel extends JPanel {
           buffer.append("</ul>\n");
         }
 
-        final List<RelationTarget> seeAlsos = sense.getTargets(SEE_ALSO);
+        final List<RelationTarget> seeAlsos = sense.getRelationTargets(SEE_ALSO);
         if (! seeAlsos.isEmpty()) {
           if (similarTos.isEmpty()) {
             buffer.append("<br>");
@@ -875,19 +886,34 @@ public class BrowserPanel extends JPanel {
    */
   private void displaySenseChain(final Word word, final RelationType relationType) {
     final StringBuilder buffer = new StringBuilder();
-    final List<Synset> senses = word.getSynsets();
+    // some relationTypes only apply to WordSenses, not Synsets (e.g., RelationType.DERIVATIONALLY_RELATED)
+//    final List<Synset> senses = word.getSynsets();
+    final List<WordSense> senses = word.getWordSenses();
     // count number of senses relationType applies to
     int numApplicableSenses = 0;
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (! senses.get(i).getTargets(relationType).isEmpty()) {
+      if (! senses.get(i).getRelationTargets(relationType).isEmpty()) {
         numApplicableSenses++;
       }
     }
-    buffer.append("Applies to ").append(numApplicableSenses).append(" of the ").
-      append(senses.size()).append(" senses").//(senses.length > 1 ? "s" : "")+
-      append(" of <b>").append(word.getLowercasedLemma()).append("</b>\n");
+    assert numApplicableSenses > 0 : "numApplicableSenses == 0 "+"word: "+word+" relationType: "+relationType;
+    buffer.append("Applies to ");
+    final boolean appliesTooAllSenses = numApplicableSenses == senses.size();
+    if (appliesTooAllSenses) {
+      if (senses.size() == 1) {
+        buffer.append("the only");
+      } else if (senses.size() == 2) {
+        buffer.append("both");
+      } else {
+        buffer.append("all ").append(numApplicableSenses);
+      }
+    } else {
+      buffer.append(numApplicableSenses).append(" of the ").append(senses.size());
+    }
+    buffer.append(" sense").append(senses.size() > 1 ? "s" : "");
+    buffer.append(" of <b>").append(WordCaseUtils.getDominantCasedLemma(word)).append("</b>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
-      if (! senses.get(i).getTargets(relationType).isEmpty()) {
+      if (! senses.get(i).getRelationTargets(relationType).isEmpty()) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
 
         // honestly, I don't even know why there are 2 RelationTypes here ??
@@ -1032,7 +1058,7 @@ public class BrowserPanel extends JPanel {
 //      System.err.println("ancestors == null || does not contain sense "+sense+
 //        " "+attributeType+" ancestors: "+ancestors);
       ancestors = new Link(sense, ancestors);
-      for (final RelationTarget parent : sense.getTargets(inheritanceType)) {
+      for (final RelationTarget parent : sense.getRelationTargets(inheritanceType)) {
         buffer.append("<ul>\n");
         appendSenseChain(buffer, rootWordSense, parent, inheritanceType, attributeType, tab + 1, ancestors);
         buffer.append("</ul>\n");
