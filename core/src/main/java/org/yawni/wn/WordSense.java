@@ -561,6 +561,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return Synset.collectTargets(getRelations(type));
   }
 
+  // consider getLexicalRelations() / getLexicalRelations(RelationType)
+
   //
   // Object methods
   //
