@@ -110,10 +110,10 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       //final EnumSet<RelationType> missing = EnumSet.copyOf(actualRelationTypes); missing.removeAll(relationTypes);
       //// in relationTypes, NOT actualRelationTypes
       //final EnumSet<RelationType> extra = EnumSet.copyOf(relationTypes); extra.removeAll(actualRelationTypes);
-      //if(false == missing.isEmpty()) {
+      //if(! missing.isEmpty()) {
       //  //log.error("missing: {}", missing);
       //}
-      //if(false == extra.isEmpty()) {
+      //if(! extra.isEmpty()) {
       //  //log.error("extra: {}", extra);
       //}
       senses = new SoftReference<List<WordSense>>(null);
@@ -133,7 +133,9 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * The relation types available for this {@code Word}.
+   * The {@link RelationType}s of {@link Relation}s which involve this {@code Word}; includes {@link LexicalRelation}s
+   * which involve {@code WordSenses}s of this {@code Word} and all {@link SemanticRelation}s for all {@link Synset}s
+   * which involve senses of this {@code Word}.
    */
   public Set<RelationType> getRelationTypes() {
     if (relationTypes == null) {
@@ -143,13 +145,37 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       // RelationType.INSTANCE_HYPONYM
       // RelationType.HYPONYM
       final EnumSet<RelationType> localRelationTypes = EnumSet.noneOf(RelationType.class);
-      for (final Synset sense : getSynsets()) {
-        for (final Relation relation : sense.getRelations()) {
-      // some RelationTypes do not apply to ALL WordSenses of their Synset, i.e., RelationTypes.DERIVATIONALLY_RELATED
-//      for (final WordSense sense : getWordSenses()) {
+//      for (final Synset sense : getSynsets()) {
 //        for (final Relation relation : sense.getRelations()) {
+      // some RelationTypes do not apply to ALL WordSenses of their Synset, i.e., RelationTypes.DERIVATIONALLY_RELATED
+      // this solution is too aggressive; chops ALL semantic relations since they have WordSense origin
+      for (final WordSense sense : getWordSenses()) {
+        for (final Relation relation : sense.getRelations()) {
           final RelationType relationType = relation.getType();
-          localRelationTypes.add(relationType);
+          // if relationType is lexical, need to verify it is defined for some WordSense of this Word
+          boolean relationApplies = true;
+//          if (relationType.isLexical()) {
+//            relationApplies = false;
+//            for (final WordSense wordSense : getWordSenses()) {
+//              if (! wordSense.getRelationTargets(relationType).isEmpty()) {
+//                relationApplies = true;
+//                break;
+//              }
+//            }
+//          }
+          // alernate uses Relation.isLexical() rather than "less reliable" RelationType.isLexical()
+//          if (relation.isLexical()) {
+//            relationApplies = false;
+//            for (final WordSense wordSense : getWordSenses()) {
+//              if (! wordSense.getRelationTargets(relationType).isEmpty()) {
+//                relationApplies = true;
+//                break;
+//              }
+//            }
+//          }
+          if (relationApplies) {
+            localRelationTypes.add(relationType);
+          }
         }
       }
       this.relationTypes = Collections.unmodifiableSet(localRelationTypes);
