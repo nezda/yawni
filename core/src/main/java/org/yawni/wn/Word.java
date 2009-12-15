@@ -58,7 +58,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * of the first call of {@link #getSynsets()}.
    */
   private Object synsets;
-  private SoftReference<List<WordSense>> senses;
+//  private SoftReference<List<WordSense>> senses;
 
   private Set<RelationType> relationTypes;
   private final byte posOrdinal;
@@ -116,7 +116,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       //if(! extra.isEmpty()) {
       //  //log.error("extra: {}", extra);
       //}
-      senses = new SoftReference<List<WordSense>>(null);
+//      senses = new SoftReference<List<WordSense>>(null);
     } catch (final RuntimeException e) {
       log.error("Word parse error on offset: {} line:\n\"{}\"", offset, line);
       log.error("",  e);
@@ -232,8 +232,8 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   public List<WordSense> getWordSenses() {
     // caching senses since we are Iterable on it; should make getSense cheaper too
-    List<WordSense> toReturn = senses.get();
-    if (toReturn == null) {
+//    List<WordSense> toReturn = senses.get();
+//    if (toReturn == null) {
       final WordSense[] sensesArray = new WordSense[getSynsets().size()];
       int senseNumberMinusOne = 0;
       for (final Synset synset : getSynsets()) {
@@ -243,10 +243,11 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
           this + " null WordSense at senseNumberMinusOne: " + senseNumberMinusOne;
         senseNumberMinusOne++;
       }
-      toReturn = ImmutableList.of(sensesArray);
-      senses = new SoftReference<List<WordSense>>(toReturn);
-    }
-    return toReturn;
+      return ImmutableList.of(sensesArray);
+//      toReturn = ImmutableList.of(sensesArray);
+//      senses = new SoftReference<List<WordSense>>(toReturn);
+//    }
+//    return toReturn;
   }
 
   /**
