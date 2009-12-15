@@ -18,7 +18,6 @@ package org.yawni.wn.browser;
 
 import org.yawni.wn.POS;
 import org.yawni.wn.Word;
-import org.yawni.wn.WordToLemma;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils;
 
@@ -28,6 +27,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
+import org.yawni.wn.WordToLemma;
 
 // TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JDialog {
@@ -55,7 +55,7 @@ class SearchFrame extends JDialog {
     /** operates on glosses (Synset) */
     GLOSS_SUBSTRING,
     //TODO regex - could be used to search lemmas or glosses
-  };
+  }
 
   SearchFrame(final Browser browser, final BrowserPanel browserPanel) {
     super(browser, "Substring Search");
@@ -78,8 +78,7 @@ class SearchFrame extends JDialog {
         if (evt.getKeyChar() == '\u0017') {
 //          System.err.println("GOTCHA! "+evt+" ctrl mod: "+((evt.getModifiers() & Event.CTRL_MASK) != 0));
           setVisible(false);
-        }
-        else if (evt.getKeyChar() == 'w' &&
+        } else if (evt.getKeyChar() == 'w' &&
           (evt.getModifiers() & Browser.MENU_MASK) != 0) {
           setVisible(false);
         }
@@ -211,7 +210,7 @@ class SearchFrame extends JDialog {
 
     this.add(this.searchPanel, BorderLayout.NORTH);
 
-    // build re-active searching ListModel + DocumentListener
+    // build reactive searching ListModel + DocumentListener
     this.searchListModel = new ConcurrentSearchListModel() {
       @Override
       public Iterable search(final String query) {
@@ -351,6 +350,7 @@ class SearchFrame extends JDialog {
     this.add(this.statusLabel, BorderLayout.SOUTH);
     updateStatusBar(Status.NO_SEARCH);
 
+    //FIXME move this logic to PreferencesManager
     // set window size
     validate();
     final int height = 300;
