@@ -20,10 +20,13 @@ import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.ImmutableList;
 import static org.yawni.util.Utils.add;
+import static org.yawni.wn.RelationType.HYPERNYM;
+import static org.yawni.wn.RelationType.HYPONYM;
+import static org.yawni.wn.RelationType.INSTANCE_HYPERNYM;
+import static org.yawni.wn.RelationType.INSTANCE_HYPONYM;
 
 /**
  * A {@code Synset}, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <code>data.<em>pos</em></code> file.
@@ -290,15 +293,12 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     // if current type exists, search it
     // if subTypes exist, search them
     for (final Relation relation : relations) {
-      if (type == RelationType.HYPONYM &&
-        (relation.getType() == RelationType.HYPONYM ||
-				 relation.getType() == RelationType.INSTANCE_HYPONYM)) {
+      final RelationType rType = relation.getType();
+      if (type == HYPONYM && (rType == HYPONYM || rType == INSTANCE_HYPONYM)) {
         list = add(list, relation);
-      } else if (type == RelationType.HYPERNYM &&
-        (relation.getType() == RelationType.HYPERNYM||
-				 relation.getType() == RelationType.INSTANCE_HYPERNYM)) {
+      } else if (type == HYPERNYM && (rType == HYPERNYM || rType == INSTANCE_HYPERNYM)) {
         list = add(list, relation);
-      } else if (relation.getType() == type) {
+      } else if (rType == type) {
         list = add(list, relation);
       }
     }
