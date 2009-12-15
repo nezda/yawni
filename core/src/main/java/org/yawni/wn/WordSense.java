@@ -32,7 +32,7 @@ import static org.yawni.util.Utils.add;
  * {@link WordSense#getRelationTargets WordSense.getRelationTargets()} retrieves the targets of these links, and
  * {@link WordSense#getRelations WordSense.getRelations()} retrieves the relations themselves.
  *
- * <p> Each {@code WordSense} has exactly one associated {@code Word} (however a given {@code Word} may have one
+ * <p> Each {@code WordSense} has exactly one associated {@code Word} (however, a given {@code Word} may have one
  * or more {@code WordSense}s with different orthographic case (e.g., the nouns "CD" vs. "Cd")).
  *
  * @see Relation
@@ -495,6 +495,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return description.toString();
   }
 
+  /** {@inheritDoc} */
   public String getLongDescription() {
     final StringBuilder buffer = new StringBuilder();
     //buffer.append(getSenseNumber());
@@ -545,18 +546,22 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return ImmutableList.copyOf(list);
   }
 
+  /** {@inheritDoc} */
   public List<Relation> getRelations() {
     return restrictRelations(null);
   }
 
+  /** {@inheritDoc} */
   public List<Relation> getRelations(final RelationType type) {
     return restrictRelations(type);
   }
 
+  /** {@inheritDoc} */
   public List<RelationTarget> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
+  /** {@inheritDoc} */
   public List<RelationTarget> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
