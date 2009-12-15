@@ -33,7 +33,7 @@ import org.junit.Ignore;
 import static org.fest.assertions.Assertions.assertThat;
 
 //@Ignore
-public class BrowserFestTest {
+public class BrowserFESTTest {
   private FrameFixture window;
   private Browser browser;
 
@@ -50,6 +50,11 @@ public class BrowserFestTest {
     window.cleanUp();
   }
 
+  // lost Roman test
+  private String overviewFor(String string) {
+    return "Overview of “"+string+"”";
+  }
+
   @GUITest
   @Test
   public void textPromptTest() {
@@ -62,7 +67,7 @@ public class BrowserFestTest {
     for (int i = 0; i < 3; i++) {
       searchField.enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
       textPrompt.requireNotVisible();
-      window.label("statusLabel").requireText("Overview of kitten");
+      window.label("statusLabel").requireText(overviewFor("kitten"));
       searchField.pressAndReleaseKeys(KeyEvent.VK_BACK_SPACE).pressAndReleaseKeys(KeyEvent.VK_ENTER);
       assertThat(searchFieldComponent.getDocument().getLength()).isEqualTo(0);
       assertThat(resultEditorPaneComponent.getDocument().getLength()).isEqualTo(0);
@@ -89,7 +94,7 @@ public class BrowserFestTest {
     final JTextComponentFixture searchField = window.textBox("searchField");
     searchField.focus().requireFocused();
     searchField.enterText("gerbil").pressAndReleaseKeys(KeyEvent.VK_ENTER);
-    window.label("statusLabel").requireText("Overview of gerbil");
+    window.label("statusLabel").requireText(overviewFor("gerbil"));
     final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
     // clear searchField
     searchField.enterText(" ").pressAndReleaseKeys(KeyEvent.VK_ENTER);
@@ -108,7 +113,7 @@ public class BrowserFestTest {
     searchField.requireFocused(); // defaults to focused
 //    searchField.focus().requireFocused();
     searchField.enterText("kitten").pressAndReleaseKeys(KeyEvent.VK_ENTER);
-    window.label("statusLabel").requireText("Overview of kitten");
+    window.label("statusLabel").requireText(overviewFor("kitten"));
     final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
     // transfer focus from searchField to Noun button with keyboard
     searchField.pressAndReleaseKeys(KeyEvent.VK_TAB);
@@ -147,7 +152,7 @@ public class BrowserFestTest {
   public void mouseTest() {
     window.textBox("searchField").enterText("puppy");
     window.button("searchButton").click();
-    window.label("statusLabel").requireText("Overview of puppy");
+    window.label("statusLabel").requireText(overviewFor("puppy"));
     // triggers Noun RelationTypeComboBox to show JPopupMenu
     window.button("RelationTypeComboBox::Noun").click();
 //    final JPopupMenu popupMenu = window.button("RelationTypeComboBox::Noun").component().getComponentPopupMenu();
@@ -163,7 +168,7 @@ public class BrowserFestTest {
   public void popdownButtonTortureTest() {
     window.textBox("searchField").enterText("calf");
     window.button("searchButton").click();
-    window.label("statusLabel").requireText("Overview of calf");
+    window.label("statusLabel").requireText(overviewFor("calf"));
     // triggers Noun RelationTypeComboBox to show JPopupMenu
     final JButtonFixture nounButton = window.button("RelationTypeComboBox::Noun");
     nounButton.click();
