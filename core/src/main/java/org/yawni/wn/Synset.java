@@ -234,6 +234,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   // Description
   //
 
+  /** {@inheritDoc} */
   public String getDescription() {
     return getDescription(false);
   }
@@ -255,6 +256,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return buffer.toString();
   }
 
+  /** {@inheritDoc} */
   public String getLongDescription() {
     return getLongDescription(false);
   }
@@ -275,7 +277,9 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
 
   /**
-   * {@code Synset} holds <em>all</em> {@code Relation}s for itself and
+   * {@inheritDoc}
+   *
+   * <p> {@code Synset} holds <em>all</em> {@code Relation}s for itself and
    * its {@code WordSense}s.  As a result, this method returns both {@link SemanticRelation}s
    * for which it is the source <em>and</em> {@link LexicalRelation}s for which one of its
    * senses is the source.
@@ -286,6 +290,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return relations;
   }
 
+  /** {@inheritDoc} */
   public List<Relation> getRelations(final RelationType type) {
     List<Relation> list = null;
     //TODO
@@ -340,8 +345,14 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.copyOf(list);
   }
 
+  /** {@inheritDoc} */
   public List<RelationTarget> getRelationTargets() {
     return Synset.collectTargets(getRelations());
+  }
+
+  /** {@inheritDoc} */
+  public List<RelationTarget> getRelationTargets(final RelationType type) {
+    return Synset.collectTargets(getRelations(type));
   }
 
   static List<RelationTarget> collectTargets(final List<? extends Relation> relations) {
@@ -352,11 +363,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return ImmutableList.of(targets);
   }
 
-  public List<RelationTarget> getRelationTargets(final RelationType type) {
-    return Synset.collectTargets(getRelations(type));
-  }
-
-  /** @see RelationTarget */
+  /** {@inheritDoc} */
   public Synset getSynset() {
     return this;
   }
