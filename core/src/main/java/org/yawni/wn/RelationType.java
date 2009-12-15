@@ -429,7 +429,7 @@ public enum RelationType {
   }
 
   boolean isSemantic() {
-    return false == isLexical();
+    return ! isLexical();
   }
 
   /**
