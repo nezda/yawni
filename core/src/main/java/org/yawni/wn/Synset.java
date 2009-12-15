@@ -176,7 +176,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
       assert line.charAt(index + 1) == ' ';
       int incEnd = line.length() - 1;
       for (int i = incEnd; i >= 0; i--) {
-        if (Character.isSpace(line.charAt(i)) == false) {
+        if (! Character.isSpace(line.charAt(i))) {
           incEnd = i;
           break;
         }
@@ -304,7 +304,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     }
     // if list == null && type has auxType, recall this method with that auxtype
     if (list == null) {
-//      if (type.subTypes.isEmpty() == false) {
+//      if (! type.subTypes.isEmpty()) {
 //        System.err.println("going for it "+type+" this: "+this+" subType: "+type.subTypes.get(0));
 //        assert type.subTypes.size() == 1;
 //        return getRelations(type.subTypes.get(0));
