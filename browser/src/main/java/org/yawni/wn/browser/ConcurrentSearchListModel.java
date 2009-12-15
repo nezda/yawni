@@ -23,6 +23,8 @@ import javax.swing.text.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yawni.util.*;
 
 /**
@@ -57,6 +59,7 @@ import org.yawni.util.*;
  * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
  */
 public abstract class ConcurrentSearchListModel extends AbstractListModel implements DocumentListener {
+  private static final Logger log = LoggerFactory.getLogger(ConcurrentSearchListModel.class.getName());
   private List filterItems;
   private final ExecutorService service;
   private int rowUpdateInterval;
@@ -124,8 +127,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
       try {
         doRun();
       } catch (Throwable t) {
-        //FIXME bad form - should log
-        t.printStackTrace();
+        log.error("uh oh: {}", t);
       }
     }
   } // end class CatchAndRelease
@@ -134,7 +136,8 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     //XXX System.err.println("doRedisplay submitted "+new Date());
     final Future submittedTask =
       service.submit(new CatchAndRelease() {
-      @Override void doRun() {
+      @Override
+      void doRun() {
         doRedisplay(toDisplay, query);
         //XXX System.err.println("doRedisplay done      "+new Date());
       }
@@ -163,7 +166,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     // ? how to make latest request preempt all others ? bounded buffer of size 1
     // ? maybe ScheduledThreadPoolExecutor - executes last submitted first and tosses others ?
     //
-    // lifecyce
+    // life cycle
     // - wait for work
     // - execute work, periodically call back view via fireXxx() with SwingUtilities.invokeLater()
     // - interrupt and cancel work if new work arrives
@@ -208,7 +211,8 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     //XXX try {
       //XXX SwingUtilities.invokeAndWait(new Runnable() {
       SwingUtilities.invokeLater(new CatchAndRelease() {
-        @Override void doRun() {
+        @Override
+        void doRun() {
           // mismatch strategy optimizes common prefixes
           final int s = Utils.mismatch(filterItems, 0, filterItems.size(), newItems, 0);
           if (s != 0) {
