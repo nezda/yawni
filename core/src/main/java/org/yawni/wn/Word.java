@@ -139,43 +139,16 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   public Set<RelationType> getRelationTypes() {
     if (relationTypes == null) {
-      // these are not always correct
+      // these are not always correct XXX this comment no longer applies
       // RelationType.INSTANCE_HYPERNYM
       // RelationType.HYPERNYM
       // RelationType.INSTANCE_HYPONYM
       // RelationType.HYPONYM
       final EnumSet<RelationType> localRelationTypes = EnumSet.noneOf(RelationType.class);
-//      for (final Synset sense : getSynsets()) {
-//        for (final Relation relation : sense.getRelations()) {
-      // some RelationTypes do not apply to ALL WordSenses of their Synset, i.e., RelationTypes.DERIVATIONALLY_RELATED
-      // this solution is too aggressive; chops ALL semantic relations since they have WordSense origin
       for (final WordSense sense : getWordSenses()) {
         for (final Relation relation : sense.getRelations()) {
           final RelationType relationType = relation.getType();
-          // if relationType is lexical, need to verify it is defined for some WordSense of this Word
-          boolean relationApplies = true;
-//          if (relationType.isLexical()) {
-//            relationApplies = false;
-//            for (final WordSense wordSense : getWordSenses()) {
-//              if (! wordSense.getRelationTargets(relationType).isEmpty()) {
-//                relationApplies = true;
-//                break;
-//              }
-//            }
-//          }
-          // alernate uses Relation.isLexical() rather than "less reliable" RelationType.isLexical()
-//          if (relation.isLexical()) {
-//            relationApplies = false;
-//            for (final WordSense wordSense : getWordSenses()) {
-//              if (! wordSense.getRelationTargets(relationType).isEmpty()) {
-//                relationApplies = true;
-//                break;
-//              }
-//            }
-//          }
-          if (relationApplies) {
-            localRelationTypes.add(relationType);
-          }
+          localRelationTypes.add(relationType);
         }
       }
       this.relationTypes = Collections.unmodifiableSet(localRelationTypes);
