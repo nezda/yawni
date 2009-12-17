@@ -243,13 +243,16 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     final StringBuilder buffer = new StringBuilder();
     buffer.append('{');
     for (int i = 0, n = wordSenses.size(); i < n; i++) {
+      final WordSense wordSense = wordSenses.get(i);
       if (i > 0) {
         buffer.append(", ");
       }
       if (verbose) {
-        buffer.append(wordSenses.get(i).getDescription());
+        buffer.append(wordSense.getDescription());
       } else {
-        buffer.append(wordSenses.get(i).getLemma());
+        buffer.append(wordSense.getLemma());
+        buffer.append('#');
+        buffer.append(wordSense.getSenseNumber());
       }
     }
     buffer.append('}');
