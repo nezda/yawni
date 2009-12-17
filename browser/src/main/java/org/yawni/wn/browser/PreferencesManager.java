@@ -179,6 +179,23 @@ class PreferencesManager implements AWTEventListener {
     //}
   }
 
+  // wnb GUI options:
+  //
+  // wrap lines
+  // show descriptive gloss
+  // Lexical file information
+  // - Don't show
+  // - Show with searches
+  // - Show with searches and overview
+  // Synset location in database file
+  // - Don't show
+  // - Show with searches
+  // - Show with searches and overview
+  // Sense number
+  // - Don't show
+  // - Show with searches
+  // - Show with searches and overview
+
   /** {@inheritDoc} */
   public void eventDispatched(final AWTEvent evt) {
     //System.err.println("event: " + evt);
