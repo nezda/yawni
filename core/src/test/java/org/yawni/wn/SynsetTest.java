@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.yawni.util.Joiner;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SynsetTest {
@@ -196,21 +197,41 @@ public class SynsetTest {
     System.err.println("testVerbGroup");
     // verb turn#1 groups with turn#4 and turn#19
     final Word word = dictionary.lookupWord("turn", POS.VERB);
+
+    for (final WordSense sense : word) {
+      final List<RelationTarget> g = new ArrayList<RelationTarget>();
+      gather(sense.getSynset(), RelationType.VERB_GROUP, g);
+      if (g.isEmpty()) {
+        continue;
+      }
+      System.err.println(sense+" VERB_GROUP:\n  "+Joiner.on("\n  ").join(g));
+    }
+
     System.err.println(word);
     final WordSense s1 = word.getSense(1);
     System.err.println("  "+s1);
     RelationTarget syn1 = s1.getSynset();
     System.err.println("  "+syn1);
     // VERB_GROUP targets form a chain/tree: syn1 → {syn2}, syn2 → {syn3, syn4}, ...
+    // To reveal the whole extent of the relation, the transitive closure implied by the explicit relations
+    // must be expanded.  The result is fully connected groups (i.e., cliques) of related synsets.  
+    // This is not easily represented in our API without additional containers (e.g., List<List<Synset>>).
+    
     // - gather these recursively
     final List<RelationTarget> g1 = new ArrayList<RelationTarget>();
     gather(syn1, RelationType.VERB_GROUP, g1);
-    System.err.println("g1: "+g1);
+//    System.err.println("g1: "+g1);
+    System.err.println("g1:\n  "+Joiner.on("\n  ").join(g1));
     // most efficient way of enumerating verb groups:
     // - start with full set of Synset for given Word
     // - take 1st Synset,
     //   - follow VERB_GROUP pointers (? assert all targets in full set ?)
     //     - create Map<Synset, Set<Synset>> where value sets are shared
+
+    // error
+//  [WordSense 458471@[POS verb]:"turn"#25] VERB_GROUP:
+//    [Synset 458754@[POS verb]<verb.change>{ferment#3, work#25}]
+//    [Synset 458471@[POS verb]<verb.change>{sour#1, turn#25, ferment#4, work#26}]
   }
 
   private static void gather(final RelationTarget source, final RelationType type, final List<RelationTarget> accum) {
