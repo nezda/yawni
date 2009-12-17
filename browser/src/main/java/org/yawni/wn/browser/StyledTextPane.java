@@ -167,8 +167,11 @@ class StyledTextPane extends JTextPane {
     //XXX          "font-size: " + font.getSize() + "pt; }";
     //XXX final String bodyRule = "body { font-family: " + font.getFamily() + "; }";
     //XXX styleSheet.addRule(bodyRule);
-    styleSheet.addRule("body {font-family:sans-serif;}");
-    styleSheet.addRule("li {margin-left:12px; margin-bottom:0px;}");
+    styleSheet.addRule("body { font-family:sans-serif; }");
+    styleSheet.addRule("li { margin-left:12px; margin-bottom:0px; }");
+    styleSheet.addRule(".pos { font-family:serif; font-variant: small-caps; }");
+    styleSheet.addRule(".focalWord { color: red; }");
+    styleSheet.addRule(".summaryWord { font-weight: bold; }");
     //FIXME text-indent:-10pt; causes the odd bolding bug
     //XXX styleSheet.addRule("ul {list-style-type:none; display:block; text-indent:-10pt;}");
     //XXX XXX styleSheet.addRule("ul {list-style-type:none; display:block;}");
