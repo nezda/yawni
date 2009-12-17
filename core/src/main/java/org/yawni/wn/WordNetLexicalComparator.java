@@ -11,6 +11,8 @@ import org.yawni.util.cache.Hasher;
  * the {@link Word}s of WordNet <code>index.<em>pos</em></code> files.
  */
 public final class WordNetLexicalComparator implements Comparator<CharSequence>, Hasher<CharSequence> {
+  private static final long serialVersionUID = -3350149399258640927L;
+  
   /**
    * {@code WordNetLexicalComparator} for use with {@code Word} lemmas which are all already lowercased.
    */
@@ -70,11 +72,5 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence>,
       multiplier = shifted - multiplier;
     }
     return hash;
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    // this is a singleton
-    return this == that;
   }
 }
