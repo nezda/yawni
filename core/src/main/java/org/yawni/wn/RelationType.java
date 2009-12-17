@@ -35,6 +35,8 @@ import static org.yawni.wn.RelationTypeFlag.*;
  * </ul>
  *
  * <p> Note this class used to be called {@code PointerType}.
+ * 
+ * <p> Relevant C code is in {@code include/wn.h}, {@code src/wnglobal.c}
  *
  * @see <a href="http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4">http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4</a>
  * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
@@ -90,12 +92,12 @@ public enum RelationType {
    * @see RelationType#PART_MERONYM
    */
   MERONYM("meronym", "%" /* non-existent */, 12, N),
-  /** aka "is member" */
-  MEMBER_MERONYM("member meronym", "#m", 6, N, "Member Meronyms (... are members of %s)"),
-  /** aka "is stuff" */
-  SUBSTANCE_MERONYM("substance meronym", "#s", 7, N, "Substance Meronyms (... are substances of %s)"),
-  /** aka "is part" */
-  PART_MERONYM("part meronym", "#p", 8, N, "Part Meronyms (... are parts of %s)"),
+  /** aka "is member" */ // HASMEMBERPTR
+  MEMBER_MERONYM("member meronym", "%m", 6, N, "Member Meronyms (... are members of %s)"),
+  /** aka "is stuff" */ // HASSTUFFPTR
+  SUBSTANCE_MERONYM("substance meronym", "%s", 7, N, "Substance Meronyms (... are substances of %s)"),
+  /** aka "is part" */ // HASPARTPTR
+  PART_MERONYM("part meronym", "%p", 8, N, "Part Meronyms (... are parts of %s)"),
 
   /**
    * A word that names the whole of which a given word is a part.<br>
@@ -105,12 +107,12 @@ public enum RelationType {
    * @see RelationType#PART_HOLONYM
    */
   HOLONYM("holonym", "#" /* non-existent */, 13, N),
-  /** aka "has member" */
-  MEMBER_HOLONYM("member holonym", "%m", 9, N, "Member Holonyms (%s is a member of ...)"),
-  /** aka "has stuff" */
-  SUBSTANCE_HOLONYM("substance holonym", "%s", 10, N, "Substance Holonyms (%s is a substance of ...)"),
-  /** aka "has part" */
-  PART_HOLONYM("part holonym", "%p", 11, N, "Part Holonyms (%s is a part of ...)"),
+  /** aka "has member" */ // ISMEMBERPTR
+  MEMBER_HOLONYM("member holonym", "#m", 9, N, "Member Holonyms (%s is a member of ...)"),
+  /** aka "has stuff" */ // ISSTUFFPTR
+  SUBSTANCE_HOLONYM("substance holonym", "#s", 10, N, "Substance Holonyms (%s is a substance of ...)"),
+  /** aka "has part" */ // ISPARTPTR
+  PART_HOLONYM("part holonym", "#p", 11, N, "Part Holonyms (%s is a part of ...)"),
 
   // domain terms
   /** aka "topic term" */
@@ -138,7 +140,7 @@ public enum RelationType {
   // Adverbs
   
   /** aka "derived from adjective" */
-  DERIVED("derived from", "\\", 17, ADV), // from adjective
+  DERIVED("derived from", "\\", 17, ADV),
 
   // All parts of speech
   
