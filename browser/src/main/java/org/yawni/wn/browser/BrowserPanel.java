@@ -802,8 +802,8 @@ public class BrowserPanel extends JPanel {
     }
     final List<Synset> senses = word.getSynsets();
     final int taggedCount = word.getTaggedSenseCount();
-    buffer.append("The ").append("<span>").append(word.getPOS().getLabel()).append("</span>").
-      append(" <b>").append(WordCaseUtils.getDominantCasedLemma(word)).append("</b> has ").
+    buffer.append("The ").append("<span class=\"pos\">").append(word.getPOS().getLabel()).append("</span>").
+      append(" <span class=\"summaryWord\">").append(WordCaseUtils.getDominantCasedLemma(word)).append("</span> has ").
       append(senses.size()).append(" sense").append(senses.size() == 1 ? "" : "s").
       append(' ').
       append('(');
@@ -904,7 +904,7 @@ public class BrowserPanel extends JPanel {
       buffer.append(numApplicableSenses).append(" of the ").append(senses.size());
     }
     buffer.append(" sense").append(senses.size() > 1 ? "s" : "");
-    buffer.append(" of <b>").append(WordCaseUtils.getDominantCasedLemma(word)).append("</b>\n");
+    buffer.append(" of <span class=\"summaryWord\">").append(WordCaseUtils.getDominantCasedLemma(word)).append("</span>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
       if (! senses.get(i).getRelationTargets(relationType).isEmpty()) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
@@ -1073,7 +1073,7 @@ public class BrowserPanel extends JPanel {
     final StringBuilder buffer = new StringBuilder();
     final List<Synset> senses = word.getSynsets();
     buffer.append(senses.size()).append(" sense").append((senses.size() > 1 ? "s" : "")).
-      append(" of <b>").append(word.getLowercasedLemma()).append("</b>\n");
+      append(" of <span class=\"summaryWord\">").append(word.getLowercasedLemma()).append("</span>\n");
     for (int i = 0, n = senses.size(); i < n; i++) {
       if (! senses.get(i).getWordSense(word).getVerbFrames().isEmpty()) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
