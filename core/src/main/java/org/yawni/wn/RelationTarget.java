@@ -55,6 +55,8 @@ public interface RelationTarget extends Iterable<WordSense> {
   /** {@code Synset} returns itself, {@code WordSense} returns its {@code Synset} */
   public Synset getSynset();
 
+  public WordSense getWordSense(Word word);
+
   public POS getPOS();
 
   /**
