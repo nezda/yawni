@@ -36,7 +36,7 @@ final class Application {
       final Properties props = new Properties();
       final InputStream in = getClass().getClassLoader().getResourceAsStream(
         getPackagePath() + "/" + "application.properties");
-      if(in == null) {
+      if (in == null) {
         throw new RuntimeException("resource not found");
       }
       props.load(in);
