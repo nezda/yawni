@@ -66,11 +66,14 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    */
   private volatile transient int modCount = 0;
 
-  private static final Hasher  DEFAULT_HASHER = new Hasher() {
+  private static class DefaultHasher implements Hasher {
+    private static final long serialVersionUID = 3;
     public int hashCode(Object e) {
       return e.hashCode();
     }
-  };
+  } // end class DefaultHasher
+
+  private static final Hasher DEFAULT_HASHER = new DefaultHasher();
 
   private static <E> Hasher<E> hasher() {
     @SuppressWarnings("unchecked")
