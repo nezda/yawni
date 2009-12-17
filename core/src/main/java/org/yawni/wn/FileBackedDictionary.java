@@ -49,17 +49,20 @@ import org.yawni.util.cache.Caches;
 
 /** 
  * A {@code DictionaryDatabase} that retrieves objects from the text files in the WordNet distribution
- * directory (typically <tt><em>$WNHOME</em>/dict/</tt>).
+ * directory (typically <tt><em>$WNHOME</em>/dict/</tt>) (or from a properly organized jar file containing it);
+ * Typical users will use {@link FileBackedDictionary#getInstance()} to get a canonical instance of this
+ * class.
  *
  * <p> A {@code FileBackedDictionary} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
- * calls to {@code lookupWord} with the same parameters would return the same value
- * ({@code ==} as well as {@code equals}), as would traversal of two {@code Relation}s
+ * calls to {@link #lookupWord} with the same parameters would return the same value
+ * ({@code ==} as well as {@code equals}), as would traversal of two {@link Relation}s
  * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
  * two different objects to represent the same entity, if their retrieval is separated by other
  * database operations.
  *
- * FIXME revisit this comment FIXME <i>The LRU cache will be replaced by a
+ * <p>FIXME revisit this old comment FIXME
+ * <i>The LRU cache will be replaced by a
  * cache based on WeakHashMap, once JDK 1.2 becomes more widely available.</i>
  *
  * @see DictionaryDatabase

@@ -38,10 +38,10 @@ import java.util.Map;
  * An implementation of {@code FileManagerInterface} that reads files
  * from the local file system.  A {@code FileManager} caches the
  * file position before and after {@link FileManagerInterface#readLineAt()}
- * in order to eliminate the redundant IO activity that a naïve implementation
+ * in order to eliminate the redundant I/O activity that a naïve implementation
  * of these methods would necessitate.
  *
- * <p> Instances of this class are guarded.  All operations are read-only, but
+ * <p> Instances of this class are guarded; all operations are read-only, but
  * are synchronized per file to maintain state including the file pointers'
  * position.
  */
@@ -164,7 +164,7 @@ public final class FileManager implements FileManagerInterface {
   }
 
   //
-  // IO primitives
+  // I/O primitives
   //
 
   /** 

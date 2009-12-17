@@ -79,6 +79,8 @@ public enum RelationType {
   /**
    * Verb senses that are similar in meaning and have been manually grouped together.
    * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html"
+   *  wngroups.7WN</a>
    */
   VERB_GROUP("verb group", "$", 19, V),
 

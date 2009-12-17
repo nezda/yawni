@@ -17,6 +17,8 @@
 package org.yawni.wn;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -204,6 +206,11 @@ public class SynsetTest {
       if (g.isEmpty()) {
         continue;
       }
+      try {
+        Collections.sort(g, new FocalWordSynsetComparator(word));
+      } catch (IllegalArgumentException iae) {
+        System.err.println("uh oh: "+iae);
+      }
       System.err.println(sense+" VERB_GROUP:\n  "+Joiner.on("\n  ").join(g));
     }
 
@@ -228,14 +235,37 @@ public class SynsetTest {
     //   - follow VERB_GROUP pointers (? assert all targets in full set ?)
     //     - create Map<Synset, Set<Synset>> where value sets are shared
 
-    // error
+    // Oops! Only want results which stay within the Synsets *this* Word is in,
+    // here we got derailed on VERB_GROUP path from work#26 → work#25
 //  [WordSense 458471@[POS verb]:"turn"#25] VERB_GROUP:
 //    [Synset 458754@[POS verb]<verb.change>{ferment#3, work#25}]
 //    [Synset 458471@[POS verb]<verb.change>{sour#1, turn#25, ferment#4, work#26}]
   }
 
+  private static class FocalWordSynsetComparator implements Comparator<RelationTarget> {
+    private final Word focalWord;
+    FocalWordSynsetComparator(final Word focalWord) {
+      this.focalWord = focalWord;
+    }
+    public int compare(RelationTarget s1, RelationTarget s2) {
+      final WordSense ws1 = focalSense(s1.getSynset());
+      final WordSense ws2 = focalSense(s2.getSynset());
+      return Integer.signum(ws1.getSenseNumber() - ws2.getSenseNumber());
+    }
+    private WordSense focalSense(final Synset s) {
+      final WordSense focalWordSense = s.getWordSense(focalWord);
+      if (focalWordSense == null) {
+        throw new IllegalArgumentException("Given "+s+" has no sense of focal Word "+focalWord);
+      }
+      return focalWordSense;
+    }
+  } // end class FocalWordSynsetComparator
+
   private static void gather(final RelationTarget source, final RelationType type, final List<RelationTarget> accum) {
-    for (final RelationTarget target : source.getRelationTargets(type)) {
+//    for (final RelationTarget target : source.getRelationTargets(type)) {
+    for (final Relation rel : source.getRelations(type)) {
+      final RelationTarget target = rel.getTarget();
+//      System.err.println("rel: "+rel);
       if (accum.contains(target)) {
         continue;
       }
