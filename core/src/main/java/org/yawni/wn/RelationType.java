@@ -137,7 +137,7 @@ public enum RelationType {
   /** adjective derived from a verb. */
   PARTICIPLE_OF("participle of", "<", 15, ADJ | LEXICAL),
   /** "a relational adjective." aka "pertains to noun (or another pertainym)".  do not have antonyms */
-  PERTAINYM("pertainym", "\\", 17, ADJ | LEXICAL, "... are nouns related to %s"),
+  PERTAINYM("pertainym", "\\", 17, ADJ | LEXICAL, "Pertainyms (... are nouns related to %s)"),
 
   // Adverbs
   
