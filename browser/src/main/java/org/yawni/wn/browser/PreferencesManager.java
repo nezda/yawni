@@ -196,6 +196,13 @@ class PreferencesManager implements AWTEventListener {
   // - Show with searches
   // - Show with searches and overview
 
+  // each property
+  // - symbol (e.g., WRAP_LINES)
+  // - text (e.g., "Wrap lines")
+  // - setting/value (Don't show, Show with searches, Show with searches and overview)
+  // - accessors
+  // - tie in to 
+
   /** {@inheritDoc} */
   public void eventDispatched(final AWTEvent evt) {
     //System.err.println("event: " + evt);
