@@ -909,40 +909,26 @@ public class BrowserPanel extends JPanel {
       if (! senses.get(i).getRelationTargets(relationType).isEmpty()) {
         buffer.append("<br><br>Sense ").append(i + 1).append('\n');
 
-        // honestly, I don't even know why there are 2 RelationTypes here ??
-//        RelationType inheritanceType = RelationType.HYPERNYM;
-//        RelationType attributeType = relationType;
-//
+        RelationType inheritanceType = HYPERNYM;
+        RelationType attributeType = relationType;
+        switch (relationType) {
+          case HYPERNYM:
+          case INSTANCE_HYPERNYM:
+            inheritanceType = HYPERNYM;
+            attributeType = INSTANCE_HYPERNYM;
+            break;
+          case HYPONYM:
+          case INSTANCE_HYPONYM:
+            inheritanceType = HYPONYM;
+            attributeType = INSTANCE_HYPONYM;
+            break;
+        }
 //        if (relationType.equals(inheritanceType) || relationType.isSymmetricTo(inheritanceType)) {
 //          // either relationType == RelationType.HYPERNYM
 //          // or relationType is isSymmetricTo(RelationType.HYPERNYM) currently is only HYPONYM
 //          inheritanceType = relationType;
 //          attributeType = null;
 //        }
-        // else inheritanceType remains hypernym and the sought type remains attributeType
-        // maybe this is wrong if sought relationType is
-        // RelationType.INSTANCE_HYPONYM or RelationType.INSTANCE_HYPERNYM ??
-        // neither of these are recursive
-
-        //input: HYPONYM
-        //inheritanceType: HYPONYM
-        //attributeType: null
-
-        //input: INSTANCE_HYPERNYM
-        //inheritanceType:  * ideally, this would become HYPERNYM?
-        //attributeType: null
-
-        //take2
-        RelationType inheritanceType = HYPERNYM;
-        RelationType attributeType = relationType;
-        switch (relationType) {
-          case HYPONYM:
-          //case INSTANCE_HYPONYM:
-          case HYPERNYM:
-          //case INSTANCE_HYPERNYM:
-            inheritanceType = relationType;
-            attributeType = null;
-        }
 
 //        System.err.println(word + " inheritanceType: " + inheritanceType +
 //          " attributeType: " + attributeType + " relationType: " + relationType);
