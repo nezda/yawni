@@ -58,6 +58,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private final Dimension minSize;
   private final JMenuBar mainMenuBar;
   private final JMenu fileMenu;
+  private JMenu viewMenu;
   private final JMenu helpMenu;
   private final BrowserPanel browserPanel;
   private final MoveMouseListener browserFrameMouseListener;
@@ -172,6 +173,9 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     };
     this.fileMenu.add(new JMenuItem(quitAction));
     this.mainMenuBar.add(fileMenu);
+
+//    installViewMenu();
+
     this.mainMenuBar.add(Box.createHorizontalGlue());
 
     this.helpMenu = new JMenu("Help");
@@ -466,6 +470,53 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     dialog.setLocationRelativeTo(null);
     dialog.setVisible(true);
     System.exit(1);
+  }
+
+  // TODO implement these as bound properties & initialize variables from saved Preferences
+  private void installViewMenu() {
+    final JMenu viewMenu = new JMenu("View");
+
+    viewMenu.add(new JMenuItem("Show frequency counts"));
+    final AbstractButton freqShow = viewMenu.add(new JRadioButtonMenuItem("Show"));
+    final AbstractButton freqHide = viewMenu.add(new JRadioButtonMenuItem("Hide"));
+    final ButtonGroup freqGroup = new ButtonGroup();
+    freqGroup.add(freqShow);
+    freqGroup.add(freqHide);
+
+
+    this.viewMenu.addSeparator();
+    final AbstractButton lexLabel = this.viewMenu.add(new JMenuItem("Lexical file information"));
+//    UIManager.put("Menu.font", XXX);
+//    lexLabel.setSelected(false);
+//    lexLabel.setFocusPainted(false);
+//    lexLabel.setBorderPainted(false);
+//    lexLabel.setContentAreaFilled(false);
+    final AbstractButton lexShow = this.viewMenu.add(new JRadioButtonMenuItem("Show"));
+    final AbstractButton lexHide = this.viewMenu.add(new JRadioButtonMenuItem("Hide"));
+    final ButtonGroup lexGroup = new ButtonGroup();
+    lexGroup.add(lexShow);
+    lexGroup.add(lexHide);
+
+
+    this.viewMenu.addSeparator();
+    this.viewMenu.add(new JMenuItem("Synset database locations"));
+    final AbstractButton locShow = this.viewMenu.add(new JRadioButtonMenuItem("Show"));
+    final AbstractButton locHide = this.viewMenu.add(new JRadioButtonMenuItem("Hide"));
+    final ButtonGroup locGroup = new ButtonGroup();
+    locGroup.add(locShow);
+    locGroup.add(locHide);
+
+
+    this.viewMenu.addSeparator();
+    this.viewMenu.add(new JMenuItem("Sense numbers"));
+    final AbstractButton numShow = this.viewMenu.add(new JRadioButtonMenuItem("Show"));
+    final AbstractButton numHide = this.viewMenu.add(new JRadioButtonMenuItem("Hide"));
+    final ButtonGroup numGroup = new ButtonGroup();
+    numGroup.add(numShow);
+    numGroup.add(numHide);
+
+
+    this.mainMenuBar.add(viewMenu);
   }
 
   /**
