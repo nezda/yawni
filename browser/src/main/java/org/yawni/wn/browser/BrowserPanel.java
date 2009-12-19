@@ -808,9 +808,18 @@ public class BrowserPanel extends JPanel {
       append(' ').
       append('(');
     if (taggedCount == 0) {
-      buffer.append("no senses from tagged texts");
+      buffer.append("none from tagged texts");
     } else {
-      buffer.append("first ").append(taggedCount).append(" from tagged texts");
+      if (taggedCount == senses.size()) {
+        if (taggedCount == 2) {
+          buffer.append("both");
+        } else {
+          buffer.append("all");
+        }
+      } else {
+        buffer.append("first ").append(taggedCount);
+      }
+      buffer.append(" from tagged texts");
     }
     buffer.append(")<br>\n");
     buffer.append("<ol>\n");
