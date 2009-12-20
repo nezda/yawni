@@ -112,7 +112,7 @@ public class PopdownButton extends JButton {
     this.putClientProperty("doNotCancelPopup", preventHide);
   }
 
-  private static void enterPressesWhenFocused(final JButton button) {
+  private static void enterPressesWhenFocused(final AbstractButton button) {
     button.registerKeyboardAction(
       button.getActionForKeyStroke(
       KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)),
