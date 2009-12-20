@@ -21,7 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Teleological relations found in ...
+ * The teleological database contains, for approximately 350 artifacts (nouns), an encoding
+ * of the typical activity (purpose) for which that artifact was intended. 11 semantic
+ * relations are used to encode that activity.
+ *
+ * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
+ *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
 enum TeleologicalRelation {
   ACTION, // 448 instances

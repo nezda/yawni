@@ -21,7 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Morpho-semantic relations found in ...
+ * Morpho-semantic relations between morphologically related nouns and verbs, parallel
+ * with {@link RelationType#DERIVATIONALLY_RELATED} {@link Relation}s.
+ *
+ * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
+ *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
 enum MorphoSemanticRelation {
   EVENT, // 8158 instances
