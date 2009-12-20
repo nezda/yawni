@@ -646,33 +646,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** XXX DOCUMENT ME */
-  String lookupLexCategory(final int lexnum) {
-    assert lexnum >= 0;
-    String line;
-    try {
-      line = fileManager.readLineNumber(lexnum, getLexnamesFilename());
-      if (line != null) {
-        // parse line. format example:
-        //00	adj.all	3
-        //<lexnum>\tlexname\t<pos ordinal>
-        final int start = line.indexOf('\t');
-        assert start != 0;
-        int end = line.lastIndexOf('\t');
-        assert start != end;
-        line = line.substring(start + 1, end);
-      } else if (lexnum < Lexnames.contents.length) {
-        line = Lexnames.contents[lexnum][1];
-      }
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
-    }
-    if (line == null) {
-      line = "UNKNOWN.lexnum "+lexnum;
-    }
-    return line;
-  }
-
-  /** XXX DOCUMENT ME */
   String lookupGenericFrame(final int framenum) {
     assert framenum >= 1;
     String line = null;
