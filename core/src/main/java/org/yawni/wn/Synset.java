@@ -164,7 +164,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
    *   http://wordnet.princeton.edu/wordnet/man/lexnames.5WN.html</a>
    */
   public String getLexCategory() {
-    return fileBackedDictionary.lookupLexCategory(lexfilenum());
+    return Lexname.lookupLexCategory(lexfilenum());
   }
 
   /**
