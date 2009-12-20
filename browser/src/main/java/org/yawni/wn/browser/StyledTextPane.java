@@ -169,7 +169,7 @@ class StyledTextPane extends JTextPane {
     //XXX styleSheet.addRule(bodyRule);
     styleSheet.addRule("body { font-family:sans-serif; }");
     styleSheet.addRule("li { margin-left:12px; margin-bottom:0px; }");
-    styleSheet.addRule(".pos { font-family:serif; font-variant: small-caps; }");
+    styleSheet.addRule(".pos { font-family:serif; }");
     styleSheet.addRule(".focalWord { color: red; }");
     styleSheet.addRule(".summaryWord { font-weight: bold; }");
     //FIXME text-indent:-10pt; causes the odd bolding bug
