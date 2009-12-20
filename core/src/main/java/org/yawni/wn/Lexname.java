@@ -17,7 +17,7 @@
 package org.yawni.wn;
 
 /**
- * Contents of (WordNet 3.0) lexnames file as String arrays since it is
+ * Represents the contents of (WordNet 3.0) lexnames since it is
  * "optional".  These are the WordNet lexicographers classes, sometimes called
  * the WordNet 'supersenses'.
  * <cite>M. Ciaramita, Y. Altun. 2006. Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger</cite>
@@ -45,7 +45,8 @@ enum Lexname {
   /** {@link POS#NOUN nouns} denoting body parts */
   NOUN_BODY("08", "noun.body", "1"),
   /** {@link POS#NOUN nouns} denoting cognitive processes and contents */
-  NOUN_COGNITION("09", "noun.cognition", "1"), /** {@link POS#NOUN nouns} denoting communicative processes and contents */
+  NOUN_COGNITION("09", "noun.cognition", "1"),
+  /** {@link POS#NOUN nouns} denoting communicative processes and contents */
   NOUN_COMMUNICATION("10", "noun.communication", "1"), 
   /** {@link POS#NOUN nouns} denoting natural events */
   NOUN_EVENT("11", "noun.event", "1"), 
