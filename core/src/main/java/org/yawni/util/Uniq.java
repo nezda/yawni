@@ -26,6 +26,8 @@ import java.util.NoSuchElementException;
  * <p> Much like the STL version below:<br>
  * {@code std::unique_copy(c.begin(), c.end(),
  *   std::ostream_iterator<c::type>(std::cout, " "));}
+ *
+ * <p> TODO add support for {@link java.util.Comparator}s
  */
 final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;

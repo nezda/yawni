@@ -23,6 +23,8 @@ import java.util.NoSuchElementException;
  * Derive a new {@code Iterable} by merge sorting the items
  * in each of the provided <em>mutually sortable</em> {@code Iterable}s
  * whose traversal order <em>is</em> sorted.
+ *
+ * <p> TODO add support for {@link java.util.Comparator}s
  */
 public final class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;
