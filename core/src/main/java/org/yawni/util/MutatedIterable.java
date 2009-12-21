@@ -19,12 +19,13 @@ package org.yawni.util;
 import java.util.Iterator;
 
 /**
- * Derive a new <code>Iterable</code> by calling a method on each of the base
- * <code>Iterable</code>'s <code>Iterator</code>'s items as computed by
+ * Derive a new {@code Iterable} by calling a method on each of the base
+ * {@code Iterable}'s {@code Iterator}'s items as computed by
  * implementations of the {@link #apply} method.
  */
 public abstract class MutatedIterable<T, R> implements Iterable<R> {
   private static final long serialVersionUID = 1L;
+  
   private final Iterable<T> outterBase;
   public MutatedIterable(final Iterable<T> base) {
     this.outterBase = base;
