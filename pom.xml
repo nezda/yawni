@@ -254,9 +254,7 @@
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <argLine>
-            <!-- -Xmx256m -d32 -->
-            <!-- -Xmx64m -d32 -->
-            -Xmx128m -d32
+            -Xmx256m -d32
           </argLine>
           <!-- Required to pass this system property through to the unit tests -->
           <systemProperties>

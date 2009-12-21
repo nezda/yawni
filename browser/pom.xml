@@ -28,7 +28,7 @@
   <name>Yawni Browser</name>
   <version>2.0.0-SNAPSHOT</version>
   <description>
-    The GUI browser of WordNet content using the Yawni API.
+    A GUI browser of WordNet content using the Yawni API.
   </description>
   <packaging>jar</packaging>
   <build>
