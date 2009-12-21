@@ -22,8 +22,9 @@ import java.util.NoSuchElementException;
 /**
  * Derive a new {@code Iterable} by removing adjacent duplicates
  * of the provided <em>sortable</em> {@code Iterable}>s.
- * <p>Much like the STL version below:<br> 
- * {@ode std::unique_copy(c.begin(), c.end(),
+ * 
+ * <p> Much like the STL version below:<br>
+ * {@code std::unique_copy(c.begin(), c.end(),
  *   std::ostream_iterator<c::type>(std::cout, " "));}
  */
 final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T> {
