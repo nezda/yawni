@@ -1,8 +1,47 @@
-WordNet is a graph.
-It is potentially invaluable resource for injecting knowledge into applications.
+Yawni README file
 
-WordNet is probably the single most used NLP resource ; many companies have it as their cornerstone.
-It embodies one of the most fundamental of all NLP problems: "word sense disambiguation".
+Introduction
+
+Yawni is an API to Princeton University's WordNet.  WordNet is a graph; it is a potentially 
+invaluable resource for injecting knowledge into applications.  WordNet is
+probably the single most used NLP resource ; many companies have it as their
+cornerstone.  It embodies one of the most fundamental of all NLP problems:
+"word sense disambiguation".  The Yawni code library can be used to add lexical
+and semantic knowledge, primarily derived from WordNet, to applications.  Yawni
+is currently written in the Java programming language.  
+
+The Yawni website is currently at:
+  http://sourceforge.net/projects/yawni/
+
+Yawni currently consists of 3 main sub-modules:
+
+core/
+  Yawni core: a pure Java standalone object-oriented interface to the WordNet
+  database of lexical and semantic relationships.
+
+data/
+  Jar file containing the Princeton WordNet 3.0 data files, and derivative files to support efficient,
+  exhausitve access to this information.
+
+browser/
+  A GUI browser of WordNet content using the Yawni API.
+
+Quick Start
+
+Basic steps:
+  0) Install JDK 1.5 (or greater), Apache Maven 2.0.9 (or greater)
+  1) Specify the following Apache Maven depdencies in your project
+     XXX
+  2) Start using the Yawni API!: all required resources are loaded on demand
+     from the classpath (i.e., jars) made accessible via a singleton:
+     
+     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+
+     Numerous unit tests serve as great executable examples are included 
+     in core/src/test/  .  For a more complex example application, check 
+     out the browser/ sub-module.
+     
+Another WordNet Interface !?
 
 WordNet consists of enough data to exceed the recommended capacity of Java Collections 
 (e.g., java.util.SortedMap<String, X>), but not enough to justify a full relational database.
@@ -17,14 +56,15 @@ Here are 7 of the Java APIs, along with their URL and software license.
 - WordNet JNI Java Native Support (WNJN) ; http://wnjn.sourceforge.net/ ; GPL
 - JWNL (Java WordNet Library) ; http://sourceforge.net/projects/jwordnet/ ; BSD
 
-Many of the pure Java ones (like Yawni), are derivatives of Oliver Steele's JWordNet.  In fact, 
-Yawni is the new name of JWordNet.
+Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Steele's original JWordNet.  
+In fact, Yawni is the new name of JWordNet.
 
 Why Yawni ?
 - commercial-grade implementation
-  - small memory foot print
   - very fast
+  - small memory foot print
   - simple, intuitive, and well documented API
+  - all required resources can load from jars making deployment a snap
   - all query results are immutable ; safely cached and/or accessed by concurrent threads
   - easy Apache Maven-based build with minimal dependencies
   - extensive unit tests
