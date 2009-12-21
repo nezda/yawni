@@ -85,7 +85,7 @@
   <properties>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4jVersion>1.5.8</slf4jVersion>
+    <slf4jVersion>1.5.10</slf4jVersion>
   </properties>
   <!-- specify dependency versions -->
   <dependencyManagement>
@@ -254,7 +254,9 @@
           <enableAssertions>true</enableAssertions>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <argLine>
-            -Xmx256m -d32
+            <!-- -Xmx256m -d32 -->
+            <!-- -Xmx64m -d32 -->
+            -Xmx128m -d32
           </argLine>
           <!-- Required to pass this system property through to the unit tests -->
           <systemProperties>
@@ -427,7 +429,7 @@
       <id>useYawniDataForTest</id>
       <activation>
         <property>
-          <name>useYawniData</name>
+          <name>useYawniDataForTest</name>
         </property>
       </activation>
       <dependencies>
