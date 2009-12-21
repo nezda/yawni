@@ -327,6 +327,8 @@ everything
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
 - issues
+  - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
+  - bug: core: decrease unit test Xmx -- 256m is excessive; parameterize this; note that base cache sizes form a minimum
   + bug: core: include Princeton WordNet license in data subproject !
   - bug: core: ⊚ $WNHOME/$WNSEARCHDIR environment collison(s) would be confusing to debug
   < feature: gui: consider left-aligning button/searchField pod; Muller OS X WordNet does this
@@ -508,6 +510,7 @@ everything
 + feature: gui: show cased getLemma() for single case Words (e.g., "Al Capone") in various messages; there are only equalsIgnoreCase() contracts in place here
 - more unit tests
   - bug: core: ⊚ at least 1 simple example; maybe some searching examples (à la JWNL  findRelationships())
+    + WNSTATSGenerator
   - bug: core: test: add torture test outlined in Searcher (resursive parents / children)
 ~ feature: core: ⊚ add expert query modes: attempt to integrate these without adding API cruft (e.g., little language / "magic" strings ?)
   * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just add a bunch of overloaded methods or some kind of visitor
