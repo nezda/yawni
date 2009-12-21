@@ -73,7 +73,8 @@ public enum POS {
     return VALUES[ordinal];
   }
 
-  /** A list of all {@code POS}s <b>except {@link POS#SAT_ADJ}</b> which doesn't
+  /**
+   * A list of all {@code POS}s <b>except {@link POS#SAT_ADJ}</b> which doesn't
    * have its own data files.
    */
   public static final POS[] CATS = {NOUN, VERB, ADJ, ADV};
