@@ -16,11 +16,13 @@
  */
 package org.yawni.wn;
 
+import org.yawni.util.MergedIterable;
 import org.yawni.util.Preconditions;
 import org.yawni.util.Utils;
 
 /**
- * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">wnstats</a>
+ * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">wnstats</a>.
+ * Serves as a useful example of various iteration methods and attests correctness of API.
  */
 public class WNSTATSGenerator {
   public static void main(String[] args) {
@@ -46,15 +48,15 @@ public class WNSTATSGenerator {
     Preconditions.checkState(totalWordCount == Utils.distance(dictionary.words(POS.ALL)));
     Preconditions.checkState(totalSynsetCount == Utils.distance(dictionary.synsets(POS.ALL)));
     Preconditions.checkState(totalWordSenseCount == Utils.distance(dictionary.wordSenses(POS.ALL)));
-    
+
     final String sumary = String.format("%-10s%20d%20d%20d\n",
         "Totals", totalWordCount, totalSynsetCount, totalWordSenseCount);
     System.out.print(sumary);
 
     System.out.println();
-    
+
     System.out.println("Polysemy information");
-    
+
     //POS   	Monosemous   	    Polysemous   	Polysemous
     //        Words and Senses 	Words 	      Senses
     for (final POS pos : POS.CATS) {
@@ -75,13 +77,33 @@ public class WNSTATSGenerator {
       final String posLabel = Utils.capitalize(pos.getLabel());
       final long numWords = Utils.distance(dictionary.words(pos));
       final long numWordSenses = Utils.distance(dictionary.wordSenses(pos));
+      final long polysemousWordCount = polysemousWordCount(pos, dictionary);
       final long numPolysemousWordSenses = polysemousWordSensesCount(pos, dictionary);
       final double averagePolysemy = ((double)numWordSenses) / numWords;
-      final double averagePolysemousPolysemy = ((double)numPolysemousWordSenses) / numWords;
+      final double averagePolysemousPolysemy = ((double)numPolysemousWordSenses) / polysemousWordCount;
       final String row = String.format("%-10s%20.2f%20.2f\n",
         posLabel, averagePolysemy, averagePolysemousPolysemy);
       System.out.print(row);
     }
+
+    // MergedIterable doesn't support passing in a Comparator (yet); for
+    // the sort below to validate would require passing in WordNetLexicalComparator
+    // (WordNetLexicalComparator.GIVEN_CASE_INSTANCE or WordNetLexicalComparator.TO_LOWERCASE_INSTANCE
+    //  would work).  You'll just have to trust that the sort is valid which is evidenced by
+    // the algorithm below arriving at the right figure (147278 for WordNet 3.0).
+    final boolean validateSort = false;
+    final long totalUniqueWordStrings =
+      Utils.distance(
+        Utils.uniq(
+         MergedIterable.merge(validateSort,
+          new WordToLowercasedLemma(dictionary.words(POS.NOUN)),
+          new WordToLowercasedLemma(dictionary.words(POS.VERB)),
+          new WordToLowercasedLemma(dictionary.words(POS.ADJ)),
+          new WordToLowercasedLemma(dictionary.words(POS.ADV)))));
+
+    // The total of all unique noun, verb, adjective, and adverb strings is actually 147278
+    System.out.println("The total of all unique noun, verb, adjective, and adverb strings is actually "+
+      totalUniqueWordStrings);
   }
 
   private static long monosemousWordCount(final POS pos, final DictionaryDatabase dictionary) {
