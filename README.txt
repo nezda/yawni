@@ -25,6 +25,7 @@ Why Yawni ?
   - small memory foot print
   - very fast
   - simple, intuitive, and well documented API
+  - all query results are immutable ; safely cached and/or accessed by concurrent threads
   - easy Apache Maven-based build with minimal dependencies
   - extensive unit tests
 - includes refined GUI browser featuring
@@ -37,9 +38,9 @@ Why Yawni ?
 Changes in 2.x versions
 
 - Extreme speed improvements: literally faster than the C version (benchmark source included)
-  - FileManager.CharStream and FileManager.NIOCharStream
   - Bloom filter used to avoid fruitless lookups (no loss in accuracy!)
   - re-implemented LRUCache in terms of java.util.LinkedHashMap (simpler; much more efficient)
+  - FileManager.CharStream and FileManager.NIOCharStream utilize in-memory and java.nio for maximum speed
 - Major reduction in memory requirements
   - use of primitives where possible (hidden by API)
   - eliminated unused / unneeded fields
