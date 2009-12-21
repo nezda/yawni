@@ -25,8 +25,10 @@ Yawni Subprojects
 + core
 + data
   - should there be 1 per WN version? (..., 2.1, 3.0, ..., etc.)
-- browser
++ browser
   - depends on core
+  - build standalone with time 
+    mvn clean install -PuseYawniData,useLog4j,makeShadedJar
 
 Bob Carpenter's Stemming Examples (http://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
 (reasonable precautions against RSI: )
@@ -78,7 +80,7 @@ Release TODOs
 - synset groups
   verb VERB_GROUP
   adj SIMILAR_TO
-   -connects satellite adjectives to their head and vice-versa
+   - connects satellite adjectives to their head and vice-versa
 
 - what clever things could I do with JavaScript integration ?
   - probably want some little higher-level accessors ?
@@ -240,43 +242,162 @@ everything
    * href="package-summary.html#threading">Swing's Threading
    * Policy</a>.
   - Lucene docs should use this since they have awesome package-level docs
+    http://lucene.apache.org/java/2_9_0/api/core/org/apache/lucene/analysis/package-summary.html
+    org.apache.lucene.analysis
 
 - NetBeans consuming 573MB Real Mem; ouch
+- review Scott Violet's fabric and Password app for more best practices
+- JIDE has some awesome (feel) open source components; auto-complete, IntelliHints, Searchable (aka FindAsYouType), and SearchableBar (like Firefox), JideSplitButton: PopdownButton with menu; license looks tricky
 
 - issues with checking out and building yawni
   - data sub-project currently needs my jar signature
   - core depends on data
-    - couldn't figure out how to make this dependency <optional>; maybe no project-interal concept exists
+    - couldn't figure out how to make this dependency <optional>; maybe no project-internal concept exists
   - uncommented WNHOME system property
     - got burned by WordNet version
     - got burned by WNSEARCHDIR still referencing old version
-  - JL found bug in our version of Morphy
-    - "fix" already in yawni
-    - fix disables logic which may be important; at a minimum, leaves a bunch of dead code in morphprep()
 
-- review Scott Violet's fabric and Password app
+- feature: core: ⊚ incorporate other lexical related resources
+  - new Princeton "Standoff Files"
+    - The Morphosemantic Database
+      - adds 1 of 14 semantic types to the existing DERIVATIONALLY_RELATED WordNet relation
+        example line:
+          arg1 sensekey	arg1 offset	relation	arg2 sensekey	arg2 offset	arg1 gloss (abbreviated)	arg2 gloss (abbreviated)
+          cannibalize%2:34:00::	201162291	agent	cannibal%1:18:00::	109891079	eat human flesh	a person who eats human flesh
+      * note "offset" has pos ordinal prepended; e.g., in "201162291", leading "2" means VERB, rest "01162291" is "cannibalize" synset offset 
+        - note: synset offset gets search to right synset, lemma from senseKey required to get to right WordSense
+      * distill down to <arg1 offset><tab><relation><tab><arg2 offset>; rest is for annotator convenience
+      * could automate parsing with POI
+      - 14 different morphosematic relations
+        8158 event
+        3043 agent
+        1439 result
+        1273 by-means-of
+         878 undergoer
+         813 instrument
+         740 uses
+         528 state
+         318 property
+         288 location
+         114 material
+          87 vehicle
+          43 body-part
+          17 destination
+    - The Teleological database
+      ? presume these are for WordNet 3 ?
+      arg1 sensekey	arg1 offset	relation	arg2 sensekey	arg2 offset
+      bomb%1:06:00::	102866578	action	destroy%2:36:00::	201619929
+      - 12 different relations
+       448 action
+       214 theme
+       109 result
+        77 agent
+        57 location
+        47 undergoer
+        25 instrument
+        23 beneficiary
+        18 destination
+        17 cause
+        10 experiencer
+         8 source
+    - "Core" WordNet
+      core-wordnet.txt contains the top (i.e., most frequently used) 4,997 senses
+      example line:
+        v [clear%2:32:00::] [acquit] clear, pronounce not guilty
+   - http://wordnet.princeton.edu/wordnet/download/
+     - when were the new "Standoff Files" released ?
+
+  - Geo-WN ; toponym disambiguation
+  - VerbNet
+  - SentiWordNet
+  - SUMO: mappings http://sigmakee.cvs.sourceforge.net/sigmakee/KBs/WordNetMappings/
+  - Collins English Dictionary (CED) old edition available cheaply from LDC ($100); challenging to parse
+  - Wiktionary; hard to parse; Ninja Words uses this
+  - Roget's Thesaurus (old (i.e., 1900) Project Gutenburg?); JWord uses this
+  - The English Tree of Roots (old (i.e., 1900) Project Gutenburg?); JWord uses this
+
+  - GeoSemCor2.0
+    
+  - create tool support for dealing with new data
+    - expert query modes will be very helpful, e.g., senseKey
+  - will require API flexibility or expansion
+    - "soft fields", aka properties, aka name-value pairs: isCore 
+    - generic/dynamic RelationType with a "type" field
+  - performing mapping/conversion of resources bound to other WordNet versions
+    e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
 - issues
-  - feature: core: gui: use custom XML format internally and render it to HTML in a custom EditorKit; XML format can be used in multiple places
-  - bug: core: upgrade poms to build in any environment and test this (no jarsign resource, no data jar, WNHOME, WNSEARCHDIR set, etc.) continuuous integration 
-  - bug: core: Morphy's morphprep() has some useful looking logic short circuite; easiest fix is to check some examples against C version's output
+  + bug: core: include Princeton WordNet license in data subproject !
+  - bug: core: ⊚ $WNHOME/$WNSEARCHDIR environment collison(s) would be confusing to debug
+  < feature: gui: consider left-aligning button/searchField pod; Muller OS X WordNet does this
+  - feature: gui: for RelationType dropdowns, consider implementing UI guideline of keeping same set of menu items, but only enabling apropos ones - helps user learn; Muller OS X WordNet does this
+    - don't want meta-relations (e.g., MEMBER_MERONYM)
+    - only want those RelationTypes applicable to the particular POS
+  + bug: core: for Noun "Roman", what yawni calls "Member Meronyms" , wnb calls (Member) Holonyms ("MEMBER OF"); currently have "mero"="#" and "holo"="%" ; doh! wn.h says "mero"="%" and holo="#"
+  - feaure: gui: typeahead find in Relation PopdownButton menu could support substring "smart" search (e.g., "holo..." in "Member Holonyms"; maybe like QuickSilver's algorithm?)
+  + bug: gui: fix UI copy for "The noun kitten has 1 sense (first 1 from tagged texts)"
+  < feature: gui: splash screen would be nice during download and boot; great place to showcase new icon!
+  + bug: core: Word.getRelationTypes() sometimes returns an incorrect values for lexical relations (e.g., INSTANCE_*, DERIVATIONALLY_RELATED)
+    hypocrite; thinks it has DERIVATIONALLY_RELATED, but this doesn't only applies to other WordSenses in its Synset;
+    ? something's not working right:
+      palatine (Roman official)
+        Roman
+  + bug: gui: ADJ Derivationally related forms shows 4 entries, should only be 2; not respecting WordSense-level of the relationship
+  + bug: core: gui: "hypocrite" shows derivationally related forms menu option, but nothing shows up (turns out this is correct!)
+  + feature: gui: use SwingWorker in preload (ditches explicit Threads, but requires Java 6 (sort of))
+  - feature: gui: use SwingWorker in ConcurrentSearchListModel (ditches explicit Threads, but requires Java 6 (sort of))
+  - feature: gui: use simple <span> and some CSS (rules) to modify rendering in resultEditorPane; ideally, controllable from properties file
+  + feature: gui: add smart quotes to text of statusLabel prompt to reflect its showing the entered text, e.g., "Overview of roman" → "Overview of “roman”"
+  + feature: gui: use dominant case for relation summary copy: "Applies to 4 of the 4 senses of roman" → "Applies to all 4 senses of Roman" (ADJ "roman" → "Derivationally related forms")
+  + feature: gui: tweak relation summary copy when numApplicableSenses == senses.size()
+    - 3 cases
+      Applies to 1 of the 1 senses of George W. Bush
+        Applies the only sense of George W. Bush
+      Applies to 2 of the 2 senses of George Bush
+        Applies to both senses of George Bush
+      Applies to 4 of the 4 senses of Roman
+        Applies to all 4 senses of Roman
+        * similar for 3+
+  < feature: core: add alternation support to GetIndex for {' ' → '/', '-' → '/'} (e.g., "read write memory" → "read/write memory")
+  < feature: core: add information on Unicode characters (e.g., '→' U+2192 RIGHTWARDS ARROW; see gloss of "tilde" and http://rishida.net/scripts/uniview/ for ideas) 
+    - would these be gloss? synonyms ?
+    - would be cool, for example, to have:
+      - suggested usage of smart quotes (“”)
+        " as alternation for “
+        " as alternation for ”
+      - "therefore" as alternation for ∴ (maybe even ∵ as antonymn); would either of these work to help describe/render WordNet relation entailment ?
+      - "Esc" as alternation for ␛
+      - "Backspace" as alternation for ⌫
+      - "Enter" as alternation for ↩
+      - "Tab" as alternation for ⇥
+  x bug: gui: SearchFrame substring search fails to find any matches with '/' (e.g., "read/write memory"); " " (space) works;
+    + this works; should add gui test
+  - feature: core: ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
+  - feature: core: have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
+  < feature: core: gui: use custom XML format internally and render it to HTML in a custom EditorKit; XML format can be used in multiple places
+  < feature: gui: add Safari / Preview-like highlighting-current panel search (⌘ +F); Safari dims screen, temporarily adds search nav bar; impl similar to wavy red underline ?
+  + bug: core: upgrade poms to build (including unit tests!) in any environment and test this (no jarsign resource, no data jar, WNHOME, WNSEARCHDIR set, etc.)
+    - if yawni-data is not available, fall back to WNHOME, 
+      if WNHOME is not available, report useful error
+  + bug: core: Morphy's morphprep() has some useful looking logic short circuite; easiest fix is to check some examples against C version's output
+  - feature: core: test: check some values against C api for correctness; need to make either a wnb harness or C code; both pain to impl
   - feature: core: false-positive tests: generate random collocations and prepositional phrases and see if they 1) produce stems 2) are in WordNet
   < feature: gui: use web-start friendly preferences; this is hard
   ~ feature: gui: use TextPrompt to display "No matches found."; non-stanard because searchField will not be empty for this case
-  < feature: gui: use custom custom ListCellRenderer to implement properly-cased display in SearchFrame
-  - bug: gui: fix rendering of key bindings on menus (not Control+N, ^+N); test with GTK theme on OS X
+  < feature: gui: use custom ListCellRenderer to implement properly-cased display in SearchFrame
+  - bug: gui: needs_test: fix rendering of key bindings on menus (not Control+N, ^+N)
   + bug: gui: Undo and Redo menu icons are too big! also, crop the wasted edge space out of the source .pngs
   - bug: gui: on Windows, alt-F4 should close windows, not Ctrl+W
-  ~ bug: gui: register UncaughtExceptionHandler to avoid silent exception swallowing; show a dialog
+  + bug: gui: register UncaughtExceptionHandler to avoid silent exception swallowing; show a dialog
   + bug: gui: search for "performant", result pane shows single bullet (status shows "No matches found"); caused by weird leak/bug/issue in JEditorPane + DefaultStyledDocument
   + bug: gui: leak in JEditorPane / DefaultStyledDocument; solution add a clear() method
-  ~ feature: informal poll of Mihai (Snow Leopard) and Richard to see what version of OS X they hae (Tiger, Leopard, Snow Leopard?)
-  - feature: gui: should clearing searchfield automatically clear previous result set ?
+  ~ feature: informal poll of Mihai (Snow Leopard) and Richard to see what version of OS X they have (Tiger, Leopard, Snow Leopard?)
+  - feature: gui: should clearing searchField automatically clear previous result set ?
     - at least disable controls ? (like POS dropdowns)
-  < feature: gui: "placard" (not BottomBar) which shows (font) zoom level, etc.
+  - feature: gui: "placard" (not BottomBar) which shows adjustable (font) zoom level, etc.
   < feature: gui: View menu / dropdown somewhere for advanced options; is this too advanced to make so available to regular user, e.g.,
     Show Synset Offsets / Hide Synset Offsets
-  - feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); http://tips4java.wordpress.com/2009/11/29/text-prompt/
+  + feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); http://tips4java.wordpress.com/2009/11/29/text-prompt/
     * verify with author that Apache License is OK ?
     - text "Type a word to lookup in WordNet…" requires more width in searchField than we have
     - doesn't work in combination with OS X features (but does look  kinda cool, if a little textually busy)
@@ -291,7 +412,7 @@ everything
       New Oxford American Dictionary (horizontally centered, gray-ish/alpha, italics, serif font, ≈2x normal size (plenty of room))
   - feature: gui: rename ActionHelper to StyledActionHelper or something; factor all similar code into it (or it into similar code), i.e., StyledTextPane
   - feature: core: refactoring: consider optimizing CharSequences.parseInt/parseLong (à la http://nadeausoftware.com/articles/2009/08/java_tip_how_parse_integers_quickly)
-  - bug: gui: SearchFrame dialog should render with apple.awt.brushMetalLook on OS X (Apple bug)
+  < bug: gui: SearchFrame dialog should render with apple.awt.brushMetalLook on OS X (Apple bug)
   - feature: gui: bundle as native OS X app; http://mojo.codehaus.org/osxappbundle-maven-plugin/
   + feature: gui: add prefix-typing navigation of PopdownButton content (like JComboBox)
     - DefaultKeySelectionManager
@@ -303,10 +424,10 @@ everything
   + bug: gui: OS X: if app window focus changes while a PopdownButton JPopupMenu is showing, it stays above ALL other application windows ! known bug; only affects heavyweight popups which OS X uses exclusively
     - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4812585
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
-  - feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
+  < feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
   + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
-  - feature: gui: require zero Java Webstart permissions (no preferences saving)
-  - feature: gui: count and report how many Word or WordSense hits for "inhertited" searches
+  < feature: gui: require zero Java Webstart permissions (no preferences saving)
+  - feature: gui: count and display how many Word or WordSense hits for "inherited" searches
   - bug: ⊚ add nice high res project icon (design one :)
     - what are typical icon sizes ?
       * 512×512 pixel image (for Finder icons in Mac OS X v10.5 and later)
@@ -320,14 +441,15 @@ everything
       Kind regards,
       - Luke
       Dallas, Texas, USA
+    + experimented with some variants of the Paddington image on vectormagic.com
+    + emailed webmaster hosting Paddington image
   + bug: core: doc: note that stems are true case in DictionaryDatabase#getLemma()
   + feature: gui: support multiple independent, concurrent Browser frames (OS X style "Multi Document Interface(MDI))
   + bug: core: can't find "'s Gravenhage" in gui ; BloomFilter hashcode considered case and space != underscore; added Hasher interface
   - feature: core: doc: file:///Users/nezda/President%20of%20the%20United%20States.svg
-  - feature: core: in Word, consider caching senses since it is Iterable on it; getSense(n) would also be much cheaper
+  ~ feature: core: in Word, consider caching senses since it is Iterable on it; getSense(n) should be cheaper; consider reversing this "optimization"/
   + feature: core: get tests to run from within Netbeans (possibly with Maven test scope dep on data subproject?)
-  - bug: core: MUST have Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
-  - feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
+  - bug: core: ⊚ Morphy + Synset-searching torture test (! including POS.ALL AND collocations !)
   + feature: ditch inefficient LookaheadIterator for Google Collections AbstractIterator
   < feature: gui: inherited meronyms not shown in GUI drop down; these are indirect via hypernyms (e.g., "capacity"#3's hypernym "volume" has direct meronyms)
   + feature: core: add BloomFilter anti-match optimization to lookupWord(String lemma, POS)
@@ -337,7 +459,7 @@ everything
   - bug: core: ⊚ do not depend on default platform character encoding; mainly effects Unicode input like "résumé"; reading WordNet data files should be ASCII, reading UI should be UTF-8
   + bug: gui: factor into new browser subproject
   < feature: start "new browser" remote branch -- JSplitPane-based, maybe LGPL dependencies
-  ~ bug: gui: needs_test: CTRL+W doesn't close (hide) Substring Search window on Linux; weird have to listen for  (0x17, etb: end of transmission block)
+  ~ bug: gui: needs_test: CTRL+W doesn't close (hide) Substring Search window on Linux; weird: have to listen for  (0x17, etb: end of transmission block)
   ~ feature: core: tolerate not having data.<POS> files (i.e., only index.<POS> files) to allow use as a resource-light, data driven stemmer
     - this may "just work"
   - bug: gui: substring search keyboard focus skips Substring/Prefix radio button group
@@ -379,19 +501,18 @@ everything
   - bug: search for "LN added"'s
 
 - feature: core: doc: highlight WordNetLexicalComparator and describe where you might use it
-< feature: core: consider GetLemmabinterface
-  + bug: core: rename Word.getLemma() -> getLowercasedLemma() - not the same
+< feature: core: consider GetLemma interface
+  + bug: core: rename Word.getLemma() → getLowercasedLemma() - not the same
     - XXX beware: changing getLemma()'s behavior will break code! must update it to getLowercasedLemma()
       - do NetBeans rename refactor, then add new method
-- feature: gui: show cased getLemma() for single case Words (e.g., "Al Capone") in various messages; there are only equalsIgnoreCase() contracts in place here
++ feature: gui: show cased getLemma() for single case Words (e.g., "Al Capone") in various messages; there are only equalsIgnoreCase() contracts in place here
 - more unit tests
-  - bug: core: test: searching examples (findRelationships() from JWNL)
+  - bug: core: ⊚ at least 1 simple example; maybe some searching examples (à la JWNL  findRelationships())
   - bug: core: test: add torture test outlined in Searcher (resursive parents / children)
-- feature: core: ⊚ add expert query modes: attempt to integrate these without adding API cruft (e.g., little language / "magic" strings ?)
-  * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just
-    add a bunch of overloaded methods or some kind of visitor
+~ feature: core: ⊚ add expert query modes: attempt to integrate these without adding API cruft (e.g., little language / "magic" strings ?)
+  * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just add a bunch of overloaded methods or some kind of visitor
   - (was feature: type/property search / filter)
-  *** go for modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
+  - use modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
     - this only makes sense if it is part of existing query methods
       public Word lookupWord(final CharSequence lemma, final POS pos);
       //public String lookupBaseForm(final POS pos, final String derivationLemma);
@@ -406,12 +527,22 @@ everything
       public Iterable<Relation> relations(final RelationType relationType, final POS pos);
   
   // maybe just a couple really generic methods ?
-  // Iterable<WordSense> query(String)
-  // Iterable<Synset> query(String)
+  // Iterable<WordSense> wordSenes(String)
+  // Iterable<Synset> synsets(String)
 
   <POS>#<synset_offset> → Synset; optimized
+  <POS ordinal><synset_offset> → Synset; optimized
+
   <POS>#<lemma>#<sense_number> → WordSense; optimized
-  <sensekey> → WordSense; optimized
+  <POS ordinal><synset_offset>#<lemma> → WordSense; optimized
+  // sanity check compatibility of the given combo (since senseKey is sufficiently precise by itself)
+  <POS ordinal><synset_offset>#<senseKey> → WordSense; optimized
+  <senseKey> → WordSense; optimized
+
+  // already in current API; maybe remove to simplify it
+  <POS> → Iterable<Synsets>; linear traversal
+  <POS> → Iterable<WordSense>; linear traversal
+  <POS> → Iterable<Word>; linear traversal
 
   <prefix> → Iterable<Word> ** Iterable<WordSense> if case sensitive; optimized
   <suffix> → Iterable<Word> ** Iterable<WordSense> if case sensitive; linear traversal
@@ -430,24 +561,40 @@ everything
   <random POS/Word/WordSense/Synset>
     - good for unit tests and performance tests or "Synset'o'the'day"
     T random(rand, Class<T> clazz) // no good common bounds for clazz (except maybe package is org.yawni.wn)
+    - random Synset implemenation: random POS; random offset; pick closest Synset
+    * useful feature would be realistic skews (e.g., more common POS (NOUN), unigram vs. collocation, higher senseTaggedFrequency)
 
   <custom output format>  e.g., http://www.w3.org/TR/wordnet-rdf/
+   - activate outputting specific fields (e.g., synset offset, lexname, isCore, ...)
+
+- customize rendering
+  - use custom EditorKit which "knows how" to render various yawni primitive types (e.g., Synset, WordSense, Relation, Word, ...)
+  - add methods to generate a standard XML form of the various yawni primitive types,  then use XSLT to generate XHTML for rendering
+  * already have crude "rendering pipeline" which converts yawni primitives to HTML
+    - displayOverview()
+      - displaySense(Word)
+        - appendSenses(Word, buffer, false);
+    - displaySenses(Word word)
+      - appendSenses(word, buffer, true);
+    - displaySenseChain(Word word, RelationType relationType)
+      - appendSenseChain(StringBuilder buffer, WordSense rootWordSense, RelationTarget sense, RelationType inheritanceType, RelationType attributeType)
+        - appendSenseChain(StringBuilder buffer, WordSense rootWordSense, RelationTarget sense, RelationType inheritanceType, RelationType attributeType, int tab, Link ancestors)
+    - displayVerbFrames(Word word)
+      
 
   * many of these are just filters which require exhaustive iteration
-    - these only make sense in substring search than (since its not stemmed)
+    - these only make sense in substring SearchFrame setting (since its not stemmed)
   * results sets can easily be large, so incremental display would be nice
     - SearchFrame / ConcurrentSearchListModel shows List/Iterable<Word> this way
     - seems easier in a commandline or web app
-  * result sets can be of many different types ({Word, Synset, WordSense} x {scalar, Iterable<T>})
+  * result sets can be of many different types ({Word, Synset, WordSense, LexicalRelation, SemanticRelation} x {scalar, Iterable<T>})
 - feature: core: design a useful Visitor API and implement it with TreeIterator
 - bug: doc: note that Substring search will NOT search inflected forms in some kind of documentation?  maybe it should try these if it has no matches ?
 x bug: gui: when going back and forth between Search and Substring search
   ? what happens ? not sure what this meant
-+ bug: "hypocrite" shows derivationally related forms menu option, but nothing shows up
 - feature: core: gui: factor static, non-public inner classes out (simpler?)
   - FileManager: *CharStream
-- bug: "Pertainym" word/label not actually shown, meaning demonstrated via example, e.g.
-  "...are nouns related to viral"
++ bug: gui: "Pertainym" word/label not actually shown, meaning demonstrated via example, e.g.,  "...are nouns related to viral"
   ? maybe change "related to" to pertaining to"?
 ~ feature: core: gui: informative About dialog for debugging
   - would be good in both a commandline and gui browser
@@ -465,13 +612,19 @@ x bug: gui: when going back and forth between Search and Substring search
               getFileStream(...)
 
       ? maybe expose the FileManagerInterface we're using ? might open up Thread safety issues ?
-x feature: implement Set<Word> interface ?
-  ? not that useful, except for maybe size() (dubious value)
+x feature: implement Set<Word> interface ; while they will always be unique, List is more efficient
 < feature: adapative compressed form - gradually parse to "preparsed" form
 - feature: gui: use appassembler to generate scripts
   - WNHOME
   - JVM args
 ~ bug: core: switch to slf4j (more library friendly?)
+  - feature: core: add Maven profiles for various logging configs (log4j.properties, slf4j-nop, etc.)
+    log4j: enable log4j logging handler
+    jul: enable java.util.logging log handler
+  + bug: core: provide reasonable default logging configuration; shaded jar is weird;  don't want this junk to be seen;
+    default: noop
+    log4j:WARN No appenders could be found for logger (org.yawni.wn.FileManager).
+    log4j:WARN Please initialize the log4j system properly.
   - setup pom to take advantage of this debug tracing using a profile
   + set up a log4j.properties file
     - programmatically refer to this properties file so we don't have to set system property
@@ -481,16 +634,14 @@ x feature: implement Set<Word> interface ?
     - markmail perma link: 
 x feature: howto for developing in NetBeans ?
 + feature: package-info.java / overview.html
-+ bug: LICENSE.txt, NOTICE.txt, README -> README.txt
++ bug: LICENSE.txt, NOTICE.txt, README → README.txt
 < bug: gui: GTK theme: width of POS dropdowns is (much) different when there are no results for a given POS
   * that's the only issues with that theme! :)
 + bug: address/check any closed bugs of JWNL
 ~ bug: gui: remove junk trace output in GUI
 ~ bug: gui: switch everything over to Command + F (in addition to slash '/') - document this change
 + bug: remove totally experimental crap from release (Scala, ...)
-- bug: SearchFrame POS popup not receiving any keyboard input 
-  ? no longer reproducible ?
-  - depending on how it is selected, input continues to go directly to searchField
++ bug: gui: SearchFrame POS popup not receiving any keyboard input ; depending on how it is selected, input continues to go directly to searchField
 ~ bug: gui: audit UI and functionality; compare to wnb, WordNet Online, OS X Dictionary, etc.
   - compare to wnb - color, history, help, redisplay overview button, specific-sense filter
   - compare to WordNet online - color
@@ -548,10 +699,10 @@ x feature: howto for developing in NetBeans ?
       [aciculum, acicula] NOUN - search for "acicula" works, but "aciculum" fails?
       [furculum, furcula] NOUN - backwards in exc file  
     - also seems to happen for [cathar, cathari, Cathari] NOUN
-    * looked like multi-stemming bug (N wounds -> N wound -> N wind)
+    * looked like multi-stemming bug (N wounds → N wound → N wind)
     ? are these issues all related to exceptions ?
   + bug: core: noisy, scary logging in lookupSynsets()
-+ feature: core: T[] -> List<T> API improvement - use NetBeans to do this
++ feature: core: T[] → List<T> API improvement - use NetBeans to do this
   - key here is ImmutableList<T>
     - Collections.emptyList()
     - Collections.singletonList(T) - more space efficient
@@ -613,6 +764,7 @@ x feature: howto for developing in NetBeans ?
   * http://java.dzone.com/news/festive-functional-tests-swing
   + decent keyboard-nav test of core search window
   + test PopdownButton Enter key with mouse in it (was hard problem to solve!)
+  - test getDominantCasedLemma
   - test SearchFrame
     - validate JList contents
   - test font zoom
@@ -634,7 +786,7 @@ x feature: howto for developing in NetBeans ?
 + feature: update .jnlp file using pom.xml properties
 
 - Core
-  ~ feature: core: meta-pointers (e.g., Hypo/InstanceHypo)
+  ~ feature: core: meta-relations (e.g., Hypo/InstanceHypo)
     ? can a node have hyponyms AND instance hyponyms (or hypernyms AND instance hypernyms) ?
       - write test to look
     - good example: full hyponyms of "person"
@@ -672,10 +824,14 @@ x feature: howto for developing in NetBeans ?
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > /dev/null
 
       # verified same search results with and without filters
-      # NOTE: redirecting to disk rather than /dev/null increases XXX wrong
-      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > filters
+      # NOTE: redirecting to disk rather than /dev/null sometimes increases rate by a lot (55s vs. 37s; very reliably!)
+      unset WNHOME && time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > filters
       
+      # uses WNHOME env ; theories: mmaping frees up RAM for caches increases performance; something about jar IO is much slower (unzipping, copying large buffers into place, "indexing" into jar...)
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > no_filters
+
+      # uses WNHOME env AND has Bloom filters available: less memory avilable for caching decreases performance
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > filters
 
     - optimization opportunities:
       * IO methods most costly: readLineWord(), scanForwardToLineBreak(), scanToSpace()
@@ -723,7 +879,7 @@ x feature: howto for developing in NetBeans ?
     - limit extremely unlikely combos (e.g., 2+ dashes)
       - maybe multi-word getindex() logic doesn't make as much sense for non-NOUNs
     - make these heuristics optional (config param or method param?)
-    * Goal: These heuristics should be strict enough to not make stupid mistakes ("I ran" -> "Iran", "be an" -> bean")
+    * Goal: These heuristics should be strict enough to not make stupid mistakes ("I ran" → "Iran", "be an" → bean")
       and loose enough to catch most reasonable variants ("wild goose chase" == "wild-goose chase",
       "wide-screen" == "widescreen")
     - search for "U.S." should match search for "U. S."
@@ -737,18 +893,19 @@ x feature: howto for developing in NetBeans ?
     o "V.P." should match "VP"
     o "widescreen" should match "wide-screen"
     o "wild goose chase" should match "wild-goose chase"
-    o "f.d. roosevelt" -> "f. d. roosevelt" ->? "fd roosevelt"
-    o "a.k.a." -> "aka"
-    o "Dr." -> "Dr" (like "Mr." matches "Mr")
-    o "e.g." -> "e.g" ->? "eg"
-    o "et al" -> "et. al." -> "et al."
-    o "etc." -> "etc"
-    o "DOA" -> "d.o.a"
-    o "BTU" -> "b.t.u."
+    o "f.d. roosevelt" → "f. d. roosevelt" →? "fd roosevelt"
+    o "a.k.a." → "aka"
+    o "Dr." → "Dr" (like "Mr." matches "Mr")
+    o "e.g." → "e.g" →? "eg"
+    o "et al" → "et. al." → "et al."
+    o "etc." → "etc"
+    o "DOA" → "d.o.a"
+    o "BTU" → "b.t.u."
     * many initials already have their period-free form in the data files
   - feature: core: create lemmatizing Lucene analyzer
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
-  - feature: core: ⊚ nice interface to verb groups; add a field (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/man/wngroups.7WN)
+  - feature: core: ⊚ nice API to verb groups; add a field to WordSense (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html)
+    - since this relation is sort of lexical, we can add specicialized impl and filter on source WordSense, but return source Synset; note the common thread is the Word, NOT the WordSense
   ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on class(es)? though could hide real bugs) 
   - bug: core: doc: document sort orders of Word, WordSense, Synset, and Relation
     - Word: 
@@ -756,7 +913,7 @@ x feature: howto for developing in NetBeans ?
     - Synset: 
     - Relation:
   - feature: core: doc: document approximate runtime of various search algorithms
-  ~ feature: core: ⊚ add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" -> "cliche"))
+  ~ feature: core: ⊚ add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" → "cliche"))
     - an alternative is org.apache.lucene.analysis.ASCIIFoldingFilter
     - Normalizer requires Java 6 which excludes some platforms - could use reflection
     - aka words with diacritics: http://en.wikipedia.org/wiki/List_of_English_words_with_diacritics
@@ -829,7 +986,7 @@ x feature: howto for developing in NetBeans ?
     - Linux doesn't use anti-aliased fonts
     - Linux and OS X + Java 5: preferred button size much smaller (esp on Linux)
     - Linux and OS X + Java 5: fonts much smaller ⌘
-    - Linux and OS X + Java 6: font sizes OK, but File->"Substring Search" menu label overwritten by accelerator text "⌘+F"
+    - Linux and OS X + Java 6: font sizes OK, but File→"Substring Search" menu label overwritten by accelerator text "⌘+F"
   ~ feature: gui: find-as-type (at least in substring search)
     - optimize re-fill, esp for short searches ('a')
       - caching recent searches would be effective (lotsa RAM?)
@@ -844,7 +1001,7 @@ x feature: howto for developing in NetBeans ?
       - enter key could sync to Browser ?
     - consider alternate sorts for results (longest first, shortest first, "gloss-corpus" frequency ranked?)
   - feature: gui: ⊚ content auto complete in text fields (esp if there's only 1 completion left)
-  - feature: make Browser statusbar exactly the same height as iTunes one (include re-sizer handle) (POLS: Principle of Least Surprise)
+  - feature: gui: make Browser statusbar exactly the same height as iTunes one (include re-sizer handle) (POLS: Principle of Least Surprise)
     - check out mac_widgets BottomBar
   < feature: issue searches and generate output for multiple POS in parallel with pool of 4 worker threads
     ? do this in library ? almost every search and search component could
@@ -863,7 +1020,7 @@ x feature: howto for developing in NetBeans ?
     - number of nouns, verbs, ...
     - # of length x words (histogram)
     * fill in numbers matrix style for bonus points
-  - feature: gui: highlight query word in red like wnb in HTML results ? (bold now)
+  - feature: gui: highlight query word in red like wnb in HTML results (bold now)
   < feature: make L&F preferences (default.xml) based
   - bug: gui: SearchFrame always takes text of BrowserPanel even if it was indirectly, automatically populated via clicking on a SearchFrame list item search result
     - tricky because this field is used to store state used by POS RelationType menus
@@ -903,7 +1060,7 @@ x feature: howto for developing in NetBeans ?
     - use javax.swing.Timer to act on single clicks which turn out NOT to be multi-clicks
       http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=2&t=009927
     AbstractButton.getMultiClickThreshhold() may be useful
-  + feature: gui: generate the little Mac magnifying glass icon with Java2D and make it the substring menu icon; used DrawIt
+  + feature: gui: generate the magnifying glass icon with Java2D and make it the substring menu icon; used DrawIt
   + feature: gui: what is the "standard" undo/redo icon ?
     ~ macvim (7.1r27) ones look pretty official (includes the swishy orange undo arrow)
       + emailed author and requested SVG version but he never responded
@@ -930,10 +1087,10 @@ x feature: howto for developing in NetBeans ?
       - use Quartz rendering pipeline options ?
   < bug: gui: native Linux (GTK) L&F seems to work on lcc64 only ? java6 only ? 64-bit JVM only ?
   < feature: gui: hyperlink word senses in glosses using new http://wordnet.princeton.edu/glosstags
-  < feature: gui: add font zoom buttons to BrowserPanel (could use same ones created for the menu or maybe a little larger)
+  < feature: gui: add font zoom buttons to BrowserPanel (could use same ones created for the menu)
   - feature: gui: add edit menu and copy, paste, select all, +undo, +redo to it
   - feature: gui: add back/forward (history) buttons to BrowserPanel (just trigger undo)
-  - feature: gui: in search fields, filter input and show history
+  - feature: gui: in search fields, filter input and show history; could use editable combobox style dropdown (at least on Linux, Windows)
     - xswingx / swinglabs
     - using Swing Hacks technique
   ~ feature: gui: history in text fields (xswingx)
@@ -1015,7 +1172,7 @@ x feature: howto for developing in NetBeans ?
   + feature: gui: fix Quit in File menu
   + on OSX, menus are "correct"
   + feature: gui: always show horizontal and vertical scrollbars per OSX UI guidelines (avoids weird shift crap)
-  + feature: capitalize POS labels (noun -> Noun)
+  + feature: capitalize POS labels (noun → Noun)
   + fixed numerous issues with Search Substring
     * no limits on search (e.g. no "Error: search string less than 3 characters")
   + feature: gui: simplified layout management
@@ -1026,7 +1183,7 @@ x feature: howto for developing in NetBeans ?
   + feature: almost no indexed based loops now
   + feature: many more RelationType displays are correct now (Adj syns, etc)
 
-+ feature: rename Word -> WordSense, IndexWord -> Word
++ feature: rename Word → WordSense, IndexWord → Word
   + use Eclipse refactor - much better Java support
     + update docs, browser, example, tests
   + made a proper XCode project
@@ -1038,11 +1195,11 @@ x feature: howto for developing in NetBeans ?
   - where should this go ? 
     * not needed for library to function, although adds no dependencies
       very small increase in jar file size -- maybe who cares ??
-    -> who cares - add browser package
+    → who cares - add browser package
 - bug: core: audit, clean up FIXMEs and TODOs
   - factor some inner classes into outter, non-public classes
   - remove cruft / extra debug crap
-- feature: consider taking CharSequence for search in interface to allow use of mutable query "String"'s, etc (from user perspective, still fully backwards compat with String (Java 1.5-wise)
+< feature: consider taking CharSequence for search in interface to allow use of mutable query "String"'s, etc (from user perspective, still fully backwards compat with String (Java 1.5-wise)
 + feature: run code through various tools (God bless Maven)
   + findbugs (http://findbugs.cs.umd.edu/demo/jnlp/findbugs.jnlp)
   + CPD - looks good (http://pmd.sourceforge.net/cpd.jnlp)
@@ -1059,13 +1216,13 @@ x feature: howto for developing in NetBeans ?
     FAQ http://wordnet.princeton.edu/faq#morphology says "the morphological component of WordNet is unidirectional"
     "long time" is a NOUN, "longtime" is an ADJ, both come up in searches for
     "long time", but only the ADJ comes up in searches for "longtime"
-  - why doesn't "blogging" -> "blog" work ? (double g)
+  - why doesn't "blogging" → "blog" work ? (double g)
     - seems "running" (double n) is considered an exception ($WNHOME/dict/verb.exc)
     ? maybe morphy should just try this variant ?
-    - similar for removing e in shaking hands -> shake hands
+    - similar for removing e in shaking hands → shake hands
   - shootout test against Porter stemmer (copy from Lucene)
-    - many sublteties here - may stem incorrectly (???), may not (blogging->blog)
-  - stem special words: naive → naïve ; resume -> résumé
+    - many sublteties here - may stem incorrectly (???), may not (blogging→blog)
+  - stem special words: naive → naïve ; resume → résumé
   ~ add unit test to Lucene to ensure equality with Snowball generated Porter stemmer
   - consider integration with Snowball ?
 - feature: core: compare interface summary stats with those in: $WNHOME/dict/log.grind.3.0
@@ -1154,9 +1311,9 @@ Performance
         rough ASCII depiction of the interconnections:
 
                         v----\
-        Word -+-> Synset -+-> WordSense
-                         \+-> Relation |-> Synset (src)
-                                       |-> WordSense (src)
+        Word -+→ Synset -+→ WordSense
+                         \+→ Relation |→ Synset (src)
+                                       |→ WordSense (src)
 
       - stemming use case only needs Words
       - smart-case stemming needs WordSenses which need Synsets (requires NO Relations)
@@ -1179,8 +1336,8 @@ Performance
                   - even though they only have hard links in 1 direction, once the 
                     symmetric Relation (e.g., HYPONYM/HYPERNYM) is cached, both subgraphs
                     are snared
-                    ... X -> Y
-                        X <- Y ...
+                    ... X → Y
+                        X ← Y ...
       ? could we add more caches ?
         - WordSense's of a Word
       
@@ -1270,3 +1427,4 @@ General Project Quality
   - super memory efficient and fast
   - WordNet is an estabished project and no Apache licensed API exists
     - no high quality, pure Java commercial friendly license exists
+
