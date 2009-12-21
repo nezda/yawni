@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Iterator;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.RandomAccess;
 
 /**
@@ -32,9 +30,10 @@ public class Utils {
 
   /**
    * @return {@code str} with its first letter {@link Character#toUpperCase}
+   * TODO move to CharSequences ?
    */
-  public static String capitalize(final String str) {
-    return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+  public static String capitalize(final CharSequence str) {
+    return Character.toUpperCase(str.charAt(0)) + str.subSequence(1, str.length()).toString();
   }
 
   /**
