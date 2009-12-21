@@ -38,7 +38,8 @@ import static org.yawni.wn.RelationTypeFlag.*;
  * 
  * <p> Relevant C code is in {@code include/wn.h}, {@code src/wnglobal.c}
  *
- * @see <a href="http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4">http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4</a>
+ * @see <a href="http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4">
+ *   http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4</a>
  * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
  * @see Relation
  * @see POS
@@ -79,7 +80,7 @@ public enum RelationType {
   /**
    * Verb senses that are similar in meaning and have been manually grouped together.
    * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
-   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html"
+   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html">
    *  wngroups.7WN</a>
    */
   VERB_GROUP("verb group", "$", 19, V),
@@ -150,11 +151,12 @@ public enum RelationType {
   ANTONYM("antonym", "!", 1, N | V | ADJ | ADV | LEXICAL, "Antonyms (... is the opposite of %s)"),
 
   // 'domains'
+  
   /** aka "a topic/domain" */
   DOMAIN_OF_TOPIC("Domain of synset - TOPIC", ";c", 32, N | V | ADJ | ADV),
   /**
-   * Frequently lexical.
    * aka "a usage type"
+   * Frequently lexical.
    */
   DOMAIN_OF_USAGE("Domain of synset - USAGE", ";u", 33, N | V | ADJ | ADV),
   /** aka "a region" */
