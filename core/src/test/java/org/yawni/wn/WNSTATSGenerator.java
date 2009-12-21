@@ -69,6 +69,8 @@ public class WNSTATSGenerator {
       System.out.print(row);
     }
 
+    System.out.println();
+
     System.out.println("Average Polysemy information");
 
     //POS   	Average Polysemy   	        Average Polysemy
@@ -85,6 +87,8 @@ public class WNSTATSGenerator {
         posLabel, averagePolysemy, averagePolysemousPolysemy);
       System.out.print(row);
     }
+
+    System.out.println();
 
     // MergedIterable doesn't support passing in a Comparator (yet); for
     // the sort below to validate would require passing in WordNetLexicalComparator
