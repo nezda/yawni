@@ -204,7 +204,8 @@
 
 
 This code is derivative work of the original JWordNet by Oliver Steele
-hosted at https://sourceforge.net/projects/jwn/
+previousely hosted at http://sourceforge.net/projects/jwn/, but now hosted
+at http://sourceforge.net/projects/yawni/
 
 /*
  * Copyright 1998 by Oliver Steele.  You can use this software freely so long as you preserve
