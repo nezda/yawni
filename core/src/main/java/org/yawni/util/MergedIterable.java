@@ -29,57 +29,57 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1 };
-      return merge(false, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1 };
+    return merge(false, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1, final Iterable<T> base2) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2 };
-      return merge(false, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2 };
+    return merge(false, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1,
                       final Iterable<T> base2, final Iterable<T> base3) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3 };
-      return merge(false, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3 };
+    return merge(false, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<T> base0, final Iterable<T> base1,
                       final Iterable<T> base2, final Iterable<T> base3,
                       final Iterable<T> base4) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3, base4 };
-      return merge(false, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3, base4 };
+    return merge(false, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final Iterable<T> base0, final Iterable<T> base1) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1 };
-      return merge(validateSort, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1 };
+    return merge(validateSort, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort,
                       final Iterable<T> base0, final Iterable<T> base1, final Iterable<T> base2) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2 };
-      return merge(validateSort, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2 };
+    return merge(validateSort, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort,
                       final Iterable<T> base0, final Iterable<T> base1,
                       final Iterable<T> base2, final Iterable<T> base3) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3 };
-      return merge(validateSort, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3 };
+    return merge(validateSort, bases);
   }
 
   public static <T extends Object & Comparable<? super T>>
@@ -87,9 +87,9 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
                       final Iterable<T> base0, final Iterable<T> base1,
                       final Iterable<T> base2, final Iterable<T> base3,
                       final Iterable<T> base4) {
-      @SuppressWarnings("unchecked")
-      final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3, base4 };
-      return merge(validateSort, bases);
+    @SuppressWarnings("unchecked")
+    final Iterable<T>[] bases = (Iterable<T>[]) new Iterable[] { base0, base1, base2, base3, base4 };
+    return merge(validateSort, bases);
   }
 
   /** Primary factory method so template parameters are deduced. */
@@ -125,11 +125,11 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
   }
 
   private void validateSort(final boolean validateSort, final Iterable<T>... bases) {
-    if (false == validateSort) {
+    if (! validateSort) {
       return;
     }
     for (final Iterable<T> iterable : bases) {
-      if (Utils.isSorted(iterable, true) == false) {
+      if (! Utils.isSorted(iterable, true)) {
         final StringBuilder msg = new StringBuilder("Iterable ").
           append(iterable).append(" violates sort criteria.");
         throw new IllegalArgumentException(msg.toString());
@@ -184,7 +184,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
       // find min() of non-SENTINEL tops, tag its Iterator again, and return that
       // min item
       int min = 0;
-      for (int i=1; i < tops.length; i++) {
+      for (int i = 1; i < tops.length; i++) {
         if (tops[i] != SENTINEL) {
           if (tops[min] == SENTINEL) {
             min = i;
