@@ -478,6 +478,19 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return ImmutableList.copyOf(frames);
   }
 
+  /**
+   * A ranking of synsets derived from word frequencies in the <a href="http://www.natcorp.ox.ac.uk">
+   *   British National Corpus/</a>;
+   * synsets have been selected by salience.
+   * @return rank or -1 if sense is unranked
+   * 
+   * @see <a href="http://wordnet.cs.princeton.edu/downloads.html">
+   *   http://wordnet.cs.princeton.edu/downloads.html</a>
+   */
+  int getCoreRank() {
+    throw new UnsupportedOperationException();
+  }
+
   public String getDescription() {
     if (getPOS() != POS.ADJ && getPOS() != POS.SAT_ADJ) {
       return lemma;
