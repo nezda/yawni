@@ -20,7 +20,7 @@ import org.yawni.util.Preconditions;
 import org.yawni.util.Utils;
 
 /**
- * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">WNSTATS</a>
+ * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">wnstats</a>
  */
 public class WNSTATSGenerator {
   public static void main(String[] args) {
@@ -67,8 +67,21 @@ public class WNSTATSGenerator {
       System.out.print(row);
     }
 
+    System.out.println("Average Polysemy information");
+
     //POS   	Average Polysemy   	        Average Polysemy
     //        Including Monosemous Words 	Excluding Monosemous Words
+    for (final POS pos : POS.CATS) {
+      final String posLabel = Utils.capitalize(pos.getLabel());
+      final long numWords = Utils.distance(dictionary.words(pos));
+      final long numWordSenses = Utils.distance(dictionary.wordSenses(pos));
+      final long numPolysemousWordSenses = polysemousWordSensesCount(pos, dictionary);
+      final double averagePolysemy = ((double)numWordSenses) / numWords;
+      final double averagePolysemousPolysemy = ((double)numPolysemousWordSenses) / numWords;
+      final String row = String.format("%-10s%20.2f%20.2f\n",
+        posLabel, averagePolysemy, averagePolysemousPolysemy);
+      System.out.print(row);
+    }
   }
 
   private static long monosemousWordCount(final POS pos, final DictionaryDatabase dictionary) {
@@ -91,33 +104,14 @@ public class WNSTATSGenerator {
     return polysemousWordCount;
   }
 
-  // there are different interpretations of "Polysemous Senses"
-  // Word can be in different Synsets
-  // Synset can have multiple members
   private static long polysemousWordSensesCount(final POS pos, final DictionaryDatabase dictionary) {
     long polysemousWordSenseCount = 0;
-//    for (final WordSense wordSense : dictionary.wordSenses(pos)) {
-//      if (wordSense.getSynset().getWordSenses().size() > 1) {
-//        polysemousWordSenseCount++;
-//      }
-//    }
-
-//    for (final Synset synset : dictionary.synsets(pos)) {
-//      final int synsetSize = synset.getWordSenses().size();
-//      if (synsetSize > 1) {
-//        polysemousWordSenseCount++;
-////        polysemousWordSenseCount += synsetSize;
-//      }
-//    }
-
     for (final Word word : dictionary.words(pos)) {
       final int numSenses = word.getWordSenses().size();
       if (numSenses > 1) {
-//        polysemousWordSenseCount++;
         polysemousWordSenseCount += numSenses;
       }
     }
-
     return polysemousWordSenseCount;
   }
 }
