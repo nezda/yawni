@@ -71,7 +71,7 @@
   <packaging>pom</packaging>
   <modules>
     <!-- no need to build this everytime, but who builds from the root? -->
-    <module>data</module>
+    <!-- <module>data</module> -->
     <module>core</module>
     <module>browser</module>
   </modules>
