@@ -28,7 +28,7 @@
   <name>Yawni Core</name>
   <version>2.0.0-SNAPSHOT</version>
   <description>
-    Yawni is a pure Java standalone object-oriented interface to the WordNet
+    Yawni core: a pure Java standalone object-oriented interface to the WordNet
     database of lexical and semantic relationships.
   </description>
   <packaging>jar</packaging>
