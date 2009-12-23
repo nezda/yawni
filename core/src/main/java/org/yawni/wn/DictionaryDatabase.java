@@ -50,7 +50,8 @@ public interface DictionaryDatabase {
 //  public String lookupBaseForm(final POS pos, final String derivationLemma);
 
   /**
-   * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems") of {@code someString} in {@code pos}.
+   * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems"),
+   * as wel as any exceptional forms, of {@code someString} in {@code pos}.
    * Utilizes an implementation of the {@code morphstr()} and {@code getindex()} algorithms.
    * See {@link WordSense#getLemma()} for a description of "true cased" base forms.
    * @param someString someString does <em>not</em> need to be a base form
@@ -58,6 +59,8 @@ public interface DictionaryDatabase {
    * @return an immutable list of the baseform(s) of {@code someString}
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html</a>
+   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
+   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a> describes 'exceptional forms'
    */
   public List<String> lookupBaseForms(final String someString, final POS pos);
 
@@ -154,6 +157,8 @@ public interface DictionaryDatabase {
    * Return an iterator of <strong>all</strong> the exceptions for the given part-of-speech.
    * @param pos The part-of-speech.
    * @return An iterable of the exceptional strings.
+   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
+   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    */
   public Iterable<List<String>> exceptions(final POS pos);
 }
