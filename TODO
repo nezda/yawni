@@ -327,10 +327,14 @@ everything
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
 - issues
+  - feature: core: consider public API adition: List<String> getExceptions(final CharSequence someString, final POS pos)
+  - bug: core: if WNSEARCHDIR is defined, it seems to override data jar ? can't replicate this issue -- maybe need to point it at a real WordNet 2.x dict/ dir ?
   - bug: core: gui: update SourceForge site (add download, no longer beta, Maven info, ...)
   - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
-  - bug: core: gui: ⊚ default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
-  - bug: core: decrease unit test Xmx -- 256m is excessive; parameterize this; note that base cache sizes form a minimum
+  + bug: core: gui: ⊚ default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
+  - bug: core: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
+    - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
+      - these can easily get fairly large and capture 
   + bug: core: include Princeton WordNet license in data subproject !
   - bug: core: ⊚ $WNHOME/$WNSEARCHDIR environment collison(s) would be confusing to debug
   < feature: gui: consider left-aligning button/searchField pod; Muller OS X WordNet does this
