@@ -57,13 +57,9 @@ import org.yawni.util.cache.Caches;
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
  * calls to {@link #lookupWord} with the same parameters would return the same value
  * ({@code ==} as well as {@code equals}), as would traversal of two {@link Relation}s
- * that shared the same target.  The current implementation uses an LRU cache, so it's possible for
- * two different objects to represent the same entity, if their retrieval is separated by other
- * database operations.
- *
- * <p>FIXME revisit this old comment FIXME
- * <i>The LRU cache will be replaced by a
- * cache based on WeakHashMap, once JDK 1.2 becomes more widely available.</i>
+ * that shared the same target.  Under memory pressure, it is possible for
+ * two different ({@code !=}, but still {@code equals}) objects to represent the same entity, 
+ * if their retrieval is separated by other database operations.
  *
  * @see DictionaryDatabase
  * @see Cache
@@ -584,6 +580,8 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * processor find base forms from irregular inflections.  <b>NOTE: Skip the
    * first entry (the exceptional word itself!)</b>
    * Port of {@code morph.c exc_lookup()}
+   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
+   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    */
   ImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
     if (! maybeException(someString, pos)) {
