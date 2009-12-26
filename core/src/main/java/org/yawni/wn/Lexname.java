@@ -131,7 +131,6 @@ enum Lexname {
     assert posOrdinalStr.indexOf(' ') < 0;
   }
 
-  // replaces FileBackedDictionary.lookupLexCategory(int lexnum)
   static String lookupLexCategory(final int lexnum) {
     return VALUES[lexnum].label;
   }
