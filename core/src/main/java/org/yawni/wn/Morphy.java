@@ -240,10 +240,10 @@ class Morphy {
     }
 
     // Then try simply morph on original string
-    if (phase1Done == false &&
+    if (! phase1Done &&
         pos != POS.VERB &&
-        false == (tmp = morphword(str, pos)).isEmpty() &&
-        tmp.get(0).equals(str) == false) {
+        ! (tmp = morphword(str, pos)).isEmpty() &&
+        ! tmp.get(0).equals(str)) {
       if (log.isDebugEnabled()) {
         log.debug("Morphy hit str: "+str+" tmp.get(0): "+tmp.get(0)+
             " tmp.size(): "+tmp.size()+" tmp: "+tmp);
@@ -262,7 +262,7 @@ class Morphy {
     Word word = null;
 
     int prep;
-    if (phase1Done == false &&
+    if (! phase1Done &&
         pos == POS.VERB && wordCount > 1 &&
         (prep = hasprep(str, wordCount)) != 0) {
       // assume we have a verb followed by a preposition
@@ -276,7 +276,7 @@ class Morphy {
       }
       phase1Done = true;
       //FIXME "if verb has a preposition, then no more morphs"
-    } else if (phase1Done == false) {
+    } else if (! phase1Done) {
       final int origWordCount;
       svcnt = origWordCount = wordCount = countWords(str, '-');
       if (log.isDebugEnabled()) {
@@ -414,10 +414,10 @@ class Morphy {
 
     if (svprep > 0) {
       // if verb has preposition, no more morphs
-      //assert toReturn.isEmpty() == false; // we should already have added 1 thing right ?
+      //assert ! toReturn.isEmpty(); // we should already have added 1 thing right ?
       svprep = 0;
     } else if (svcnt == 1) {
-      //assert toReturn.isEmpty() == false; // we should already have added 1 thing right ?
+      //assert ! toReturn.isEmpty(); // we should already have added 1 thing right ?
       tmp = dictionary.getExceptions(str, pos);
       for (int i = 1; i < tmp.size(); i++) {
         toReturn.add(underScoreToSpace(tmp.get(i)));
@@ -632,9 +632,7 @@ class Morphy {
     String retval = null;
     if (! exc_words.isEmpty() && ! exc_words.get(1).equals(firstWord)) {
       if (exc_words.size() != 2) {
-        if (log.isWarnEnabled()) {
-          log.warn("losing exception list variant(s)?!: "+exc_words);
-        }
+        log.warn("losing exception list variant(s)?!: {}", exc_words);
       }
       retval = exc_words.get(1) + s.substring(rest);
       Word word;
@@ -703,9 +701,7 @@ class Morphy {
 
   private void checkLosingVariants(final ImmutableList<String> words, final String message) {
     if (words.size() != 1) {
-      if (log.isWarnEnabled()) {
-        log.warn(message+" losing variants!: "+words);
-      }
+      log.warn("{} losing variants!: {}", message, words);
     }
   }
 
