@@ -23,7 +23,7 @@ public final class SemanticRelation extends Relation {
   SemanticRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
     final int index, final RelationTarget source, final byte relationTypeOrdinal) {
     super(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
-    assert getSource() instanceof Synset;
+    assert super.getSource() instanceof Synset;
     // can't call getTarget() - infinite recursion
   }
 

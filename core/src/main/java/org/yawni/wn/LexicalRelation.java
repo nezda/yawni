@@ -23,7 +23,7 @@ public final class LexicalRelation extends Relation {
   LexicalRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
     final int index, final RelationTarget source, final byte relationTypeOrdinal) {
     super(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
-    assert getSource() instanceof WordSense;
+    assert super.getSource() instanceof WordSense;
     // can't call getTarget() - infinite recursion
   }
 
