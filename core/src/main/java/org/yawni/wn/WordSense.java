@@ -444,9 +444,10 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
         assert sentence != null;
         frames.add(sentence);
       }
-    } else {
-      //assert verbFrameFlags == 0L : "not mutually exclusive for "+this;
     }
+    //else {
+      //assert verbFrameFlags == 0L : "not mutually exclusive for "+this;
+    //}
     if (verbFrameFlags != 0L) {
       final int numGenericFrames = Long.bitCount(verbFrameFlags);
       if (frames.isEmpty()) {
