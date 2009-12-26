@@ -285,10 +285,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return "cntlist.rev";
   }
 
-  private static String getLexnamesFilename() {
-    return "lexnames";
-  }
-
   private static String getVerbSentencesIndexFilename() {
     return "sentidx.vrb";
   }
@@ -300,7 +296,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   private static String getGenericVerbFramesFilename() {
     return "frames.vrb";
   }
-
 
   //
   // Entity retrieval
@@ -468,13 +463,14 @@ public final class FileBackedDictionary implements DictionaryDatabase {
         }
         if (offset >= 0) {
           indexWord = getIndexWordAt(pos, offset);
-        } else {
-          // if here && false == INDEX_DATA_FILTERS.isEmpty()
-          //   false positive
         }
+        //else {
+          // if here && ! INDEX_DATA_FILTERS.isEmpty()
+          //   false positive
+        //}
       }
       // best not to add negative results (indexWord == NULL_INDEX_WORD)
-      // to the LRU cache - let Bloom filter / maybeDefined() == false handle this
+      // to the LRU cache - let Bloom filter / ! maybeDefined() handle this
       if (indexWord != NULL_INDEX_WORD) {
         indexWordCache.put(cacheKey, indexWord);
       }
@@ -483,25 +479,25 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** LN Not used much - this might not even have a <i>unique</i> result ? */
-  //public String lookupBaseForm(final POS pos, final String derivation) {
-  //  checkValidPOS(pos);
-  //  // TODO add caching!
-  //  final String filename = getExceptionsFilename(pos);
-  //  try {
-  //    final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
-  //    if (offset >= 0) {
-  //      final String line = db.readLineAt(offset, filename);
-  //      // FIXME there could be > 1 entry on this line of the exception file
-  //      // technically, i think should return the last word:
-  //      //   line.substring(line.lastIndexOf(' ') + 1)
-  //      final int spaceIdx = line.indexOf(' ');
-  //      return line.substring(spaceIdx + 1);
-  //    }
-  //  } catch (IOException e) {
-  //    throw new RuntimeException(e);
-  //  }
-  //  return null;
-  //}
+//  public String lookupBaseForm(final POS pos, final String derivation) {
+//    checkValidPOS(pos);
+//    // TODO add caching!
+//    final String filename = getExceptionsFilename(pos);
+//    try {
+//      final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
+//      if (offset >= 0) {
+//        final String line = db.readLineAt(offset, filename);
+//        // FIXME there could be > 1 entry on this line of the exception file
+//        // technically, i think should return the last word:
+//        //   line.substring(line.lastIndexOf(' ') + 1)
+//        final int spaceIdx = line.indexOf(' ');
+//        return line.substring(spaceIdx + 1);
+//      }
+//    } catch (IOException e) {
+//      throw new RuntimeException(e);
+//    }
+//    return null;
+//  }
 
   /** {@inheritDoc} */
   public List<String> lookupBaseForms(final String someString, final POS pos) {
@@ -554,7 +550,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
     // sometimes all morphstr() values will be generated and undefined for this POS
     // FIXME annoying that morphy sometimes returns undefined variants
-    if (morphs.isEmpty() == false && syns.isEmpty()) {
+    if (! morphs.isEmpty() && syns.isEmpty()) {
       //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
       return ImmutableList.of();
     }
