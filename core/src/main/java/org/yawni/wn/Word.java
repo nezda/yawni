@@ -16,7 +16,7 @@
  */
 package org.yawni.wn;
 
-import java.lang.ref.SoftReference;
+//import java.lang.ref.SoftReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
