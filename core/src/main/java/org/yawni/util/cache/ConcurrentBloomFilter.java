@@ -109,7 +109,7 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
    * @return         The optimal number of hashing functions.
    */
   private static int numberOfHashes(int capacity, int bits) {
-    return (int) ceil((bits / capacity) * log(2));
+    return (int) ceil((((double)bits) / capacity) * log(2));
   }
 
   /**
