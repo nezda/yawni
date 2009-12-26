@@ -73,8 +73,8 @@ public final class FileManager implements FileManagerInterface {
     synchronized int matchingOffset(final String filename, final int offset) {
       if (this.filename == null ||
           previous != offset ||
-          //false == this.filename.equals(filename)
-          false == this.filename.equals(filename)
+          //! this.filename.equals(filename)
+          ! this.filename.equals(filename)
           ) {
         return -1;
       } else {
@@ -121,7 +121,7 @@ public final class FileManager implements FileManagerInterface {
     String generatedSearchDir = null;
     if (wnHome != null) {
       generatedSearchDir = wnHome + File.separator + "dict/";
-      if (false == isReadableFile(generatedSearchDir)) {
+      if (! isReadableFile(generatedSearchDir)) {
         generatedSearchDir = null;
       }
     }
@@ -248,7 +248,6 @@ public final class FileManager implements FileManagerInterface {
     }
   } // end class RAFCharStream
 
-
   /**
    * {@link ByteBuffer} {@code CharStream} implementation.
    * This {@code CharStream} is boots very quickly (little slower than
@@ -348,7 +347,7 @@ public final class FileManager implements FileManagerInterface {
       boolean crnl = false;
       resetBuffer(doBuffer);
       char c;
-      while (done == false && position < capacity) {
+      while (! done && position < capacity) {
         c = (char) bbuff.get(position++);
         switch (c) {
           case '\r':
@@ -385,6 +384,7 @@ public final class FileManager implements FileManagerInterface {
       }
     }
   } // end class NIOCharStream
+  
   /**
    * Fast {@code CharStream} created from InputStream (e.g., can be read from jar file)
    * backed by a byte[].  This {@code CharStream} is slowest to boot
@@ -400,16 +400,17 @@ public final class FileManager implements FileManagerInterface {
     InputStreamCharStream(final String filename, final InputStream input, final int len) throws IOException {
       super(filename, asByteBuffer(input, len, filename));
     }
-    /**
-     * @param filepath
-     */
-    //InputStreamCharStream(final String filepath) throws IOException {
-    //  this(filepath, new FileInputStream(filepath), -1);
-    //}
+//    /**
+//     * @param filepath
+//     */
+//    InputStreamCharStream(final String filepath) throws IOException {
+//      this(filepath, new FileInputStream(filepath), -1);
+//    }
     /**
      * @param input
      * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
      * 1 buffer thus maximizing efficiency.
+     * @param filename 
      */
     private static ByteBuffer asByteBuffer(final InputStream input, final int len, final String filename) throws IOException {
       if (len == -1) {
@@ -417,8 +418,8 @@ public final class FileManager implements FileManagerInterface {
       }
       final byte[] buffer = new byte[len];
       int totalBytesRead = 0;
-      while (input.available() > 0) {
-        int bytesRead = input.read(buffer, totalBytesRead, len - totalBytesRead);
+      int bytesRead;
+      while ((bytesRead = input.read(buffer, totalBytesRead, len - totalBytesRead)) > 0) {
         totalBytesRead += bytesRead;
       }
       // could resize buffer
@@ -429,70 +430,11 @@ public final class FileManager implements FileManagerInterface {
     }
   } // end class InputStreamCharStream
 
-  /**
-   * <h3> CURRENTLY NOT USED </h3>
-   * Like a read-only {@link CharBuffer} made from a {@link ByteBuffer} with a
-   * stride of 1 instead of 2.
-   */
-  private static class ByteCharBuffer implements CharSequence {
-    private final ByteBuffer bb;
-    ByteCharBuffer(final ByteBuffer bb) {
-      this(bb, true);
-    }
-    ByteCharBuffer(final ByteBuffer bb, final boolean dupAndClear) {
-      if (dupAndClear) {
-        this.bb = bb.duplicate();
-        this.bb.clear();
-      } else {
-        this.bb = bb;
-      }
-    }
-    public int capacity() { return bb.capacity(); }
-    public ByteCharBuffer clear() { bb.clear(); return this; }
-    public ByteCharBuffer duplicate() {
-      return new ByteCharBuffer(bb.duplicate(), false);
-    }
-    public ByteCharBuffer flip() { bb.flip(); return this; }
-    public char get() { return (char) bb.get(); }
-    public char get(final int index) { return (char) bb.get(index); }
-    public boolean hasRemaining() { return bb.hasRemaining(); }
-    public boolean isDirect() { return bb.isDirect(); }
-    public ByteCharBuffer slice() {
-      return new ByteCharBuffer(bb.slice(), false);
-    }
-    public int limit() { return bb.limit(); }
-    public ByteCharBuffer limit(final int newLimit){ bb.limit(newLimit); return this; }
-    public ByteCharBuffer mark() { bb.mark(); return this; }
-    public int position() { return bb.position(); }
-    public ByteCharBuffer position(final int newPosition) { bb.position(newPosition); return this; }
-    public int remaining() { return bb.remaining(); }
-    public ByteCharBuffer reset() { bb.reset(); return this; }
-    public ByteCharBuffer rewind() { bb.rewind(); return this; }
-    /** @inheritDoc */
-    public char charAt(final int index) { return get(index); }
-    /** @inheritDoc */
-    public int length() { return bb.remaining(); }
-    /** @inheritDoc */
-    public CharSequence subSequence(final int start, final int end) {
-      // XXX not sure if a slice should be used here
-      throw new UnsupportedOperationException("TODO IMPLEMENT ME");
-      // start and end are relative to position
-      // this operation should not change position though
-      // so cannot simply "return this;"
-      // (position()+start, position()+end]
-    }
-    @Override
-    public String toString() {
-      throw new UnsupportedOperationException("TODO IMPLEMENT ME");
-    }
-  } // end class ByteCharBuffer
-
   synchronized CharStream getFileStream(final String filename) throws IOException {
     return getFileStream(filename, true);
   }
 
-  // used in multi-threaded load initialization timing tests
-  //private long streamInitTime;
+  private long streamInitTime;
 
   /**
    * @param filename
@@ -503,10 +445,6 @@ public final class FileManager implements FileManagerInterface {
   private synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
-      // currently, if getWNHome() fails, the program crashes
-      // getWNSearchDir() uses getWNHome()
-      //
-      // new:
       // if YAWNI_USE_JAR, try the jar
       // - XXX sys prop to guaruntee using the jar to prevent weird
       //   application-level WN data version mismatches
@@ -526,22 +464,22 @@ public final class FileManager implements FileManagerInterface {
       //
       // If we read from jar, do we need user to trust our application at all?
       // - may not even need signing in this case - data also delivered as a 
-      //   (11MB) jar so not even network reads required)
+      //   (8.7MB) jar so not even network reads required)
       //
       // How can we test behavior in the sandboxed, high security environment?
       
       final String pathname =
-//        filenameWnRelative ? searchDirectory + File.separator + filename :
-        filenameWnRelative ? getWNSearchDir() + File.separator + filename :
-        filename;
-      //System.err.println("filenameWnRelative: "+filenameWnRelative);
-      //System.err.println("searchDirectory: "+searchDirectory);
-      //System.err.println("filename: "+filename);
+        filenameWnRelative ?
+          getWNSearchDir() + File.separator + filename :
+          filename;
+      log.trace("filename: {} pathname: {}", filename, pathname);
 
-      //final long start = System.nanoTime();
+      final long start = System.nanoTime();
       final File file = new File(pathname);
       log.debug("pathname: {}", pathname);
       if (file.exists() && file.canRead()) {
+        // TODO make this config selectable ? unfortunately, other than init time,
+        // performance of RAFCharStream is horrible
         //slow CharStream
         //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
         //fast CharStream stream
@@ -551,9 +489,9 @@ public final class FileManager implements FileManagerInterface {
         stream = getURLStream(filename);
         log.trace("URLCharStream");
       }
-      //final long duration = System.nanoTime() - start;
-      //final long total = streamInitTime += duration;
-      //System.err.printf("total: %,dns curr: %,dns\n", total, duration);
+      final long duration = System.nanoTime() - start;
+      final long total = streamInitTime += duration;
+      log.debug(String.format("total: %,dns curr: %,dns", total, duration));
 //      assert stream != null : "stream is still null";
       if (stream == null) {
         return null;
@@ -691,7 +629,7 @@ public final class FileManager implements FileManagerInterface {
       // invert -(o - 1)
       final int moffset = -(foffset + 1);
       final String aline = readLineAt(moffset, filename);
-      if (aline == null || false == CharSequences.startsWith(aline, prefix)) {
+      if (aline == null || ! CharSequences.startsWith(aline, prefix)) {
         zoffset = foffset;
       } else {
         zoffset = moffset;
@@ -724,7 +662,7 @@ public final class FileManager implements FileManagerInterface {
         }
         nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
         if (CharSequences.startsWith(word, prefix)) {
-          if (false == checkPrefixBinarySearch(prefix, origOffset, filename)) {
+          if (! checkPrefixBinarySearch(prefix, origOffset, filename)) {
             throw new IllegalStateException("search failed for prefix: "+prefix+" filename: "+filename);
           }
 
@@ -783,7 +721,7 @@ public final class FileManager implements FileManagerInterface {
     // - are there counter cases where the first-word binary search would return a different
     //   result than a "normal" binary search?
     //   - underscore comes before all lower cased letters
-    //assert Utils.containsUpper(target) == false;
+    //assert ! Utils.containsUpper(target);
     if (target.length() == 0) {
       return -1;
     }
