@@ -35,9 +35,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An implementation of {@code FileManagerInterface} that reads files
- * from the local file system.  A {@code FileManager} caches the
- * file position before and after {@link FileManagerInterface#readLineAt()}
+ * An implementation of {@code FileManagerInterface} that reads WordNet data
+ * from jar files or the local file system.  A {@code FileManager} caches the
+ * file positions before and after {@link FileManagerInterface#readLineAt()}
  * in order to eliminate the redundant I/O activity that a naïve implementation
  * of these methods would necessitate.
  *
@@ -49,7 +49,7 @@ public final class FileManager implements FileManagerInterface {
   private static final Logger log = LoggerFactory.getLogger(FileManager.class.getName());
 
 //  private String searchDirectory;
-  private Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
+  private final Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
 
   static class NextLineOffsetCache {
     private String filename;
@@ -167,7 +167,8 @@ public final class FileManager implements FileManagerInterface {
   // I/O primitives
   //
 
-  /** 
+  /**
+   * Primary abstraction of file content used in {@code FileManager}.
    * NOTE: CharStream is stateful (i.e., not thread-safe)
    */
   static abstract class CharStream {
@@ -430,75 +431,58 @@ public final class FileManager implements FileManagerInterface {
     }
   } // end class InputStreamCharStream
 
-  synchronized CharStream getFileStream(final String filename) throws IOException {
-    return getFileStream(filename, true);
-  }
-
   private long streamInitTime;
 
   /**
    * @param filename
-   * @param filenameWnRelative is a boolean which indicates that {@code filename}
-   * is relative (else, its absolute).  This facilitates testing and reuse.
+   * @param filenameIsWnRelative is a boolean which indicates that {@code filename}
+   * is relative (else, it's absolute); this facilitates testing and reuse.
    * @return CharStream representing {@code filename} or null if no such file exists.
    */
-  private synchronized CharStream getFileStream(final String filename, final boolean filenameWnRelative) throws IOException {
+  private synchronized CharStream getFileStream(final String filename, final boolean filenameIsWnRelative) throws IOException {
     CharStream stream = filenameCache.get(filename);
     if (stream == null) {
-      // if YAWNI_USE_JAR, try the jar
-      // - XXX sys prop to guaruntee using the jar to prevent weird
-      //   application-level WN data version mismatches
-      //   - sysprops and environment variables create security issues
-      //   - XXX should this be the default
-      // else if WNSEARCHDIR (or WNHOME) are defined, use them
-      // - benefits: mmap'd FileChannel requires less memory and inits faster
-      //   - allows simple WN data version changes
-      // else try the jar
-      // - zero environment dependencies
-      //
-      // What behavior should we use if SecurityException is thrown?
-      // - this would invariably mean reading local environment variables 
-      //   and arbitrary files from disk was also prohibited so jar is 
-      //   only solution 
-      // How can we test behavior in a sandboxed environment ?
-      //
-      // If we read from jar, do we need user to trust our application at all?
-      // - may not even need signing in this case - data also delivered as a 
-      //   (8.7MB) jar so not even network reads required)
-      //
-      // How can we test behavior in the sandboxed, high security environment?
-      
-      final String pathname =
-        filenameWnRelative ?
-          getWNSearchDir() + File.separator + filename :
-          filename;
-      log.trace("filename: {} pathname: {}", filename, pathname);
-
       final long start = System.nanoTime();
-      final File file = new File(pathname);
-      log.debug("pathname: {}", pathname);
-      if (file.exists() && file.canRead()) {
-        // TODO make this config selectable ? unfortunately, other than init time,
-        // performance of RAFCharStream is horrible
-        //slow CharStream
-        //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
-        //fast CharStream stream
-        stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
-        log.trace("FileCharStream");
+
+      stream = getURLStream(filename);
+      if (stream != null) {
+        log.trace("URLCharStream: {}", stream);
       } else {
-        stream = getURLStream(filename);
-        log.trace("URLCharStream");
+        final String pathname =
+          filenameIsWnRelative ?
+            getWNSearchDir() + File.separator + filename :
+            filename;
+        log.trace("filename: {} pathname: {}", filename, pathname);
+
+        final File file = new File(pathname);
+        log.debug("pathname: {}", pathname);
+        if (file.exists() && file.canRead()) {
+          // TODO make this config selectable ? unfortunately, other than init time,
+          // performance of RAFCharStream is horrible
+          
+          //slow CharStream
+          //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
+          //fast CharStream stream
+          stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
+          log.trace("FileCharStream");
+        }
       }
+      
       final long duration = System.nanoTime() - start;
       final long total = streamInitTime += duration;
       log.debug(String.format("total: %,dns curr: %,dns", total, duration));
 //      assert stream != null : "stream is still null";
-      if (stream == null) {
-        return null;
-      }
+//      if (stream == null) {
+//        return null;
+//      }
       filenameCache.put(filename, stream);
     }
+    
     return stream;
+  }
+
+  synchronized CharStream getFileStream(final String filename) throws IOException {
+    return getFileStream(filename, true);
   }
 
   /**
@@ -531,6 +515,14 @@ public final class FileManager implements FileManagerInterface {
     return new InputStreamCharStream(resourcename, input, len);
   }
 
+  private void requireStream(final CharStream stream, final String filename) {
+    if (stream == null) {
+      throw new IllegalStateException("Yawni can't open '"+filename+
+        "'. Yawni needs either the yawni-data jar in the classpath, or correctly defined " +
+        " $WNSEARCHDIR or $WNHOME environment variable or system property referencing the WordNet data.");
+    }
+  }
+
   //
   // Line-based interface methods
   //
@@ -554,6 +546,7 @@ public final class FileManager implements FileManagerInterface {
    */
   public String readLineAt(final int offset, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
+    requireStream(stream, filename);
     synchronized (stream) {
       stream.seek(offset);
       final String line = stream.readLine();
@@ -573,6 +566,7 @@ public final class FileManager implements FileManagerInterface {
    */
   public int getNextLinePointer(final int offset, final String filename) throws IOException {
     final CharStream stream = getFileStream(filename);
+    requireStream(stream, filename);
     synchronized (stream) {
       final int next;
       if (0 <= (next = nextLineOffsetCache.matchingOffset(filename, offset))) {
@@ -597,6 +591,7 @@ public final class FileManager implements FileManagerInterface {
       return -1;
     }
     final CharStream stream = getFileStream(filename);
+    requireStream(stream, filename);
     synchronized (stream) {
       stream.seek(offset);
       do {
@@ -718,7 +713,7 @@ public final class FileManager implements FileManagerInterface {
     // This binary search method provides output usable by prefix search
     // changing this operation from linear time to logarithmic time.
     //
-    // - are there counter cases where the first-word binary search would return a different
+    // - are there counter examples where the first-word binary search would return a different
     //   result than a "normal" binary search?
     //   - underscore comes before all lower cased letters
     //assert ! Utils.containsUpper(target);
@@ -729,9 +724,7 @@ public final class FileManager implements FileManagerInterface {
       log.trace("target: "+target+" filename: "+filename);
     }
     final CharStream stream = getFileStream(filename, filenameWnRelative);
-    if (stream == null) {
-      throw new IllegalArgumentException("no stream for "+filename);
-    }
+    requireStream(stream, filename);
     synchronized (stream) {
       int stop = stream.length();
       while (true) {
