@@ -329,6 +329,8 @@ everything
 - issues
   - feature: promotion: contact known users of other Java WordNet clients with targeted announcement
     - create twitter account: yawni is currently a spam Twitter account; reported as spam
+    - ohloh: I Use This
+    - SourceForge reviews
     - announce on personal twitter account
     - wordnet mailing list
     - Linas Vepstas: OpenCog / ReLex
@@ -483,6 +485,7 @@ everything
       * 128×128 pixel image (for Finder icons in all versions of Mac OS X)
       * 32×32 pixel image (hint for Finder icons)
       * 16×16 pixel image (hint for Finder icons)
+      * 48x48 pixel image (used by SourceForge)
       * A mask that defines the image’s edges so that the operating system can determine which regions are clickable
     - icns file for OS X ?
     - scoured Interfacelift, found Bombia Design and asked for a quote
