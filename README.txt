@@ -63,11 +63,13 @@ Why Yawni ?
 - commercial-grade implementation
   - very fast
   - small memory foot print
+  - pure Java implementation
+  - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., stemming) routines
   - simple, intuitive, and well documented API
   - all required resources can load from jars making deployment a snap
   - all query results are immutable ; safely cached and/or accessed by concurrent threads
   - easy Apache Maven-based build with minimal dependencies
-  - extensive unit tests
+  - extensive unit tests provide peace of mind (and great examples!)
 - includes refined GUI browser featuring
   - user friendly, snappy
   - incremental find
