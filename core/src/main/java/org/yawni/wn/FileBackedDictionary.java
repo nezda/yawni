@@ -49,8 +49,8 @@ import org.yawni.util.cache.Caches;
 
 /** 
  * A {@code DictionaryDatabase} that retrieves objects from the text files in the WordNet distribution
- * directory (typically <tt><em>$WNHOME</em>/dict/</tt>) (or from a properly organized jar file containing it);
- * Typical users will use {@link FileBackedDictionary#getInstance()} to get a canonical instance of this
+ * directory (typically <tt><em>$WNHOME</em>/dict/</tt>), or from a properly organized jar file containing it;
+ * typical users will use {@link FileBackedDictionary#getInstance()} to get the canonical instance of this
  * class.
  *
  * <p> A {@code FileBackedDictionary} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
