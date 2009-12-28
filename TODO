@@ -250,12 +250,12 @@ everything
 - JIDE has some awesome (feel) open source components; auto-complete, IntelliHints, Searchable (aka FindAsYouType), and SearchableBar (like Firefox), JideSplitButton: PopdownButton with menu; license looks tricky
 
 - issues with checking out and building yawni
-  - data sub-project currently needs my jar signature
+  + data sub-project currently needs my jar signature
   - core depends on data
     - couldn't figure out how to make this dependency <optional>; maybe no project-internal concept exists
   - uncommented WNHOME system property
     - got burned by WordNet version
-    - got burned by WNSEARCHDIR still referencing old version
+    - then got burned by WNSEARCHDIR still referencing old version
 
 - feature: core: ⊚ incorporate other lexical related resources
   - new Princeton "Standoff Files"
@@ -327,16 +327,59 @@ everything
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
 - issues
-  - feature: core: consider public API adition: List<String> getExceptions(final CharSequence someString, final POS pos)
-  - bug: core: if WNSEARCHDIR is defined, it seems to override data jar ? can't replicate this issue -- maybe need to point it at a real WordNet 2.x dict/ dir ?
-  - bug: core: gui: update SourceForge site (add download, no longer beta, Maven info, ...)
-  - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
+  - feature: promotion: contact known users of other Java WordNet clients with targeted announcement
+    - create twitter account: yawni is currently a spam Twitter account; reported as spam
+    - announce on personal twitter account
+    - wordnet mailing list
+    - Linas Vepstas: OpenCog / ReLex
+    - Sean Adams
+    - opennlp mailing lists ?
+    - GATE mailing list
+    - UIMA mailing list
+    ? Lucene mailing list ?
+  - bug: promotion: update SourceForge site (add download, no longer beta, Maven info, ...)
+  - feature: promotion: ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
+  - feature: promotion: have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
+  - feature: promotion: Amazon Affiliate sponsored links
+    - WordNet: An Electronic Lexical Database (book) http://www.amazon.com/WordNet-Electronic-Database-Language-Communication/dp/026206197X/ref=sr_1_1?ie=UTF8&s=books&qid=1261949881&sr=8-1
+    - Word Sense Disambiguation: Algorithms and Applications (book) http://www.amazon.com/Word-Sense-Disambiguation-Algorithms-Applications/dp/1402068700/ref=sr_1_1?ie=UTF8&s=books&qid=1261949949&sr=1-1
+  - bug: use consistent URL in documentation, etc.
+    http://sourceforge.net/projects/yawni/ -- SourceForge standard page
+    http://yawni.sourceforge.net/ -- looks spammy with ad in the center
+  - feature: promotion: add URL to About dialog
+  - feature: gui: add Web Start app link to main page
+  - feature: core: ⊚ publish to public Maven repositories
+  + bug: core: ⊚ report more useful exception than NPE when data cannot be found (i.e., not in classpath, $WNSEARCHDIR, or $WNHOME); currently, exceptions look like: java.lang.IllegalArgumentException: no stream for noun.exc
+  - bug: core: ⊚ $WNSEARCHDIR/$WNHOME environment collison(s) would be confusing to debug; document this
+    - feature: core: determine WordNet version at runtime; compute signatures for known versions; key file lengths; key file MD5 sums
+  + bug: core: ⊚ if WNSEARCHDIR and/or WNHOME defined, overrides the data jar; apparent when they point it at a real WordNet 2.x dict/ dir (causes test failures)
+    * notes from FileManager.getFileStream(String filename, boolean filenameIsWnRelative)
+    if YAWNI_USE_JAR, try the jar
+      sys prop to guarantee using the jar to prevent weird application-level WN data version mismatches
+      - sysprops and environment variables create security issues
+      - XXX should this be the default ?
+    else if WNSEARCHDIR (or WNHOME) are defined, use them
+    - benefits: mmap'd FileChannel requires less memory and inits faster
+      - allows simple WN data version changes
+    else try the jar
+    - zero environment dependencies
+    
+    What behavior should we use if SecurityException is thrown?
+    - this would invariably mean reading local environment variables and arbitrary files from disk was also prohibited so jar is only solution 
+    How can we test behavior in a sandboxed environment ?
+    
+    If we read from jar, do we need user to trust our application at all?
+    - may not even need signing in this case - data also delivered as a 
+      (8.7MB) jar so not even network reads required)
+    
+    How can we test behavior in the sandboxed, high security environment?
   + bug: core: gui: ⊚ default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
+  - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
   - bug: core: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
     - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
       - these can easily get fairly large and capture 
+  - feature: core: consider public API addition: List<String> getExceptions(final CharSequence someString, final POS pos)
   + bug: core: include Princeton WordNet license in data subproject !
-  - bug: core: ⊚ $WNHOME/$WNSEARCHDIR environment collison(s) would be confusing to debug
   < feature: gui: consider left-aligning button/searchField pod; Muller OS X WordNet does this
   - feature: gui: for RelationType dropdowns, consider implementing UI guideline of keeping same set of menu items, but only enabling apropos ones - helps user learn; Muller OS X WordNet does this
     - don't want meta-relations (e.g., MEMBER_MERONYM)
@@ -344,7 +387,7 @@ everything
   + bug: core: for Noun "Roman", what yawni calls "Member Meronyms" , wnb calls (Member) Holonyms ("MEMBER OF"); currently have "mero"="#" and "holo"="%" ; doh! wn.h says "mero"="%" and holo="#"
   - feaure: gui: typeahead find in Relation PopdownButton menu could support substring "smart" search (e.g., "holo..." in "Member Holonyms"; maybe like QuickSilver's algorithm?)
   + bug: gui: fix UI copy for "The noun kitten has 1 sense (first 1 from tagged texts)"
-  < feature: gui: splash screen would be nice during download and boot; great place to showcase new icon!
+  < feature: gui: promotion: splash screen would be nice during download and boot; great place to showcase new icon!
   + bug: core: Word.getRelationTypes() sometimes returns an incorrect values for lexical relations (e.g., INSTANCE_*, DERIVATIONALLY_RELATED)
     hypocrite; thinks it has DERIVATIONALLY_RELATED, but this doesn't only applies to other WordSenses in its Synset;
     ? something's not working right:
@@ -380,8 +423,6 @@ everything
       - "Tab" as alternation for ⇥
   x bug: gui: SearchFrame substring search fails to find any matches with '/' (e.g., "read/write memory"); " " (space) works;
     + this works; should add gui test
-  - feature: core: ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
-  - feature: core: have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
   < feature: core: gui: use custom XML format internally and render it to HTML in a custom EditorKit; XML format can be used in multiple places
   < feature: gui: add Safari / Preview-like highlighting-current panel search (⌘ +F); Safari dims screen, temporarily adds search nav bar; impl similar to wavy red underline ?
   + bug: core: upgrade poms to build (including unit tests!) in any environment and test this (no jarsign resource, no data jar, WNHOME, WNSEARCHDIR set, etc.)
@@ -436,13 +477,14 @@ everything
   + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
   < feature: gui: require zero Java Webstart permissions (no preferences saving)
   - feature: gui: count and display how many Word or WordSense hits for "inherited" searches
-  - bug: ⊚ add nice high res project icon (design one :)
+  - bug: promotion: ⊚ add nice high res project icon (design one :)
     - what are typical icon sizes ?
       * 512×512 pixel image (for Finder icons in Mac OS X v10.5 and later)
       * 128×128 pixel image (for Finder icons in all versions of Mac OS X)
       * 32×32 pixel image (hint for Finder icons)
       * 16×16 pixel image (hint for Finder icons)
       * A mask that defines the image’s edges so that the operating system can determine which regions are clickable
+    - icns file for OS X ?
     - scoured Interfacelift, found Bombia Design and asked for a quote
       To whom it may concern:
       I am the primary developer of the open source project "Yawni" (Yet Another WordNet API) (http://sourceforge.net/projects/yawni/), a graphical and programmatic interface to WordNet  (http://wordnet.princeton.edu/).  I have been working hard on both the "back end" and UI of the project and even have a concept for an icon.  My concept is a yawning cat (I like this one: http://www.joua.net/paddington/yawn.jpg), possibly vectorized à la vectormagic.com.  I found your portfolios via Interfacelift and was curious what it would cost me to have you create a scalable icon for the project. Obviously I don't have much to spend on this free and open source project, but I think a memorable icon is an important way to promote a project.
@@ -1234,7 +1276,7 @@ x feature: howto for developing in NetBeans ?
   - stem special words: naive → naïve ; resume → résumé
   ~ add unit test to Lucene to ensure equality with Snowball generated Porter stemmer
   - consider integration with Snowball ?
-- feature: core: compare interface summary stats with those in: $WNHOME/dict/log.grind.3.0
+~ feature: core: compare interface summary stats with those in: $WNHOME/dict/log.grind.3.0
   ? will this filename remain the same ?
 - bug: core: how come Doomsday and Utopian came up as case ambiguous, but Moon, moon didn't ?
 
