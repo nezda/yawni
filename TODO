@@ -327,8 +327,9 @@ everything
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
 - issues
-  - feature: promotion: contact known users of other Java WordNet clients with targeted announcement
+  - feature: promotion: ⊚ contact known users of other Java WordNet clients with targeted announcement
     - create twitter account: yawni is currently a spam Twitter account; reported as spam
+    - Freshmeat
     - ohloh: I Use This
     - SourceForge reviews
     - announce on personal twitter account
@@ -339,22 +340,25 @@ everything
     - GATE mailing list
     - UIMA mailing list
     ? Lucene mailing list ?
-  - bug: promotion: update SourceForge site (add download, no longer beta, Maven info, ...)
-  - feature: promotion: ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
-  - feature: promotion: have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
+  - feature: promotion: ⊚ point yawni.org at SourceForge site
+  - bug: promotion: ⊚ update SourceForge site (add download, no longer beta, Maven info, ...)
+  - feature: promotion: ⊚ add MediaWiki-based content to SourceForge site: basic documentation, basic examples, some color
+  - feature: promotion: ⊚ ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
+  - feature: promotion: ⊚ have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
   - feature: promotion: Amazon Affiliate sponsored links
+    ? any Semantic Web books appropos here ?
     - WordNet: An Electronic Lexical Database (book) http://www.amazon.com/WordNet-Electronic-Database-Language-Communication/dp/026206197X/ref=sr_1_1?ie=UTF8&s=books&qid=1261949881&sr=8-1
     - Word Sense Disambiguation: Algorithms and Applications (book) http://www.amazon.com/Word-Sense-Disambiguation-Algorithms-Applications/dp/1402068700/ref=sr_1_1?ie=UTF8&s=books&qid=1261949949&sr=1-1
-  - bug: use consistent URL in documentation, etc.
+  + bug: use consistent URL in documentation, etc.
     http://sourceforge.net/projects/yawni/ -- SourceForge standard page
     http://yawni.sourceforge.net/ -- looks spammy with ad in the center
   - feature: promotion: add URL to About dialog
   - feature: gui: add Web Start app link to main page
   - feature: core: ⊚ publish to public Maven repositories
-  + bug: core: ⊚ report more useful exception than NPE when data cannot be found (i.e., not in classpath, $WNSEARCHDIR, or $WNHOME); currently, exceptions look like: java.lang.IllegalArgumentException: no stream for noun.exc
+  + bug: core: report more useful exception than NPE when data cannot be found (i.e., not in classpath, $WNSEARCHDIR, or $WNHOME); currently, exceptions look like: java.lang.IllegalArgumentException: no stream for noun.exc
   - bug: core: ⊚ $WNSEARCHDIR/$WNHOME environment collison(s) would be confusing to debug; document this
     - feature: core: determine WordNet version at runtime; compute signatures for known versions; key file lengths; key file MD5 sums
-  + bug: core: ⊚ if WNSEARCHDIR and/or WNHOME defined, overrides the data jar; apparent when they point it at a real WordNet 2.x dict/ dir (causes test failures)
+  + bug: core: if $WNSEARCHDIR and/or $WNHOME defined, overrides the data jar; apparent when they point it at a real WordNet 2.x dict/ dir (causes test failures)
     * notes from FileManager.getFileStream(String filename, boolean filenameIsWnRelative)
     if YAWNI_USE_JAR, try the jar
       sys prop to guarantee using the jar to prevent weird application-level WN data version mismatches
@@ -375,7 +379,7 @@ everything
       (8.7MB) jar so not even network reads required)
     
     How can we test behavior in the sandboxed, high security environment?
-  + bug: core: gui: ⊚ default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
+  + bug: core: gui: default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
   - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
   - bug: core: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
     - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
