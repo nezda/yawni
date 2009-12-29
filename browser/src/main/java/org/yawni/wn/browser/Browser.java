@@ -75,7 +75,9 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   }
 
   Browser(int browserNumber) {
-    super(Application.getInstance().getName() + " Browser");
+    // currently displaying "Yawni Parent Browser" - hardcoding for now
+//    super(Application.getInstance().getName() + " Browser");
+    super("Yawni Browser");
     this.setName(super.getName() + "-" + BROWSERS.size());
     // ⌾ \u233e APL FUNCTIONAL SYMBOL CIRCLE JOT
     // ⊚ \u229a CIRCLED RING OPERATOR
