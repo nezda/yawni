@@ -495,7 +495,7 @@ public final class FileManager implements FileManagerInterface {
     // assume WN dict/ is in the classpath
     final URL url = getClass().getClassLoader().getResource(resourcename);
     if (url == null) {
-      log.error("resourcename: {} not found!", resourcename);
+      log.debug("resourcename: {} not found in classpath", resourcename);
       return null;
     }
     final URLConnection conn = url.openConnection();
