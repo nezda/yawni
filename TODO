@@ -326,7 +326,12 @@ everything
   - performing mapping/conversion of resources bound to other WordNet versions
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
+- command to make local browser standalone executable jar
+  time mci -PuseLog4j,makeShadedJar
+
 - issues
+  - bug: gui: update prompt copy "Type a word to look it up in WordNet" should Search button be mentioned? (current copy: "Type a word to lookup in WordNet...")
+  + bug: gui: after pom refactor, window title is "Yawni Parent Browser" :)
   - feature: promotion: ⊚ contact known users of other Java WordNet clients with targeted announcement
     - create twitter account: yawni is currently a spam Twitter account; reported as spam
     - Freshmeat
