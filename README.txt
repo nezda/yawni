@@ -61,8 +61,7 @@ In fact, Yawni is the new name of JWordNet.
 
 Why Yawni ?
 - commercial-grade implementation
-  - very fast
-  - small memory foot print
+  - very fast & small memory foot print
   - pure Java implementation
   - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., stemming) routines
   - simple, intuitive, and well documented API
