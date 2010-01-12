@@ -63,6 +63,7 @@
     <license>
       <name>Apache License</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
     </license>
   </licenses>
   <organization>
@@ -211,6 +212,21 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
+         <!-- 
+         <version>1.0-beta-4</version> 
+         [INFO] [buildnumber:create {execution: default}]
+         [INFO] Storing buildNumber: 2010-01-11 17:56:32 at timestamp: 1263254192246
+         [INFO] 
+         [ERROR] FATAL ERROR
+           [INFO] 
+           [INFO] The scm url cannot be null.
+           [INFO] 
+           [INFO] Trace
+           java.lang.NullPointerException: The scm url cannot be null.
+                   at org.apache.maven.scm.manager.AbstractScmManager.makeScmRepository(AbstractScmManager.java:181)
+                   ....
+         -->
+         <version>1.0-beta-3</version>
         <configuration>
           <format>{0,date,yyyy-MM-dd HH:mm:ss}</format>
           <items>
