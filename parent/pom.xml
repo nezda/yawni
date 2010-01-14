@@ -71,8 +71,8 @@
     <url>http://www.apache.org/</url>
   </organization>
   <repositories>
+    <!-- for net/java/dev/jna/jna/3.0.5 for build-number plugin -->
     <repository>
-      <!-- for net/java/dev/jna/jna/3.0.5 for build-number plugin -->
       <id>java.net</id>
       <url>http://download.java.net/maven/2/</url>
     </repository>
