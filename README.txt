@@ -72,7 +72,7 @@ Why Yawni ?
 - includes refined GUI browser featuring
   - user friendly, snappy
   - incremental find
-  - good keyboard support
+  - comprehensive keyboard support
   - cross-platform including zero-install Java Web Start version
 - commercial-friendly Apache license
 
