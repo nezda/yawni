@@ -16,8 +16,10 @@
  */
 package org.yawni.wn.browser;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.Properties;
 
 /** 
  * Reads a properties file (target/classes/) containing the
@@ -25,6 +27,7 @@ import java.io.*;
  */
 final class Application {
   private final String applicationName;
+  private final String applicationURL;
   private final String moduleName;
   private final String artifactId;
   private final String applicationVersion;
@@ -42,6 +45,7 @@ final class Application {
       props.load(in);
       in.close();
       this.applicationName = (String) props.get("application.name");
+      this.applicationURL = (String) props.get("application.url");
       this.moduleName = (String) props.get("application.moduleName");
       this.artifactId = (String) props.get("application.artifactId");
       this.applicationVersion = (String) props.get("application.version");
@@ -67,6 +71,10 @@ final class Application {
 
   public String getName() {
     return applicationName;
+  }
+
+  public String getURL() {
+    return applicationURL;
   }
 
   public String getModuleName() {
