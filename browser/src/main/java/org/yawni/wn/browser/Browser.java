@@ -42,6 +42,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -313,6 +314,8 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
         info.setBackground(Color.WHITE);
         info.setOpaque(true);
         info.setBorder(BorderFactory.createEtchedBorder());
+//        final ImageIcon icon = new ImageIcon(Browser.class.getResource("yawni_57x64_icon.png"));
+        final ImageIcon icon = new ImageIcon(Browser.class.getResource("yawni_115x128_icon.png"));
         final String[] options = new String[] { "Dismiss" };
           JOptionPane.showOptionDialog(
             Browser.this,
@@ -320,7 +323,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
             "About", // title
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.PLAIN_MESSAGE,
-            null,
+            icon,
             options,
             options[0]);
       }
