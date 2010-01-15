@@ -29,8 +29,8 @@ public class WNSTATSGenerator {
     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
     System.out.println("Number of words, synsets, and senses");
     
-    //POS   	Unique   	Synsets   	Total
-	  //        Strings 	            Word-Sense Pairs
+    //POS     Unique    Synsets     Total
+    //        Strings               Word-Sense Pairs
     long totalWordCount, totalSynsetCount, totalWordSenseCount;
     totalWordCount = totalSynsetCount = totalWordSenseCount = 0;
     for (final POS pos : POS.CATS) {
@@ -57,8 +57,8 @@ public class WNSTATSGenerator {
 
     System.out.println("Polysemy information");
 
-    //POS   	Monosemous   	    Polysemous   	Polysemous
-    //        Words and Senses 	Words 	      Senses
+    //POS       Monosemous          Polysemous          Polysemous
+    //          Words and Senses    Words               Senses
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
       final long monosemousWordCount = monosemousWordCount(pos, dictionary);
@@ -73,8 +73,8 @@ public class WNSTATSGenerator {
 
     System.out.println("Average Polysemy information");
 
-    //POS   	Average Polysemy   	        Average Polysemy
-    //        Including Monosemous Words 	Excluding Monosemous Words
+    //POS       Average Polysemy                Average Polysemy
+    //          Including Monosemous Words      Excluding Monosemous Words
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
       final long numWords = Utils.distance(dictionary.words(pos));
