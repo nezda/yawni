@@ -112,8 +112,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <!-- required for JNLP versions -->
+  <!-- mvn help:active-profiles -->
+  <!-- mvn help:effective-pom -->
   <profiles>
+    <profile>
+      <id>useLog4j</id>
+      <activation>
+        <property>
+          <name>useLog4j</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
     <profile>
       <id>makeShadedJar</id>
       <activation>
@@ -134,14 +149,60 @@
                 </goals>
                 <configuration>
                   <transformers>
-                    <!-- <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/> -->
+                    <!--
+                    for JNLP usage
+                    -->
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
+                    <!--
+                    for commandline usage
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                       <mainClass>org.yawni.wn.browser.Browser</mainClass>
                     </transformer>
+                    -->
                   </transformers>
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>makeSignedJar</id>
+      <activation>
+        <property>
+          <name>makeSignedJar</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <archive>
+                <!-- <compress>false</compress> -->
+                <index>true</index>
+                <manifest>
+                  <mainClass>org.yawni.wn.browser.Browser</mainClass>
+                </manifest>
+                <manifestEntries>
+                  <svnversion>${buildNumber}</svnversion>
+                </manifestEntries>
+              </archive>
+              <alias>Luke Nezda</alias>
+              <storepass>secret</storepass>
+              <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>
+              <!-- <verify>true</verify> -->
+            </configuration>
           </plugin>
         </plugins>
       </build>
