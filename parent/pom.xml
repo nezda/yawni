@@ -70,13 +70,6 @@
     <name>Apache Software Foundation</name>
     <url>http://www.apache.org/</url>
   </organization>
-  <repositories>
-    <!-- for net/java/dev/jna/jna/3.0.5 for build-number plugin -->
-    <repository>
-      <id>java.net</id>
-      <url>http://download.java.net/maven/2/</url>
-    </repository>
-  </repositories>
   <properties>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -104,16 +97,46 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-nop</artifactId>
         <version>${slf4jVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>${slf4jVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-jdk14</artifactId>
         <version>${slf4jVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -201,7 +224,7 @@
           <debug>true</debug>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
-          <compilerArgument>-Xlint</compilerArgument>
+          <compilerArgument>-Xlint:-serial</compilerArgument>
           <compilerArguments>
             <Xmaxerrs>10000000</Xmaxerrs>
             <Xmaxwarns>10000000</Xmaxwarns>
@@ -473,43 +496,6 @@
           <artifactId>yawni-data</artifactId>
         </dependency>
       </dependencies>
-    </profile>
-    <profile>
-      <id>makeSignedJar</id>
-      <activation>
-        <property>
-          <name>makeSignedJar</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <archive>
-                <!-- <compress>false</compress> -->
-                <index>true</index>
-                <manifestEntries>
-                  <!-- <svnversion>${buildNumber}</svnversion> -->
-                </manifestEntries>
-              </archive>
-              <alias>Luke Nezda</alias>
-              <storepass>secret</storepass>
-              <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>
-              <!-- <verify>true</verify> -->
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 </project>
