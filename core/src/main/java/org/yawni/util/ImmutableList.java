@@ -148,6 +148,9 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       @SuppressWarnings("unchecked")
       final Collection<E> elementsAsCollection = (Collection<E>) elements;
       final int size = elementsAsCollection.size();
+      if (size == 0) {
+        return ImmutableList.of();
+      }
       @SuppressWarnings("unchecked")
       final E[] elementsAsArray = (E[]) new Object[size];
       final E[] returnedElementsAsArray = elementsAsCollection.toArray(elementsAsArray);
