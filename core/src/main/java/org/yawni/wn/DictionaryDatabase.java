@@ -74,6 +74,17 @@ public interface DictionaryDatabase {
   public List<Synset> lookupSynsets(final String someString, final POS pos);
 
   /**
+   * Convenient combination of basic API methods {@link #lookupBaseForms()}, {@link #lookupWord()}
+   * and {@link Word#getWordSenses()}.
+   * For {@code pos !=}{@link POS#ALL}, usually returns a single result, though there are
+   * numerous exceptions (TODO e.g., ).
+   * For {@code pos == ALL}, multiple results are even more common (TODO e.g., ).
+   * @see #lookupSynsets
+   */
+  public List<WordSense> lookupWordSenses(final String someString, final POS pos);
+
+  /**
+   * <h2>Not yet supported!</h2>
    * Return an iterator of {@code Synset}s matching {@code query}.
    * @param query
    * @return An iterable of {@code Synset}s.
@@ -81,6 +92,7 @@ public interface DictionaryDatabase {
   public Iterable<Synset> synsets(final String query);
 
   /**
+   * <h2>Not yet supported!</h2>
    * Return an iterator of {@code WordSense}s matching {@code query}.
    * @param query
    * @return An iterable of {@code WordSense}s.
