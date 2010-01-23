@@ -559,6 +559,53 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /** {@inheritDoc} */
+  public List<WordSense> lookupWordSenses(final String someString, final POS pos) {
+    if (pos == POS.ALL) {
+      return ImmutableList.copyOf(uniq(merge(
+        lookupWordSenses(someString, POS.NOUN),
+        lookupWordSenses(someString, POS.VERB),
+        lookupWordSenses(someString, POS.ADJ),
+        lookupWordSenses(someString, POS.ADV))));
+    } else {
+      return doLookupWordSenses(someString, pos);
+    }
+  }
+
+  // FIXME refactor! this is copy paste from doLookupSynsets
+  private List<WordSense> doLookupWordSenses(final String someString, final POS pos) {
+    checkValidPOS(pos);
+    final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
+    if (morphs.isEmpty()) {
+      return ImmutableList.of();
+    }
+    // 0. if we have morphs, we will usually have syns
+    // 1. get all the Words (usually 1, except for exceptional forms (e.g., 'geese'))
+    // 2. merge all their Synsets
+    final ArrayList<WordSense> wordSenses = new ArrayList<WordSense>();
+    int morphNum = -1;
+    for (final String lemma : morphs) {
+      morphNum++;
+      final Word word = this.lookupWord(lemma, pos);
+      if (word == null) {
+        // some morphstr() values will not be defined words (lemmas).
+        continue;
+      }
+      wordSenses.ensureCapacity(wordSenses.size() + word.getSynsets().size());
+      for (final WordSense wordSense : word.getWordSenses()) {
+        wordSenses.add(wordSense);
+      }
+    }
+    // sometimes all morphstr() values will be generated and undefined for this POS
+    // FIXME annoying that morphy sometimes returns undefined variants
+    if (! morphs.isEmpty() && wordSenses.isEmpty()) {
+      //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
+      return ImmutableList.of();
+    }
+    // TODO dedup this ?
+    return ImmutableList.copyOf(wordSenses);
+  }
+
+  /** {@inheritDoc} */
   public Iterable<Synset> synsets(final String query) {
     throw new UnsupportedOperationException("Not yet implemented.");
   }
