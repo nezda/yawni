@@ -29,7 +29,7 @@ public interface DictionaryDatabase {
    * Look up a {@code Word} in the database by its <strong>lemma</strong>.  The search is
    * case-independent and phrases are separated by spaces (e.g., "look up", not
    * "look_up"), but otherwise {@code lemma}  must match the form in the
-   * database exactly.  Similar to C function {@code index_lookup}.
+   * database <em>exactly</em>.  Similar to C function {@code index_lookup}.
    * Note that {@link POS#ALL} doesn't make sense here because the result
    * would no longer be unique (i.e., a scalar, single {@code Word}).
    * @param lemma The orthographic representation of the word.
