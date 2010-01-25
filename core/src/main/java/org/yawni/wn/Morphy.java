@@ -106,11 +106,16 @@ class Morphy {
   private static final Pattern MULTI_WHITESPACE = Pattern.compile("\\s+");
 
   /**
-   * Conflates runs of ' ''s to single ' '.  Likewise for '-''s.
-   * Changes ' ''s to '_' to allow searches to pass.
+   * Performs several normalizations of a query string to maximize usability/predictability:
+   * <ul>
+   *   <li> Lowecase all letters </li>
+   *   <li> Removes left / right edge whitespace / underscores </li>
+   *   <li> Conflate runs of ' ''s (spaces) to single ' ' (space); likewise for '-''s (dashes) </li>
+   *   <li> Change ' ''s (spaces) to '_' (underscores) to allow searches to pass </li>
+   * </ul>
    *
-   * <p> Also used in {@link FileBackedDictionary.SearchIterator} and
-   * {@link FileBackedDictionary.StartsWithSearchIterator}.
+   * <p> Also used in {@link FileBackedDictionary.SearchBySubstringIterator} and
+   * {@link FileBackedDictionary.SearchByPrefixIterator}.
    */
   static String searchNormalize(String origstr) {
     final int underscore = origstr.indexOf('_');
