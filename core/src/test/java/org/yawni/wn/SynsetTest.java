@@ -25,6 +25,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yawni.util.Joiner;
+import static org.yawni.util.Utils.contains;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SynsetTest {
@@ -44,6 +45,14 @@ public class SynsetTest {
     final WordSense lexeme = dictionary.lookupWord("lexeme", POS.NOUN).getSense(1);
     final String lexemeGloss = "a minimal unit (as a word or stem) in the lexicon of a language; `go' and `went' and `gone' and `going' are all members of the English lexeme `go'";
     assertThat(lexemeGloss).isEqualTo(lexeme.getSynset().getGloss());
+  }
+
+  @Test
+  public void testGlossSearch() {
+    System.err.println("testGlossSearch");
+    final WordSense sentence = dictionary.lookupWord("sentence", POS.NOUN).getSense(1);
+    //System.err.println("hits: "+Joiner.on("\n  ").join(dictionary.searchGlossBySubstring("\\bgrammatical\\b", POS.ALL)));
+    assertThat(contains(dictionary.searchGlossBySubstring("\\bgrammatical\\b", POS.ALL), sentence.getSynset())).isTrue();
   }
 
   @Test
