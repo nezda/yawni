@@ -18,7 +18,6 @@ package org.yawni.wn;
 
 import org.junit.*;
 import static org.junit.Assert.*;
-//import static org.hamcrest.CoreMatchers.*;
 import static org.yawni.wn.HasLemma.*;
 
 import java.util.*;
@@ -43,24 +42,16 @@ public class IterationTest {
     rand = new Random(0);
   }
 
-  void logTest(final String methodName) {
-    //System.err.printf("%s %tT\n", methodName, System.currentTimeMillis());
-    //System.err.printf("%s %tT\n", methodName, Calendar.getInstance());
-    //System.err.printf("%s %1$tT%1$tT\n", methodName, Calendar.getInstance());
-    final String time = String.format("%1$tH:%1$tM:%1$tS:%1$tL", System.currentTimeMillis());
-    System.err.printf("%-30s %s\n", methodName, time);
-  }
-
   /** 
    * test searching iterators
    * - searchByPrefix()
    * - searchBySubstring()
-   * <b>Parts of this test uses hard coded values for WordNet 3.0</b> 
+   * <strong>Parts of this test uses hard coded values for WordNet 3.0</strong>
    */
   @Test
   public void searchIteratorBoundaryCases() {
     logTest("searchIteratorBoundaryCases");
-    // plan
+    // test plan
     // + search for first word
     // + search for first word's prefix
     // + search for last word
@@ -98,13 +89,15 @@ public class IterationTest {
       assertTrue(isEmpty(emptyPrefix));
     }
 
+    // TODO use POS.ALL ?
     final Iterable<Word> anyEmptyPrefix = MergedIterable.merge(true,
         dictionary.searchByPrefix("-", POS.NOUN),
         dictionary.searchByPrefix("-", POS.VERB),
         dictionary.searchByPrefix("-", POS.ADJ),
         dictionary.searchByPrefix("-", POS.ADV));
     assertTrue(isEmpty(anyEmptyPrefix));
-    
+
+    // TODO use POS.ALL ?
     final Iterable<Word> anyNonExistantPrefix = MergedIterable.merge(true,
         dictionary.searchByPrefix("lllllll", POS.NOUN),
         dictionary.searchByPrefix("lllllll", POS.VERB),
@@ -112,6 +105,7 @@ public class IterationTest {
         dictionary.searchByPrefix("lllllll", POS.ADV));
     assertTrue(isEmpty(anyNonExistantPrefix));
 
+    // TODO use POS.ALL ?
     final Iterable<Word> anyLeadingDashPrefix = MergedIterable.merge(true,
         dictionary.searchByPrefix("", POS.NOUN),
         dictionary.searchByPrefix("", POS.VERB),
@@ -128,12 +122,20 @@ public class IterationTest {
     final Iterable<Word> spaceWords = dictionary.searchBySubstring(" ", POS.NOUN);
     assertFalse(isEmpty(spaceWords));
 
+    final Iterable<Word> emptyString = dictionary.searchBySubstring("", POS.NOUN);
+    assertTrue(isEmpty(emptyString));
+
+    // TODO use POS.ALL ?
     final Iterable<Word> anyNonExistantSubstring = MergedIterable.merge(true,
         dictionary.searchBySubstring("lllllll", POS.NOUN),
         dictionary.searchBySubstring("lllllll", POS.VERB),
         dictionary.searchBySubstring("lllllll", POS.ADJ),
         dictionary.searchBySubstring("lllllll", POS.ADV));
     assertTrue(isEmpty(anyNonExistantSubstring));
+
+    // expose problem where not skipping initial lines
+    final Iterable<Word> everything = dictionary.searchBySubstring(".*", POS.ALL);
+    assertFalse(isEmpty(everything));
   }
 
   // speed this test up by only searching for prefixes of
@@ -175,26 +177,18 @@ public class IterationTest {
       }
       final String lemma = word.getLowercasedLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
+        //FIXME since substring, should test infixes too (will slow down test)
         final String prefix = lemma.substring(0, i);
         final Iterable<Word> matches = dictionary.searchBySubstring(prefix, pos);
         numSubstringTests++;
-        assertTrue(containsLemma(matches, lemma));
+        assertTrue("lemma: "+lemma+" prefix: "+prefix, containsLemma(matches, lemma));
         //System.err.println("numSubstringTests: "+numSubstringTests);
       }
     }
     System.err.printf("  %20s %d\n", "numSubstringTests:", numSubstringTests);
   }
 
-  private static boolean containsLemma(final Iterable<Word> words, final String lemma) {
-    for (final Word word : words) {
-      if (word.getLowercasedLemma().equals(lemma)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /** <b>Parts of this test uses hard coded values for WordNet 3.0</b> */
+  /** <strong>Parts of this test uses hard coded values for WordNet 3.0</strong> */
   @Test
   public void wordIterationBoundary() {
     logTest("wordIterationBoundary");
@@ -288,7 +282,7 @@ public class IterationTest {
     System.err.println("starting "+n+" full iterations...");
     int totalWordsVisited = 0;
     try {
-      for (int i=0; i < n; ++i) {
+      for (int i = 0; i < n; i++) {
         int iterationWordsVisited = 0;
         int iterationIndexWordsVisited = 0;
         int iterationGlossLetters = 0;
@@ -298,7 +292,7 @@ public class IterationTest {
             for (final Synset synset : word.getSynsets()) {
               iterationGlossLetters += synset.getGloss().length();
             }
-            ++iterationIndexWordsVisited;
+            iterationIndexWordsVisited++;
             final Set<RelationType> relationTypes = word.getRelationTypes();
             if (relationTypes.contains(RelationType.ATTRIBUTE)) {
               //System.err.println("found ATTRIBUTE for word: "+word);
@@ -324,8 +318,8 @@ public class IterationTest {
                 //System.err.println(longMsg);
                 //System.err.println("AdjPositionFlags: "+adjPosFlag);
               }
-              ++totalWordsVisited;
-              ++iterationWordsVisited;
+              totalWordsVisited++;
+              iterationWordsVisited++;
             }
           }
         }
@@ -341,18 +335,8 @@ public class IterationTest {
     }
   }
 
-  static void printMemoryUsage() {
-    System.err.println("heap: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-    //System.err.println("non-heap: "+ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage());
-    for (final MemoryPoolMXBean memPool : ManagementFactory.getMemoryPoolMXBeans()) {
-      if (memPool.getType() != MemoryType.HEAP) {
-        continue;
-      }
-      System.err.println("  "+memPool.getName()+/*" "+memPool.getType()+*/" peak: "+memPool.getPeakUsage());//+" "+memPool);
-    }
-  }
-
   /** @see ThreadSafetyTest */
+  @Ignore
   @Test
   public void parallelIterationTest() {
     //TODO implement parallelIterationTest
@@ -407,17 +391,39 @@ public class IterationTest {
       final String str = word.getLowercasedLemma();
       // exhaustive -- all POS
       for (final POS pos : POS.CATS) {
-        List<Synset> syns = dictionary.lookupSynsets(str, pos);
+        final List<Synset> syns = dictionary.lookupSynsets(str, pos);
         if (pos == word.getPOS()) {
-          assertTrue("loopback failure", syns.isEmpty() == false);
+          assertTrue("loopback failure", ! syns.isEmpty());
         }
       }
-      // just our source POS
-      //Synset[] syns = dictionary.lookupSynsets(word.getPOS(), str);
-      //if (syns.length == 0) {
-      //  System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
-      //}
-      //System.err.println(str+": "+Arrays.toString(syns));
     }
+  }
+
+  void logTest(final String methodName) {
+    //System.err.printf("%s %tT\n", methodName, System.currentTimeMillis());
+    //System.err.printf("%s %tT\n", methodName, Calendar.getInstance());
+    //System.err.printf("%s %1$tT%1$tT\n", methodName, Calendar.getInstance());
+    final String time = String.format("%1$tH:%1$tM:%1$tS:%1$tL", System.currentTimeMillis());
+    System.err.printf("%-30s %s\n", methodName, time);
+  }
+
+  static void printMemoryUsage() {
+    System.err.println("heap: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+    //System.err.println("non-heap: "+ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage());
+    for (final MemoryPoolMXBean memPool : ManagementFactory.getMemoryPoolMXBeans()) {
+      if (memPool.getType() != MemoryType.HEAP) {
+        continue;
+      }
+      System.err.println("  "+memPool.getName()+/*" "+memPool.getType()+*/" peak: "+memPool.getPeakUsage());//+" "+memPool);
+    }
+  }
+
+  private static boolean containsLemma(final Iterable<Word> words, final String lemma) {
+    for (final Word word : words) {
+      if (word.getLowercasedLemma().equals(lemma)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
