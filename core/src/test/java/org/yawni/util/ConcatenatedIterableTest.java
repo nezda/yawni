@@ -16,10 +16,11 @@
  */
 package org.yawni.util;
 
-import org.junit.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import static org.junit.Assert.*;
-
-import java.util.*;
+import org.junit.Test;
 
 import static org.yawni.util.Utils.asList;
 
