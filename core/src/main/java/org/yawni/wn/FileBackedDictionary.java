@@ -590,8 +590,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
   private static enum Command {
     /**
-     * if 9 digit, treat 1st digit as POS ordinal
-     * Only compatible with an single, optional POS and other SYNSET_OFFSET;
+     * if 9 digit, treat 1st digit as POS ordinal;
+     * support any of {offset, Offset, OFFSET, SYNSET_OFFSET};
+     * Only compatible with a single, optional POS and other SYNSET_OFFSET(s)
      */
     SYNSET_OFFSET,
     /** 
@@ -601,13 +602,21 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     WORD,
     /** filter; alias for WORD */
     SOME_STRING,
-    /** filter; default true; boolean: indicates WORD is lemma and should not be stemmed */
+    /** 
+     * filter; boolean: indicates WORD is lemma and should not be stemmed
+     * default true;
+     */
     LEMMA,
     /**
-     * filter; default ALL; support any of {NOUN, Noun, N, n, 1};
+     * filter; default ALL;
+     * support any of {NOUN, Noun, N, n, 1};
      * if only POS is provided, return synsets(POS)
      */
     POS,
+    /**
+     * if synsets(), return implied Synset, if wordSenses(), return implied WordSense
+     */
+    SENSEKEY,
     PREFIX,
     SUBSTRING,
     GLOSS_GREP,
