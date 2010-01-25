@@ -105,12 +105,6 @@
       <artifactId>fest-swing</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- fest-swing 1.2a3 swinghelper-debug dependency incorrect -->
-    <dependency>
-      <groupId>net.java.dev.swinghelper</groupId>
-      <artifactId>swinghelper-debug</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <!-- mvn help:active-profiles -->
   <!-- mvn help:effective-pom -->
