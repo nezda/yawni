@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 
 import java.util.*;
 
-import org.yawni.util.CharSequenceTokenizer;
+import static org.fest.assertions.Assertions.assertThat;
 
 /** 
  * By far most complex features involve multi-words, esp those containing
@@ -51,73 +51,7 @@ public class MorphyTest {
   public void init() {
     dictionary = FileBackedDictionary.getInstance();
   }
-
-  private List<String> stem(final String someString, final POS pos) {
-    return dictionary.lookupBaseForms(someString, pos);
-  }
-
-  // note this relies on equals() and hashCode()
-  private static <T> boolean areUnique(final Collection<T> items) {
-    return items.size() == new HashSet<T>(items).size();
-  }
-
-  //TODO consider moving to Utils
-  private static boolean containsIgnoreCase(final String needle, final Iterable<String> haystack) {
-    for (final String item : haystack) {
-      if (item.equalsIgnoreCase(needle)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean baseFormContainsUnderScore(final Iterable<String> baseForms) {
-    for (final String baseForm : baseForms) {
-      if (baseForm.indexOf('_') >= 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean baseFormContainsUpperCase(final Iterable<String> baseForms) {
-    for (final String baseForm : baseForms) {
-      for (int i = 0, n = baseForm.length(); i < n; i++) {
-        final char c = baseForm.charAt(i);
-        if (Character.isUpperCase(c)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  @Test
-  public void testCharSequenceTokenizer() {
-    //CharSequenceTokenizer tokens = new CharSequenceTokenizer("1 2 3");
-    //CharSequenceTokenizer tokens = new CharSequenceTokenizer(" 1 2 3");
-    //CharSequenceTokenizer tokens = new CharSequenceTokenizer(" 1");
-    //while(tokens.hasNext()) {
-    //  System.err.printf("next: \"%s\"\n", tokens.nextInt());
-    //}
-
-    String s = "0";
-    assertEquals(0, new CharSequenceTokenizer(s).nextInt());
-    s = " 0";
-    assertEquals(0, new CharSequenceTokenizer(s).nextInt());
-    s = "1";
-    assertEquals(1, new CharSequenceTokenizer(s).nextInt());
-    s = " 1";
-    assertEquals(1, new CharSequenceTokenizer(s).nextInt());
-    s = " 1 ";
-    assertEquals(1, new CharSequenceTokenizer(s).nextInt());
-    s = "-1";
-    assertEquals(-1, new CharSequenceTokenizer(s).nextInt());
-    s = " -1";
-    assertEquals(-1, new CharSequenceTokenizer(s).nextInt());
-    //System.err.println("testCharSequenceTokenizer passed");
-  }
-
+  
   @Test
   public void testMorphyUtils() {
     assertEquals(1, Morphy.countWords("dog", ' '));
@@ -306,6 +240,22 @@ public class MorphyTest {
     assertNotNull("lemma: "+lemma, dictionary.lookupWord(lemma, POS.NOUN));
   }
 
+  @Test
+  public void testGetExceptions() {
+    final FileBackedDictionary fileBackedDictionary = (FileBackedDictionary) dictionary;
+    String lemma;
+    lemma = "";
+    assertThat(fileBackedDictionary.getExceptions(lemma, POS.NOUN)).isEmpty();
+    lemma = "dog";
+    assertThat(fileBackedDictionary.getExceptions(lemma, POS.NOUN)).isEmpty();
+    lemma = "geese";
+    assertThat(fileBackedDictionary.getExceptions(lemma, POS.NOUN)).contains("goose");
+    lemma = "geese";
+    assertThat(fileBackedDictionary.getExceptions(lemma, POS.NOUN).get(0)).isEqualTo("geese");
+    lemma = "goose";
+    assertThat(fileBackedDictionary.getExceptions(lemma, POS.NOUN)).isEmpty();
+  }
+
   // could add explicit checks for this in API methods but that's pretty tedious
   @Test(expected=NullPointerException.class)
   public void testNullLookupWord() {
@@ -451,4 +401,44 @@ public class MorphyTest {
   //    }
   //  }
   //}
+
+  private List<String> stem(final String someString, final POS pos) {
+    return dictionary.lookupBaseForms(someString, pos);
+  }
+
+  // note this relies on equals() and hashCode()
+  private static <T> boolean areUnique(final Collection<T> items) {
+    return items.size() == new HashSet<T>(items).size();
+  }
+
+  //TODO consider moving to Utils
+  private static boolean containsIgnoreCase(final String needle, final Iterable<String> haystack) {
+    for (final String item : haystack) {
+      if (item.equalsIgnoreCase(needle)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean baseFormContainsUnderScore(final Iterable<String> baseForms) {
+    for (final String baseForm : baseForms) {
+      if (baseForm.indexOf('_') >= 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean baseFormContainsUpperCase(final Iterable<String> baseForms) {
+    for (final String baseForm : baseForms) {
+      for (int i = 0, n = baseForm.length(); i < n; i++) {
+        final char c = baseForm.charAt(i);
+        if (Character.isUpperCase(c)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }
