@@ -33,6 +33,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 /**
  * An implementation of {@code FileManagerInterface} that reads WordNet data
@@ -189,6 +190,7 @@ public final class FileManager implements FileManagerInterface {
     void skipLine() throws IOException {
       readLine();
     }
+    // reads line, returns first space delimited word
     String readLineWord() throws IOException {
       final String ret = readLine();
       if (ret == null) {
@@ -582,12 +584,17 @@ public final class FileManager implements FileManagerInterface {
   // Low-level Searching
   //
 
+  private static final String TWO_SPACES = "  ";
+  
   /**
    * {@inheritDoc}
    */
   // used by substring search iterator
-  public int getMatchingLinePointer(int offset, final CharSequence substring, final String filename) throws IOException {
-    if (substring.length() == 0) {
+  public int getMatchingLinePointer(int offset, final Matcher matcher, final String filename) throws IOException {
+    if (matcher.pattern().pattern().length() == 0) {
+      // shunt behavior where empty string matches everything
+      // assert "anything".matches("");
+      // assert "anything".contains("");
       return -1;
     }
     final CharStream stream = getFileStream(filename);
@@ -595,14 +602,14 @@ public final class FileManager implements FileManagerInterface {
     synchronized (stream) {
       stream.seek(offset);
       do {
-        // note the spaces of this 'word' are underscores
         final String word = stream.readLineWord();
         final int nextOffset = stream.position();
         if (word == null) {
           return -1;
         }
         nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
-        if (word.contains(substring)) {
+        // note the spaces of this 'word' are underscores
+        if (matcher.reset(word).find()) {
           return offset;
         }
         offset = nextOffset;
@@ -728,7 +735,7 @@ public final class FileManager implements FileManagerInterface {
     synchronized (stream) {
       int stop = stream.length();
       while (true) {
-        //FIXME fix possible overflow issue  with >>>
+        //FIXME fix possible overflow issue; fix with >>>
         final int midpoint = (start + stop) / 2;
         stream.seek(midpoint);
         stream.skipLine();
