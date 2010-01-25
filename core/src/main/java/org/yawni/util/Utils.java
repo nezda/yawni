@@ -310,11 +310,20 @@ public class Utils {
   }
 
   public static <T> boolean isEmpty(final Iterable<T> iterable) {
-    return iterable.iterator().hasNext() == false;
+    return ! iterable.iterator().hasNext();
   }
 
   public static <T> boolean isEmpty(final Iterator<T> iterator) {
-    return iterator.hasNext() == false;
+    return ! iterator.hasNext();
+  }
+
+  public static <T> boolean contains(final Iterable<T> iterable, T item) {
+    for (final T t : iterable) {
+      if (t.equals(item)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
