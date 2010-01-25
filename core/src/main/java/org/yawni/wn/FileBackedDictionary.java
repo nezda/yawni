@@ -42,6 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.yawni.util.AbstractIterator;
 import org.yawni.util.StringTokenizer;
 import org.yawni.util.cache.BloomFilter;
@@ -210,7 +212,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
   } // end class StringPOSDatabaseKey
 
-
   //
   // File name computation
   //
@@ -331,6 +332,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
         line = fileManager.readLineAt(offset, filename);
       } catch (IOException e) {
         throw new RuntimeException(e);
+      }
+      if (line == null) {
+        throw new RuntimeException("line null for offset "+offset+" "+pos);
       }
       word = new Word(line, offset, this);
       indexWordCache.put(cacheKey, word);
@@ -478,27 +482,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return indexWord != NULL_INDEX_WORD ? (Word) indexWord : null;
   }
 
-  /** LN Not used much - this might not even have a <i>unique</i> result ? */
-//  public String lookupBaseForm(final POS pos, final String derivation) {
-//    checkValidPOS(pos);
-//    // TODO add caching!
-//    final String filename = getExceptionsFilename(pos);
-//    try {
-//      final int offset = db.getIndexedLinePointer(derivation.toLowerCase(), filename);
-//      if (offset >= 0) {
-//        final String line = db.readLineAt(offset, filename);
-//        // FIXME there could be > 1 entry on this line of the exception file
-//        // technically, i think should return the last word:
-//        //   line.substring(line.lastIndexOf(' ') + 1)
-//        final int spaceIdx = line.indexOf(' ');
-//        return line.substring(spaceIdx + 1);
-//      }
-//    } catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
-//    return null;
-//  }
-
   /** {@inheritDoc} */
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     if (pos == POS.ALL) {
@@ -605,9 +588,74 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return ImmutableList.copyOf(wordSenses);
   }
 
+  private static enum Command {
+    /**
+     * if 9 digit, treat 1st digit as POS ordinal
+     * Only compatible with an single, optional POS and other SYNSET_OFFSET;
+     */
+    SYNSET_OFFSET,
+    /** 
+     * some string to match fully (including after stemming)
+     * consult LEMMA; returns lookupSynsets() OR 
+     */
+    WORD,
+    /** filter; alias for WORD */
+    SOME_STRING,
+    /** filter; default true; boolean: indicates WORD is lemma and should not be stemmed */
+    LEMMA,
+    /**
+     * filter; default ALL; support any of {NOUN, Noun, N, n, 1};
+     * if only POS is provided, return synsets(POS)
+     */
+    POS,
+    PREFIX,
+    SUBSTRING,
+    GLOSS_GREP,
+    /** implies POS=ADJ; only appies to POS={ADJ, ALL} */
+    ADJ_POSITION,
+    LEXNAME,
+    RANDOM,
+  }
+
   /** {@inheritDoc} */
   public Iterable<Synset> synsets(final String query) {
-    throw new UnsupportedOperationException("Not yet implemented.");
+    // factor this out into package private class SynsetQueries
+
+    // parse out query using standard URI "query" syntax:
+    // "?"<command>"="<value>("&"<command>"="<value>)*
+    if (query == null || ! query.startsWith("?")) {
+      return null;
+    }
+    int pos = 1;
+    final int len = query.length();
+    // parse out <name>"="<value> pairs separated by "&"
+    int eidx;
+    do {
+      eidx = query.indexOf("=", pos);
+      if (eidx == -1) {
+        return null;
+      }
+      final String name = query.substring(pos, eidx);
+      pos = eidx + 1;
+      eidx = query.indexOf("&", pos);
+      if (eidx == -1) {
+        eidx = len;
+      }
+      final String value = query.substring(pos, eidx);
+      pos = eidx == -1 ? len : eidx + 1;
+      System.err.println("name: "+name+" value: "+value);
+    } while (eidx != len);
+
+    // issues:
+    // return null if query is malformed ?
+    // what if query includes URI escaped text? (e.g., "%20" == " ")
+
+    // sequences, e.g., 04073208 (release) 05847753 (stemmer)
+    // - harder to interpret
+    // - results have to be accumulated
+    // - could be ambiguous
+//    throw new UnsupportedOperationException("Not yet implemented.");
+    return null;
   }
 
   /** {@inheritDoc} */
@@ -620,13 +668,14 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * <em>looks up</em> word in the appropriate <em>exc</em>eptions file for the given {@code pos}.
    * The exception list files, <tt>pos</tt>.<em>exc</em> , are used to help the morphological
-   * processor find base forms from irregular inflections.  <b>NOTE: Skip the
-   * first entry (the exceptional word itself!)</b>
+   * processor find base forms from irregular inflections.  
+   * <strong>NOTE: The first entry is the exceptional word itself (e.g., for "geese", it's "geese")</strong>.
    * Port of {@code morph.c exc_lookup()}
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    */
   ImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
+    checkValidPOS(pos);
     if (! maybeException(someString, pos)) {
       return ImmutableList.of();
     }
@@ -697,7 +746,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       //<number>
       //<framenum>[ ]+<frame string>
 
-      //TODO make this a util method indexOfNonSpace(CharSequence)
+      //TODO make this a util method indexOfNonSpace(CharSequence, sidx)
       // skip leading digits, skip spaces, rest is frame text
       int idx = line.indexOf(' ');
       assert idx >= 0;
@@ -795,35 +844,56 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   // Iterators
   //
 
+  private abstract class AbstractWordIterator extends AbstractIterator<Word> {
+    private static final String TWO_SPACES = "  ";
+    protected final POS pos;
+    protected final String filename;
+    protected int nextOffset = 0;
+    
+    protected AbstractWordIterator(final POS pos) {
+      this.pos = pos;
+      this.filename = getIndexFilename(pos);
+    }
+
+    protected void skipLicenseLines() throws IOException {
+      if (nextOffset != 0) {
+        return;
+      }
+      String line = null;
+      int offset = -1;
+      do {
+        if (nextOffset < 0) {
+          throw new NoSuchElementException();
+        }
+        line = fileManager.readLineAt(nextOffset, filename);
+        if (line == null) {
+          break;
+        }
+        offset = nextOffset;
+        nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+      } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
+      assert nextOffset != -1;
+      nextOffset = offset;
+    }
+  } // end class AbstractWordIterator
+  
   /**
    * @see DictionaryDatabase#words
    */
-  private class WordIterator extends AbstractIterator<Word> {
-    private final POS pos;
-    private final String filename;
-    private int nextOffset = 0;
-    private static final String TWO_SPACES = "  ";
-
+  private class WordIterator extends AbstractWordIterator {
     WordIterator(final POS pos) {
-      this.pos = pos;
-      this.filename = getIndexFilename(pos);
+      super(pos);
     }
     @Override
     protected Word computeNext() {
       try {
-        int offset = -1;
-        String line;
-        do {
-          if (nextOffset < 0) {
-            throw new NoSuchElementException();
-          }
-          offset = nextOffset;
-          line = fileManager.readLineAt(nextOffset, filename);
-          if (line == null) {
-            return endOfData();
-          }
-          nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
-        } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
+        skipLicenseLines();
+        final int offset = nextOffset;
+        final String line = fileManager.readLineAt(nextOffset, filename);
+        nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+        if (line == null) {
+          return endOfData();
+        }
         return new Word(line, offset, FileBackedDictionary.this);
       } catch (final IOException e) {
         throw new RuntimeException(e);
@@ -851,21 +921,19 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#searchBySubstring
    */
-  private class SearchBySubstringIterator extends AbstractIterator<Word> {
-    private final POS pos;
-    private final CharSequence substring;
-    private final String filename;
-    private int nextOffset;
-
-    SearchBySubstringIterator(final POS pos, final CharSequence substring) {
-      this.pos = pos;
-      this.substring = Morphy.searchNormalize(substring.toString());
-      this.filename = getIndexFilename(pos);
+  private class SearchBySubstringIterator extends AbstractWordIterator {
+    private final Matcher matcher;
+    SearchBySubstringIterator(final POS pos, final CharSequence pattern) {
+      super(pos);
+      // searchNormalize lowercases and translates spaces to underscores
+      // this can throw PatternSyntaxException; gigo
+      this.matcher = Pattern.compile(Morphy.searchNormalize(pattern.toString())).matcher("");
     }
     @Override
     protected Word computeNext() {
       try {
-        final int offset = fileManager.getMatchingLinePointer(nextOffset, substring, filename);
+        skipLicenseLines();
+        final int offset = fileManager.getMatchingLinePointer(nextOffset, matcher, filename);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
           nextOffset = fileManager.getNextLinePointer(offset, filename);
@@ -906,8 +974,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     private int nextOffset;
     SearchByPrefixIterator(final POS pos, final CharSequence prefix) {
       this.pos = pos;
-      //TODO really could String.trim() this result too since no
-      //word will begin with a space or dash
       this.prefix = Morphy.searchNormalize(prefix.toString());
       this.filename = getIndexFilename(pos);
     }
@@ -946,30 +1012,45 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
   }
 
-  // XXX implementation strategy
-  // filter synsets(POS)
   /**
    * @see DictionaryDatabase#searchGlossBySubstring
    */
   private class SearchGlossBySubstringIterator extends AbstractIterator<Synset> {
     private final Iterator<Synset> syns;
-    private final CharSequence substring;
-
-    SearchGlossBySubstringIterator(final POS pos, final CharSequence substring) {
+    private final Matcher matcher;
+    SearchGlossBySubstringIterator(final POS pos, final CharSequence pattern) {
       this.syns = synsets(pos).iterator();
-      //XXX this.substring = Morphy.searchNormalize(substring.substring());
-      this.substring = substring.toString();
+      // this can throw PatternSyntaxException; gigo
+      this.matcher = Pattern.compile(pattern.toString()).matcher("");
     }
     @Override
     protected Synset computeNext() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      while (syns.hasNext()) {
+        final Synset syn = syns.next();
+        if (matcher.reset(syn.getGloss()).find()) {
+          return syn;
+        }
+      }
+      return endOfData();
     }
   } // end class SearchGlossBySubstringIterator
 
-//  /** {@inheritDoc} */
-//  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
-//    throw new UnsupportedOperationException("Not yet implemented");
-//  }
+  /** {@inheritDoc} */
+  public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
+    if (pos == POS.ALL) {
+      return merge(
+        searchGlossBySubstring(substring, POS.NOUN),
+        searchGlossBySubstring(substring, POS.VERB),
+        searchGlossBySubstring(substring, POS.ADJ),
+        searchGlossBySubstring(substring, POS.ADV));
+    } else {
+      return new Iterable<Synset> () {
+        public Iterator<Synset> iterator() {
+          return new SearchGlossBySubstringIterator(pos, substring);
+        }
+      };
+    }
+  }
 
   /**
    * @see DictionaryDatabase#synsets
