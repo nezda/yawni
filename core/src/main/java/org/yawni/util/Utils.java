@@ -76,6 +76,22 @@ public class Utils {
   }
 
   /**
+   * Equivalent to the STL function by the same name except the
+   * {@code first} and {@code last} are implied to select the entire
+   * contents of {@code iterable}.
+   *
+   * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/distance.html">distance</a>
+   */
+  public static long distance(final Iterator<?> it) {
+    long distance = 0;
+    while (it.hasNext()) {
+      it.next();
+      distance++;
+    }
+    return distance;
+  }
+
+  /**
    * Alias for {@link #distance(java.lang.Iterable)}
    */
   public static long size(final Iterable<?> iterable) {
