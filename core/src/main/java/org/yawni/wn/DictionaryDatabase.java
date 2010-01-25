@@ -102,6 +102,7 @@ public interface DictionaryDatabase {
    * @param substring The substring to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
+   * @throws java.util.regex.PatternSyntaxException
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html">
    *   <code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
    */
@@ -121,6 +122,7 @@ public interface DictionaryDatabase {
    * @param substring The substring to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Synset}s.
+   * @throws java.util.regex.PatternSyntaxException
    */
    public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
 
