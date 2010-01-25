@@ -48,7 +48,7 @@ public class Utils {
   public static int mismatch(final List<?> l1, int l1s, final int l1e,
       final List<?> l2, int l2s) {
     while (l1s < l1e) {
-      if (l2s >= l2.size() || false == equals(l1.get(l1s), l2.get(l2s))) {
+      if (l2s >= l2.size() || ! equals(l1.get(l1s), l2.get(l2s))) {
         break;
       }
       l1s++; l2s++;
