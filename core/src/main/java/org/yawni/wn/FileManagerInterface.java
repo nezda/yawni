@@ -18,6 +18,7 @@ package org.yawni.wn;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.regex.Matcher;
 
 /**
  * {@code FileManagerInterface} defines the interface between the {@code FileBackedDictionary} and the data file system.
@@ -56,13 +57,15 @@ public interface FileManagerInterface {
    * Binary searches for line whose first word <em>is</em> {@code target} (that
    * is, that begins with {@code target} followed by a space or dash) in
    * file implied by {@code filename}.  Assumes this file is sorted by its
-   * first textual column of lowercased words.  This condtion can be verified
+   * first textual column of <em>lowercased</em> words.  This condition can be verified
    * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>
+   * @param target string sought
+   * @param start file offset to start at
    * @return The file offset of the start of the matching line if one exists.
-   * Otherwise, return  {@code (-(insertion point) - 1)}.
+   * Otherwise, {@code (-(insertion point) - 1)}.
    * The insertion point is defined as the point at which the target would be
    * inserted into the file: the index of the first element greater than the
-   * target, or list.size(), if all elements in the file are less than the
+   * target, or the row count, if all elements in the file are less than the
    * specified target. Note that this guarantees that the return value will be
    * {@code >= 0} if and only if the target is found.  This is analagous to
    * {@link java.util.Arrays#binarySearch java.util.Arrays.binarySearch()}.
@@ -72,9 +75,10 @@ public interface FileManagerInterface {
   public int getIndexedLinePointer(final CharSequence target, final String filename) throws IOException;
 
   /**
+   * @param target string sought
+   * @param start file offset to start at
    * @param filenameWnRelative if {@code true}, {@code filename} is relative to <tt>WNSEARCHDIR</tt>, else
    * {@code filename} is absolute or classpath relative.
-   * @param start
    * @throws IOException
    */
   public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException;
@@ -94,15 +98,15 @@ public interface FileManagerInterface {
   public int getNextLinePointer(final int offset, final String filename) throws IOException;
 
   /**
-   * Search for a line whose index word <em>contains</em> {@code substring}.
+   * Search for a line whose index word <em>contains</em> {@code pattern} (case insensitive).
    * @return The file offset of the start of the matching line, or {@code -1} if
    *         no such line exists.
    * @throws IOException
    */
-  public int getMatchingLinePointer(final int offset, final CharSequence substring, final String filename) throws IOException;
+  public int getMatchingLinePointer(final int offset, final Matcher pattern, final String filename) throws IOException;
 
   /**
-   * Search for a line whose index word <em>begins with</em> {@code prefix}.
+   * Search for a line whose index word <em>begins with</em> {@code prefix} (case insensitive).
    * @return The file offset of the start of the matching line, or {@code -1} if
    *         no such line exists.
    * @throws IOException
