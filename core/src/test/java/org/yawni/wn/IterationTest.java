@@ -22,6 +22,7 @@ import static org.yawni.wn.HasLemma.*;
 
 import java.util.*;
 import java.lang.management.*;
+import java.util.regex.PatternSyntaxException;
 
 import org.yawni.util.Utils;
 import static org.yawni.util.Utils.first;
@@ -136,6 +137,17 @@ public class IterationTest {
     // expose problem where not skipping initial lines
     final Iterable<Word> everything = dictionary.searchBySubstring(".*", POS.ALL);
     assertFalse(isEmpty(everything));
+  }
+
+  @Test (expected=PatternSyntaxException.class)
+  public void invalidRegexPatterns() {
+    logTest("invalidRegexPatterns");
+    final Iterable<Word> openCharClass = dictionary.searchBySubstring("[", POS.ALL);
+    // note, exception is not triggered until we inspect the result
+    assertTrue(isEmpty(openCharClass));
+    // should never get here
+    //final Iterable<Word> danglingMetaChar = dictionary.searchBySubstring("*", POS.ALL);
+    //assertTrue(isEmpty(openCharClass));
   }
 
   // speed this test up by only searching for prefixes of
