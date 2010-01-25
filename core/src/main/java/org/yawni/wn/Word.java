@@ -71,8 +71,9 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     try {
       log.trace("parsing line: {}", line);
       final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
-      this.lowerCasedLemma = tokenizer.nextToken().toString().replace('_', ' ');
+      this.lowerCasedLemma = tokenizer.nextToken().replace('_', ' ');
       this.posOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
+      this.offset = offset;
 
       tokenizer.skipNextToken(); // poly_cnt
       //final int poly_cnt = tokenizer.nextInt(); // poly_cnt
@@ -89,7 +90,6 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         //  }
       }
 
-      this.offset = offset;
       final int senseCount = tokenizer.nextInt();
       // this is redundant information
       //assert senseCount == poly_cnt;
