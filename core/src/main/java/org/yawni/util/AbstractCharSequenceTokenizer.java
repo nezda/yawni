@@ -28,42 +28,52 @@ import static org.yawni.util.CharSequences.*;
  * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer}
  */
 public abstract class AbstractCharSequenceTokenizer {
+  protected static final String DEFAULT_DELIMITERS = " \t\n\r\f";
   protected final CharSequence string;
   protected String delimiters;
   private int position;
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for {@code string} using whitespace as
+   * Constructs a new {@code AbstractCharSequenceTokenizer} for {@code string} using whitespace as
    * the delimiter.
-   *
    * @param string the CharSequence to be tokenized
    */
   public AbstractCharSequenceTokenizer(final CharSequence string) {
-    this(string, " \t\n\r\f");
+    this(string, DEFAULT_DELIMITERS);
   }
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for {@code string} using the specified
+   * Constructs a new {@code AbstractCharSequenceTokenizer} for {@code string} using the specified
    * {@code delimiters} and returning delimiters as tokens when specified.
-   *
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
    */
   public AbstractCharSequenceTokenizer(final CharSequence string, final String delimiters) {
-    if (string != null) {
-      this.string = string;
-      this.delimiters = delimiters;
-      this.position = 0;
-    } else {
+    this(string, 0, delimiters);
+  }
+
+  /**
+   * Constructs a new {@code AbstractCharSequenceTokenizer} for {@code string} using the specified
+   * {@code delimiters} and returning delimiters as tokens when specified.
+   * @param string the string to be tokenized
+   * @param position position in string
+   * @param delimiters the delimiters to use
+   */
+  public AbstractCharSequenceTokenizer(final CharSequence string, final int position, final String delimiters) {
+    if (string == null || delimiters == null) {
       throw new NullPointerException();
     }
+    if (position < 0 || position > string.length()) {
+      throw new IndexOutOfBoundsException("invalid position "+position+" for string of length: "+string.length());
+    }
+    this.string = string;
+    this.delimiters = delimiters;
+    this.position = position;
   }
 
   /**
    * Returns the number of unprocessed tokens remaining in the string.
-   *
-   * @return number of tokens that can be retreived before an exception will
-   *         result
+   * @return number of tokens that can be retreived before an exception will result
    */
   public final int countTokens() {
     return countTokens(string, position, string.length(), delimiters);
@@ -71,12 +81,20 @@ public abstract class AbstractCharSequenceTokenizer {
 
   /**
    * Returns the number of tokens in {@code string} separated by
-   * {@code delimiters} starting at {@code position}.
-   *
+   * the default delimiters.
+   * @param string the string to be tokenized
+   * @return number of tokens that can be retreived before an exception will result
+   */
+  public final static int countTokens(final CharSequence string) {
+    return countTokens(string, 0, string.length(), DEFAULT_DELIMITERS);
+  }
+
+  /**
+   * Returns the number of tokens in {@code string} separated by
+   * {@code delimiters}.
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
-   * @return number of tokens that can be retreived before an exception will
-   *         result
+   * @return number of tokens that can be retreived before an exception will result
    */
   public final static int countTokens(final CharSequence string, final String delimiters) {
     return countTokens(string, 0, string.length(), delimiters);
@@ -85,24 +103,24 @@ public abstract class AbstractCharSequenceTokenizer {
   /**
    * Returns the number of tokens in {@code string} separated by
    * {@code delimiters} starting at {@code position}.
-   *
    * @param string the string to be tokenized
-   * @param position in string
-   * @param length after position
+   * @param position position in string
+   * @param length length after position
    * @param delimiters the delimiters to use
-   * @return number of tokens that can be retreived before an exception will
-   *         result
+   * @return number of tokens that can be retreived before an exception will result
    */
   public final static int countTokens(
     final CharSequence string,
     final int position,
     final int length,
     final String delimiters) {
+    // could implement this with a CharSequenceTokenizer than copying logic, but would
+    // create objects
     int count = 0;
     boolean inToken = false;
     for (int i = position; i < length; i++) {
       final char ci = string.charAt(i);
-      if (delimiters.indexOf(ci, 0) >= 0) {
+      if (delimiters.indexOf(ci, 0) != -1) {
         if (inToken) {
           count++;
           inToken = false;
@@ -119,7 +137,6 @@ public abstract class AbstractCharSequenceTokenizer {
 
   /**
    * Returns true if unprocessed tokens remain.
-   *
    * @return true if unprocessed tokens remain
    */
   public final boolean hasNext() {
@@ -128,13 +145,12 @@ public abstract class AbstractCharSequenceTokenizer {
 
   /**
    * Returns true if unprocessed tokens remain.
-   *
    * @return true if unprocessed tokens remain
    */
   public final boolean hasMoreTokens() {
     final int length = string.length();
     if (position < length) {
-      // otherwise find a character which is not a delimiter
+      // otherwise find next character which is not a delimiter
       for (int i = position; i < length; i++) {
         if (delimiters.indexOf(string.charAt(i), 0) == -1) {
           return true;
@@ -144,15 +160,37 @@ public abstract class AbstractCharSequenceTokenizer {
     return false;
   }
 
-//  /**
-//   * Returns the next token in the string as an CharSequence.
-//   *
-//   * @return next token in the string as an CharSequence
-//   * @throws NoSuchElementException if no tokens remain
-//   */
-//  public CharSequence next() {
-//    return nextToken();
-//  }
+  /**
+   * Returns the next token in the string as an CharSequence.
+   * @return next token in the string as an CharSequence
+   * @throws NoSuchElementException if no tokens remain
+   */
+  public CharSequence next() {
+    return nextToken();
+  }
+
+  /**
+   * Returns the next token in the string as a CharSequence.
+   * @return next token in the string as a CharSequence
+   * @throws NoSuchElementException if no tokens remain
+   */
+  public String nextToken() {
+    final int s = scanToTokenStart();
+    final int e = scanToTokenEnd();
+    return string.subSequence(s, e).toString();
+  }
+
+  /**
+   * Returns the next token in the string as a CharSequence. The delimiters used are
+   * changed to the specified delimiters.
+   * @param delims the new delimiters to use
+   * @return next token in the string as a CharSequence
+   * @throws NoSuchElementException if no tokens remain
+   */
+  public CharSequence nextToken(final String delims) {
+    this.delimiters = delims;
+    return nextToken();
+  }
 
   /**
    * @throws UnsupportedOperationException
@@ -187,7 +225,7 @@ public abstract class AbstractCharSequenceTokenizer {
   protected final int scanToTokenStart() {
     final int length = string.length();
     if (position < length) {
-      while (position < length && delimiters.indexOf(string.charAt(position)) >= 0) {
+      while (position < length && delimiters.indexOf(string.charAt(position)) != -1) {
         position++;
       }
       return position;
@@ -199,7 +237,7 @@ public abstract class AbstractCharSequenceTokenizer {
     final int length = string.length();
     if (position < length) {
       for (position++; position < length; position++) {
-        if (delimiters.indexOf(string.charAt(position)) >= 0) {
+        if (delimiters.indexOf(string.charAt(position)) != -1) {
           return position;
         }
       }
@@ -209,6 +247,10 @@ public abstract class AbstractCharSequenceTokenizer {
     throw new NoSuchElementException();
   }
 
+  /**
+   * Advance past next token without generating any objects; same semantics
+   * as calling {@link #next next()}
+   */
   public final void skipNextToken() {
     scanToTokenStart();
     scanToTokenEnd();
@@ -217,7 +259,6 @@ public abstract class AbstractCharSequenceTokenizer {
 //  /**
 //   * Returns the next token in the string as a CharSequence. The delimiters used are
 //   * changed to the specified delimiters.
-//   *
 //   * @param delims the new delimiters to use
 //   * @return next token in the string as a CharSequence
 //   * @throws NoSuchElementException if no tokens remain

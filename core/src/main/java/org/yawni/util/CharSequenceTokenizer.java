@@ -17,7 +17,6 @@
 package org.yawni.util;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * {@code CharSequenceTokenizer} is used to break a string apart into tokens.  Lighter
@@ -26,9 +25,8 @@ import java.util.NoSuchElementException;
  */
 public final class CharSequenceTokenizer extends AbstractCharSequenceTokenizer implements Iterator<CharSequence> {
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for {@code string} using whitespace as
+   * Constructs a new {@code CharSequenceTokenizer} for {@code string} using whitespace as
    * the delimiter.
-   *
    * @param string the CharSequence to be tokenized
    */
   public CharSequenceTokenizer(final CharSequence string) {
@@ -36,9 +34,8 @@ public final class CharSequenceTokenizer extends AbstractCharSequenceTokenizer i
   }
 
   /**
-   * Constructs a new <code>CharSequenceTokenizer</code> for {@code string} using the specified
+   * Constructs a new {@code CharSequenceTokenizer} for {@code string} using the specified
    * {@code delimiters} and returning delimiters as tokens when specified.
-   *
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
    */
@@ -47,36 +44,13 @@ public final class CharSequenceTokenizer extends AbstractCharSequenceTokenizer i
   }
 
   /**
-   * Returns the next token in the string as an CharSequence.
-   *
-   * @return next token in the string as an CharSequence
-   * @throws NoSuchElementException if no tokens remain
+   * Constructs a new {@code CharSequenceTokenizer} for {@code string} using the specified
+   * {@code delimiters} and returning delimiters as tokens when specified.
+   * @param string the string to be tokenized
+   * @param position position in string
+   * @param delimiters the delimiters to use
    */
-  public String next() {
-    return nextToken();
-  }
-
-  /**
-   * Returns the next token in the string as a CharSequence.
-   * @return next token in the string as a CharSequence
-   * @throws NoSuchElementException if no tokens remain
-   */
-  public String nextToken() {
-    final int s = scanToTokenStart();
-    final int e = scanToTokenEnd();
-    return string.subSequence(s, e).toString();
-  }
-
-  /**
-   * Returns the next token in the string as a CharSequence. The delimiters used are
-   * changed to the specified delimiters.
-   *
-   * @param delims the new delimiters to use
-   * @return next token in the string as a CharSequence
-   * @throws NoSuchElementException if no tokens remain
-   */
-  public CharSequence nextToken(final String delims) {
-    this.delimiters = delims;
-    return nextToken();
+  public CharSequenceTokenizer(final CharSequence string, final int position, final String delimiters) {
+    super(string, position, delimiters);
   }
 }
