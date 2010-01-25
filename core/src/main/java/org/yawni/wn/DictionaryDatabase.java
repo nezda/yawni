@@ -39,16 +39,6 @@ public interface DictionaryDatabase {
    */
   public Word lookupWord(final CharSequence lemma, final POS pos);
 
-//  /**
-//   * Return the base form of an exceptional derivation, if an entry for it
-//   * exists in the database. e.g., returns "goose" from derivation query term
-//   * "geese" as {@code POS.NOUN}.
-//   * @param pos The part-of-speech.
-//   * @param derivationLemma A (possibly <i>inflected</i>) form of the word.
-//   * @return The <i>uninflected</i> word, or {@code null} if no exception entry exists.
-//   */
-//  public String lookupBaseForm(final POS pos, final String derivationLemma);
-
   /**
    * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems"),
    * as wel as any exceptional forms, of {@code someString} in {@code pos}.
@@ -77,14 +67,14 @@ public interface DictionaryDatabase {
    * Convenient combination of basic API methods {@link #lookupBaseForms()}, {@link #lookupWord()}
    * and {@link Word#getWordSenses()}.
    * For {@code pos !=}{@link POS#ALL}, usually returns a single result, though there are
-   * numerous exceptions (TODO e.g., ).
-   * For {@code pos == ALL}, multiple results are even more common (TODO e.g., ).
+   * numerous exceptions (TODO e.g., XXX).
+   * For {@code pos == ALL}, multiple results are even more common (TODO e.g., XXX).
    * @see #lookupSynsets
    */
   public List<WordSense> lookupWordSenses(final String someString, final POS pos);
 
   /**
-   * <h2>Not yet supported!</h2>
+   * <h2>Not yet implemented!</h2>
    * Return an iterator of {@code Synset}s matching {@code query}.
    * @param query
    * @return An iterable of {@code Synset}s.
@@ -92,7 +82,7 @@ public interface DictionaryDatabase {
   public Iterable<Synset> synsets(final String query);
 
   /**
-   * <h2>Not yet supported!</h2>
+   * <h2>Not yet implemented!</h2>
    * Return an iterator of {@code WordSense}s matching {@code query}.
    * @param query
    * @return An iterable of {@code WordSense}s.
@@ -118,22 +108,21 @@ public interface DictionaryDatabase {
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
 
   /**
-   * Return an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em> <strong>begin with</strong> {@code prefix}.
+   * Return an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em>
+   * <strong>begin with</strong> {@code prefix} (case insensitive).
    * @param prefix The prefix to search for.
    * @param pos The part-of-speech.
    * @return An iterable of {@code Word}s.
    */
   public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
 
-  // Not yet implemented
-//  /**
-//   * Return an iterator of all the {@code Synset}s whose gloss <strong>contains</strong> {@code substring}
-//   * <em>without stemming</em> (i.e., {@link #lookupBaseForms()}).
-//   * @param substring The substring to search for.
-//   * @param pos The part-of-speech.
-//   * @return An iterable of {@code Synset}s.
-//   */
-//   public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
+  /**
+   * Return an iterator of all the {@code Synset}s whose gloss <strong>contains</strong> {@code substring} (case sensitive).
+   * @param substring The substring to search for.
+   * @param pos The part-of-speech.
+   * @return An iterable of {@code Synset}s.
+   */
+   public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
 
   /**
    * Return an iterator of <strong>all</strong> the {@code Synset}s in the database.
