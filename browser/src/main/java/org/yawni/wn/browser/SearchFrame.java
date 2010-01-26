@@ -386,8 +386,9 @@ class SearchFrame extends JDialog {
 
     //setSize(getPreferredSize().width, getPreferredSize().height);
     this.setVisible(true);
-    this.searchField.requestFocusInWindow();
-    this.searchField.setRequestFocusEnabled(true);
+    // causes problems in GTK + Linux
+//    this.searchField.requestFocusInWindow();
+//    this.searchField.setRequestFocusEnabled(true);
   }
 
   private POS getSelectedPOS() {

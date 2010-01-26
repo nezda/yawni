@@ -364,16 +364,17 @@ public class BrowserPanel extends JPanel {
     browser.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
   }
 
-  @Override
-  public void setVisible(final boolean visible) {
-    super.setVisible(visible);
-    if (visible) {
-      final boolean gotFocus = searchField.requestFocusInWindow();
-      if (! gotFocus) {
-        log.error("searchField.requestFocusInWindow() failed!");
-      }
-    }
-  }
+  // causes problems on GTK + Linux
+//  @Override
+//  public void setVisible(final boolean visible) {
+//    super.setVisible(visible);
+//    if (visible) {
+//      final boolean gotFocus = searchField.requestFocusInWindow();
+//      if (! gotFocus) {
+//        log.error("searchField.requestFocusInWindow() failed!");
+//      }
+//    }
+//  }
 
   synchronized String getSearchText() {
     return searchField.getText();
