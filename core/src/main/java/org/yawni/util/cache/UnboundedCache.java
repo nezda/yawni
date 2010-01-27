@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * A {@link Cache} of unbounded capacity.
- * <h2>Use this at your own risk; expect {@link OutOfMemoryError}</h2>.
+ * <h2>Use this at your own risk; expect {@link OutOfMemoryError}.</h2>
  * All methods are thread-safe by brute-force synchronization.
  */
 public class UnboundedCache<K, V> implements Cache<K, V> {
