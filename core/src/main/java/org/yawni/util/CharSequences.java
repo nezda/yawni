@@ -19,7 +19,7 @@ package org.yawni.util;
 /**
  * Utility methods for {@link CharSequence}s.
  * 
- * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer java.util.StringTokenizer}
+ * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer java.util.StringTokenizer}.
  */
 public class CharSequences {
   private CharSequences() {}
