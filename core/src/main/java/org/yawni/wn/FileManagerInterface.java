@@ -49,7 +49,7 @@ import java.util.regex.Matcher;
  * principle together with the restriction of return values to primitives is that pairs
  * of operations such as {@code getNextLinePointer}/{@code readLineAt} are required in order to step through
  * a file.  The implementor of {@code FileManagerInterface} can cache the file position before and
- * after {@code readLineAt} in order to eliminate the redundant IO activity that a naïve implementation
+ * after {@code readLineAt} in order to eliminate the redundant I/O activity that a naïve implementation
  * of these methods would necessitate.
  */
 public interface FileManagerInterface {
