@@ -69,6 +69,6 @@ enum TeleologicalRelation {
     if (STRING_TO_REL == null) {
       STRING_TO_REL = new HashMap<String, TeleologicalRelation>();
     }
-    STRING_TO_REL.put(form, rel);
+    assert null == STRING_TO_REL.put(form, rel);
   }
 }
