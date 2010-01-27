@@ -34,9 +34,9 @@ import static org.yawni.wn.RelationTypeFlag.*;
  *   <li> a short string that represents it in the dictionary files </li>
  * </ul>
  *
- * <p> Note this class used to be called {@code PointerType}.
+ * <p> This class used to be called {@code PointerType}.
  * 
- * <p> Relevant C code is in {@code include/wn.h}, {@code src/wnglobal.c}
+ * <p> Relevant Princeton C WordNet code is in {@code include/wn.h}, {@code src/wnglobal.c}
  *
  * @see <a href="http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4">
  *   http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4</a>
