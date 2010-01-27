@@ -375,7 +375,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Object methods
   //
-  
+
+  /** {@inheritDoc} */
   @Override
   public boolean equals(Object that) {
     return (that instanceof Synset)
@@ -383,12 +384,14 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
       && ((Synset) that).getOffset() == getOffset();
   }
 
+  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     // times 10 shifts left by 1 decimal place
     return (getOffset() * 10) + getPOS().hashCode();
   }
 
+  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[Synset ").
@@ -406,9 +409,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
       append("]").toString();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   public int compareTo(final Synset that) {
     int result;
     result = this.getPOS().compareTo(that.getPOS());

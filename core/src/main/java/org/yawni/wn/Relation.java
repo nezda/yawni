@@ -134,7 +134,8 @@ public class Relation implements Comparable<Relation> {
   //
   // Object methods
   //
-  
+
+  /** {@inheritDoc} */
   @Override
   public boolean equals(final Object that) {
     return (that instanceof Relation)
@@ -142,11 +143,13 @@ public class Relation implements Comparable<Relation> {
       && ((Relation) that).index == this.index;
   }
 
+  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return source.hashCode() + index;
   }
 
+  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[").

@@ -591,7 +591,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   //
   // Object methods
   //
-  
+
+  /** {@inheritDoc} */
   @Override
   public boolean equals(Object object) {
     return (object instanceof WordSense)
@@ -599,11 +600,13 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       && ((WordSense) object).lemma.equals(lemma);
   }
 
+  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return synset.hashCode() ^ lemma.hashCode();
   }
 
+  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[WordSense ").
@@ -617,9 +620,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       append(']').toString();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   public int compareTo(final WordSense that) {
     int result;
     result = WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(this.getLemma(), that.getLemma());

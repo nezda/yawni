@@ -395,6 +395,7 @@ public enum RelationType {
     //XXX System.err.println(this+" longNounLabel: "+this.longNounLabel+" longVerbLabel: "+this.longVerbLabel+" label: "+this.label);
   }
 
+  /** {@inheritDoc} */
   @Override
   public String toString() {
     return toString;
