@@ -41,7 +41,7 @@ public interface DictionaryDatabase {
 
   /**
    * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems"),
-   * as wel as any exceptional forms, of {@code someString} in {@code pos}.
+   * as well as any exceptional forms, of {@code someString} in {@code pos}.
    * Utilizes an implementation of the {@code morphstr()} and {@code getindex()} algorithms.
    * See {@link WordSense#getLemma()} for a description of "true cased" base forms.
    * @param someString someString does <em>not</em> need to be a base form
@@ -55,7 +55,7 @@ public interface DictionaryDatabase {
   public List<String> lookupBaseForms(final String someString, final POS pos);
 
   /**
-   * Convenient combination of basic API methods {@link #lookupBaseForms()}, {@link #lookupWord()}
+   * Convenient combination of basic API methods {@link #lookupBaseForms}, {@link #lookupWord}
    * and {@link Word#getSynsets()}.
    * @param someString
    * @param pos The part-of-speech.
