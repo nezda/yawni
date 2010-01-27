@@ -42,7 +42,7 @@ import java.util.Map.Entry;
  *
  * <p>If neither {@link #skipNulls()} nor {@link #useForNull(String)} is
  * specified, the joining methods will throw {@link NullPointerException} if any
- * given element is null.
+ * given element is {@code null}.
  *
  * @author Kevin Bourrillion
  */
