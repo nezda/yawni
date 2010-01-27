@@ -21,7 +21,8 @@ package org.yawni.util;
  * @author wolfgang.hoschek@cern.ch
  * @version 1.0, 09/24/99
  */
-public class PrimeFinder {
+// no need to publish this unused class with 'public'
+class PrimeFinder {
   /**
    * The largest prime this class can generate; currently equal to <tt>Integer.MAX_VALUE</tt>.
    */
