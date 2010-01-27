@@ -115,7 +115,8 @@ public class MorphyTest {
       { POS.NOUN.name(), "I ran", null }, // WN gets this as "Iran" - " " → "" seems bad unless a variant has "-" in same position (WN online doesn't do this)
       { POS.NOUN.name(), "be an", null }, // WN gets this as "bean" (WN online doesn't do this)
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
-      { POS.NOUN.name(), "_slovaks_", "Slovak" },
+      { POS.NOUN.name(), " Americans", "American" }, // WN doesn't get this
+      { POS.NOUN.name(), "_slovaks_", "Slovak" }, // WN doesn't get this
       { POS.NOUN.name(), "superheroes", "superhero", "superheroes" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
       { POS.NOUN.name(), "businessmen", "businessman", "businessmen" },
       { POS.NOUN.name(), "_", null },
