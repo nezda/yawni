@@ -20,8 +20,8 @@ import java.util.Comparator;
 import org.yawni.util.cache.Hasher;
 
 /**
- * {@link Comparator} for {@code CharSequence}s which considers {@code ' '}
- * and {@code '_'} the same and optionally lowercases the characters of both
+ * {@link Comparator} for {@code CharSequence}s which considers {@code ' '} (space)
+ * and {@code '_'} (underscore) the same and optionally lowercases the characters of both
  * arguments to {@link #compare(java.lang.CharSequence, java.lang.CharSequence) compare()}
  * ({@link #TO_LOWERCASE_INSTANCE}).  This encodes the natural sort order of
  * the {@link Word}s of WordNet <code>index.<em>pos</em></code> files.
