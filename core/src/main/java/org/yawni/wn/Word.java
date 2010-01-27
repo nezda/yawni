@@ -33,7 +33,7 @@ import org.yawni.util.ImmutableList;
  * A {@code Word} is retrieved via {@link DictionaryDatabase#lookupWord},
  * and has a lowercase <em>lemma</em>, a <em>part of speech ({@link POS})</em>, and a set of <em>senses</em> ({@link WordSense}s).
  *
- * <p> Note this class used to be called {@code IndexWord} which arguably makes more sense from the
+ * <p> This class used to be called {@code IndexWord} which arguably makes more sense from the
  * WordNet perspective.
  *
  * @see Synset
