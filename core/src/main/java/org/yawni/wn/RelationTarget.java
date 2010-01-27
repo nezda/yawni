@@ -26,7 +26,7 @@ import java.util.List;
  * which form a composite pair, as evidenced by both being {@code Iterable<WordSense>} and
  * having {@link #getSynset()}.
  *
- * <p> Note this class used to be called {@code PointerTarget}.
+ * <p> This class used to be called {@code PointerTarget}.
  *
  * @see Relation
  * @see Synset
