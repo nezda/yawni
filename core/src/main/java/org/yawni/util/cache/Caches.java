@@ -20,6 +20,7 @@ package org.yawni.util.cache;
 //import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
 
 public class Caches {
+  /** Centralized {@link Cache} factory. */
   public static <K, V> Cache<K, V> withCapacity(final int capacity) {
     return new SoftCache<K, V>(capacity);
 //    return new LRUCache<K, V>(capacity);
