@@ -16,6 +16,7 @@
  */
 package org.yawni.wn;
 
+import static org.yawni.util.Utils.*;
 import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
 import org.junit.BeforeClass;
@@ -68,11 +69,6 @@ public class DictionaryDatabaseTest {
     String str = "allows for";
     POS pos = POS.VERB;
 
-    // exhaustive -- all POS
-    //for(POS pos : POS.CATS) {
-    //  Synset[] syns = dictionary.lookupSynsets(pos, str);
-    //}
-    // just our source POS
     List<Synset> syns = dictionary.lookupSynsets(str, pos);
     if (syns.isEmpty()) {
       System.err.println("XXX PROBLEM: "+str+" no syns found (loopback failure)");
@@ -81,6 +77,62 @@ public class DictionaryDatabaseTest {
     syns = dictionary.lookupSynsets("compromise", POS.ALL);
     assertThat(isUnique(syns)).isTrue();
     assertThat(syns.size()).isEqualTo(5);
+  }
+
+  @Test
+  public void coordinateTerms() {
+    final Word synonyms = dictionary.lookupWord("synonyms", POS.NOUN);
+    assertThat(synonyms).isNull();
+    final Word synonym = dictionary.lookupWord("synonym", POS.NOUN);
+    final List<WordSense> senses = synonym.getWordSenses();
+    assertThat(senses).hasSize(1);
+    final WordSense sense = senses.get(0);
+    final List<RelationTarget> parents = sense.getRelationTargets(RelationType.HYPERNYM);
+    assertThat(parents).hasSize(1);
+    final RelationTarget parent = parents.get(0);
+
+    // TODO
+    // this is a confusing example :)
+    // "antonym", "hyponym", "hypernym" will all be among the coordinate terms of "synonym"
+  }
+
+  @Test
+  public void synsets() {
+    String query;
+    Iterable<Synset> result;
+
+    query = "?POS=ALL";
+    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    System.err.println("isEmpty? "+isEmpty(result));
+
+    query = "?POS=n&offset=04073208";
+    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    System.err.println("isEmpty? "+isEmpty(result));
+
+    // command repetition not supported
+//    query = "?POS=n&offset=04073208&offset=05847753";
+//    System.err.println("query: "+query);
+//    result = dictionary.synsets(query);
+//    System.err.println("isEmpty? "+isEmpty(result));
+
+    query = "?POS=1";
+    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    System.err.println("isEmpty? "+isEmpty(result));
+
+    query = "?offset=104073208";
+    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    System.err.println("isEmpty? "+isEmpty(result));
+
+    // invalid (e.g., random) synset offsets cause various exceptions
+    // in Synset parsing ctor
+//    query = "?offset=100001000";
+//    System.err.println("query: "+query);
+//    result = dictionary.synsets(query);
+//    System.err.println("isEmpty? "+isEmpty(result));
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
