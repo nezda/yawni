@@ -74,10 +74,10 @@ public interface DictionaryDatabase {
   public List<WordSense> lookupWordSenses(final String someString, final POS pos);
 
   /**
-   * <h2>Not yet implemented!</h2>
    * Return an iterator of {@code Synset}s matching {@code query}.
    * @param query
-   * @return An iterable of {@code Synset}s.
+   * @return An iterable of {@code Synset}s; Iterable will be empty if supported, well formed query has
+   * no results; {@code null} indicates an unsupported and/or ill formed query.
    */
   public Iterable<Synset> synsets(final String query);
 
