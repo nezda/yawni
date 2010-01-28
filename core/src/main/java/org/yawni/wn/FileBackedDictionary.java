@@ -45,6 +45,7 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.yawni.util.AbstractIterator;
+import org.yawni.util.Preconditions;
 import org.yawni.util.StringTokenizer;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
@@ -554,7 +555,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
   }
 
-  // FIXME refactor! this is copy paste from doLookupSynsets
+  // FIXME refactor! this is copy paste from doLookupSynsets ; however, code is really short
   private List<WordSense> doLookupWordSenses(final String someString, final POS pos) {
     checkValidPOS(pos);
     final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
@@ -588,82 +589,74 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return ImmutableList.copyOf(wordSenses);
   }
 
-  private static enum Command {
-    /**
-     * if 9 digit, treat 1st digit as POS ordinal;
-     * support any of {offset, Offset, OFFSET, SYNSET_OFFSET};
-     * Only compatible with a single, optional POS and other SYNSET_OFFSET(s)
-     */
-    SYNSET_OFFSET,
-    /** 
-     * some string to match fully (including after stemming)
-     * consult LEMMA; returns lookupSynsets() OR 
-     */
-    WORD,
-    /** filter; alias for WORD */
-    SOME_STRING,
-    /** 
-     * filter; boolean: indicates WORD is lemma and should not be stemmed
-     * default true;
-     */
-    LEMMA,
-    /**
-     * filter; default ALL;
-     * support any of {NOUN, Noun, N, n, 1};
-     * if only POS is provided, return synsets(POS)
-     */
-    POS,
-    /**
-     * if synsets(), return implied Synset, if wordSenses(), return implied WordSense
-     */
-    SENSEKEY,
-    PREFIX,
-    SUBSTRING,
-    GLOSS_GREP,
-    /** implies POS=ADJ; only appies to POS={ADJ, ALL} */
-    ADJ_POSITION,
-    LEXNAME,
-    RANDOM,
-  }
-
   /** {@inheritDoc} */
   public Iterable<Synset> synsets(final String query) {
-    // factor this out into package private class SynsetQueries
-
     // parse out query using standard URI "query" syntax:
     // "?"<command>"="<value>("&"<command>"="<value>)*
     if (query == null || ! query.startsWith("?")) {
       return null;
     }
-    int pos = 1;
+    int idx = 1;
     final int len = query.length();
+    final EnumMap<Command, String> cmdToValue = new EnumMap<Command, String>(Command.class);
     // parse out <name>"="<value> pairs separated by "&"
     int eidx;
     do {
-      eidx = query.indexOf("=", pos);
+      eidx = query.indexOf("=", idx);
       if (eidx == -1) {
         return null;
       }
-      final String name = query.substring(pos, eidx);
-      pos = eidx + 1;
-      eidx = query.indexOf("&", pos);
+      final String name = query.substring(idx, eidx);
+      idx = eidx + 1;
+      eidx = query.indexOf("&", idx);
       if (eidx == -1) {
         eidx = len;
       }
-      final String value = query.substring(pos, eidx);
-      pos = eidx == -1 ? len : eidx + 1;
-      System.err.println("name: "+name+" value: "+value);
+      final String value = query.substring(idx, eidx);
+      idx = eidx == -1 ? len : eidx + 1;
+      log.trace("name: {} value: {}", name, value);
+      final Command cmd = Command.fromValue(name);
+      if (cmd != null) {
+        // NOTE: normalizeValue throws
+        final String prev = cmdToValue.put(cmd, cmd.normalizeValue(value));
+        Preconditions.checkArgument(prev == null,
+          "command repetition not supported; Existing value "+prev+" found for "+cmd+" value "+value);
+      } else {
+        return null;
+      }
     } while (eidx != len);
+
+    log.trace("cmdToValue: {}", cmdToValue);
+
+    if (cmdToValue.containsKey(Command.OFFSET)) {
+      Command.OFFSET.act(cmdToValue, this);
+    }
+
+    if (cmdToValue.size() == 1) {
+      assert cmdToValue.containsKey(Command.POS);
+      final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
+      return synsets(pos);
+    } else if (cmdToValue.size() == 2) {
+      assert cmdToValue.containsKey(Command.POS);
+      assert cmdToValue.containsKey(Command.OFFSET);
+      final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
+      final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
+      final Synset synset = getSynsetAt(pos, offset);
+      if (synset != null) {
+        return ImmutableList.of(synset);
+      } else {
+        return ImmutableList.of();
+      }
+    }
 
     // issues:
     // return null if query is malformed ?
     // what if query includes URI escaped text? (e.g., "%20" == " ")
 
-    // sequences, e.g., 04073208 (release) 05847753 (stemmer)
+    // future: sequences, e.g., 04073208 (release) 05847753 (stemmer)
     // - harder to interpret
     // - results have to be accumulated
     // - could be ambiguous
-//    throw new UnsupportedOperationException("Not yet implemented.");
     return null;
   }
 
