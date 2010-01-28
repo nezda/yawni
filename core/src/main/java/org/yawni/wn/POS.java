@@ -30,7 +30,7 @@ public enum POS {
   /**
    * Meta-{@code POS} representing all parts of speech.  For use in search methods.
    */
-  ALL("all POS", null, 0),
+  ALL("all POS", Character.MIN_VALUE, 0),
   /** <b>NOTE: do not reorder - RelationTypes relies on this</b> */
   /**
    * <ol>
@@ -38,33 +38,33 @@ public enum POS {
    *   <li> the word class that can serve as the subject or object of a verb, the object of a preposition, or in apposition </li>
    * <ol>
    */
-  NOUN("noun", "n", 1),
+  NOUN("noun", 'n', 1),
   /**
    * <ol>
    *   <li> the word class that serves as the predicate of a sentence </li>
    *   <li> a content word that denotes an action, occurrence, or state of existence </li>
    * <ol>
    */
-  VERB("verb", "v", 2),
+  VERB("verb", 'v', 2),
   /**
    * <ol>
    *   <li> a word that expresses an attribute of something </li>
    *   <li> the word class that qualifies nouns </li>
    * <ol>
    */
-  ADJ("adjective", "a", 3),
+  ADJ("adjective", 'a', 3),
   /**
    * <ol>
    *   <li> the word class that qualifies verbs or clauses </li>
    *   <li> a word that modifies something other than a noun </li>
    * <ol>
    */
-  ADV("adverb", "r", 4),
+  ADV("adverb", 'r', 4),
   /**
    * Basically a sub-{@code POS} of {@code ADJ}.
    * aka "adjective satellite", "ADJSAT"
    */
-  SAT_ADJ("satellite adjective", "s", 5);
+  SAT_ADJ("satellite adjective", 's', 5);
 
   private static final POS[] VALUES = values();
 
@@ -77,19 +77,19 @@ public enum POS {
    * A list of all {@code POS}s <b>except {@link POS#SAT_ADJ}</b> which doesn't
    * have its own data files.
    */
-  public static final POS[] CATS = {NOUN, VERB, ADJ, ADV};
+  public static final POS[] CATS = { NOUN, VERB, ADJ, ADV };
 
   //
   // Instance implementation
   //
   private final String label;
   private final String toString;
-  private final String key;
+  private final char keyChar;
   private final int wnCode;
 
-  POS(final String label, final String key, final int wnCode) {
+  POS(final String label, final char key, final int wnCode) {
     this.label = label;
-    this.key = key;
+    this.keyChar = key;
     this.wnCode = wnCode;
     this.toString = new StringBuffer("[POS ").append(label).append("]").toString();
   }
@@ -117,15 +117,27 @@ public enum POS {
     return wnCode;
   }
 
-  /** Return the {@code POS} whose key matches {@code key}.
+  /**
+   * Return the {@code POS} whose key matches {@code key}.
    * @throws NoSuchElementException If {@code key} doesn't name any {@code POS}.
    */
   public static POS lookup(final CharSequence key) {
+    if (key.length() == 1) {
+      return lookup(key.charAt(0));
+    }
+    throw new NoSuchElementException("unknown POS \"" + key + "\"");
+  }
+
+  /**
+   * Return the {@code POS} whose key matches {@code key}.
+   * @throws NoSuchElementException If {@code key} doesn't name any {@code POS}.
+   */
+  public static POS lookup(final char keyChar) {
     for (final POS pos : CATS) {
-      if (pos.key.contentEquals(key)) {
+      if (pos.keyChar == keyChar) {
         return pos;
       }
     }
-    throw new NoSuchElementException("unknown POS \"" + key + "\"");
+    throw new NoSuchElementException("unknown POS \"" + keyChar + "\"");
   }
 }
