@@ -168,7 +168,7 @@ class StyledTextPane extends JTextPane {
     //XXX final String bodyRule = "body { font-family: " + font.getFamily() + "; }";
     //XXX styleSheet.addRule(bodyRule);
     styleSheet.addRule("body { font-family:sans-serif; }");
-    styleSheet.addRule("li { margin-left:12px; margin-bottom:0px; }");
+    styleSheet.addRule("li { margin-left:24px; margin-bottom:0px; }");
     styleSheet.addRule(".pos { font-family:serif; }");
     styleSheet.addRule(".focalWord { color: red; }");
     styleSheet.addRule(".summaryWord { font-weight: bold; }");
