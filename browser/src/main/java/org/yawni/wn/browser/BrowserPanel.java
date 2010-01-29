@@ -16,7 +16,6 @@
  */
 package org.yawni.wn.browser;
 
-import java.util.concurrent.ExecutionException;
 import org.yawni.util.Utils;
 import org.yawni.wn.DictionaryDatabase;
 import org.yawni.wn.FileBackedDictionary;
