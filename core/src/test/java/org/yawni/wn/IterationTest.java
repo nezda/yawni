@@ -43,6 +43,36 @@ public class IterationTest {
     rand = new Random(0);
   }
 
+  private static boolean contains(final List<Relation> relations, final RelationType queryType) {
+    for (final Relation relation : relations) {
+      if (relation.getType() == queryType) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Test
+  @Ignore // slow and not generally informative
+  public void multiHypernyms() {
+    logTest("searchMultiHypernyms");
+    int numWithMultiParents = 0;
+    int numWithInstanceHypernymParents = 0;
+    for (final Synset synset : dictionary.synsets(POS.ALL)) {
+      final List<Relation> parents = synset.getRelations(RelationType.HYPERNYM);
+      numWithMultiParents += parents.size() > 1 ? 1 : 0;
+      if (parents.size() > 1) {
+        // note quite a few of these are INSTANCE_HYPERNYM (791 of 2,244)
+        //System.err.printf("  %20s\n", synset);
+        if (contains(parents, RelationType.INSTANCE_HYPERNYM)) {
+          numWithInstanceHypernymParents++;
+        }
+      }
+    }
+    System.err.printf("  %20s %d\n", "numWithMultiParents:", numWithMultiParents); // WN 3.0: 2244
+    System.err.printf("  %20s %d\n", "numWithInstanceHypernymParents:", numWithInstanceHypernymParents); // WN 3.0: 791
+  }
+
   /** 
    * test searching iterators
    * - searchByPrefix()
