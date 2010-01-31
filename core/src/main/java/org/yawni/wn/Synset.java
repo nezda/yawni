@@ -29,7 +29,7 @@ import static org.yawni.wn.RelationType.INSTANCE_HYPERNYM;
 import static org.yawni.wn.RelationType.INSTANCE_HYPONYM;
 
 /**
- * A {@code Synset}, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <code>data.<em>pos</em></code> file.
+ * A {@code Synset}, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <code>data.<em>pos</em></code> file (e.g., {@code data.noun}).
  * A {@code Synset} represents a concept, and contains a set of {@link WordSense}s, each of which has a sense
  * that names that concept (and each of which is therefore synonymous with the other {@code WordSense}s in the
  * {@code Synset}).
