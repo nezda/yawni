@@ -1,4 +1,4 @@
-/*
+  /*
  * Copyright 2009 Benjamin Manes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * </ul>
  *
  * @author <a href="mailto:ben.manes@reardencommerce.com">Ben Manes</a>
- * @see    http://code.google.com/p/concurrentlinkedhashmap/
+ * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">http://code.google.com/p/concurrentlinkedhashmap/</a>
  */
 public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V>, Serializable {
   private static final EvictionListener<?, ?> nullListener = new EvictionListener<Object, Object>() {
