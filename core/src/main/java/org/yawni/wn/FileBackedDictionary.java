@@ -45,10 +45,10 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.yawni.util.AbstractIterator;
-import org.yawni.util.Preconditions;
 import org.yawni.util.StringTokenizer;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
+import org.yawni.wn.WordSense.AdjPosition;
 
 /** 
  * A {@code DictionaryDatabase} that retrieves objects from the text files in the WordNet distribution
@@ -591,51 +591,20 @@ public final class FileBackedDictionary implements DictionaryDatabase {
 
   /** {@inheritDoc} */
   public Iterable<Synset> synsets(final String query) {
-    // parse out query using standard URI "query" syntax:
-    // "?"<command>"="<value>("&"<command>"="<value>)*
-    if (query == null || ! query.startsWith("?")) {
-      return null;
-    }
-    int idx = 1;
-    final int len = query.length();
-    final EnumMap<Command, String> cmdToValue = new EnumMap<Command, String>(Command.class);
-    // parse out <name>"="<value> pairs separated by "&"
-    int eidx;
-    do {
-      eidx = query.indexOf("=", idx);
-      if (eidx == -1) {
-        return null;
-      }
-      final String name = query.substring(idx, eidx);
-      idx = eidx + 1;
-      eidx = query.indexOf("&", idx);
-      if (eidx == -1) {
-        eidx = len;
-      }
-      final String value = query.substring(idx, eidx);
-      idx = eidx == -1 ? len : eidx + 1;
-      log.trace("name: {} value: {}", name, value);
-      final Command cmd = Command.fromValue(name);
-      if (cmd != null) {
-        // NOTE: normalizeValue throws
-        final String prev = cmdToValue.put(cmd, cmd.normalizeValue(value));
-        Preconditions.checkArgument(prev == null,
-          "command repetition not supported; Existing value "+prev+" found for "+cmd+" value "+value);
-      } else {
-        return null;
-      }
-    } while (eidx != len);
-
-    log.trace("cmdToValue: {}", cmdToValue);
-
+    final EnumMap<Command, String> cmdToValue = Command.getCmdToValue(query);
     if (cmdToValue.containsKey(Command.OFFSET)) {
+      // hack: if 9 digit offset in cmdToValue, inserts implied Command.POS
       Command.OFFSET.act(cmdToValue, this);
     }
 
     if (cmdToValue.size() == 1) {
-      assert cmdToValue.containsKey(Command.POS);
-      final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
-      return synsets(pos);
+      if (cmdToValue.containsKey(Command.POS)) {
+        final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
+        return synsets(pos);
+      } else {
+        final Lexname lexname = Lexname.lookupLexname(cmdToValue.get(Command.LEXNAME));
+        return synsets(lexname);
+      }
     } else if (cmdToValue.size() == 2) {
       assert cmdToValue.containsKey(Command.POS);
       assert cmdToValue.containsKey(Command.OFFSET);
@@ -649,20 +618,26 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       }
     }
 
-    // issues:
-    // return null if query is malformed ?
-    // what if query includes URI escaped text? (e.g., "%20" == " ")
-
     // future: sequences, e.g., 04073208 (release) 05847753 (stemmer)
     // - harder to interpret
     // - results have to be accumulated
     // - could be ambiguous
-    return null;
+    throw new IllegalArgumentException("unsatisfiable query "+query);
   }
 
   /** {@inheritDoc} */
   public Iterable<WordSense> wordSenses(final String query) {
-    throw new UnsupportedOperationException("Not yet implemented.");
+    final EnumMap<Command, String> cmdToValue = Command.getCmdToValue(query);
+    if (cmdToValue.size() == 1) {
+      if (cmdToValue.containsKey(Command.POS)) {
+        final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
+        return wordSenses(pos);
+      } else {
+        final AdjPosition adjPosition = AdjPosition.fromValue(cmdToValue.get(Command.ADJ_POSITION));
+        return wordSenses(adjPosition);
+      }
+    }
+    throw new IllegalArgumentException("unsatisfiable query "+query);
   }
 
   private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
@@ -1054,6 +1029,60 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
   }
 
+  Iterable<Synset> synsets(final Lexname lexname) {
+    return new Iterable<Synset>() {
+      public Iterator<Synset> iterator() {
+        return new LexnameIterator(lexname);
+      }
+    };
+  }
+
+  private class LexnameIterator extends AbstractIterator<Synset> {
+    private final Iterator<Synset> syns;
+    private final Lexname lexname;
+    LexnameIterator(final Lexname lexname) {
+      this.syns = synsets(lexname.getPOS()).iterator();
+      this.lexname = lexname;
+    }
+    @Override
+    protected Synset computeNext() {
+      while (syns.hasNext()) {
+        final Synset syn = syns.next();
+        if (lexname == syn.getLexname()) {
+          return syn;
+        }
+      }
+      return endOfData();
+    }
+  } // end class LexnameIterator
+
+  Iterable<WordSense> wordSenses(final AdjPosition adjPosition) {
+    return new Iterable<WordSense>() {
+      public Iterator<WordSense> iterator() {
+        return new AdjPositionIterator(adjPosition);
+      }
+    };
+  }
+
+  private class AdjPositionIterator extends AbstractIterator<WordSense> {
+    private final Iterator<WordSense> wordSenses;
+    private final AdjPosition adjPosition;
+    AdjPositionIterator(final AdjPosition adjPosition) {
+      this.wordSenses = wordSenses(POS.ADJ).iterator();
+      this.adjPosition = adjPosition;
+    }
+    @Override
+    protected WordSense computeNext() {
+      while (wordSenses.hasNext()) {
+        final WordSense wordSense = wordSenses.next();
+        if (adjPosition == wordSense.getAdjPosition()) {
+          return wordSense;
+        }
+      }
+      return endOfData();
+    }
+  } // end class AdjPositionIterator
+
   /**
    * @see DictionaryDatabase#synsets
    */
@@ -1111,8 +1140,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   private class POSWordSensesIterator implements Iterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
     POSWordSensesIterator(final POS pos) {
-      // uses 2 level Iterator - first is Synsets,
-      // second is their WordSenses
+      // uses 2 level Iterator - first is Synsets, second is their WordSenses
       // Both levels have a variable number of members
       // Only second level's elements are emitted.
       this.wordSenses = MultiLevelIterable.of(words(pos)).iterator();
