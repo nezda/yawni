@@ -40,7 +40,7 @@ import java.util.regex.Matcher;
  * principle avoids paging an entire database file across the network in order to search for
  * an entry.
  *
- * <p> Making {@code FileBackedDictionary} {@linkplain Serializable} would violate the first of these properties
+ * <p> Making {@code FileBackedDictionary} {@linkplain java.io.Serializable} would violate the first of these properties
  * (it would require that {@link Word}, {@link Synset}, {@link POS}, {@link WordSense}, etc. also be supported as remote objects);
  * a generic remote file system interface would violate the second.
  *
@@ -60,7 +60,6 @@ public interface FileManagerInterface {
    * first textual column of <em>lowercased</em> words.  This condition can be verified
    * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>
    * @param target string sought
-   * @param start file offset to start at
    * @return The file offset of the start of the matching line if one exists.
    * Otherwise, {@code (-(insertion point) - 1)}.
    * The insertion point is defined as the point at which the target would be
