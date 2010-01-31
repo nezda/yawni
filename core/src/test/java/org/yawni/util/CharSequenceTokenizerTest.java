@@ -16,11 +16,29 @@
  */
 package org.yawni.util;
 
+import java.nio.CharBuffer;
 import static org.yawni.util.AbstractCharSequenceTokenizer.*;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CharSequenceTokenizerTest {
+  @Test
+  public void testEqualsHashCode() {
+    final String s = "someString";
+    final CharBuffer cb = CharBuffer.wrap(s);
+    final CharSequence scs = s;
+    final CharSequence cbcs = cb;
+    // FEST Assert API oddity; works for ObjectAssert, not StringAssert
+//    assertThat(s).isInstanceOf(CharSequence.class);
+    assertThat(cb).isInstanceOf(CharSequence.class);
+    // String, StringBuilder/StringBuffer, and CharBuffer are all incompatible with
+    // respect to equals() AND hashCode()
+    // FEST Assert API is type safe, but Object.equals() isn't
+    //assertThat(s).isNotEqualTo(cb);
+    assertThat(s.equals(cb)).isFalse();
+    assertThat(s.hashCode()).isNotEqualTo(cb.hashCode());
+  }
+
   @Test
   public void testCountTokens() {
     int tokenCount;
