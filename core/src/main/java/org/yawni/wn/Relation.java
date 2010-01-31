@@ -30,7 +30,7 @@ import org.yawni.util.CharSequenceTokenizer;
  * @see Synset
  * @see WordSense
  */
-public class Relation implements Comparable<Relation> {
+public abstract class Relation implements Comparable<Relation> {
   /**
    * These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
@@ -110,10 +110,16 @@ public class Relation implements Comparable<Relation> {
     // else assert instanceof WordSense;
   }
 
+  /**
+   * @return source vertex of this directed relationship
+   */
   public RelationTarget getSource() {
     return source;
   }
 
+  /**
+   * @return target vertex of this directed relationship
+   */
   public RelationTarget getTarget() {
     return Relation.resolveTarget(
         // using source.getSynset() to avoid requiring a local field
