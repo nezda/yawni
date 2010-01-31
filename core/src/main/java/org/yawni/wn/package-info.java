@@ -15,6 +15,6 @@
  *  limitations under the License.
  */
 /**
- * Key package for all Yawni classes.
+ * Key package containing all core Yawni classes.
  */
 package org.yawni.wn;
