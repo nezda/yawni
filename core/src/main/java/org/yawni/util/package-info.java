@@ -15,6 +15,6 @@
  *  limitations under the License.
  */
 /**
- * Utility classes containing general data structures and algorithms used throughout Yawni.
+ * Provides utility classes implementing general data structures and algorithms used throughout Yawni.
  */
 package org.yawni.util;
