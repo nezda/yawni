@@ -19,17 +19,21 @@ package org.yawni.wn;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
 import org.yawni.util.Preconditions;
 
 /**
- * Handler for {@link FileBackedDictionary#synsets(java.lang.String)}.
+ * Handler for {@link FileBackedDictionary#synsets(java.lang.String)} and
+ * {@link FileBackedDictionary#wordSenses(java.lang.String)}.
  */
 enum Command {
   /**
    * if 9 digit, treat 1st digit as POS ordinal; if less digits, require POS;
-   * Only compatible with a single, optional POS and other SYNSET_OFFSET(s)
+   * Only compatible with a single, optional POS and other OFFSET(s);
+   * if synsets(), return implied Synset, if wordSenses(), return implied WordSense(s)
    */
   OFFSET {
     @Override
@@ -59,7 +63,8 @@ enum Command {
         // replace OFFSET's value in cmdToValue
         cmdToValue.put(OFFSET, value.substring(1, 9));
       } else {
-        // note POS.valueOf will throw if value is null
+        Preconditions.checkArgument(cmdToValue.containsKey(Command.POS), "POS required for plain OFFSET query");
+        // note POS.valueOf will throw NPE if value is null
         pos = org.yawni.wn.POS.valueOf(cmdToValue.get(Command.POS));
         offset = num;
       }
@@ -70,7 +75,8 @@ enum Command {
   },
   /**
    * some string to match fully (including after stemming)
-   * consult LEMMA; returns lookupSynsets() OR
+   * consult LEMMA;
+   * if synsets(), return implied Synset (i.e., lookupSynsets()), if wordSenses(), return implied WordSense(s) (i.e., lookupWordSenses())
    */
   WORD,
   /** filter; alias for WORD */
@@ -84,6 +90,7 @@ enum Command {
    * filter; default ALL;
    * support any of {NOUN, Noun, N, n, 1};
    * if only POS is provided, return synsets(POS)
+   * if synsets(), return implied Synset (i.e., lookupSynsets()), if wordSenses(), return implied WordSense(s) (i.e., lookupWordSenses())
    */
   POS {
     @Override
@@ -133,16 +140,23 @@ enum Command {
     }
   },
   /**
-   * implies POS=ADJ; only appies to POS={ADJ, ALL}
+   * implies POS=ADJ; only applies to POS={ADJ, ALL};
    */
   ADJ_POSITION,
   LEXNAME,
-  RANDOM;
+  RANDOM
+  ;
+
+  private static final Logger log = LoggerFactory.getLogger(Command.class.getName());
 
   private List<String> variants() {
     return ImmutableList.of(name().toLowerCase(), name());
   }
 
+  /**
+   * @param cmdToValue name=value parameter map
+   * @param dict
+   */
   void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
@@ -153,24 +167,67 @@ enum Command {
 
   private Command() {
     for (final String variant : variants()) {
-      registerString(variant, this);
+      registerAlias(variant, this);
     }
   }
 
   /** Customized form of {@link #valueOf(java.lang.String)} */
   static Command fromValue(final String name) {
-    final Command toReturn = STRING_TO_REL.get(name);
+    final Command toReturn = ALIASES.get(name);
+    Preconditions.checkArgument(toReturn != null, "unknown command name: "+name);
     return toReturn;
   }
 
-  // other (more concise) forms of initialization cause NPE; using lazy init in registerString
+  // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
   // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, Command> STRING_TO_REL;
-  private static void registerString(final String form, final Command rel) {
-    if (STRING_TO_REL == null) {
-      STRING_TO_REL = new java.util.HashMap<String, Command>();
+  private static Map<String, Command> ALIASES;
+  private static void registerAlias(final String form, final Command rel) {
+    if (ALIASES == null) {
+      ALIASES = new java.util.HashMap<String, Command>();
     }
-    final Command prev = STRING_TO_REL.put(form, rel);
+    final Command prev = ALIASES.put(form, rel);
     assert null == prev : "prev: "+prev+" form: "+form+" rel: "+rel;
+  }
+
+  /**
+   * parse out query using standard URI "query" syntax:<pre>{@code
+   *   "?"<command>"="<value>("&"<command>"="<value>)*
+   * }</pre>
+   * issues:
+   * what if query includes URI escaped text? (e.g., "%20" == " ")
+   */
+  static EnumMap<Command, String> getCmdToValue(final String query) {
+    Preconditions.checkNotNull(query);
+    if (! query.startsWith("?")) {
+      throw new IllegalArgumentException("missing leading query indicating '?'");
+    }
+    int idx = 1;
+    final int len = query.length();
+    final EnumMap<Command, String> cmdToValue = new EnumMap<Command, String>(Command.class);
+    // parse out <name>"="<value> pairs separated by "&"
+    int eidx;
+    do {
+      eidx = query.indexOf("=", idx);
+      if (eidx == -1) {
+        throw new IllegalArgumentException("query missing name value delimiter '='");
+      }
+      final String name = query.substring(idx, eidx);
+      idx = eidx + 1;
+      eidx = query.indexOf("&", idx);
+      if (eidx == -1) {
+        eidx = len;
+      }
+      final String value = query.substring(idx, eidx);
+      idx = eidx == -1 ? len : eidx + 1;
+      log.trace("name: {} value: {}", name, value);
+      final Command cmd = Command.fromValue(name);
+      // NOTE: normalizeValue throws
+      final String prev = cmdToValue.put(cmd, cmd.normalizeValue(value));
+      Preconditions.checkArgument(prev == null,
+        "command repetition not supported; Existing value "+prev+" found for "+cmd+" value "+value);
+    } while (eidx != len);
+
+    log.trace("cmdToValue: {}", cmdToValue);
+    return cmdToValue;
   }
 }
