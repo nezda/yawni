@@ -37,7 +37,7 @@ import java.util.RandomAccess;
  * verbosity for space (and probably asks more of the compiler, but who cares).
  *
  * Uses cases:
- * - especially useful when you have millions of short {@ code List<T>}s
+ * - especially useful when you have millions of short {@code List<T>}s
  *   - ImmutableMultimap
  *   - caches like Yawni uses all the time - impossible to "poison" :)
  *   ? XML parsing / parse tree (read-only JDOM? would be fun to template that anyway if JAXB isn't already far superior)
@@ -58,8 +58,8 @@ import java.util.RandomAccess;
  *   <li> Using {@code Iterator}s is slow compared to {@link ImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
  *        Unfortunately, the new {@code foreach} syntax is so convenient.
  *   </li>
- *   <li> speed: inefficiencies in most implementations of base {@link Collection} classes ({@link AbstractCollection},
- *        {@link AbstractList}, etc.) in the form of {@link Iterator}-based implementations of key methods
+ *   <li> speed: inefficiencies in most implementations of base {@link Collection} classes ({@link java.util.AbstractCollection},
+ *        {@link java.util.AbstractList}, etc.) in the form of {@link Iterator}-based implementations of key methods
  *         (e.g., {@link #equals}) </li>
  * </ul>
  */
