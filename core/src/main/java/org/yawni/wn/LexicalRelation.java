@@ -27,6 +27,7 @@ public final class LexicalRelation extends Relation {
     // can't call getTarget() - infinite recursion
   }
 
+  /** {@inheritDoc} */
   @Override
   public WordSense getSource() {
     @SuppressWarnings("unchecked")
@@ -34,6 +35,7 @@ public final class LexicalRelation extends Relation {
     return source;
   }
 
+  /** {@inheritDoc} */
   @Override
   public WordSense getTarget() {
     @SuppressWarnings("unchecked")
