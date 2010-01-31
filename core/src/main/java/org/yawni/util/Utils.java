@@ -170,7 +170,7 @@ public class Utils {
      * Not yet implemented.
      */
     IDENTITY,
-    /** Equivalent with respect to some {@link Comparator}. */
+    /** Equivalent with respect to some {@link java.util.Comparator}. */
     EQUIVALENT,
   } // end enum UniqueMode
 
@@ -315,6 +315,29 @@ public class Utils {
 
   public static <T> boolean isEmpty(final Iterator<T> iterator) {
     return ! iterator.hasNext();
+  }
+
+  public static <T> boolean equals(final Iterable<T> it1, Iterable<T> it2) {
+    return equals(it1.iterator(), it2.iterator());
+  }
+
+  public static <T> boolean equals(final Iterator<T> it1, Iterator<T> it2) {
+    while (true) {
+      final boolean i1 = it1.hasNext();
+      final boolean i2 = it2.hasNext();
+      if (i1 && i2) {
+        if (equals(it1.next(), it2.next())) {
+          continue;
+        }
+      } else if (i1 ^ i2) {
+        // len mismatch
+        return false;
+      } else {
+        // same len; exhausted
+        assert !(i1 && i2);
+        return true;
+      }
+    }
   }
 
   public static <T> boolean contains(final Iterable<T> iterable, T item) {
