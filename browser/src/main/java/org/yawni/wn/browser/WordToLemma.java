@@ -14,14 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.wn;
+package org.yawni.wn.browser;
 
 import org.yawni.util.MutatedIterable;
+import org.yawni.wn.Word;
+import org.yawni.wn.WordCaseUtils;
 
 /**
  * @see WordCaseUtils#getDominantCasedLemma(org.yawni.wn.Word)
  */
-public final class WordToLemma extends MutatedIterable<Word, String> {
+final class WordToLemma extends MutatedIterable<Word, String> {
   public WordToLemma(final Iterable<Word> iterable) {
     super(iterable);
   }

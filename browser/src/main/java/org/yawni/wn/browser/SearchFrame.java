@@ -27,7 +27,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
-import org.yawni.wn.WordToLemma;
 
 // TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JDialog {
