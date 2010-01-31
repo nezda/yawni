@@ -38,7 +38,7 @@ import java.util.regex.Matcher;
 /**
  * An implementation of {@code FileManagerInterface} that reads WordNet data
  * from jar files or the local file system.  A {@code FileManager} caches the
- * file positions before and after {@link FileManagerInterface#readLineAt()}
+ * file positions before and after {@link FileManagerInterface#readLineAt}
  * in order to eliminate the redundant I/O activity that a naïve implementation
  * of these methods would necessitate.
  *
