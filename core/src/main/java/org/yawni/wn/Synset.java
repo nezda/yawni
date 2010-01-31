@@ -167,6 +167,10 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return Lexname.lookupLexCategory(lexfilenum());
   }
 
+  Lexname getLexname() {
+    return Lexname.lookupLexname(lexfilenum());
+  }
+
   /**
    * Returns the "gloss", or definition of this synset, and optionally some sample sentences.
    */
