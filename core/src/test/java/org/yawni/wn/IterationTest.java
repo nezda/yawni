@@ -28,6 +28,7 @@ import org.yawni.util.Utils;
 import static org.yawni.util.Utils.first;
 import static org.yawni.util.Utils.isEmpty;
 import org.yawni.util.MergedIterable;
+import org.yawni.wn.WordSense.AdjPosition;
 
 /**
  * Goal: verify various iteration methods of dictionary behave as expected.
@@ -71,6 +72,26 @@ public class IterationTest {
     }
     System.err.printf("  %20s %d\n", "numWithMultiParents:", numWithMultiParents); // WN 3.0: 2244
     System.err.printf("  %20s %d\n", "numWithInstanceHypernymParents:", numWithInstanceHypernymParents); // WN 3.0: 791
+  }
+
+  @Test
+  @Ignore // not generally informative
+  public void lexnames() {
+    logTest("lexnames");
+    for (final Lexname lexname : Lexname.values()) {
+      final long cnt = Utils.size(dictionary.synsets("?lexname=" + lexname.name()));
+//      System.err.printf("  %30s %d\n", lexname, cnt);
+    }
+  }
+
+  @Test
+  @Ignore // not generally informative
+  public void adjPositions() {
+    logTest("adjPositions");
+    for (final AdjPosition adjPosition : AdjPosition.values()) {
+      final long cnt = Utils.size(dictionary.wordSenses("?adj_position=" + adjPosition.name()));
+//      System.err.printf("  %30s %d\n", adjPosition, cnt);
+    }
   }
 
   /** 
