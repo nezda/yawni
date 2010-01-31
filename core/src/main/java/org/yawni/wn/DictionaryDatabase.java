@@ -56,7 +56,7 @@ public interface DictionaryDatabase {
 
   /**
    * Convenient combination of basic API methods {@link #lookupBaseForms}, {@link #lookupWord}
-   * and {@link Word#getSynsets()}.
+   * and {@link Word#getSynsets}.
    * @param someString
    * @param pos The part-of-speech.
    * @return an immutable list of the {@code Synset}(s) of {@code someString} in {@code pos}
@@ -64,7 +64,7 @@ public interface DictionaryDatabase {
   public List<Synset> lookupSynsets(final String someString, final POS pos);
 
   /**
-   * Convenient combination of basic API methods {@link #lookupBaseForms()}, {@link #lookupWord()}
+   * Convenient combination of basic API methods {@link #lookupBaseForms}, {@link #lookupWord}
    * and {@link Word#getWordSenses()}.
    * For {@code pos !=}{@link POS#ALL}, usually returns a single result, though there are
    * numerous exceptions (TODO e.g., XXX).
@@ -72,22 +72,6 @@ public interface DictionaryDatabase {
    * @see #lookupSynsets
    */
   public List<WordSense> lookupWordSenses(final String someString, final POS pos);
-
-  /**
-   * Return an iterator of {@code Synset}s matching {@code query}.
-   * @param query
-   * @return An iterable of {@code Synset}s; Iterable will be empty if supported, well formed query has
-   * no results; {@code null} indicates an unsupported and/or ill formed query.
-   */
-  public Iterable<Synset> synsets(final String query);
-
-  /**
-   * <h2>Not yet implemented!</h2>
-   * Return an iterator of {@code WordSense}s matching {@code query}.
-   * @param query
-   * @return An iterable of {@code WordSense}s.
-   */
-  public Iterable<WordSense> wordSenses(final String query);
 
   /**
    * Return an iterator of <strong>all</strong> the {@code Word}s in the database.
@@ -164,4 +148,22 @@ public interface DictionaryDatabase {
    *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    */
   public Iterable<List<String>> exceptions(final POS pos);
+
+  /**
+   * Return an iterator of {@code Synset}s matching {@code query}.
+   * @param query
+   * @return An iterable of {@code Synset}s.
+   * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
+   * @yawni.experimental
+   */
+  public Iterable<Synset> synsets(final String query);
+
+  /**
+   * Return an iterator of {@code WordSense}s matching {@code query}.
+   * @param query
+   * @return An iterable of {@code WordSense}s.
+   * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
+   * @yawni.experimental
+   */
+  public Iterable<WordSense> wordSenses(final String query);
 }
