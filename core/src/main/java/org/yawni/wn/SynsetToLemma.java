@@ -20,7 +20,7 @@ import org.yawni.util.MutatedIterable;
 
 // hack - represent Synset as lemma of first WordSense.
 // Note, this is NOT the same as that WordSense's Word's "1st sense"
-public final class SynsetToLemma extends MutatedIterable<Synset, String> {
+final class SynsetToLemma extends MutatedIterable<Synset, String> {
   public SynsetToLemma(final Iterable<Synset> iterable) {
     super(iterable);
   }
