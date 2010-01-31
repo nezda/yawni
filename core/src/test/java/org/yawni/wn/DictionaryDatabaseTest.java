@@ -16,6 +16,7 @@
  */
 package org.yawni.wn;
 
+import org.yawni.util.Utils;
 import static org.yawni.util.Utils.*;
 import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
@@ -88,51 +89,155 @@ public class DictionaryDatabaseTest {
     assertThat(senses).hasSize(1);
     final WordSense sense = senses.get(0);
     final List<RelationTarget> parents = sense.getRelationTargets(RelationType.HYPERNYM);
-    assertThat(parents).hasSize(1);
+    assertThat(parents).hasSize(1); // though most Synsets have a single parent, not all do
     final RelationTarget parent = parents.get(0);
+    //final Synset parentSyn = parent.getSynset();
+    final List<RelationTarget> coordinateTerms = parent.getRelationTargets(RelationType.HYPONYM);
 
     // TODO
     // this is a confusing example :)
     // "antonym", "hyponym", "hypernym" will all be among the coordinate terms of "synonym"
+
+    // comprehensive loops version
+    // for Word from string
+    //   for WordSense / Synset : word
+    //     for parent : wordSense.getRelationTargets(RelationType.HYPERNYM)
+    //       coordinateTerms/neighbors = parent.getRelationTargets(RelationType.HYPONYM)
+    //
+    // TODO:
+    // represent each coordinateTerms as a RelationType; represent each coordinateTerm as a Relation
+    // * multiParent sources add ambiguity, but maybe this doesn't matter ? define as "have <em>a</em> common parent
   }
 
   @Test
-  public void synsets() {
+  public void synsetsCommands() {
+    System.err.println("synsetsCommands");
     String query;
     Iterable<Synset> result;
+    int offset;
+    boolean caughtExpectedException;
 
     query = "?POS=ALL";
-    System.err.println("query: "+query);
-    result = dictionary.synsets(query);
-    System.err.println("isEmpty? "+isEmpty(result));
-
-    query = "?POS=n&offset=04073208";
-    System.err.println("query: "+query);
-    result = dictionary.synsets(query);
-    System.err.println("isEmpty? "+isEmpty(result));
-
-    // command repetition not supported
-//    query = "?POS=n&offset=04073208&offset=05847753";
 //    System.err.println("query: "+query);
-//    result = dictionary.synsets(query);
-//    System.err.println("isEmpty? "+isEmpty(result));
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // basic 8-digit offset query
+    // NOTE: leading zero integer literal is octal! (base 8), e.g., 04073208 != 4073208
+    // in fact, 04073208 is not a valid octal number because 8 is not a valid octimal (?) digit
+    assertThat(010).isEqualTo(8);
+    offset = 4073208;
+    //query = "?POS=n&offset=04073208";
+    query = String.format("?POS=n&offset=%08d", offset);
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+    assertThat(first(result).getOffset()).isEqualTo(offset);
+
+    // simple hapens-to-be-less-than-8-digit offset query with (mandatory) POS
+    query = "?POS=n&offset=" + offset;
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+    assertThat(first(result).getOffset()).isEqualTo(offset);
+
+    // simple hapens-to-be-less-than-8-digit offset query, forgot POS
+    query = "?offset=" + offset;
+//    System.err.println("query: "+query);
+    caughtExpectedException = false;
+    try {
+      result = dictionary.synsets(query);
+    } catch (IllegalArgumentException e) {
+      caughtExpectedException = true;
+    }
+    assertThat(caughtExpectedException).isTrue();
+    
+    // command repetition not supported
+    query = "?POS=n&offset=04073208&offset=05847753";
+//    System.err.println("query: "+query);
+    caughtExpectedException = false;
+    try {
+      result = dictionary.synsets(query);
+    } catch (IllegalArgumentException e) {
+      caughtExpectedException = true;
+    }
+    assertThat(caughtExpectedException).isTrue();
+
+    // basic ordinal POS query
+    query = "?POS=1";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // 9-digit POS + offset query
+    query = "?offset=104073208";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // invalid (random) synset offsets cause various exceptions in Synset parsing ctor
+    query = "?offset=100001000";
+//    System.err.println("query: "+query);
+    caughtExpectedException = false;
+    try {
+      result = dictionary.synsets(query);
+    } catch (IllegalArgumentException e) {
+      caughtExpectedException = true;
+    }
+    assertThat(caughtExpectedException).isTrue();
+
+    // lexname query
+    query = "?lexname=verb.contact";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // lexname query
+    query = "?lexname=contact";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // lexname query
+    final String query1 = "?lexname=verb.contact";
+    final String query2 = "?lexname=contact";
+//    System.err.println("query1: "+query1);
+//    System.err.println("query2: "+query2);
+    final Iterable<Synset> result1 = dictionary.synsets(query1);
+    final Iterable<Synset> result2 = dictionary.synsets(query2);
+    assertThat(isEmpty(result1)).isFalse();
+    assertThat(isEmpty(result2)).isFalse();
+    assertThat(Utils.equals(result1, result2)).isTrue();
+  }
+
+  @Test
+  public void wordSensesCommands() {
+    System.err.println("wordSensesCommands");
+    String query;
+    Iterable<WordSense> result;
+    boolean caughtExpectedException;
+
+    query = "?POS=ALL";
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+    assertThat(isEmpty(result)).isFalse();
 
     query = "?POS=1";
-    System.err.println("query: "+query);
-    result = dictionary.synsets(query);
-    System.err.println("isEmpty? "+isEmpty(result));
-
-    query = "?offset=104073208";
-    System.err.println("query: "+query);
-    result = dictionary.synsets(query);
-    System.err.println("isEmpty? "+isEmpty(result));
-
-    // invalid (e.g., random) synset offsets cause various exceptions
-    // in Synset parsing ctor
-//    query = "?offset=100001000";
 //    System.err.println("query: "+query);
-//    result = dictionary.synsets(query);
-//    System.err.println("isEmpty? "+isEmpty(result));
+    result = dictionary.wordSenses(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // adjposition query
+    query = "?adj_position=PREDICATIVE";
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+    assertThat(isEmpty(result)).isFalse();
+
+    // adjposition query
+    query = "?adj_position=predicative";
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+    assertThat(isEmpty(result)).isFalse();
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
