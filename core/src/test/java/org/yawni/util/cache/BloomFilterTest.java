@@ -56,7 +56,7 @@ public class BloomFilterTest {
       filter.add(next);
 //      System.err.println("next: "+next+" "+filter);
     }
-    // extremely unlikey
+    // extremely unlikey (but not impossible)
     assertFalse("4 is not in this filter "+filter.toString(), filter.contains(4));
 
     for (final Integer i : hard) {
