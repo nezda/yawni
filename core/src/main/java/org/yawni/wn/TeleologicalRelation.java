@@ -44,32 +44,32 @@ enum TeleologicalRelation {
   ;
 
   private TeleologicalRelation() {
-    registerString(name(), this);
-    registerString(name().toLowerCase(), this);
+    registerAlias(name(), this);
+    registerAlias(name().toLowerCase(), this);
   }
 
   /** Customized form of {@link #valueOf(java.lang.String)} */
   public static TeleologicalRelation fromValue(final String name) {
-    final TeleologicalRelation toReturn = STRING_TO_REL.get(name);
+    final TeleologicalRelation toReturn = ALIASES.get(name);
     if (toReturn == null) {
       throw new IllegalArgumentException("unknown name");
     }
     return toReturn;
   }
 
-  // other (more concise) forms of initialization cause NPE; using lazy init in registerString
+  // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
   // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, TeleologicalRelation> STRING_TO_REL;
+  private static Map<String, TeleologicalRelation> ALIASES;
   // accessor for testing only
   static Map<String, TeleologicalRelation> getStringToRelMap() {
-    return Collections.unmodifiableMap(STRING_TO_REL);
+    return Collections.unmodifiableMap(ALIASES);
   }
 
-  private static void registerString(final String form, final TeleologicalRelation rel) {
-    if (STRING_TO_REL == null) {
-      STRING_TO_REL = new HashMap<String, TeleologicalRelation>();
+  private static void registerAlias(final String form, final TeleologicalRelation rel) {
+    if (ALIASES == null) {
+      ALIASES = new HashMap<String, TeleologicalRelation>();
     }
-    final TeleologicalRelation prev = STRING_TO_REL.put(form, rel);
+    final TeleologicalRelation prev = ALIASES.put(form, rel);
     assert null == prev : "prev: "+prev+" form: "+form+" rel: "+rel;
   }
 }
