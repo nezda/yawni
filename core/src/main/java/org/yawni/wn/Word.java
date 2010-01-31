@@ -29,7 +29,7 @@ import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.ImmutableList;
 
 /**
- * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file.
+ * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> (e.g., {@code index.noun}) file.
  * A {@code Word} is retrieved via {@link DictionaryDatabase#lookupWord},
  * and has a lowercase <em>lemma</em>, a <em>part of speech ({@link POS})</em>, and a set of <em>senses</em> ({@link WordSense}s).
  *
