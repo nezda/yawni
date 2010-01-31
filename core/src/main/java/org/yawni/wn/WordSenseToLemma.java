@@ -18,7 +18,7 @@ package org.yawni.wn;
 
 import org.yawni.util.MutatedIterable;
 
-public final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
+final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
   public WordSenseToLemma(final Iterable<WordSense> iterable) {
     super(iterable);
   }
