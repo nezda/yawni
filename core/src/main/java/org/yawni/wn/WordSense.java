@@ -17,8 +17,10 @@
 package org.yawni.wn;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
@@ -59,10 +61,27 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     ;
     final int flag;
     AdjPosition(final int flag) {
+      registerAlias(name(), this);
+      registerAlias(name().toLowerCase(), this);
       this.flag = flag;
     }
     static boolean isActive(final AdjPosition adjPosFlag, final int flags) {
       return 0 != (adjPosFlag.flag & flags);
+    }
+
+    static AdjPosition fromValue(final String label) {
+      return ALIASES.get(label);
+    }
+
+    // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
+    // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
+    private static Map<String, AdjPosition> ALIASES;
+    private static void registerAlias(final String form, final AdjPosition rel) {
+      if (ALIASES == null) {
+        ALIASES = new HashMap<String, AdjPosition>();
+      }
+      final AdjPosition prev = ALIASES.put(form, rel);
+      assert prev == null;
     }
   } // end enum AdjPosition
 
