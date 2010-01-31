@@ -158,6 +158,75 @@
         <artifactId>fest-swing</artifactId>
         <version>1.2a4</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.4.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.6.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+         <!-- 
+         <version>1.0-beta-4</version> 
+         [INFO] [buildnumber:create {execution: default}]
+         [INFO] Storing buildNumber: 2010-01-11 17:56:32 at timestamp: 1263254192246
+         [INFO] 
+         [ERROR] FATAL ERROR
+           [INFO] 
+           [INFO] The scm url cannot be null.
+           [INFO] 
+           [INFO] Trace
+           java.lang.NullPointerException: The scm url cannot be null.
+                   at org.apache.maven.scm.manager.AbstractScmManager.makeScmRepository(AbstractScmManager.java:181)
+                   ....
+         -->
+         <version>1.0-beta-3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rat-maven-plugin</artifactId>
+        <version>1.0-alpha-3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>2.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <version>2.4</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <!-- setup common dependencies -->
@@ -217,21 +286,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
-         <!-- 
-         <version>1.0-beta-4</version> 
-         [INFO] [buildnumber:create {execution: default}]
-         [INFO] Storing buildNumber: 2010-01-11 17:56:32 at timestamp: 1263254192246
-         [INFO] 
-         [ERROR] FATAL ERROR
-           [INFO] 
-           [INFO] The scm url cannot be null.
-           [INFO] 
-           [INFO] Trace
-           java.lang.NullPointerException: The scm url cannot be null.
-                   at org.apache.maven.scm.manager.AbstractScmManager.makeScmRepository(AbstractScmManager.java:181)
-                   ....
-         -->
-         <version>1.0-beta-3</version>
         <configuration>
           <format>{0,date,yyyy-MM-dd HH:mm:ss}</format>
           <items>
@@ -250,14 +304,15 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
         <configuration>
           <createChecksum>true</createChecksum>
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.3</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
@@ -287,6 +342,18 @@
           </links>
           <encoding>UTF-8</encoding>
           <docencoding>UTF-8</docencoding>
+          <tags>
+            <tag>
+              <name>yawni.experimental</name>
+              <placement>a</placement>
+              <head>WARNING: This API is experimental and might change in incompatible ways in the next release.</head>
+            </tag>
+            <tag>
+              <name>yawni.internal</name>
+              <placement>a</placement>
+              <head>NOTE: This API is for Yawni internal purposes only and might change in incompatible ways in the next release.</head>
+            </tag>
+          </tags>
         </configuration>
       </plugin>
       <plugin>
@@ -319,7 +386,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.3.1</version>
         <configuration>
           <jvmargs>-Xmx256M</jvmargs>
         </configuration>
@@ -350,7 +416,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>rat-maven-plugin</artifactId>
-        <version>1.0-alpha-3</version>
       </plugin>
       <!--
       <plugin>
