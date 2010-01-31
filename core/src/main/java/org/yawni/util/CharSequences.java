@@ -60,7 +60,7 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#equals()
+   * @see java.lang.String#equals
    */
   public static boolean equals(final CharSequence s1, final CharSequence s2) {
     final int s2Len = s2.length();
@@ -68,14 +68,14 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#startsWith()
+   * @see java.lang.String#startsWith
    */
   public static boolean startsWith(final CharSequence s1, final CharSequence s2) {
     return regionMatches(s1, 0, s2, 0, s2.length());
   }
 
   /**
-   * @see java.lang.String#regionMatches()
+   * @see java.lang.String#regionMatches
    */
   public static boolean regionMatches(final CharSequence s1, int offset1,
       final CharSequence s2, int offset2, int len) {
@@ -83,7 +83,7 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#regionMatches()
+   * @see java.lang.String#regionMatches
    */
   public static boolean regionMatches(final boolean ignoreCase, final CharSequence s1, int offset1,
       final CharSequence s2, int offset2, int len) {
@@ -132,22 +132,22 @@ public class CharSequences {
     return false;
   }
 
-  /**
-   * A comparison predicate that specifically ignores case and ' ', '.', '-', '_'
-   * letters and their order must still match.
-   */
-  public static boolean sameLetterDigitSequence(final CharSequence s1, final CharSequence s2) {
-    final int s1Len = s1.length();
-    final int s2Len = s2.length();
-    int len = Math.min(s1Len, s2Len);
-    int i = 0, j = 0;
-    char c1, c2;
-    while (len-- != 0) {
-
-    }
-
-    throw new UnsupportedOperationException("Not yet implemented.");
-  }
+//  /**
+//   * A comparison predicate that specifically ignores case and ' ', '.', '-', '_'
+//   * letters and their order must still match.
+//   */
+//  public static boolean sameLetterDigitSequence(final CharSequence s1, final CharSequence s2) {
+//    final int s1Len = s1.length();
+//    final int s2Len = s2.length();
+//    int len = Math.min(s1Len, s2Len);
+//    int i = 0, j = 0;
+//    char c1, c2;
+//    while (len-- != 0) {
+//
+//    }
+//
+//    throw new UnsupportedOperationException("Not yet implemented.");
+//  }
 
   // what could be done to make this work for String, StringBuilder, StringBuffer, ...
   // interchangably ? could turn out tricky due to #equals()
