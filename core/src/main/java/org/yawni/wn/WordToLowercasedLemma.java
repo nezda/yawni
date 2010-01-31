@@ -18,7 +18,7 @@ package org.yawni.wn;
 
 import org.yawni.util.MutatedIterable;
 
-public final class WordToLowercasedLemma extends MutatedIterable<Word, String> {
+final class WordToLowercasedLemma extends MutatedIterable<Word, String> {
   public WordToLowercasedLemma(final Iterable<Word> iterable) {
     super(iterable);
   }
