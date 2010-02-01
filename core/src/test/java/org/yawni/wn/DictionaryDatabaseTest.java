@@ -132,14 +132,14 @@ public class DictionaryDatabaseTest {
     query = String.format("?POS=n&offset=%08d", offset);
 //    System.err.println("query: "+query);
     result = dictionary.synsets(query);
-    assertThat(isEmpty(result)).isFalse();
+    assertThat(size(result)).isEqualTo(1);
     assertThat(first(result).getOffset()).isEqualTo(offset);
 
-    // simple hapens-to-be-less-than-8-digit offset query with (mandatory) POS
+    // simple happens-to-be-less-than-8-digit offset query with (mandatory) POS
     query = "?POS=n&offset=" + offset;
 //    System.err.println("query: "+query);
     result = dictionary.synsets(query);
-    assertThat(isEmpty(result)).isFalse();
+    assertThat(size(result)).isEqualTo(1);
     assertThat(first(result).getOffset()).isEqualTo(offset);
 
     // simple hapens-to-be-less-than-8-digit offset query, forgot POS
@@ -246,6 +246,7 @@ public class DictionaryDatabaseTest {
     System.err.println("wordSensesCommands");
     String query;
     Iterable<WordSense> result;
+    int offset;
     boolean caughtExpectedException;
 
     query = "?POS=ALL";
@@ -288,6 +289,15 @@ public class DictionaryDatabaseTest {
     result = dictionary.wordSenses(query);
 //    System.err.println("query: "+query+" \n  "+Joiner.on("\n  ").join(result));
     assertThat(size(result)).isEqualTo(6);
+
+    offset = 4073208;
+    query = String.format("?POS=n&offset=%08d", offset);
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+    assertThat(isEmpty(result)).isFalse();
+    for (final WordSense wordSense : result) {
+      assertThat(wordSense.getSynset().getOffset()).isEqualTo(offset);
+    }
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
