@@ -22,6 +22,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.yawni.util.Joiner;
 
 public class DictionaryDatabaseTest {
   private static DictionaryDatabase dictionary;
@@ -163,6 +164,17 @@ public class DictionaryDatabaseTest {
     }
     assertThat(caughtExpectedException).isTrue();
 
+    // command repetition not supported
+    query = "?POS=n&POS=v";
+//    System.err.println("query: "+query);
+    caughtExpectedException = false;
+    try {
+      result = dictionary.synsets(query);
+    } catch (IllegalArgumentException e) {
+      caughtExpectedException = true;
+    }
+    assertThat(caughtExpectedException).isTrue();
+
     // basic ordinal POS query
     query = "?POS=1";
 //    System.err.println("query: "+query);
@@ -208,6 +220,25 @@ public class DictionaryDatabaseTest {
     assertThat(isEmpty(result1)).isFalse();
     assertThat(isEmpty(result2)).isFalse();
     assertThat(Utils.equals(result1, result2)).isTrue();
+
+    // word query
+    query = "?word=yawn";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(size(result)).isEqualTo(3);
+
+    // word query
+    query = "?word=yawn&pos=NOUN";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+    assertThat(size(result)).isEqualTo(1);
+
+    // word query with stemming
+    query = "?word=wounds";
+//    System.err.println("query: "+query);
+    result = dictionary.synsets(query);
+//    System.err.println("query: "+query+" \n  "+Joiner.on("\n  ").join(result));
+    assertThat(size(result)).isEqualTo(6);
   }
 
   @Test
@@ -238,6 +269,25 @@ public class DictionaryDatabaseTest {
 //    System.err.println("query: "+query);
     result = dictionary.wordSenses(query);
     assertThat(isEmpty(result)).isFalse();
+
+    // word query
+    query = "?word=yawn";
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+    assertThat(size(result)).isEqualTo(3);
+
+    // word query with POS
+    query = "?word=yawn&pos=NOUN";
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+    assertThat(size(result)).isEqualTo(1);
+
+    // word query with stemming
+    query = "?word=wounds";
+//    System.err.println("query: "+query);
+    result = dictionary.wordSenses(query);
+//    System.err.println("query: "+query+" \n  "+Joiner.on("\n  ").join(result));
+    assertThat(size(result)).isEqualTo(6);
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
