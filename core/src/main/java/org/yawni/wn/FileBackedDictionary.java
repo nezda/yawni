@@ -601,20 +601,29 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       if (cmdToValue.containsKey(Command.POS)) {
         final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
         return synsets(pos);
-      } else {
+      } else if (cmdToValue.containsKey(Command.LEXNAME)) {
         final Lexname lexname = Lexname.lookupLexname(cmdToValue.get(Command.LEXNAME));
         return synsets(lexname);
+      } else if (cmdToValue.containsKey(Command.WORD)) {
+        final String someString = cmdToValue.get(Command.WORD);
+        final POS pos = POS.ALL;
+        return lookupSynsets(someString, pos);
       }
     } else if (cmdToValue.size() == 2) {
-      assert cmdToValue.containsKey(Command.POS);
-      assert cmdToValue.containsKey(Command.OFFSET);
-      final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
-      final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
-      final Synset synset = getSynsetAt(pos, offset);
-      if (synset != null) {
-        return ImmutableList.of(synset);
-      } else {
-        return ImmutableList.of();
+      if (cmdToValue.containsKey(Command.POS)) {
+        final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
+        if (cmdToValue.containsKey(Command.OFFSET)) {
+          final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
+          final Synset synset = getSynsetAt(pos, offset);
+          if (synset != null) {
+            return ImmutableList.of(synset);
+          } else {
+            return ImmutableList.of();
+          }
+        } else if (cmdToValue.containsKey(Command.WORD)) {
+          final String someString = cmdToValue.get(Command.WORD);
+          return lookupSynsets(someString, pos);
+        }
       }
     }
 
@@ -632,9 +641,21 @@ public final class FileBackedDictionary implements DictionaryDatabase {
       if (cmdToValue.containsKey(Command.POS)) {
         final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
         return wordSenses(pos);
-      } else {
+      } else if (cmdToValue.containsKey(Command.ADJ_POSITION)) {
         final AdjPosition adjPosition = AdjPosition.fromValue(cmdToValue.get(Command.ADJ_POSITION));
         return wordSenses(adjPosition);
+      } else if (cmdToValue.containsKey(Command.WORD)) {
+        final String someString = cmdToValue.get(Command.WORD);
+        final POS pos = POS.ALL;
+        return lookupWordSenses(someString, pos);
+      }
+    } else if (cmdToValue.size() == 2) {
+      if (cmdToValue.containsKey(Command.POS)) {
+        final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
+        if (cmdToValue.containsKey(Command.WORD)) {
+          final String someString = cmdToValue.get(Command.WORD);
+          return lookupWordSenses(someString, pos);
+        }
       }
     }
     throw new IllegalArgumentException("unsatisfiable query "+query);
