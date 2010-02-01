@@ -27,11 +27,12 @@ Yawni Subprojects
   - should there be 1 per WN version? (..., 2.1, 3.0, ..., etc.)
 + browser
   - depends on core
-  - build standalone with time 
+  - build standalone
     mvn clean install -PuseYawniData,useLog4j,makeShadedJar
 
+    -Dmaven.test.skip=true
+
 Bob Carpenter's Stemming Examples (http://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
-(reasonable precautions against RSI: )
   * odious: odious ? probably means "odium" or could mean it has no further stem ?
   * euphoria: euphoria (CELEX-2 stems “euphoric” to “euphoria”)
   * OK mathematical: mathematics
@@ -238,9 +239,7 @@ everything
 - interesting JavaDoc paragraph from JComboBox docs
    * <p>
    * <strong>Warning:</strong> Swing is not thread safe. For more
-   * information see <a
-   * href="package-summary.html#threading">Swing's Threading
-   * Policy</a>.
+   * information see <a href="package-summary.html#threading">Swing's Threading Policy</a>.
   - Lucene docs should use this since they have awesome package-level docs
     http://lucene.apache.org/java/2_9_0/api/core/org/apache/lucene/analysis/package-summary.html
     org.apache.lucene.analysis
@@ -257,7 +256,7 @@ everything
     - got burned by WordNet version
     - then got burned by WNSEARCHDIR still referencing old version
 
-- feature: core: ⊚ incorporate other lexical related resources
+- feature: core: ⊚ incorporate other related lexico-semantic resources
   - new Princeton "Standoff Files"
     - The Morphosemantic Database
       - adds 1 of 14 semantic types to the existing DERIVATIONALLY_RELATED WordNet relation
@@ -309,7 +308,7 @@ everything
 
   - Geo-WN ; toponym disambiguation
   - VerbNet
-  - SentiWordNet
+  - SentiWordNet (crappy non-commercial license)
   - SUMO: mappings http://sigmakee.cvs.sourceforge.net/sigmakee/KBs/WordNetMappings/
   - Collins English Dictionary (CED) old edition available cheaply from LDC ($100); challenging to parse
   - Wiktionary; hard to parse; Ninja Words uses this
@@ -329,36 +328,206 @@ everything
 - command to make local browser standalone executable jar
   time mci -PuseLog4j,makeShadedJar
 
+- site element notes
+  + link to yawni.sourceforge.net (which is linked to yawni.org)
+  + Google Analytics include
+  + name
+  + description
+  + project icon
+  ~ project features
+  + browser features
+  + (browser) screenshot
+  - examples / getting started
+  - FAQ
+  - JavaDoc
+  - maven info
+  - download link
+  ~ sourceforge project URL
+  + sourceforge icon + URL (for tracking)
+  - Amazon Associates book links
+  + donations link / directions / terse plea
+  - ohloh link
+  - freshmeat link
+  - pertinent pom.xml project facts
+  + Apache license link
+  + Princeton WordNet license link
+  + issue tracking (Trac or Jira)
+  + who we are
+    + Luke Nezda
+    + Oliver Steele
+  - related projects
+    - inferior APIs ?
+    - Princeton WordNet
+    - Apache UIMA
+      - has a DictionaryAnnotator
+        - requires conversion to an XML format (DictionaryCreator commandline tool provided; provides tokenization options)
+        - includes "advanced muli word capabilities", "case normalization" (i.e., case insensitive)
+        - "advanced" tokenizer: org.apache.uima.TokenAnnotation // is this jflex-based ?
+        - consider implementing InputMatchFeaturePath : baseFormToken with Yawni
+      * consider patch to improve copy of the DictionaryAnnotator documentation
+        - PDF documentation URL on main page broken
+        - spurious "content."
+        - not "partOfSpeach", "partOfSpeech" ; spell check!
+    - Apache Lucene
+- feature: promotion: doc:
+  - browser
+    - Substring search is like "-grep" option of C WordNet commandline interface 'wn'
+      ? what's this called in 'wnb' interface
+    + Note that it does not query any of the online versions of WordNet
+    + Optionally supports WordNet data file versions 1.5, 1.6, 1.7, 2.0, 2.1, 3.0
+
+  - follow FEST projects' lead: use pmwiki, ask for Atlassin Confluence, Jira, and Fisheye
+    http://www.pmwiki.org/wiki/Cookbook/SourceForgeServers
+    + yawni icon URL
+      http://yawni.sourceforge.net/yawni_43x48_icon.png
+      http://www.yawni.org/images/yawni_43x48_icon.png
+      http://www.yawni.org/images/yawni_57x64_icon.png
+    + sourceforge icon link
+      <img src="http://sourceforge.net/sflogo.php?group_id=36271&amp;type=3" alt="SourceForge.net Logo" class="sflogo" />
+    + using Skittlish theme
+      http://www.pmwiki.org/wiki/Cookbook/Skittlish
+    + added clean URLs
+    * how to edit a pmwiki page
+      http://yawni.sourceforge.net/pmwiki/PmWiki/DocumentationIndex
+      http://yawni.sourceforge.net/pmwiki/Site/SiteFooter?action=edit
+(:notitle:)
+(:notitlegroup:)
+(:notabs:)
+    + created Yawni pledgie campaign: http://pledgie.com/campaigns/7717
+    + tag lines
+      1. Object-oriented API to the WordNet database of lexical relationships
+      2. The commercial-grade WordNet Java API.
+      3. The exciting, commercial-grade WordNet API.
+    - descriptions
+      1. Yawni is a pure Java standalone object-oriented interface to the WordNet database of lexical relationships. This is the project formerly known as "JWordNet".
+      2. Yawni is a pure Java object-oriented interface to the WordNet database of lexical relationships. This is the project formerly known as "JWordNet".
+    - fix page <title>: currently 'Yawni Main/Home Page'
+      Yawni / Home
+    - make favicon
+    - add copyright info to footer (&copy; 2010)
+    - enhance indentation of sidebar
+    - consider adding/using tabs in addition to sidebar
+    - move search box into header ? (above where tabs would be)
+    - documentation
+      - what's WordNet
+      - who might use WordNet ?
+
+  <link rel="shortcut icon" href="http://www.yawni.org/favicon.ico"/>
+  <link rel="icon" type="image/x-icon" type="image/vnd.microsoft.icon" href="http://www.yawni.org/favicon.ico"/>
+
+
+// what the heck does this mean in CSS ?
+// ? class "body" without an element ?
+.body pre, #wikitext pre {
+
+// orig
+<div class="highlight"><span class="k">import</span> <span class="nn">stopwatch.Stopwatch</span>
+<span class="c1">// A stopwatch surrounds your code</span>
+<span class="nc">Stopwatch</span><span class="o">(</span><span class="s">&quot;someName&quot;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// code being timed</span>
+  <span class="nf">doSomething</span><span class="o">()</span>
+  <span class="nf">somethingElse</span><span class="o">()</span>
+<span class="o">}</span>
+</div>
+
+<div class="highlight"><span class="k">import</span> <span class="nn">stopwatch.Stopwatch</span>
+<span class="c1">// A stopwatch surrounds your code</span>
+<span class="nc">Stopwatch</span><span class="o">(</span><span class="s">&quot;someName&quot;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// code being timed</span>
+  doSomething();
+  somethingElse();
+<span class="o">}</span>
+</div>
+
+- Pivot
+  - Web Start app probably more compelling than applet
+    - could add a poll to site
+  - Would be cool to download executable, single jar form too 
+  - Component Explorer demo could use description area (e.g., Accordion is ...)
+  - favorite Pivot stuff
+    - ListButton
+    - MenuButton
+    - Accordion
+    - Form
+    - ActivityIndicator (OS X indefinite progress / working indicator)
+    - FileBrowser
+    - Calendar / CalendarButton
+    - ColorChooserButton
+
 - issues
-  - bug: gui: update prompt copy "Type a word to look it up in WordNet" should Search button be mentioned? (current copy: "Type a word to lookup in WordNet...")
+  - feature: core: simple commandline utilizing synsets(query) / wordSenses(query) akin to 'wn' (e.g., -grep{n|v|a|r})
+  - feature: core: add RelationType support to synsets(query) / wordSenses(query) API a la 'wn' (e.g.,  -ants{n|v|a|r}, -hypo{n|v}, -hype{n|v})
+  - feature: core: document advantages of synsets(query) / wordSenses(query) API
+    + binary compatible experimental API - doesn't effect those who don't use it
+    + reduces API clutter making the overall API smaller & less daunting
+  - feature: core: can synsets(query) / wordSenses(query) API be cleanly replaced with a builder pattern-based API ?
+    + type safe
+    + requires no manual parsing
+    -? necessarily more public API commitments
+  - feature: core: doc: describe regex term search support
+  - feature: core: orthographic case features ("true case")
+  - feature: core: doc: describe regex gloss search support
+  - feature: core: add glob support; translate "*yawn*" → ".*yawn.*"
+  ~ feature: core: lookupWordSenses(String someString, POS pos) ; add unit tests; make examples with it
+  - feature: core: make stemming optional in lookupSynsets(String someString, POS pos) and lookupWordSenses(String someString, POS pos)
+    - currently they combine lookupBaseForms(), lookupWord(), and getWordSenses(): make the lookupBaseForms() part optional (but still on by default)
+  - feature: core: coordinate terms (aka sister) terms; nouns or verbs that have the same hypernym (aka 'parent')
+    - represent this as a synthetic Relation ?
+  + feature: core: add regex support to 'substring search'
+  + feature: core: add gloss regex search support ; searchGlossBySubstring
+  - bug: core: doc: update Word "substring" search to indicate regex capabilities (and dangers: PatternSyntaxException)
+  - bug: core: doc: update gloss "substring" search to indicate regex capabilities (and dangers: PatternSyntaxException)
+  + bug: core: added more tests for CharSequenceTokenizer
+  + bug: core: substring search incorrectly searching leading license lines of data files; added test
+  + bug: core: invalid - just an oddity; values in verb.exc without hits?; about-shipped ; about-shipping; benempt; bird-dogging
+  - bug: browser: Maven <profile> inheritance doesn't appear to work correctly: inlining profiles into browser subproject was the only way to create fresh version of the JNLP app with logging dependencies shaded in and proper jar signature
+    - if the required profiles are only in parent pom, the following command will report no active profiles
+      mvn -Dmaven.test.skip=true  -PuseLog4j,makeShadedJar,makeSignedJar help:active-profiles
+      mvn -Dmaven.test.skip=true  -PuseLog4j,makeShadedJar,makeSignedJar clean install
+  + bug: core: include Princeton WordNet license in data jar
+  - bug: gui: update prompt copy "Type a word to look it up in WordNet..." should Search button be mentioned? (current copy: "Type a word to lookup in WordNet...")
   + bug: gui: after pom refactor, window title is "Yawni Parent Browser" :)
+  + bug: gui: after pom refactor, About dialog application title is "Yawni Parent Browser"
+  - feature: gui: ⊚ add URL to About dialog; make sure it is mouse select+copyable or clickable or both
+  + feature: gui: add icon to About dialog
   - feature: promotion: ⊚ contact known users of other Java WordNet clients with targeted announcement
+    * email Revelytix and ask them what they use
+    * email Cognition and ask them what they use
+    ? email JWNL and ask them to hang it up ? :)
     - create twitter account: yawni is currently a spam Twitter account; reported as spam
     - Freshmeat
-    - ohloh: I Use This
+    - Ohloh: I Use This
     - SourceForge reviews
     - announce on personal twitter account
-    - wordnet mailing list
+    - announce on wordnet mailing list
     - Linas Vepstas: OpenCog / ReLex
     - Sean Adams
-    - opennlp mailing lists ?
+    - Kirk Roberts
+    - Bryan Rink
+    - Rion Snow
+      - The Stanford WordNet Project
+      - http://ai.stanford.edu/~rion/swn/index.html
+    - opennlp
+      - mailing lists
+      - annotation.org
     - GATE mailing list
     - UIMA mailing list
     ? Lucene mailing list ?
-  - feature: promotion: ⊚ point yawni.org at SourceForge site
-  - bug: promotion: ⊚ update SourceForge site (add download, no longer beta, Maven info, ...)
-  - feature: promotion: ⊚ add MediaWiki-based content to SourceForge site: basic documentation, basic examples, some color
+  + feature: promotion: point yawni.org at SourceForge site
+  ~ bug: promotion: ⊚ update SourceForge site (add download, no longer beta, Maven info, ...)
+  + feature: promotion: add PmWiki-based content to SourceForge site: basic documentation, basic examples, some color
+  + feature: promotion: make Wiki-based homepage the default landing page for http://yawni.sourceforge.net (like http://jwordnet.sourceforge.net)
   - feature: promotion: ⊚ ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
   - feature: promotion: ⊚ have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
-  - feature: promotion: Amazon Affiliate sponsored links
-    ? any Semantic Web books appropos here ?
+  - feature: promotion: ⊚ Amazon Affiliate sponsored links
+    ? any Semantic Web books apropos here ?
     - WordNet: An Electronic Lexical Database (book) http://www.amazon.com/WordNet-Electronic-Database-Language-Communication/dp/026206197X/ref=sr_1_1?ie=UTF8&s=books&qid=1261949881&sr=8-1
     - Word Sense Disambiguation: Algorithms and Applications (book) http://www.amazon.com/Word-Sense-Disambiguation-Algorithms-Applications/dp/1402068700/ref=sr_1_1?ie=UTF8&s=books&qid=1261949949&sr=1-1
   + bug: use consistent URL in documentation, etc.
     http://sourceforge.net/projects/yawni/ -- SourceForge standard page
     http://yawni.sourceforge.net/ -- looks spammy with ad in the center
-  - feature: promotion: add URL to About dialog
-  - feature: gui: add Web Start app link to main page
+  ~ feature: promotion: gui: add Web Start app link to main page
+    - make sure it works on Linux from Firefox ; see what others do
   - feature: core: ⊚ publish to public Maven repositories
   + bug: core: report more useful exception than NPE when data cannot be found (i.e., not in classpath, $WNSEARCHDIR, or $WNHOME); currently, exceptions look like: java.lang.IllegalArgumentException: no stream for noun.exc
   - bug: core: ⊚ $WNSEARCHDIR/$WNHOME environment collison(s) would be confusing to debug; document this
@@ -386,17 +555,18 @@ everything
     How can we test behavior in the sandboxed, high security environment?
   + bug: core: gui: default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
   - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
+    
   - bug: core: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
     - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
       - these can easily get fairly large and capture 
-  - feature: core: consider public API addition: List<String> getExceptions(final CharSequence someString, final POS pos)
+  - feature: core: consider public API addition: List<String> getExceptions(CharSequence someString, POS pos)
   + bug: core: include Princeton WordNet license in data subproject !
   < feature: gui: consider left-aligning button/searchField pod; Muller OS X WordNet does this
   - feature: gui: for RelationType dropdowns, consider implementing UI guideline of keeping same set of menu items, but only enabling apropos ones - helps user learn; Muller OS X WordNet does this
     - don't want meta-relations (e.g., MEMBER_MERONYM)
     - only want those RelationTypes applicable to the particular POS
   + bug: core: for Noun "Roman", what yawni calls "Member Meronyms" , wnb calls (Member) Holonyms ("MEMBER OF"); currently have "mero"="#" and "holo"="%" ; doh! wn.h says "mero"="%" and holo="#"
-  - feaure: gui: typeahead find in Relation PopdownButton menu could support substring "smart" search (e.g., "holo..." in "Member Holonyms"; maybe like QuickSilver's algorithm?)
+  - feature: gui: typeahead find in Relation PopdownButton menu could support substring "smart" search (e.g., "holo..." in "Member Holonyms"; maybe like QuickSilver's algorithm?)
   + bug: gui: fix UI copy for "The noun kitten has 1 sense (first 1 from tagged texts)"
   < feature: gui: promotion: splash screen would be nice during download and boot; great place to showcase new icon!
   + bug: core: Word.getRelationTypes() sometimes returns an incorrect values for lexical relations (e.g., INSTANCE_*, DERIVATIONALLY_RELATED)
@@ -486,7 +656,7 @@ everything
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
   < feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
   + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
-  < feature: gui: require zero Java Webstart permissions (no preferences saving)
+  < feature: gui: require zero Java Web Start permissions (no preferences saving)
   - feature: gui: count and display how many Word or WordSense hits for "inherited" searches
   - bug: promotion: ⊚ add nice high res project icon (design one :)
     - what are typical icon sizes ?
@@ -570,24 +740,26 @@ everything
 + feature: gui: show cased getLemma() for single case Words (e.g., "Al Capone") in various messages; there are only equalsIgnoreCase() contracts in place here
 - more unit tests
   - bug: core: ⊚ at least 1 simple example; maybe some searching examples (à la JWNL  findRelationships())
+    - story of 2 works finding their parent...
+    - story of a word and all its children...
     + WNSTATSGenerator
   - bug: core: test: add torture test outlined in Searcher (resursive parents / children)
 ~ feature: core: ⊚ add expert query modes: attempt to integrate these without adding API cruft (e.g., little language / "magic" strings ?)
   * trickiest part is any attempt at type safety (could always go java.lang.Object) unless we just add a bunch of overloaded methods or some kind of visitor
   - (was feature: type/property search / filter)
-  - use modal initiated with leading "?" (URI query delim) and use named parameters - intuitive, readable, and flexible going forward
+  - use modal initiated with leading "?" (URI query delim) and named parameters - intuitive, readable, and flexible going forward
     - this only makes sense if it is part of existing query methods
-      public Word lookupWord(final CharSequence lemma, final POS pos);
-      //public String lookupBaseForm(final POS pos, final String derivationLemma);
-      public List<String> lookupBaseForms(final String someString, final POS pos);
-      public List<Synset> lookupSynsets(final String someString, final POS pos);
-      public Iterable<Word> words(final POS pos);
-      public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
-      public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
-      public Iterable<Synset> synsets(final POS pos);
-      public Iterable<WordSense> wordSenses(final POS pos);
-      public Iterable<Relation> relations(final POS pos);
-      public Iterable<Relation> relations(final RelationType relationType, final POS pos);
+      public Word lookupWord(CharSequence lemma, POS pos);
+      //public String lookupBaseForm(POS pos, String derivationLemma);
+      public List<String> lookupBaseForms(String someString, POS pos);
+      public List<Synset> lookupSynsets(String someString, POS pos);
+      public Iterable<Word> words(POS pos);
+      public Iterable<Word> searchBySubstring(CharSequence substring, POS pos);
+      public Iterable<Word> searchByPrefix(CharSequence prefix, POS pos);
+      public Iterable<Synset> synsets(POS pos);
+      public Iterable<WordSense> wordSenses(POS pos);
+      public Iterable<Relation> relations(POS pos);
+      public Iterable<Relation> relations(RelationType relationType, POS pos);
   
   // maybe just a couple really generic methods ?
   // Iterable<WordSense> wordSenes(String)
@@ -614,13 +786,16 @@ everything
     - glob-style regexes (e.g., "*" means ".*", "p*za")
       http://jakarta.apache.org/oro/api/org/apache/oro/text/GlobCompiler.html
       http://stackoverflow.com/questions/1247772/is-there-an-equivalent-of-java-util-regex-for-glob-type-patterns
-
+      tricky to "guess" when to do this without shorting out more complex regexes
+      - if anchored (^ or $), don't guess - we've got a pro
+      - if ".*", don't guess - we've got a pro
+      - if ")*" or "]*", don't guess - we've got a pro
+      - remove leading/trailing "*" - don't change result
   <lexname> → Iterable<WordSense> (ideally, report error for undefined lexnames (easiest if it were an enum)); linear traversal
   <AdjPosition> → Iterable<WordSense> (only applies to POS.ADJ); linear traversal
   <RelationType> → Iterable<Relation>; linear traversal
   <glossSubstring> → Iterable<Synset>; linear traversal
-    - gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (ie use Lucene)
-
+    - gloss grep (brute force, stemmed) -- little crazy as this approaches a general IR problem (i.e., use Lucene)
   <random POS/Word/WordSense/Synset>
     - good for unit tests and performance tests or "Synset'o'the'day"
     T random(rand, Class<T> clazz) // no good common bounds for clazz (except maybe package is org.yawni.wn)
@@ -676,7 +851,7 @@ x bug: gui: when going back and forth between Search and Substring search
 
       ? maybe expose the FileManagerInterface we're using ? might open up Thread safety issues ?
 x feature: implement Set<Word> interface ; while they will always be unique, List is more efficient
-< feature: adapative compressed form - gradually parse to "preparsed" form
+< feature: adaptive compressed form - gradually parse to "preparsed" form
 - feature: gui: use appassembler to generate scripts
   - WNHOME
   - JVM args
@@ -692,7 +867,7 @@ x feature: implement Set<Word> interface ; while they will always be unique, Lis
   + set up a log4j.properties file
     - programmatically refer to this properties file so we don't have to set system property
   - convert web start stuff (shaded jar)
-    ? does shaded jar "hide" embeded jar
+    ? does shaded jar "hide" embedded jar
   - reference Lucene dev thread and slf4j list of Apache projects for rationale
     - markmail perma link: 
 x feature: howto for developing in NetBeans ?
@@ -729,7 +904,7 @@ x feature: howto for developing in NetBeans ?
 - feature: consider a "lexicon" class for simple uses (like stemming)
 - feature: consider test / example coverage
   - Ruby WordNet has some decent looking "examples/" and tests (linguawordnet)
-    http://www.deveiate.org/projects/Ruby-WordNet/browser/trunk/examples
+    http://www.deveiate.org/projects/Ruby-WordNet/browser/examples
     source:trunk/tests/wntestcase.rb
     source:trunk/tests/linguawordnet.tests.rb
     source:trunk/tests/synset.tests.rb
@@ -801,7 +976,7 @@ x feature: howto for developing in NetBeans ?
         - 2 T ref: 4 (therefore, doubleton 16
         - 3 T ref: 4 (therefore, tripleton probably 24 with padding)
         - 4 T ref: 4 (therefore, quadrupleton 24)
-    - ideally there'e be a marker interface like Immutable 
+    - ideally there'd be a marker interface like Immutable 
       - org.apache.commons.collections.Unmodifiable
       - note that Collections.unmodifiableList(list) can change IF list is changed elsewhere
         - this could prove quite confusing!
@@ -836,7 +1011,7 @@ x feature: howto for developing in NetBeans ?
 + bug: gui: fix wonky POS button menu behavior (behaves very differently across different LookAndFeels)
   - consider making POS buttons toggle buttons - have window closing auto-toggle them
 + feature: core: refactor DictionaryDatabase methods to take String, POS rather than POS, String - more natural - use Eclipse to do this
-+ feature: version information in jar (and About dialog)
++ feature: version information in jar and About dialog
 + feature: up/down arrow navigation of search results from searchField
 + bug: multi-click behavior improvments
 + bug: need to create new key (with keytool) to sign the jar (with jarsigner via Maven)
@@ -1030,7 +1205,7 @@ x feature: howto for developing in NetBeans ?
   + feature: core: rename "searchIndexBeginning" to "searchByPrefix"
   + feature: core rename "searchWords" to "searchBySubstring"
     + tried to get Eclipse to work but moved files pissed it off bigtime
-  + feature: core: all atomic core types (ie all but Relation) are Iterable<WordSense>
+  + feature: core: all atomic core types (i.e., all but Relation) are Iterable<WordSense>
   + feature: Word, Synset, WordSense, Relation should implement Comparable
   + bug: substring search for "-" (hyphenated words) not found
     + would be cool to search for terms containing spaces too (collocation search)
@@ -1479,7 +1654,7 @@ General Project Quality
     - really, you need a stemmer to get maximum value out of it - could
       integrate with Lucene's slick new JFlex stemmer as part of a more general
       Apache NLP toolkit
-  ? integrate with UIMA project: 
+  ? integrate with UIMA project:
     - UIMA - various NLP apps (pos, pchunk, doc/phrase/sentence-similarity (dup filtering), clustering
   - practical lexical semantic web resource
     - synergies with other Apache technologies (W3C RDF/OWL Representation of WordNet)
@@ -1489,5 +1664,5 @@ General Project Quality
   - makes WordNet much more approachable to developers
   - super memory efficient and fast
   - WordNet is an estabished project and no Apache licensed API exists
-    - no high quality, pure Java commercial friendly license exists
+    - no high quality, pure Java commercial-friendly license exists
 
