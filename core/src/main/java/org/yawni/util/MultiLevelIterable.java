@@ -47,7 +47,7 @@ public class MultiLevelIterable<T> implements Iterable<T> {
     return new MultiLevelIterator<T>(base);
   }
 
-  private static class MultiLevelIterator<T> implements Iterator<T> {
+  private static class MultiLevelIterator<T> extends UnmodifiableIterator<T> {
     private static final long serialVersionUID = 1L;
     private static final Object SENTINEL = new Object();
 
@@ -104,11 +104,6 @@ public class MultiLevelIterable<T> implements Iterable<T> {
     // user's don't have to explicitly call this although that's a bit crazy
     public boolean hasNext() {
       return top != SENTINEL;
-    }
-    /** {@inheritDoc} */
-    public void remove() {
-      throw new UnsupportedOperationException();
-      // this is call refers to the last iterator which returned an item via next()
     }
   } // end class MultiLevelIterator
 }

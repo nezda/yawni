@@ -226,8 +226,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
 
   /**
    * Build '{@code sensekey}'; used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>.
-   * <p>
-   * High-level description:
+   *
+   * <p> High-level description:
    * <blockquote>{@code lemma}<b>%</b>{@code ss_type}<b>:</b>{@code lex_filenum}<b>:</b>{@code lex_id}<b>:</b>{@code head_word}<b>:</b>{@code head_id}</blockquote>
    * <ul>
    *   <li> {@code lemma} is lowercase, spaces are represented as underscores </li>

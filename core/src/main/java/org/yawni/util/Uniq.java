@@ -62,7 +62,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
   /**
    * TODO: - support remove()
    */
-  private static class UniqIterator<T extends Object & Comparable<? super T>> implements Iterator<T> {
+  private static class UniqIterator<T extends Object & Comparable<? super T>> extends UnmodifiableIterator<T> {
     private static final long serialVersionUID = 1L;
     private static final Object SENTINEL = new Object();
 
@@ -105,11 +105,6 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
     // user's don't have to explicitly call this although that's a bit crazy
     public boolean hasNext() {
       return top != SENTINEL;
-    }
-    /** {@inheritDoc} */
-    public void remove() {
-      throw new UnsupportedOperationException();
-      // this is call refers to the last iterator which returned an item via next()
     }
   } // end class UniqIterator
 }

@@ -50,7 +50,7 @@ public interface DictionaryDatabase {
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html</a>
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
-   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a> describes 'exceptional forms'
+   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3 describes 'exceptional forms'</a>
    */
   public List<String> lookupBaseForms(final String someString, final POS pos);
 

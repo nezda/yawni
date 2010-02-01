@@ -46,6 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.yawni.util.AbstractIterator;
 import org.yawni.util.StringTokenizer;
+import org.yawni.util.UnmodifiableIterator;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
 import org.yawni.wn.WordSense.AdjPosition;
@@ -1158,7 +1159,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#wordSenses
    */
-  private class POSWordSensesIterator implements Iterator<WordSense> {
+  private class POSWordSensesIterator extends UnmodifiableIterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
     POSWordSensesIterator(final POS pos) {
       // uses 2 level Iterator - first is Synsets, second is their WordSenses
@@ -1171,9 +1172,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
     public WordSense next() {
       return wordSenses.next();
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class POSSynsetsIterator
 
@@ -1197,7 +1195,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   /**
    * @see DictionaryDatabase#relations
    */
-  private class POSRelationsIterator implements Iterator<Relation> {
+  private class POSRelationsIterator extends UnmodifiableIterator<Relation> {
     private final Iterator<Relation> relations;
     POSRelationsIterator(final POS pos, final RelationType relationType) {
       this.relations = MultiLevelIterable.of(new SynsetsToRelations(synsets(pos), relationType)).iterator();
@@ -1207,9 +1205,6 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     }
     public Relation next() {
       return relations.next();
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
     }
   } // end class POSRelationsIterator
 

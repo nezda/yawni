@@ -74,6 +74,7 @@ enum Command {
     }
   },
   /**
+   * "SOMESTRING" might be a better name;
    * some string to match fully (including after stemming)
    * consult LEMMA;
    * if synsets(), return implied Synset (i.e., lookupSynsets()), if wordSenses(), return implied WordSense(s) (i.e., lookupWordSenses())

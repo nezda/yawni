@@ -155,7 +155,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
    *
    * TODO - support remove()
    */
-  private static class MergedIterator<T extends Object & Comparable<? super T>> implements Iterator<T> {
+  private static class MergedIterator<T extends Object & Comparable<? super T>> extends UnmodifiableIterator<T> {
     private static final long serialVersionUID = 1L;
     private static final Object SENTINEL = new Object();
 
@@ -225,12 +225,6 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
         }
       }
       return false;
-    }
-    
-    /** {@inheritDoc} */
-    public void remove() {
-      throw new UnsupportedOperationException();
-      // this is call refers to the last iterator which returned an item via next()
     }
   } // end class MergedIterator
 }

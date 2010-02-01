@@ -120,7 +120,7 @@ public interface FileManagerInterface {
   public String readLineNumber(final int linenum, final String filename) throws IOException;
 
   /**
-   * The {@link Comparator<CharSequence>} that defines the sort order of the WordNet data files.
+   * The {@link Comparator Comparator<CharSequence>} that defines the sort order of the WordNet data files.
    */
   public Comparator<CharSequence> comparator();
 }

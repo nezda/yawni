@@ -82,7 +82,7 @@ public final class ConcatenatedIterable<T> implements Iterable<T> {
    *
    * TODO: - support remove()
    */
-  private static class ConcatenatedIterator<T> implements Iterator<T> {
+  private static class ConcatenatedIterator<T> extends UnmodifiableIterator<T> {
     private static final long serialVersionUID = 1L;
     private static final Object SENTINEL = new Object();
 
@@ -136,12 +136,6 @@ public final class ConcatenatedIterable<T> implements Iterable<T> {
         }
       }
       return false;
-    }
-    
-    /** {@inheritDoc} */
-    public void remove() {
-      throw new UnsupportedOperationException();
-      // this is call refers to the last iterator which returned an item via next()
     }
   } // end class ConcatenatedIterator
 }

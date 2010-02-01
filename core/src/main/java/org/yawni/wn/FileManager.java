@@ -795,7 +795,7 @@ public final class FileManager implements FileManagerInterface {
 
   /**
    * {@inheritDoc}
-   * Note this is a covariant implementation of {@link Comparator<CharSequence>}
+   * Note this is a covariant implementation of {@link java.util.Comparator Comparator<CharSequence>}
    */
   public WordNetLexicalComparator comparator() {
     // caseless searches rely on this
