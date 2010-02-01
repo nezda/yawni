@@ -653,7 +653,15 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     } else if (cmdToValue.size() == 2) {
       if (cmdToValue.containsKey(Command.POS)) {
         final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
-        if (cmdToValue.containsKey(Command.WORD)) {
+        if (cmdToValue.containsKey(Command.OFFSET)) {
+          final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
+          final Iterable<WordSense> synset = getSynsetAt(pos, offset);
+          if (synset != null) {
+            return synset;
+          } else {
+            return ImmutableList.of();
+          }
+        } else if (cmdToValue.containsKey(Command.WORD)) {
           final String someString = cmdToValue.get(Command.WORD);
           return lookupWordSenses(someString, pos);
         }
