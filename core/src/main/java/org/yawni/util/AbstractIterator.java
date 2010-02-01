@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// lifted from version Google Collectins 1.0 RC3 svn r115
+//package com.google.common.collect;
+// lifted from version Google Collectins 1.0 final svn r98
 package org.yawni.util;
 
-import java.util.Iterator;
+import static org.yawni.util.Preconditions.checkState;
+
 import java.util.NoSuchElementException;
 
 /**
@@ -24,7 +26,7 @@ import java.util.NoSuchElementException;
  * interface, to make this interface easier to implement for certain types of
  * data sources.
  *
- * <p> {@code Iterator} requires its implementations to support querying the
+ * <p>{@code Iterator} requires its implementations to support querying the
  * end-of-data status without changing the iterator's state, using the {@link
  * #hasNext} method. But many data sources, such as {@link
  * java.io.Reader#read()}), do not expose this information; the only way to
@@ -33,8 +35,8 @@ import java.util.NoSuchElementException;
  * using this class, one must implement only the {@link #computeNext} method,
  * and invoke the {@link #endOfData} method when appropriate.
  *
- * <p> Another example is an iterator that skips over null elements in a backing
- * iterator. This could be implemented as: <pre>{@code
+ * <p>Another example is an iterator that skips over null elements in a backing
+ * iterator. This could be implemented as: <pre>   {@code
  *
  *   public static Iterator<String> skipNulls(final Iterator<String> in) {
  *     return new AbstractIterator<String>() {
@@ -50,11 +52,11 @@ import java.util.NoSuchElementException;
  *     };
  *   }}</pre>
  *
- * This class supports iterators that include {@code null} elements.
+ * This class supports iterators that include null elements.
  *
  * @author Kevin Bourrillion
  */
-public abstract class AbstractIterator<T> implements Iterator<T> {
+public abstract class AbstractIterator<T> extends UnmodifiableIterator<T> {
   private State state = State.NOT_READY;
 
   private enum State {
@@ -116,9 +118,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
   }
 
   public final boolean hasNext() {
-    if (state == State.FAILED) {
-      throw new IllegalStateException();
-    }
+    checkState(state != State.FAILED);
     switch (state) {
       case DONE:
         return false;
@@ -159,12 +159,5 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
       throw new NoSuchElementException();
     }
     return next;
-  }
-
-  /**
-   * @throws UnsupportedOperationException always
-   */
-  public void remove() {
-    throw new UnsupportedOperationException();
   }
 }
