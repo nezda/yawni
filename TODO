@@ -4,6 +4,9 @@
   - Java port "underway" by Jordi Atserias | Yahoo! Research (sourceforge user: batalla)
     - https://supersensetag.svn.sourceforge.net/svnroot/supersensetag/branches/SSTjava/
 
+- Apache Jackrabbit includes Sandbox SynonymProvider using org.apache.lucene.index.memory.SynonymMap
+  jackrabbit/sandbox/wordnet-synonyms/src/main/java/org/apache/jackrabbit/core/query/wordnet/WordNetSynonyms.java
+
 Examples apps
 - Using the 'Alignment API' with Wordnet
   http://alignapi.gforge.inria.fr/alignwn.html
@@ -261,7 +264,7 @@ everything
     - The Morphosemantic Database
       - adds 1 of 14 semantic types to the existing DERIVATIONALLY_RELATED WordNet relation
         example line:
-          arg1 sensekey	arg1 offset	relation	arg2 sensekey	arg2 offset	arg1 gloss (abbreviated)	arg2 gloss (abbreviated)
+          <arg1 sensekey>	<arg1 offset>	<relation>	<arg2 sensekey>	<arg2 offset>	<arg1 gloss (abbreviated)>	<arg2 gloss (abbreviated)>
           cannibalize%2:34:00::	201162291	agent	cannibal%1:18:00::	109891079	eat human flesh	a person who eats human flesh
       * note "offset" has pos ordinal prepended; e.g., in "201162291", leading "2" means VERB, rest "01162291" is "cannibalize" synset offset 
         - note: synset offset gets search to right synset, lemma from senseKey required to get to right WordSense
@@ -282,9 +285,9 @@ everything
           87 vehicle
           43 body-part
           17 destination
-    - The Teleological database
+    - The Teleological Database
       ? presume these are for WordNet 3 ?
-      arg1 sensekey	arg1 offset	relation	arg2 sensekey	arg2 offset
+      <arg1 sensekey>	<arg1 offset>	<relation>	<arg2 sensekey>	<arg2 offset>
       bomb%1:06:00::	102866578	action	destroy%2:36:00::	201619929
       - 12 different relations
        448 action
@@ -303,6 +306,20 @@ everything
       core-wordnet.txt contains the top (i.e., most frequently used) 4,997 senses
       example line:
         v [clear%2:32:00::] [acquit] clear, pronounce not guilty
+
+      cleanup commands
+
+      cat core.* | tr "_" " " | tr "[:upper:]" "[:lower:]" | egrep '([^%]+).*\[\1\]' -v | wc -l
+      cat core-wordnet.txt | colrm 1 3 | sed "s/]//" | tr "_" " " | tr "[:upper:]" "[:lower:]" | egrep '([^%]+).*\[\1\]' -v | wc -l
+      
+      # add rank as explicit final field 
+      cat 5K.clean.txt | sed -E "s/(\[|\])//g" | awk 'BEGIN{i=1} {print $2 " " i; i++; }' | sort -k1,1 > core-wordnet.ranked
+      cat 5K.clean.txt | colrm 1 3 | sed "s/]//" | awk 'BEGIN{i=1} {print $0 " " i; i++; }' | sort -k1,1 > core-wordnet.ranked
+
+      5K has 3 duplicates
+        + a [available%3:00:00::] [available] obtainable
+        + a [whole%3:00:00::] [whole] including all components
+        + n [shoe%1:06:00::] [shoe] footwear
    - http://wordnet.princeton.edu/wordnet/download/
      - when were the new "Standoff Files" released ?
 
@@ -326,7 +343,7 @@ everything
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
 - command to make local browser standalone executable jar
-  time mci -PuseLog4j,makeShadedJar
+  time mci -PuseLog4j,useYawniData,makeShadedJar
 
 - site element notes
   + link to yawni.sourceforge.net (which is linked to yawni.org)
