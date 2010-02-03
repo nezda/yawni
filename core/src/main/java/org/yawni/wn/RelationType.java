@@ -54,8 +54,8 @@ public enum RelationType {
   /** aka "instance of" or just "instance" */
   INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N, "Instance Hypernyms (%s is an instance of ...)"),
   /**
-   * "a word that is <em>more specific</em> than a given word".
-   * analagous to "troponym" for verbs.
+   * "a word that is <em>more specific</em> than a given word"; aka "is a";
+   * analagous to "troponym" for verbs
    */
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   /** aka "instances" / "has instance" */
