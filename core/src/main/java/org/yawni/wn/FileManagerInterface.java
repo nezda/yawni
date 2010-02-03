@@ -60,6 +60,7 @@ public interface FileManagerInterface {
    * first textual column of <em>lowercased</em> words.  This condition can be verified
    * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>
    * @param target string sought
+   * @param filename filename to search; filenameWnRelative = {@code true}
    * @return The file offset of the start of the matching line if one exists.
    * Otherwise, {@code (-(insertion point) - 1)}.
    * The insertion point is defined as the point at which the target would be
