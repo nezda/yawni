@@ -21,9 +21,8 @@ import java.util.Map;
 import static org.yawni.wn.POS.*;
 
 /**
- * Represents the contents of (WordNet 3.0) lexnames since it is
- * "optional".  These are the WordNet lexicographers classes, sometimes called
- * the WordNet 'supersenses'.
+ * Represents the contents of (WordNet 3.0) lexnames since it is "optional".  These are the WordNet 
+ * lexicographers' classes, sometimes called the WordNet 'supersenses'.
  * 
  * <p>
  * <cite>M. Ciaramita, Y. Altun. 2006 (EMNLP). Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger</cite><br/>
