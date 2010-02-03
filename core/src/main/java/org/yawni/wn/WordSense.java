@@ -96,6 +96,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   private long verbFrameFlags;
   private short senseNumber;
   private short sensesTaggedFrequency;
+  private short coreRank;
   // only needs to be a byte since there are only 3 bits of flag values
   private final byte adjPositionFlags;
 
@@ -241,7 +242,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    */
   //TODO cache this ? does it ever become not useful to cache this ? better to cache getSensesTaggedFrequency()
   // power users might be into this: https://sourceforge.net/tracker/index.php?func=detail&aid=2009619&group_id=33824&atid=409470
-  CharSequence getSenseKey() {
+  public CharSequence getSenseKey() {
     final String searchWord;
     final int headSense;
     if (getSynset().isAdjectiveCluster()) {
@@ -402,6 +403,10 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     throw new IllegalStateException("invalid flags "+adjPositionFlags);
   }
 
+  /** 
+   * Unique number that when combined with lemma, uniquely identifies a sense within a lexicographer file.
+   * @see Synset#getLexCategory()
+   */
   int getLexid() {
     return lexid;
   }
@@ -499,16 +504,55 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * A ranking of synsets derived from word frequencies in the <a href="http://www.natcorp.ox.ac.uk">
-   *   British National Corpus/</a>;
-   * synsets have been selected by salience.
-   * @return rank or -1 if sense is unranked
+   * A ranking of top 5,000 "core" WordSenses derived from word frequencies in the <a href="http://www.natcorp.ox.ac.uk">
+   *   British National Corpus/</a>; WordSenses were selected by salience.
+   * This data was created as part of Evocation project at Princeton;
+   * This method provides access to a simple distillation of 
+   * <a href="http://wordnet.cs.princeton.edu/downloads/5K.clean.txt">
+   * http://wordnet.cs.princeton.edu/downloads/5K.clean.txt</a>
+   * @return 1-based rank, -1 if sense is unranked, or 0 to indicate required
+   * data file missing
    * 
    * @see <a href="http://wordnet.cs.princeton.edu/downloads.html">
    *   http://wordnet.cs.princeton.edu/downloads.html</a>
    */
-  int getCoreRank() {
-    throw new UnsupportedOperationException();
+  public int getCoreRank() {
+    if (coreRank == 0) {
+      final CharSequence senseKey = getSenseKey();
+      final FileBackedDictionary dictionary = synset.fileBackedDictionary;
+      final String line;
+      try {
+        line = dictionary.lookupCoreRankLine(senseKey);
+      } catch (IllegalStateException ise) {
+        return 0;
+      }
+      int rank = 0;
+      if (line != null) {
+        // core-wordnet.ranked line format:
+        // <sense_key> <? bracketed lemma, comma separated evocations ?> <1-based rank>
+        final int lastSpace = line.lastIndexOf(' ');
+        assert lastSpace > 0;
+        rank = CharSequences.parseInt(line, lastSpace + 1, line.length());
+        // sanity check final int firstSpace = line.indexOf(" ");
+        // sanity check assert firstSpace > 0 && firstSpace != lastSpace;
+        // sanity check final int mySenseNumber = getSenseNumber();
+        // sanity check final int foundSenseNumber =
+        // sanity check   CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+        // sanity check if (mySenseNumber != foundSenseNumber) {
+        // sanity check   System.err.println(this+" foundSenseNumber: "+foundSenseNumber+" count: "+count);
+        // sanity check } else {
+        // sanity check   //System.err.println(this+" OK");
+        // sanity check }
+        //[WordSense 9465459@[POS noun]:"unit"#5] foundSenseNumber: 7
+        //assert getSenseNumber() ==
+        //  CharSequenceTokenizer.parseInt(line, firstSpace + 1, lastSpace);
+        assert rank <= 5000;
+        coreRank = (short) rank;
+      } else {
+        coreRank = -1;
+      }
+    }
+    return coreRank;
   }
 
   public String getDescription() {
