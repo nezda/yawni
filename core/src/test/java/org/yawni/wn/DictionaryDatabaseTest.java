@@ -300,6 +300,12 @@ public class DictionaryDatabaseTest {
     }
   }
 
+  @Test
+  public void coreRankTest() {
+    assertThat(dictionary.lookupWord("time", POS.NOUN).getSense(7).getCoreRank()).isEqualTo(1);
+    assertThat(dictionary.lookupWord("time", POS.NOUN).getSense(1).getCoreRank()).isEqualTo(-1);
+  }
+
   private static <T> boolean isUnique(final Collection<T> items) {
     return items.size() == new HashSet<T>(items).size();
   }
