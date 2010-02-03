@@ -350,6 +350,10 @@ public class IterationTest {
         int iterationIndexWordsVisited = 0;
         int iterationGlossLetters = 0;
         int iteration_total_p_cnt = 0;
+        int numCore = 0;
+        int numNounCore = 0;
+        int numVerbCore = 0;
+        int numAdjCore = 0;
         for (final POS pos : POS.CATS) {
           for (final Word word : dictionary.words(pos)) {
             for (final Synset synset : word.getSynsets()) {
@@ -365,6 +369,17 @@ public class IterationTest {
               //final String lemma = word.getLowercasedLemma();
               final Synset synset = wordSense.getSynset();
               final int taggedFreq = wordSense.getSensesTaggedFrequency();
+              final int coreRank = wordSense.getCoreRank();
+              if (coreRank > 0) {
+//                System.out.println(wordSense.getSenseKey());
+                numCore++;
+                switch (pos) {
+                  case NOUN: numNounCore++; break;
+                  case VERB: numVerbCore++; break;
+                  case ADJ: numAdjCore++; break;
+                  default: throw new IllegalStateException();
+                }
+              }
               //String msg = i+" "+word+" taggedFreq: "+taggedFreq;
               //System.err.println(msg);
               String longMsg = wordSense.getLongDescription();
@@ -386,6 +401,15 @@ public class IterationTest {
             }
           }
         }
+        // numCore: 4997 (getting -- missing )
+        // numNounCore: 3299 (getting 3289 -- missing 10!?)
+        // numVerbCore: 1000 (getting 998 -- missing 2)
+        // numAdjCore: 698 (getting 674 -- missing 24)
+        System.err.printf("numCore: %d numNounCore: %d numVerbCore: %d numAdjCore: %d\n",
+          numCore, numNounCore, numVerbCore, numAdjCore);
+//        assertEquals(4997, numCore);
+        // apparently 36 of the sensekeys in this data are invalid with respect to WordNet 3.0
+        assertEquals(4961, numCore);
         printMemoryUsage();
         System.err.println("iterationIndexWordsVisited: " + iterationIndexWordsVisited+
             " iteration_total_p_cnt: " + iteration_total_p_cnt+
