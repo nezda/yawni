@@ -288,6 +288,10 @@ public final class FileBackedDictionary implements DictionaryDatabase {
     return "cntlist.rev";
   }
 
+  private static String getCoreRankFilename() {
+    return "core-wordnet.ranked";
+  }
+
   private static String getVerbSentencesIndexFilename() {
     return "sentidx.vrb";
   }
@@ -735,6 +739,23 @@ public final class FileBackedDictionary implements DictionaryDatabase {
         line = null;
       } else {
         line = fileManager.readLineAt(offset, getCntlistDotRevFilename());
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
+  }
+
+  // throws IllegalStateException if data file is not found
+  String lookupCoreRankLine(final CharSequence senseKey) {
+    final int offset;
+    final String line;
+    try {
+      offset = fileManager.getIndexedLinePointer(senseKey, getCoreRankFilename());
+      if (offset < 0) {
+        line = null;
+      } else {
+        line = fileManager.readLineAt(offset, getCoreRankFilename());
       }
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
