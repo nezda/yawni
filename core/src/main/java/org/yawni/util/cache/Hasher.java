@@ -18,6 +18,13 @@ package org.yawni.util.cache;
 
 import java.io.Serializable;
 
+/**
+ * Interface for hash function objects; used by {@link BloomFilter BloomFilter<E>}.
+ */
 public interface Hasher<E> extends Serializable {
+  /**
+   * Returns a hash code for {@code e}, specialized for instances of {@code E},
+   * otherwise delegating to {@link Object#hashCode()}.
+   */
   public int hashCode(Object e);
 }

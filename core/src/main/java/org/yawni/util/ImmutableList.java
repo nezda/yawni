@@ -45,8 +45,6 @@ import java.util.RandomAccess;
  *   ? ML data structures
  *   - Web-2.0 tags
  *
- * @param <E>
- *
  * TODO
  * - make this class package private and move it accordingly ?  just an implementation detail for now
  * - take another crack at Restleton
@@ -82,9 +80,7 @@ import java.util.RandomAccess;
 // - doesn't use general utility impls
 //   - Nullable, Iterators, ImmutableCollection, Collections2
 //   - very clean slick, comprehensive use of covariant return types
-// - no "bonus" APIs (e.g., copyOf())
-//   - maybe i like this ?
-
+//
 // maximally optimized methods
 // - get(i), isEmpty(), contains(), subList (for small sizes)
 // 

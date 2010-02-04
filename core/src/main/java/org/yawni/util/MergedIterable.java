@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
  * whose traversal order <em>is</em> sorted.
  *
  * <p> TODO add support for {@link java.util.Comparator}s
+ * @yawni.internal
  */
 public final class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
   private static final long serialVersionUID = 1L;

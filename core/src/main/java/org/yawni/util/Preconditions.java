@@ -50,6 +50,7 @@ import java.util.NoSuchElementException;
  * these types of exceptions.
  *
  * @author Kevin Bourrillion
+ * @yawni.internal
  */
 public final class Preconditions {
   private Preconditions() {}

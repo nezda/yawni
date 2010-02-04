@@ -19,7 +19,7 @@ package org.yawni.util.cache;
 import java.util.WeakHashMap;
 
 /**
- * Simple Cache based on {@link WeakHashMap}.
+ * Simple {@code Cache} backed by {@link WeakHashMap}.
  * All methods are thread-safe by brute-force synchronization.
  */
 public class WeakHashMapCache<K, V> implements Cache<K, V> {

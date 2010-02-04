@@ -20,7 +20,7 @@ import java.util.Iterator;
 
 /**
  * {@code StringTokenizer} is used to break a string apart into tokens.  Lighter
- * than a {@link java.util.Scanner}, more features than {@link java.util.StringTokenizer}, with full
+ * than a {@link java.util.Scanner}, more features than {@link java.util.StringTokenizer java.util.StringTokenizer}, with full
  * support for {@link CharSequence}s.
  */
 public final class StringTokenizer extends AbstractCharSequenceTokenizer implements Iterator<String> {

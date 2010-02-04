@@ -23,6 +23,7 @@ import java.util.Iterator;
  * An iterator that does not support {@link #remove}.
  *
  * @author Jared Levy
+ * @yawni.internal
  */
 public abstract class UnmodifiableIterator<E> implements Iterator<E> {
   /**

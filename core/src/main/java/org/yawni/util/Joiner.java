@@ -45,6 +45,7 @@ import java.util.Map.Entry;
  * given element is {@code null}.
  *
  * @author Kevin Bourrillion
+ * @yawni.internal
  */
 public class Joiner {
   /**

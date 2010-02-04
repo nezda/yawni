@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 /**
  * Flattens an {@code Iterable} of an {@code Iterable} of {@code T} into
  * an {@code Iterable} of {@code T}.
+ * @yawni.internal
  */
 public class MultiLevelIterable<T> implements Iterable<T> {
   private static final long serialVersionUID = 1L;

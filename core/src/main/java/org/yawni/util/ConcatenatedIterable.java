@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 /**
  * Derive a new {@code Iterable} by concatenating the items
  * in each of the provided {@code Iterable}s.
+ * @yawni.internal
  */
 public final class ConcatenatedIterable<T> implements Iterable<T> {
   private static final long serialVersionUID = 1L;

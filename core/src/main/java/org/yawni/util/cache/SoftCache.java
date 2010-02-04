@@ -19,7 +19,7 @@ package org.yawni.util.cache;
 import java.util.Map;
 
 /**
- * Memory-sensitive {@code Cache} based on {@link sun.misc.SoftCache} which
+ * Memory-sensitive {@code Cache} backed by {@link sun.misc.SoftCache} which
  * is based on {@link java.lang.ref.SoftReference}s.
  * All methods are thread-safe by brute-force synchronization.
  */

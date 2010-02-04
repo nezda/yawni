@@ -22,6 +22,7 @@ import java.util.Iterator;
  * Derive a new {@code Iterable} by calling a method on each of the base
  * {@code Iterable}'s {@code Iterator}'s items as computed by
  * implementations of the {@link #apply} method.
+ * @yawni.internal
  */
 public abstract class MutatedIterable<T, R> implements Iterable<R> {
   private static final long serialVersionUID = 1L;
