@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.undo.*;
-import org.yawni.wn.WordCaseUtils;
+import org.yawni.util.WordCaseUtils;
 //import java.util.prefs.*;
 
 /**
@@ -825,6 +825,15 @@ public class BrowserPanel extends JPanel {
     buffer.append("<ol>\n");
     for (final Synset sense : senses) {
       buffer.append("<li>");
+      final int coreRank = sense.getWordSense(word).getCoreRank();
+      if (coreRank > 0) {
+        buffer.append('[');
+        buffer.append(coreRank);
+        buffer.append("] ");
+      }
+//      buffer.append(' ');
+//      buffer.append(sense.getWordSense(word).getSenseKey());
+//      buffer.append(" ");
       final int cnt = sense.getWordSense(word).getSensesTaggedFrequency();
       if (cnt != 0) {
         buffer.append('(');
