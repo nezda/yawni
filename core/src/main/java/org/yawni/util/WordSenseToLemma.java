@@ -14,9 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.wn;
+package org.yawni.util;
 
 import org.yawni.util.MutatedIterable;
+import org.yawni.wn.WordSense;
 
 final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
   public WordSenseToLemma(final Iterable<WordSense> iterable) {
