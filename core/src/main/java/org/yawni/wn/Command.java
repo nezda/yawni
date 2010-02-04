@@ -29,6 +29,9 @@ import org.yawni.util.Preconditions;
  * Handler for {@link FileBackedDictionary#synsets(java.lang.String)} and
  * {@link FileBackedDictionary#wordSenses(java.lang.String)}.
  */
+// Most comands are "filter"s
+// Command composition would be sweet
+// Builder pattern may simplify this code
 enum Command {
   /**
    * if 9 digit, treat 1st digit as POS ordinal; if less digits, require POS;
@@ -80,10 +83,10 @@ enum Command {
    * if synsets(), return implied Synset (i.e., lookupSynsets()), if wordSenses(), return implied WordSense(s) (i.e., lookupWordSenses())
    */
   WORD,
-  /** filter; alias for WORD */
+  /** unsupported; filter; alias for WORD */
   SOME_STRING,
   /**
-   * filter; boolean: indicates WORD is lemma and should not be stemmed
+   * unsupported; filter; boolean: indicates WORD is lemma and should not be stemmed
    * default true;
    */
   LEMMA,
@@ -114,37 +117,28 @@ enum Command {
     }
   },
   /**
+   * unsupported;
    * if synsets(), return implied Synset, if wordSenses(), return implied WordSense
+   * 
+   * not a sensekey, but a simple, often used notation:
+   *  {@code <lemma>"#"<pos_letter><senseNumber>}
+   *  {@code ambition#n2}
    */
-  SENSEKEY {
-    @Override
-    void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
-      throw new UnsupportedOperationException("Not yet implemented");
-    }
-  },
-  PREFIX {
-    @Override
-    void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
-      throw new UnsupportedOperationException("Not yet implemented");
-    }
-  },
-  SUBSTRING {
-    @Override
-    void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
-      throw new UnsupportedOperationException("Not yet implemented");
-    }
-  },
-  GLOSS_GREP {
-    @Override
-    void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
-      throw new UnsupportedOperationException("Not yet implemented");
-    }
-  },
+  SENSEKEY,
+  /** unsupported; */
+  PREFIX,
+  /** unsupported; */
+  SUBSTRING,
+  /** unsupported; key for useul commandline interface */
+  RELATION,
+  /** unsupported; */
+  GLOSS_GREP,
   /**
    * implies POS=ADJ; only applies to POS={ADJ, ALL};
    */
   ADJ_POSITION,
   LEXNAME,
+  /** unsupported; */
   RANDOM
   ;
 

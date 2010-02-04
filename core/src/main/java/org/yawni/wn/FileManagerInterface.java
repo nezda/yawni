@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 
 /**
- * {@code FileManagerInterface} defines the interface between the {@code FileBackedDictionary} and the data file system.
+ * {@code FileManagerInterface} defines the interface between the {@link FileBackedDictionary} and the data file system.
  * {@code FileBackedDictionary} invokes methods from this interface to retrieve lines of text from the
  * WordNet data files.
  *

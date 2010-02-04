@@ -24,7 +24,7 @@ import org.yawni.util.cache.Hasher;
  * and {@code '_'} (underscore) the same and optionally lowercases the characters of both
  * arguments to {@link #compare(java.lang.CharSequence, java.lang.CharSequence) compare()}
  * ({@link #TO_LOWERCASE_INSTANCE}).  This encodes the natural sort order of
- * the {@link Word}s of WordNet <code>index.<em>pos</em></code> files.
+ * the {@link Word}s of WordNet <code>index.<em>pos</em></code> (e.g., {@code index.noun}) files.
  */
 public final class WordNetLexicalComparator implements Comparator<CharSequence>, Hasher<CharSequence> {
   private static final long serialVersionUID = -3350149399258640927L;
@@ -74,6 +74,9 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence>,
     return s1Len - s2Len;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int hashCode(final Object obj) {
     if (!(obj instanceof CharSequence)) {
       return obj.hashCode();

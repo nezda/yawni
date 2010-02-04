@@ -23,7 +23,7 @@ import org.yawni.util.CharSequenceTokenizer;
  * relationship holds between {@link WordSense}s; a semantic relationship holds between {@link Synset}s.
  * Relationships are <em>directional</em>:  the two roles of a relationship are the <em>source</em> and <em>target</em>.
  * Relationships are <em>typed</em>: the type of a relationship is a {@link RelationType}, and can
- * be retrieved via {@link Relation#getType RelationType.getType()}.
+ * be retrieved via {@link Relation#getType Relation.getType()}.
  *
  * <p> This class used to be called {@code Pointer} as it is often referred to in the official WordNet documentation.
  *

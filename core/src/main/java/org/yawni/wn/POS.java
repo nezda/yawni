@@ -28,7 +28,7 @@ public enum POS {
   // Class variables
   //
   /**
-   * Meta-{@code POS} representing all parts of speech.  For use in search methods.
+   * Meta-{@code POS} representing all parts of speech; for use in search methods.
    */
   ALL("all POS", Character.MIN_VALUE, 0),
   /** <b>NOTE: do not reorder - RelationTypes relies on this</b> */
@@ -47,6 +47,7 @@ public enum POS {
    */
   VERB("verb", 'v', 2),
   /**
+   * Adjective:
    * <ol>
    *   <li> a word that expresses an attribute of something </li>
    *   <li> the word class that qualifies nouns </li>
@@ -54,6 +55,7 @@ public enum POS {
    */
   ADJ("adjective", 'a', 3),
   /**
+   * Adverb:
    * <ol>
    *   <li> the word class that qualifies verbs or clauses </li>
    *   <li> a word that modifies something other than a noun </li>
@@ -61,6 +63,7 @@ public enum POS {
    */
   ADV("adverb", 'r', 4),
   /**
+   * "Satellite adjective";
    * Basically a sub-{@code POS} of {@code ADJ}.
    * aka "adjective satellite", "ADJSAT"
    */

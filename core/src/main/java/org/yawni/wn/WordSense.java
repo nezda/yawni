@@ -426,7 +426,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    * for {@link POS#VERB} {@code WordSense}s.
    *
    * <p> For illustrative sentences (<tt>sents.vrb</tt>), "%s" is replaced with the verb lemma
-   * which seems unnecessarily ineficient since you have the WordSense anyway.
+   * which seems unnecessarily inefficient since you have the WordSense anyway.
    *
    * <pre>{@literal Example: verb "complete"#1 has 4 generic verb frames:
    *    1. *> Somebody ----s
@@ -504,8 +504,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * A ranking of top 5,000 "core" WordSenses derived from word frequencies in the <a href="http://www.natcorp.ox.ac.uk">
-   *   British National Corpus/</a>; WordSenses were selected by salience.
+   * A ranking of the top 5,000 "core" WordSenses derived from word frequencies in the <a href="http://www.natcorp.ox.ac.uk">
+   *   British National Corpus</a>; WordSenses were selected by salience.
    * This data was created as part of Evocation project at Princeton;
    * This method provides access to a simple distillation of 
    * <a href="http://wordnet.cs.princeton.edu/downloads/5K.clean.txt">
