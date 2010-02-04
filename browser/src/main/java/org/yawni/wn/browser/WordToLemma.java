@@ -18,7 +18,7 @@ package org.yawni.wn.browser;
 
 import org.yawni.util.MutatedIterable;
 import org.yawni.wn.Word;
-import org.yawni.wn.WordCaseUtils;
+import org.yawni.util.WordCaseUtils;
 
 /**
  * @see WordCaseUtils#getDominantCasedLemma(org.yawni.wn.Word)
