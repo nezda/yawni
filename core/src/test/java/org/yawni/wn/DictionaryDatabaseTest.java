@@ -44,10 +44,33 @@ public class DictionaryDatabaseTest {
   //@Ignore
   @Test
   public void test() {
-    final List<String> tanks = dictionary.lookupBaseForms("tank", POS.ALL);
-    System.err.println("tanks: "+tanks);
-    final List<String> geese = dictionary.lookupBaseForms("geese", POS.ALL);
-    System.err.println("geese: "+geese);
+    String query;
+    List<String> results;
+    query = "tank";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    query = "geese";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    query = "mouse";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    // queries with more than 1 baseform
+    query = "mice";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    query = "wings";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    query = "years";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    query = "businessmen";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
+    query = "men";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
   }
 
   /**
