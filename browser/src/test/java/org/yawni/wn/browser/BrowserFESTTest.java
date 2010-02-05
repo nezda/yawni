@@ -21,6 +21,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
 import org.fest.swing.annotation.GUITest;
+import org.fest.swing.annotation.RunsInEDT;
+import org.fest.swing.edt.FailOnThreadViolationRepaintManager;
+import org.fest.swing.edt.GuiActionRunner;
+import org.fest.swing.edt.GuiQuery;
 import org.junit.Test;
 import org.fest.swing.fixture.FrameFixture;
 import org.fest.swing.fixture.JButtonFixture;
@@ -29,6 +33,7 @@ import org.fest.swing.fixture.JPopupMenuFixture;
 import org.fest.swing.fixture.JTextComponentFixture;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -37,9 +42,23 @@ public class BrowserFESTTest {
   private FrameFixture window;
   private Browser browser;
 
+  @BeforeClass
+  public static void setUpOnce() {
+    FailOnThreadViolationRepaintManager.install();
+  }
+
+  @RunsInEDT
+   private static Browser createNewBrowser() {
+     return GuiActionRunner.execute(new GuiQuery<Browser>() {
+       protected Browser executeInEDT() {
+         return new Browser();
+       }
+     });
+   }
+
   @Before
   public void setUp() {
-    browser = new Browser();
+    browser = createNewBrowser();
     PreferencesManager.loadSettings(browser);
     window = new FrameFixture(browser);
     window.show();
