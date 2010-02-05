@@ -782,8 +782,12 @@ public class BrowserPanel extends JPanel {
     updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     appendSenses(word, buffer, true);
-    resultEditorPane.setText(buffer.toString());
-    resultEditorPane.setCaretPosition(0); // scroll to top
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        resultEditorPane.setText(buffer.toString());
+        resultEditorPane.setCaretPosition(0); // scroll to top
+      }
+    });
   }
 
   /**
@@ -955,9 +959,13 @@ public class BrowserPanel extends JPanel {
         buffer.append("</ul>\n");
       }
     }
-    resultEditorPane.setText(buffer.toString());
-    resultEditorPane.setCaretPosition(0); // scroll to top
-    updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        resultEditorPane.setText(buffer.toString());
+        resultEditorPane.setCaretPosition(0); // scroll to top
+        updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
+      }
+    });
   }
 
   /**
