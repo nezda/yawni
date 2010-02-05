@@ -66,12 +66,10 @@ Compounds
   * newsgathering: news gathering (CELEX: missing) 
 
 ? why does this web UI to WN 3.0 http://poets.notredame.ac.jp/cgi-bin/wn
-  show "microorganism" and "infectious agent" as 
-  Pertainyms of "viral" ?
-  - these are both immediate hypernyms of the derivationally related
-    source noun "virus" -- are derivationally related forms
-    of adjectives "Pertainyms" ?
-    - is this just for "sense context" ? -- appears so, just missing level of indent to show this
+  show "microorganism" and "infectious agent" as Pertainyms of "viral" ?
+  - these are both immediate hypernyms of the derivationally related source noun "virus" 
+    + are derivationally related forms of adjectives "Pertainyms" ? no
+    + is this just for "sense context" ? -- appears so, just missing level of indent to show this
 
 Release TODOs
 
@@ -472,6 +470,8 @@ everything
     - ColorChooserButton
 
 - issues
+  - feature: core: create commandline tool (a la wn) based on Command interface ; consider supporting batch mode or RAFCharStream to minimize init lag
+  - bug: core: record "Core" missing senseKeys (gvimdiff core active2.sorted)
   - feature: core: simple commandline utilizing synsets(query) / wordSenses(query) akin to 'wn' (e.g., -grep{n|v|a|r})
   - feature: core: add RelationType support to synsets(query) / wordSenses(query) API a la 'wn' (e.g.,  -ants{n|v|a|r}, -hypo{n|v}, -hype{n|v})
   - feature: core: document advantages of synsets(query) / wordSenses(query) API
