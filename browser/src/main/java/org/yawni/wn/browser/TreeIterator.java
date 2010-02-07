@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
+import org.yawni.util.AbstractIterator;
 
 /**
  * General programming technique called <a href="http://en.wikipedia.org/wiki/Continuation-passing_style">
@@ -60,6 +61,21 @@ public class TreeIterator<T extends Object & Comparable<? super T>> implements I
     return t.mVal;
   }
 
+  //LN junk
+  public T nextInline() {
+    if (mStack.isEmpty()) {
+      throw new NoSuchElementException();
+    }
+    Tree<T> toReturn = mStack.pop();
+//    stackLeftDaughters(t.mRight);
+    Tree<T> t = toReturn.mRight;
+    while (t != null) {
+      mStack.push(t);
+      t = t.mLeft;
+    }
+    return toReturn.mVal;
+  }
+
   public void remove() {
     throw new UnsupportedOperationException();
   }
@@ -97,6 +113,18 @@ public class TreeIterator<T extends Object & Comparable<? super T>> implements I
     }
   }
 } // end class TreeIterator
+
+
+class TreeIterator2<T extends Object & Comparable<? super T>> extends AbstractIterator<T> {
+  private Tree<T> tree;
+  TreeIterator2(final Tree<T> tree) {
+    this.tree = tree;
+  }
+  @Override
+  protected T computeNext() {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+} // end class TreeIterator2
 
 class Tree<T extends Object & Comparable<? super T>> {
   final T mVal;
