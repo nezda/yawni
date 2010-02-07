@@ -16,21 +16,12 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.WordSense;
-import org.yawni.wordnet.RelationTarget;
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.Synset;
-import org.yawni.wordnet.RelationType;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
-import org.yawni.wordnet.Word;
 import org.yawni.util.Utils;
 import static org.yawni.util.Utils.*;
 import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.yawni.util.Joiner;
 
 public class DictionaryDatabaseTest {
   private static DictionaryDatabase dictionary;

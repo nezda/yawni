@@ -16,7 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.TeleologicalRelation;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 

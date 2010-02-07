@@ -16,11 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.WordToLowercasedLemma;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
-import org.yawni.wordnet.Word;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Preconditions;
 import org.yawni.util.Utils;

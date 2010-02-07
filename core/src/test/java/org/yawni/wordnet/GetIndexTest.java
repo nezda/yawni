@@ -16,11 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.Morphy;
-import org.yawni.wordnet.FileBackedDictionary;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.GetIndex;
 import org.junit.*;
 import static org.junit.Assert.*;
 

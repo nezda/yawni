@@ -31,8 +31,8 @@ import org.yawni.wordnet.WordNetLexicalComparator;
 
 /**
  * Utility class to generate and serialize {@link BloomFilter}s representing the
- * content of a given WordNet version; these filters are optionally
- * packaged in the data jar.
+ * content of a given WordNet version; these filters are typically packaged in the 
+ * {@code yawni-data} jar artifact.
  */
 class BloomFilters {
   public static void main(String[] args) throws Exception {

@@ -16,13 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.WordSense;
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.Relation;
-import org.yawni.wordnet.Synset;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
-import org.yawni.wordnet.Word;
 import org.junit.*;
 import static org.junit.Assert.*;
 import java.util.concurrent.*;

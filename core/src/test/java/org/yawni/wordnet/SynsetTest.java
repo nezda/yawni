@@ -16,16 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.WordSense;
-import org.yawni.wordnet.RelationTarget;
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.Relation;
-import org.yawni.wordnet.SemanticRelation;
-import org.yawni.wordnet.Synset;
-import org.yawni.wordnet.RelationType;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
-import org.yawni.wordnet.Word;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

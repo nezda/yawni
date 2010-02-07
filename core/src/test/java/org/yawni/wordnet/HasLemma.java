@@ -16,8 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.WordSense;
-import org.yawni.wordnet.Word;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;

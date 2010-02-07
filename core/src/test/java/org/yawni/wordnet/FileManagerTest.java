@@ -16,8 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.wordnet.FileManager;
-import org.yawni.wordnet.FileManagerInterface;
 import org.junit.*;
 import static org.junit.Assert.*;
 
