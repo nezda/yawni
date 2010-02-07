@@ -23,11 +23,11 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
-import org.yawni.wn.DictionaryDatabase;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.POS;
-import org.yawni.wn.Word;
-import org.yawni.wn.WordNetLexicalComparator;
+import org.yawni.wordnet.DictionaryDatabase;
+import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.POS;
+import org.yawni.wordnet.Word;
+import org.yawni.wordnet.WordNetLexicalComparator;
 
 /**
  * Utility class to generate and serialize {@link BloomFilter}s representing the

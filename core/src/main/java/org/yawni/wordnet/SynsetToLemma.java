@@ -14,17 +14,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.util;
+package org.yawni.wordnet;
 
 import org.yawni.util.MutatedIterable;
-import org.yawni.wordnet.WordSense;
 
-final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
-  public WordSenseToLemma(final Iterable<WordSense> iterable) {
+// hack - represent Synset as lemma of first WordSense.
+// Note, this is NOT the same as that WordSense's Word's "1st sense"
+final class SynsetToLemma extends MutatedIterable<Synset, String> {
+  public SynsetToLemma(final Iterable<Synset> iterable) {
     super(iterable);
   }
   @Override
-  public String apply(final WordSense wordSense) {
-    return wordSense.getLemma();
+  public String apply(final Synset synset) {
+    return synset.getWordSenses().get(0).getLemma();
   }
 }

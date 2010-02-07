@@ -19,7 +19,7 @@ package org.yawni.util;
 import java.util.List;
 import org.yawni.util.ImmutableList;
 import org.yawni.util.Utils;
-import org.yawni.wn.Word;
+import org.yawni.wordnet.Word;
 
 public final class WordCaseUtils {
   private WordCaseUtils(){ }

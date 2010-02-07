@@ -14,17 +14,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.util;
+package org.yawni.wordnet;
 
-import org.yawni.util.MutatedIterable;
-import org.yawni.wordnet.WordSense;
+import org.yawni.wordnet.MorphoSemanticRelation;
+import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
-final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
-  public WordSenseToLemma(final Iterable<WordSense> iterable) {
-    super(iterable);
-  }
-  @Override
-  public String apply(final WordSense wordSense) {
-    return wordSense.getLemma();
+public class MorphoSemanticRelationTest {
+  @Test
+  public void test() {
+    System.err.println("values: "+MorphoSemanticRelation.getStringToRelMap());
+    assertThat(MorphoSemanticRelation.AGENT).isSameAs(MorphoSemanticRelation.valueOf("AGENT"));
+    assertThat(MorphoSemanticRelation.fromValue("AGENT")).isSameAs(MorphoSemanticRelation.valueOf("AGENT"));
+    
+    assertThat(MorphoSemanticRelation.fromValue("BY_MEANS_OF")).isSameAs(MorphoSemanticRelation.BY_MEANS_OF);
+    assertThat(MorphoSemanticRelation.fromValue("by-means-of")).isSameAs(MorphoSemanticRelation.BY_MEANS_OF);
   }
 }

@@ -14,17 +14,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.util;
+package org.yawni.wordnet;
 
-import org.yawni.util.MutatedIterable;
-import org.yawni.wordnet.WordSense;
+import org.yawni.wordnet.TeleologicalRelation;
+import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
-final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
-  public WordSenseToLemma(final Iterable<WordSense> iterable) {
-    super(iterable);
-  }
-  @Override
-  public String apply(final WordSense wordSense) {
-    return wordSense.getLemma();
+public class TeleologicalRelationTest {
+  @Test
+  public void test() {
+    System.err.println("values: "+TeleologicalRelation.getStringToRelMap());
+    assertThat(TeleologicalRelation.AGENT).isSameAs(TeleologicalRelation.valueOf("AGENT"));
+    assertThat(TeleologicalRelation.fromValue("AGENT")).isSameAs(TeleologicalRelation.valueOf("AGENT"));
+
+    assertThat(TeleologicalRelation.fromValue("ACTION")).isSameAs(TeleologicalRelation.ACTION);
+    assertThat(TeleologicalRelation.fromValue("action")).isSameAs(TeleologicalRelation.ACTION);
   }
 }

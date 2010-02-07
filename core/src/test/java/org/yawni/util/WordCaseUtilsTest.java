@@ -19,10 +19,10 @@ package org.yawni.util;
 import org.yawni.util.WordCaseUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.yawni.wn.DictionaryDatabase;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.POS;
-import org.yawni.wn.Word;
+import org.yawni.wordnet.DictionaryDatabase;
+import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.POS;
+import org.yawni.wordnet.Word;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class WordCaseUtilsTest {
