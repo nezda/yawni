@@ -17,16 +17,16 @@
 package org.yawni.wordnet.browser;
 
 import org.yawni.util.Utils;
-import org.yawni.wn.DictionaryDatabase;
-import org.yawni.wn.FileBackedDictionary;
-import org.yawni.wn.POS;
-import org.yawni.wn.Relation;
-import org.yawni.wn.RelationTarget;
-import org.yawni.wn.RelationType;
-import org.yawni.wn.Synset;
-import org.yawni.wn.Word;
-import org.yawni.wn.WordSense;
-import static org.yawni.wn.RelationType.*;
+import org.yawni.wordnet.DictionaryDatabase;
+import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.POS;
+import org.yawni.wordnet.Relation;
+import org.yawni.wordnet.RelationTarget;
+import org.yawni.wordnet.RelationType;
+import org.yawni.wordnet.Synset;
+import org.yawni.wordnet.Word;
+import org.yawni.wordnet.WordSense;
+import static org.yawni.wordnet.RelationType.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

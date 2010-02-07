@@ -17,7 +17,7 @@
 package org.yawni.wordnet.browser;
 
 import org.yawni.util.MutatedIterable;
-import org.yawni.wn.Word;
+import org.yawni.wordnet.Word;
 import org.yawni.util.WordCaseUtils;
 
 /**

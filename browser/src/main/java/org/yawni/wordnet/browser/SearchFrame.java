@@ -16,8 +16,8 @@
  */
 package org.yawni.wordnet.browser;
 
-import org.yawni.wn.POS;
-import org.yawni.wn.Word;
+import org.yawni.wordnet.POS;
+import org.yawni.wordnet.Word;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils;
 

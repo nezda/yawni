@@ -16,14 +16,12 @@
  */
 package org.yawni.wordnet.browser;
 
-import org.yawni.wn.Synset;
-import org.yawni.wn.WordSense;
-import org.yawni.wn.Word;
-import org.yawni.wn.Relation;
-import org.yawni.wn.RelationType;
-import org.yawni.wn.POS;
-import org.yawni.wn.DictionaryDatabase;
-import org.yawni.wn.FileBackedDictionary;
+import org.yawni.wordnet.Synset;
+import org.yawni.wordnet.WordSense;
+import org.yawni.wordnet.Word;
+import org.yawni.wordnet.POS;
+import org.yawni.wordnet.DictionaryDatabase;
+import org.yawni.wordnet.FileBackedDictionary;
 
 import java.io.*;
 import java.util.*;

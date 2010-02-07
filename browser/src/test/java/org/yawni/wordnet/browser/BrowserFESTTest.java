@@ -16,8 +16,6 @@
  */
 package org.yawni.wordnet.browser;
 
-import org.yawni.wordnet.browser.PreferencesManager;
-import org.yawni.wordnet.browser.Browser;
 import java.awt.event.KeyEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
