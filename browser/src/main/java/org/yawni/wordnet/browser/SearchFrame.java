@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.wn.browser;
+package org.yawni.wordnet.browser;
 
 import org.yawni.wn.POS;
 import org.yawni.wn.Word;

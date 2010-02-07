@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.wn.browser;
+package org.yawni.wordnet.browser;
 
 import org.junit.*;
 import static org.junit.Assert.*;

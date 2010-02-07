@@ -14,8 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.yawni.wn.browser;
+package org.yawni.wordnet.browser;
 
+import org.yawni.wordnet.browser.PreferencesManager;
+import org.yawni.wordnet.browser.Browser;
 import java.awt.event.KeyEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;

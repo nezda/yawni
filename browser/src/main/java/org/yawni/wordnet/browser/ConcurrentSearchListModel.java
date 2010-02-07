@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.yawni.wn.browser;
+package org.yawni.wordnet.browser;
 
 import javax.swing.event.*;
 import javax.swing.*;

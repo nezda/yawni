@@ -14,7 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.yawni.wordnet.browser;
+
+import org.yawni.util.MutatedIterable;
+import org.yawni.wn.Word;
+import org.yawni.util.WordCaseUtils;
+
 /**
- * Package containing various classes used to implement the browser.
+ * @see WordCaseUtils#getDominantCasedLemma(org.yawni.wn.Word)
  */
-package org.yawni.wn.browser;
+final class WordToLemma extends MutatedIterable<Word, String> {
+  public WordToLemma(final Iterable<Word> iterable) {
+    super(iterable);
+  }
+  @Override
+  public String apply(final Word word) {
+    return WordCaseUtils.getDominantCasedLemma(word);
+  }
+}

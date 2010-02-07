@@ -1,4 +1,4 @@
-package org.yawni.wn.browser;
+package org.yawni.wordnet.browser;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
