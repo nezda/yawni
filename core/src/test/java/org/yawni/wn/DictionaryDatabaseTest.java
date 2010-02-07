@@ -71,6 +71,9 @@ public class DictionaryDatabaseTest {
     query = "men";
     results = dictionary.lookupBaseForms(query, POS.ALL);
     System.err.println("query: "+query+" results: "+results);
+    query = "was";
+    results = dictionary.lookupBaseForms(query, POS.ALL);
+    System.err.println("query: "+query+" results: "+results);
   }
 
   /**
