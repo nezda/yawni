@@ -20,14 +20,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.yawni.wn</groupId>
+    <groupId>org.yawni</groupId>
     <artifactId>yawni-parent</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
-  <artifactId>yawni-browser</artifactId>
-  <name>Yawni Browser</name>
-  <version>2.0.0-SNAPSHOT</version>
+  <artifactId>yawni-wordnet-browser</artifactId>
+  <name>Yawni WordNet Browser</name>
+  <!-- <version>2.0.0-SNAPSHOT</version> -->
   <description>
     A GUI browser of WordNet content using the Yawni API.
   </description>
@@ -49,7 +49,7 @@
           <extraJvmArguments>-Xdock:name=Yawni -Dfile.encoding=US-ASCII -ea -Dswing.aatext=true -Dawt.useSystemAAFontSettings=on -Dapple.awt.textantialiasing=on -Dapple.laf.useScreenMenuBar=true -Dapple.awt.brushMetalLook=true -Dapple.awt.brushMetalRounded=true -Dapple.awt.showGrowBox=false</extraJvmArguments>
           <programs>
             <program>
-              <mainClass>org.yawni.wn.browser.Browser</mainClass>
+              <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
               <name>browser</name>
             </program>
           </programs>
@@ -92,12 +92,12 @@
   <!-- </scm> -->
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>yawni-core</artifactId>
+      <groupId>org.yawni</groupId>
+      <artifactId>yawni-wordnet-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>yawni-data</artifactId>
+      <groupId>org.yawni</groupId>
+      <artifactId>yawni-wordnet-data</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -150,7 +150,7 @@
                     <!--
                     for commandline usage
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>org.yawni.wn.browser.Browser</mainClass>
+                      <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
                     </transformer>
                     -->
                   </transformers>
@@ -186,7 +186,7 @@
                 <!-- <compress>false</compress> -->
                 <index>true</index>
                 <manifest>
-                  <mainClass>org.yawni.wn.browser.Browser</mainClass>
+                  <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
                 </manifest>
                 <manifestEntries>
                   <svnversion>${buildNumber}</svnversion>
@@ -210,8 +210,8 @@
       </activation>
       <dependencies>
         <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>yawni-data</artifactId>
+          <groupId>org.yawni</groupId>
+          <artifactId>yawni-wordnet-data</artifactId>
         </dependency>
       </dependencies>
     </profile>
