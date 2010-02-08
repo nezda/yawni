@@ -587,12 +587,12 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     final long start = System.currentTimeMillis();
     PreferencesManager.setLookAndFeel();
 
-    //final DictionaryDatabase dictionary;
+    //final WordNetInterface wn;
     //String searchDir = null; // args[0]
     //if (searchDir != null) {
-    //  dictionary = FileBackedDictionary.getInstance(searchDir);
+    //  wn = WordNet.getInstance(searchDir);
     //} else {
-    //  dictionary = FileBackedDictionary.getInstance();
+    //  wn = WordNet.getInstance();
     //}
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {

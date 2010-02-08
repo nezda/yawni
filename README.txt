@@ -35,7 +35,7 @@ Basic steps:
   2) Start using the Yawni API!: all required resources are loaded on demand
      from the classpath (i.e., jars) made accessible via a singleton:
      
-     final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+     final WordNetInterface wn = WordNet.getInstance();
 
      Numerous unit tests serve as great executable examples are included 
      in core/src/test/  .  For a more complex example application, check 

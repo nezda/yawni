@@ -30,7 +30,7 @@ import org.yawni.util.ImmutableList;
 
 /**
  * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> (e.g., {@code index.noun}) file.
- * A {@code Word} is retrieved via {@link DictionaryDatabase#lookupWord},
+ * A {@code Word} is retrieved via {@link WordNetInterface#lookupWord},
  * and has a lowercase <em>lemma</em>, a <em>part of speech ({@link POS})</em>, and a set of <em>senses</em> ({@link WordSense}s).
  *
  * <p> This class used to be called {@code IndexWord} which arguably makes more sense from the
@@ -43,7 +43,7 @@ import org.yawni.util.ImmutableList;
 public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = LoggerFactory.getLogger(Word.class.getName());
 
-  private final WordNet fileBackedDictionary;
+  private final WordNet wordNet;
   /** offset in <code>index.<em>pos</em></code> file; {@code Index.idxoffset} in {@code wn.h} */
   private final int offset;
   /**
@@ -66,8 +66,8 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   //
   // Constructor
   //
-  Word(final CharSequence line, final int offset, final WordNet fileBackedDictionary) {
-    this.fileBackedDictionary = fileBackedDictionary;
+  Word(final CharSequence line, final int offset, final WordNet wordNet) {
+    this.wordNet = wordNet;
     try {
       log.trace("parsing line: {}", line);
       final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
@@ -214,7 +214,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         // TODO This might be better as a Soft or Weak -Reference
         final Synset[] syns = new Synset[synsetOffsets.length];
         for (int i = 0; i < synsetOffsets.length; i++) {
-          syns[i] = fileBackedDictionary.getSynsetAt(getPOS(), synsetOffsets[i]);
+          syns[i] = wordNet.getSynsetAt(getPOS(), synsetOffsets[i]);
           assert syns[i] != null : "null Synset at index "+i+" of "+this;
         }
         this.synsets = ImmutableList.of(syns);

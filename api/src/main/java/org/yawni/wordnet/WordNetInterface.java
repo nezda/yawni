@@ -22,7 +22,7 @@ import java.util.List;
  * A class that implements this interface is a broker or factory
  * for objects that model WordNet lexical and semantic entities.
  *
- * @see FileBackedDictionary
+ * @see WordNet
  */
 public interface WordNetInterface {
   /**

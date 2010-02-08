@@ -21,8 +21,8 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 
 /**
- * {@code FileManagerInterface} defines the interface between the {@link FileBackedDictionary} and the data file system.
- * {@code FileBackedDictionary} invokes methods from this interface to retrieve lines of text from the
+ * {@code FileManagerInterface} defines the interface between {@link WordNet} and the data file system.
+ * {@code WordNet} invokes methods from this interface to retrieve lines of text from the
  * WordNet data files.
  *
  * <p> Methods in this interface take filenames as arguments.  The filename is the name of
@@ -40,7 +40,7 @@ import java.util.regex.Matcher;
  * principle avoids paging an entire database file across the network in order to search for
  * an entry.
  *
- * <p> Making {@code FileBackedDictionary} {@linkplain java.io.Serializable} would violate the first of these properties
+ * <p> Making {@code WordNet} {@linkplain java.io.Serializable} would violate the first of these properties
  * (it would require that {@link Word}, {@link Synset}, {@link POS}, {@link WordSense}, etc. also be supported as remote objects);
  * a generic remote file system interface would violate the second.
  *

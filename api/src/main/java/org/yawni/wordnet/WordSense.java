@@ -220,7 +220,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
    */
   // WordSense contains everything Word does - no need to expose this
   Word getWord() {
-    final Word word = synset.fileBackedDictionary.lookupWord(lemma, getPOS());
+    final Word word = synset.wordNet.lookupWord(lemma, getPOS());
     assert word != null : "lookupWord failed for \""+lemma+"\" "+getPOS();
     return word;
   }
@@ -345,8 +345,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       // and really we wouldn't need to look at sense (numbers) exceeding that value
       // as an optimization
       final CharSequence senseKey = getSenseKey();
-      final WordNet dictionary = synset.fileBackedDictionary;
-      final String line = dictionary.lookupCntlistDotRevLine(senseKey);
+      final WordNet wn = synset.wordNet;
+      final String line = wn.lookupCntlistDotRevLine(senseKey);
       int count = 0;
       if (line != null) {
         // cntlist.rev line format:
@@ -448,8 +448,8 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       return ImmutableList.of();
     }
     final CharSequence senseKey = getSenseKey();
-    final WordNet dictionary = synset.fileBackedDictionary;
-    final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
+    final WordNet wn = synset.wordNet;
+    final String sentenceNumbers = wn.lookupVerbSentencesNumbers(senseKey);
     List<String> frames = ImmutableList.of();
     if (sentenceNumbers != null) {
       frames = new ArrayList<String>();
@@ -464,7 +464,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
         // e = next comma OR if no more commas, e = n
         s = e + 1, e = sentenceNumbers.indexOf(',', s), e = e > 0 ? e : n) {
         final String sentNum = sentenceNumbers.substring(s, e);
-        final String sentence = dictionary.lookupVerbSentence(sentNum);
+        final String sentence = wn.lookupVerbSentence(sentNum);
         assert sentence != null;
         frames.add(sentence);
       }
@@ -490,7 +490,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
           fn < lfn;
           fn++) {
         if ((verbFrameFlags & (1L << fn)) != 0L) {
-          final String frame = dictionary.lookupGenericFrame(fn + 1);
+          final String frame = wn.lookupGenericFrame(fn + 1);
           assert frame != null :
             "this: "+this+" fn: "+fn+
             " shift: "+((1L << fn)+
@@ -519,10 +519,10 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   public int getCoreRank() {
     if (coreRank == 0) {
       final CharSequence senseKey = getSenseKey();
-      final WordNet dictionary = synset.fileBackedDictionary;
+      final WordNet wn = synset.wordNet;
       final String line;
       try {
-        line = dictionary.lookupCoreRankLine(senseKey);
+        line = wn.lookupCoreRankLine(senseKey);
       } catch (IllegalStateException ise) {
         return 0;
       }

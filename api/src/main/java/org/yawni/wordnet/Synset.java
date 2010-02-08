@@ -47,7 +47,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   // Instance implementation
   //
   /** package private for use by WordSense */
-  final WordNet fileBackedDictionary;
+  final WordNet wordNet;
   /** offset in <code>data.<em>pos</em></code> file; {@code Synset.hereiam} in {@code wn.h} */
   private final int offset;
   private final ImmutableList<WordSense> wordSenses;
@@ -66,8 +66,8 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Constructor
   //
-  Synset(final String line, final WordNet fileBackedDictionary) {
-    this.fileBackedDictionary = fileBackedDictionary;
+  Synset(final String line, final WordNet wordNet) {
+    this.wordNet = wordNet;
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextInt();
     final int lexfilenumInt = tokenizer.nextInt();
@@ -176,7 +176,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
    */
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   public String getGloss() {
-    final String line = fileBackedDictionary.getSynsetLineAt(getPOS(), offset);
+    final String line = wordNet.getSynsetLineAt(getPOS(), offset);
     // parse gloss
     final int index = line.indexOf('|');
     if (index > 0) {

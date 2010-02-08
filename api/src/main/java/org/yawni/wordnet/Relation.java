@@ -36,7 +36,7 @@ public abstract class Relation implements Comparable<Relation> {
    * required, and to prevent keeping a large portion of the database resident
    * once the target has been queried.  The first time they are used, they act as
    * an external key; subsequent uses, in conjunction with 
-   * {@link FileBackedDictionary}'s caching mechanism, can be thought of as a
+   * {@link WordNet}'s caching mechanism, can be thought of as a
    * {@link java.lang.ref.WeakReference}.
    */
   private final int targetOffset;
@@ -123,7 +123,7 @@ public abstract class Relation implements Comparable<Relation> {
   public RelationTarget getTarget() {
     return Relation.resolveTarget(
         // using source.getSynset() to avoid requiring a local field
-        source.getSynset().fileBackedDictionary.getSynsetAt(
+        source.getSynset().wordNet.getSynsetAt(
           POS.fromOrdinal(targetPOSOrdinal),
           targetOffset),
         targetIndex);

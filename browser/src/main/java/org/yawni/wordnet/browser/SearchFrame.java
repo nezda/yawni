@@ -218,32 +218,32 @@ class SearchFrame extends JDialog {
         switch (searchType) {
           case SUBSTRING:
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchBySubstring(query, pos);
+              searchResults = browserPanel.wordNet().searchBySubstring(query, pos);
             } else {
               searchResults = MergedIterable.merge(
-                  browserPanel.dictionary().searchBySubstring(query, POS.NOUN),
-                  browserPanel.dictionary().searchBySubstring(query, POS.VERB),
-                  browserPanel.dictionary().searchBySubstring(query, POS.ADJ),
-                  browserPanel.dictionary().searchBySubstring(query, POS.ADV));
+                  browserPanel.wordNet().searchBySubstring(query, POS.NOUN),
+                  browserPanel.wordNet().searchBySubstring(query, POS.VERB),
+                  browserPanel.wordNet().searchBySubstring(query, POS.ADJ),
+                  browserPanel.wordNet().searchBySubstring(query, POS.ADV));
             }
             break;
           case PREFIX:
             if (pos != POS.ALL) {
-              searchResults = browserPanel.dictionary().searchByPrefix(query, pos);
+              searchResults = browserPanel.wordNet().searchByPrefix(query, pos);
             } else {
               searchResults = MergedIterable.merge(
-                  browserPanel.dictionary().searchByPrefix(query, POS.NOUN),
-                  browserPanel.dictionary().searchByPrefix(query, POS.VERB),
-                  browserPanel.dictionary().searchByPrefix(query, POS.ADJ),
-                  browserPanel.dictionary().searchByPrefix(query, POS.ADV));
+                  browserPanel.wordNet().searchByPrefix(query, POS.NOUN),
+                  browserPanel.wordNet().searchByPrefix(query, POS.VERB),
+                  browserPanel.wordNet().searchByPrefix(query, POS.ADJ),
+                  browserPanel.wordNet().searchByPrefix(query, POS.ADV));
             }
             break;
 //          case GLOSS_SUBSTRING:
 //            searchResults = MergedIterable.merge(
-//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.NOUN),
-//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.VERB),
-//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.ADJ),
-//                  browserPanel.dictionary().searchGlossBySubstring(query, POS.ADV));
+//                  browserPanel.wordNet().searchGlossBySubstring(query, POS.NOUN),
+//                  browserPanel.wordNet().searchGlossBySubstring(query, POS.VERB),
+//                  browserPanel.wordNet().searchGlossBySubstring(query, POS.ADJ),
+//                  browserPanel.wordNet().searchGlossBySubstring(query, POS.ADV));
 //            break;
           default:
             throw new IllegalArgumentException("unsupported SearchType "+searchType);
@@ -288,18 +288,18 @@ class SearchFrame extends JDialog {
         final String lemma = searchListModel.getElementAt(index).toString();
         Word word = null;
         if (pos != POS.ALL) {
-          word = browserPanel.dictionary().lookupWord(lemma, pos);
+          word = browserPanel.wordNet().lookupWord(lemma, pos);
         } else {
           // do lookup for all POS and return first hit
-          word = browserPanel.dictionary().lookupWord(lemma, POS.NOUN);
+          word = browserPanel.wordNet().lookupWord(lemma, POS.NOUN);
           if (word == null) {
-            word = browserPanel.dictionary().lookupWord(lemma, POS.VERB);
+            word = browserPanel.wordNet().lookupWord(lemma, POS.VERB);
           }
           if (word == null) {
-            word = browserPanel.dictionary().lookupWord(lemma, POS.ADJ);
+            word = browserPanel.wordNet().lookupWord(lemma, POS.ADJ);
           }
           if (word == null) {
-            word = browserPanel.dictionary().lookupWord(lemma, POS.ADV);
+            word = browserPanel.wordNet().lookupWord(lemma, POS.ADV);
           }
         }
         if (word == null) {

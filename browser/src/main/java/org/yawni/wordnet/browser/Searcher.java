@@ -163,10 +163,10 @@ public class Searcher {
     System.out.println(xmlString);
   }
 
-  private static void trueCaseLemmatize(final WordNetInterface dictionary, final String word, final Appendable output) throws Exception {
+  private static void trueCaseLemmatize(final WordNetInterface wn, final String word, final Appendable output) throws Exception {
     for (final POS pos : POS.CATS) {
       boolean posShown = false;
-      for (final String lemma : dictionary.lookupBaseForms(word, pos)) {
+      for (final String lemma : wn.lookupBaseForms(word, pos)) {
         if (posShown == false) {
           output.append(pos.name());
           output.append(' ');
@@ -177,7 +177,7 @@ public class Searcher {
       }
     }
     // using POS.ALL - slightly more efficient, but can't know POS of stem
-    //for (final String lemma : dictionary.lookupBaseForms(word, POS.ALL)) {
+    //for (final String lemma : wn.lookupBaseForms(word, POS.ALL)) {
     //  output.append(lemma);
     //  output.append(" ");
     //}
@@ -190,14 +190,14 @@ public class Searcher {
   // Goal2: make any-of-Set<RelationType> Iterator
 
   public static void main(String[] args) throws Exception {
-    final WordNetInterface dictionary = WordNet.getInstance();
+    final WordNetInterface wn = WordNet.getInstance();
     final Appendable output = System.out;
     final Scanner scanner = new Scanner(System.in);
     while (scanner.hasNext()) {
       final String word = scanner.next();
       output.append(word);
       output.append(' ');
-      trueCaseLemmatize(dictionary, word, output);
+      trueCaseLemmatize(wn, word, output);
       output.append('\n');
     }
   }

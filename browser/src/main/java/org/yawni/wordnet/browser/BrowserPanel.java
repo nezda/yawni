@@ -60,7 +60,7 @@ import org.yawni.util.WordCaseUtils;
 public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
 //  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
-  WordNetInterface dictionary() {
+  WordNetInterface wordNet() {
     return WordNet.getInstance();
   }
   private final Browser browser;
@@ -526,11 +526,11 @@ public class BrowserPanel extends JPanel {
         @Override
         public Void doInBackground() {
           final String inputString = BrowserPanel.this.searchField.getText().trim();
-          Word word = BrowserPanel.this.dictionary().lookupWord(inputString, pos);
+          Word word = BrowserPanel.this.wordNet().lookupWord(inputString, pos);
           if (word == null) {
-            final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
+            final List<String> forms = wordNet().lookupBaseForms(inputString, pos);
             assert ! forms.isEmpty() : "searchField contents must have changed";
-            word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), pos);
+            word = BrowserPanel.this.wordNet().lookupWord(forms.get(0), pos);
            }
           if (relationType == null) {
             //FIXME bad form to use stderr
@@ -568,11 +568,11 @@ public class BrowserPanel extends JPanel {
     public void actionPerformed(final ActionEvent evt) {
       //FIXME have to do morphstr logic here
       final String inputString = BrowserPanel.this.searchField.getText().trim();
-      Word word = BrowserPanel.this.dictionary().lookupWord(inputString, POS.VERB);
+      Word word = BrowserPanel.this.wordNet().lookupWord(inputString, POS.VERB);
       if (word == null) {
-        final List<String> forms = dictionary().lookupBaseForms(inputString, POS.VERB);
+        final List<String> forms = wordNet().lookupBaseForms(inputString, POS.VERB);
         assert ! forms.isEmpty() : "searchField contents must have changed";
-        word = BrowserPanel.this.dictionary().lookupWord(forms.get(0), POS.VERB);
+        word = BrowserPanel.this.wordNet().lookupWord(forms.get(0), POS.VERB);
         assert ! forms.isEmpty();
       }
       displayVerbFrames(word);
@@ -621,9 +621,9 @@ public class BrowserPanel extends JPanel {
         // Note: lookupWord() only touches index.<pos> files
         final String inputString = "clear";
         for (final POS pos : POS.CATS) {
-          final List<String> forms = dictionary().lookupBaseForms(inputString, pos);
+          final List<String> forms = wordNet().lookupBaseForms(inputString, pos);
           for (final String form : forms) {
-            final Word word = dictionary().lookupWord(form, pos);
+            final Word word = wordNet().lookupWord(form, pos);
             word.toString();
           }
         }
@@ -672,7 +672,7 @@ public class BrowserPanel extends JPanel {
     final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
-      List<String> forms = dictionary().lookupBaseForms(inputString, pos);
+      List<String> forms = wordNet().lookupBaseForms(inputString, pos);
       assert forms != null;
       //XXX debug crap
       boolean found = false;
@@ -697,7 +697,7 @@ public class BrowserPanel extends JPanel {
           continue;
         }
         noCaseForms.add(form);
-        final Word word = dictionary().lookupWord(form, pos);
+        final Word word = wordNet().lookupWord(form, pos);
         //XXX System.err.println("  BrowserPanel form: \""+form+"\" pos: "+pos+" Word found?: "+(word != null));
         enabled |= (word != null);
         appendSenses(word, buffer, false);
