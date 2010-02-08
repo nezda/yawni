@@ -1,7 +1,8 @@
 #!/bin/bash
 # Run the browser
 #set -v
-VERSION=2.0.0-SNAPSHOT
+YAWNI_VERSION=2.0.0-SNAPSHOT
+SLF4J_VERSION=1.5.10
 ASSERT_ENABLE="-ea"
 # system assertions (-esa) cause tons of logging on OS X ([AWT-\d+] ...)
 #ASSERT_ENABLE="-ea -esa"
@@ -13,26 +14,35 @@ java='java'
 # read data from jar (unset any local WNHOME system property)
 #unset WNHOME
 #wnhome=$WNHOME
-unset WNHOME
-#CLASSPATH=./core/target/yawni-core-$VERSION.jar:./data/target/yawni-data-$VERSION.jar
+#unset WNHOME
 echo "WNHOME: $WNHOME wnhome: $wnhome";
 MVN_REPO=$HOME/.m2/repository/
 # classpath when slf4j is not "shaded" into jar
-#CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-core/$VERSION/yawni-core-$VERSION.jar:$MVN_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar:$MVN_REPO/org/slf4j/slf4j-jdk14/1.5.8/slf4j-jdk14-1.5.8.jar
+#CLASSPATH=$MVN_REPO/org/yawni/yawni-wordnet-api/$YAWNI_VERSION/yawni-wordnet-api-$YAWNI_VERSION.jar:$MVN_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar:$MVN_REPO/org/slf4j/slf4j-jdk14/1.5.8/slf4j-jdk14-1.5.8.jar
 # simple single jar classpath without data jar
-CLASSPATH=$MVN_REPO/org/yawni/wn/yawni-browser/$VERSION/yawni-browser-$VERSION.jar
+#CLASSPATH=$MVN_REPO/org/yawni/yawni-wordnet-browser/$YAWNI_VERSION/yawni-wordnet-browser-$YAWNI_VERSION.jar:$MVN_REPO/org/slf4j/slf4j-api/$SLF4J_VERSION/slf4j-api-$SLF4J_VERSION.jar:$MVN_REPO/org/slf4j/slf4j-log4j12/$SLF4J_VERSION/slf4j-log4j12-$SLF4J_VERSION.jar:$MVN_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar
+# rigged up to test missing jar failure mode
+# note there's mvn dependency:build-classpath
+CLASSPATH=/Users/nezda/cvs/yawni.git/browser/target/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar
 # append data jar to classpath
-CLASSPATH=$CLASSPATH:$MVN_REPO/org/yawni/wn/yawni-data/$VERSION/yawni-data-$VERSION.jar
+#CLASSPATH=$CLASSPATH:$MVN_REPO/org/yawni/wordnet/yawni-data/$VERSION/yawni-wordnet-data-$VERSION.jar
 # outter parens make this a Bash array of space separated elements
+#JVM_ARGS+=()
 JVM_ARGS=(-Xdock:name="Yawni Browser")
-#JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wn/log4j.properties)
+#JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/log4j.properties)
+JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/browser/log4j.properties)
 JVM_ARGS+=(-Dfile.encoding=UTF-8)
 JVM_ARGS+=(-d32)
+# no longer works
+JVM_ARGS+=(-Dapple.awt.brushMetalLook="true")
+#JVM_ARGS+=(-XX:+AggressiveOpts)
+#JVM_ARGS+=(-XX:+UseFastAccessorMethods)
 # need lots RAM for huge searches (e.g., all hyponyms of "person")
 #JVM_ARGS+=(-Xmx96m)
 #JVM_ARGS+=(-Dfile.encoding=US-ASCII)
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
-$java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wn.browser.Browser "$@"
+$java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
 
-#java -cp $HOME/.m2/repository/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar:$HOME/.m2/repository/org/slf4j/slf4j-nop/1.5.8/slf4j-nop-1.5.8.jar:target/classes/:target/test-classes/ org.yawni.util.cache.BloomFilters
+# much easier to use Maven tool to build classpath: mvn dependency:build-classpath
+#java -cp $HOME/.m2/repository/org/slf4j/slf4j-api/1.5.10/slf4j-api-1.5.10.jar:$HOME/.m2/repository/org/slf4j/slf4j-nop/1.5.10/slf4j-nop-1.5.10.jar:target/classes/:target/test-classes/ org.yawni.util.cache.BloomFilters
