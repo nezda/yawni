@@ -23,8 +23,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.WordNetInterface;
+import org.yawni.wordnet.WordNet;
 import org.yawni.wordnet.POS;
 import org.yawni.wordnet.Word;
 import org.yawni.wordnet.WordNetLexicalComparator;
@@ -37,7 +37,7 @@ import org.yawni.wordnet.WordNetLexicalComparator;
 class BloomFilters {
   public static void main(String[] args) throws Exception {
     final double fpProb = 0.001;
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+    final WordNetInterface dictionary = WordNet.getInstance();
     for (final POS pos : POS.CATS) {
       int count = 0;
       for (final Word word : dictionary.words(pos)) {

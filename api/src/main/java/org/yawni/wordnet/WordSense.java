@@ -345,7 +345,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       // and really we wouldn't need to look at sense (numbers) exceeding that value
       // as an optimization
       final CharSequence senseKey = getSenseKey();
-      final FileBackedDictionary dictionary = synset.fileBackedDictionary;
+      final WordNet dictionary = synset.fileBackedDictionary;
       final String line = dictionary.lookupCntlistDotRevLine(senseKey);
       int count = 0;
       if (line != null) {
@@ -448,7 +448,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       return ImmutableList.of();
     }
     final CharSequence senseKey = getSenseKey();
-    final FileBackedDictionary dictionary = synset.fileBackedDictionary;
+    final WordNet dictionary = synset.fileBackedDictionary;
     final String sentenceNumbers = dictionary.lookupVerbSentencesNumbers(senseKey);
     List<String> frames = ImmutableList.of();
     if (sentenceNumbers != null) {
@@ -519,7 +519,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   public int getCoreRank() {
     if (coreRank == 0) {
       final CharSequence senseKey = getSenseKey();
-      final FileBackedDictionary dictionary = synset.fileBackedDictionary;
+      final WordNet dictionary = synset.fileBackedDictionary;
       final String line;
       try {
         line = dictionary.lookupCoreRankLine(senseKey);

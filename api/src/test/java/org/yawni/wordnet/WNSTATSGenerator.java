@@ -26,7 +26,7 @@ import org.yawni.util.Utils;
  */
 public class WNSTATSGenerator {
   public static void main(String[] args) {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+    final WordNetInterface dictionary = WordNet.getInstance();
     System.out.println("Number of words, synsets, and senses");
     
     //POS     Unique    Synsets     Total
@@ -110,7 +110,7 @@ public class WNSTATSGenerator {
       totalUniqueWordStrings);
   }
 
-  private static long monosemousWordCount(final POS pos, final DictionaryDatabase dictionary) {
+  private static long monosemousWordCount(final POS pos, final WordNetInterface dictionary) {
     long monosemousWordCount = 0;
     for (final Word word : dictionary.words(pos)) {
       if (word.getWordSenses().size() == 1) {
@@ -120,7 +120,7 @@ public class WNSTATSGenerator {
     return monosemousWordCount;
   }
 
-  private static long polysemousWordCount(final POS pos, final DictionaryDatabase dictionary) {
+  private static long polysemousWordCount(final POS pos, final WordNetInterface dictionary) {
     long polysemousWordCount = 0;
     for (final Word word : dictionary.words(pos)) {
       if (word.getWordSenses().size() > 1) {
@@ -130,7 +130,7 @@ public class WNSTATSGenerator {
     return polysemousWordCount;
   }
 
-  private static long polysemousWordSensesCount(final POS pos, final DictionaryDatabase dictionary) {
+  private static long polysemousWordSensesCount(final POS pos, final WordNetInterface dictionary) {
     long polysemousWordSenseCount = 0;
     for (final Word word : dictionary.words(pos)) {
       final int numSenses = word.getWordSenses().size();

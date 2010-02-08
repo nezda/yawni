@@ -23,11 +23,11 @@ import java.util.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class DictionaryDatabaseTest {
-  private static DictionaryDatabase dictionary;
+public class WordNetInterfaceTest {
+  private static WordNetInterface dictionary;
   @BeforeClass
   public static void init() {
-    dictionary = FileBackedDictionary.getInstance();
+    dictionary = WordNet.getInstance();
   }
 
   /** 

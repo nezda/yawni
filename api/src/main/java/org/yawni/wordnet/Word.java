@@ -43,7 +43,7 @@ import org.yawni.util.ImmutableList;
 public final class Word implements Comparable<Word>, Iterable<WordSense> {
   private static final Logger log = LoggerFactory.getLogger(Word.class.getName());
 
-  private final FileBackedDictionary fileBackedDictionary;
+  private final WordNet fileBackedDictionary;
   /** offset in <code>index.<em>pos</em></code> file; {@code Index.idxoffset} in {@code wn.h} */
   private final int offset;
   /**
@@ -66,7 +66,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   //
   // Constructor
   //
-  Word(final CharSequence line, final int offset, final FileBackedDictionary fileBackedDictionary) {
+  Word(final CharSequence line, final int offset, final WordNet fileBackedDictionary) {
     this.fileBackedDictionary = fileBackedDictionary;
     try {
       log.trace("parsing line: {}", line);

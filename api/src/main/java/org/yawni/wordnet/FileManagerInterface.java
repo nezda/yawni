@@ -52,7 +52,7 @@ import java.util.regex.Matcher;
  * after {@code readLineAt} in order to eliminate the redundant I/O activity that a naïve implementation
  * of these methods would necessitate.
  */
-public interface FileManagerInterface {
+interface FileManagerInterface {
   /**
    * Binary searches for line whose first word <em>is</em> {@code target} (that
    * is, that begins with {@code target} followed by a space or dash) in

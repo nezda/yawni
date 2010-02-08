@@ -26,8 +26,8 @@ import org.yawni.util.ImmutableList;
 import org.yawni.util.Preconditions;
 
 /**
- * Handler for {@link FileBackedDictionary#synsets(java.lang.String)} and
- * {@link FileBackedDictionary#wordSenses(java.lang.String)}.
+ * Handler for {@link WordNet#synsets(java.lang.String)} and
+ * {@link WordNet#wordSenses(java.lang.String)}.
  */
 // Most comands are "filter"s
 // Command composition would be sweet
@@ -40,7 +40,7 @@ enum Command {
    */
   OFFSET {
     @Override
-    void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
+    void act(final EnumMap<Command, String> cmdToValue, final WordNet dict) {
       final String value = cmdToValue.get(OFFSET);
       Preconditions.checkArgument(value != null);
       final int num;
@@ -98,7 +98,7 @@ enum Command {
    */
   POS {
     @Override
-    void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
+    void act(final EnumMap<Command, String> cmdToValue, final WordNet dict) {
       throw new UnsupportedOperationException("Not yet implemented");
     }
     @Override
@@ -152,7 +152,7 @@ enum Command {
    * @param cmdToValue name=value parameter map
    * @param dict
    */
-  void act(final EnumMap<Command, String> cmdToValue, final FileBackedDictionary dict) {
+  void act(final EnumMap<Command, String> cmdToValue, final WordNet dict) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 

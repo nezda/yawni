@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @see FileBackedDictionary
  */
-public interface DictionaryDatabase {
+public interface WordNetInterface {
   /**
    * Look up a {@code Word} in the database by its <strong>lemma</strong>.  The search is
    * case-independent and phrases are separated by spaces (e.g., "look up", not

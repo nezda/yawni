@@ -20,8 +20,8 @@ import org.yawni.wordnet.Synset;
 import org.yawni.wordnet.WordSense;
 import org.yawni.wordnet.Word;
 import org.yawni.wordnet.POS;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.WordNetInterface;
+import org.yawni.wordnet.WordNet;
 
 import java.io.*;
 import java.util.*;
@@ -163,7 +163,7 @@ public class Searcher {
     System.out.println(xmlString);
   }
 
-  private static void trueCaseLemmatize(final DictionaryDatabase dictionary, final String word, final Appendable output) throws Exception {
+  private static void trueCaseLemmatize(final WordNetInterface dictionary, final String word, final Appendable output) throws Exception {
     for (final POS pos : POS.CATS) {
       boolean posShown = false;
       for (final String lemma : dictionary.lookupBaseForms(word, pos)) {
@@ -190,7 +190,7 @@ public class Searcher {
   // Goal2: make any-of-Set<RelationType> Iterator
 
   public static void main(String[] args) throws Exception {
-    final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+    final WordNetInterface dictionary = WordNet.getInstance();
     final Appendable output = System.out;
     final Scanner scanner = new Scanner(System.in);
     while (scanner.hasNext()) {

@@ -56,7 +56,7 @@ public class ThreadSafetyTest {
 
     protected void antagonize() {
       System.err.println(Thread.currentThread()+" starting...");
-      final DictionaryDatabase dictionary = FileBackedDictionary.getInstance();
+      final WordNetInterface dictionary = WordNet.getInstance();
       try {
         for (final Word word : dictionary.words(POS.ALL)) {
           ++wordsVisited;

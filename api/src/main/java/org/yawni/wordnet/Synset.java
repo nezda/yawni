@@ -47,14 +47,14 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   // Instance implementation
   //
   /** package private for use by WordSense */
-  final FileBackedDictionary fileBackedDictionary;
+  final WordNet fileBackedDictionary;
   /** offset in <code>data.<em>pos</em></code> file; {@code Synset.hereiam} in {@code wn.h} */
   private final int offset;
   private final ImmutableList<WordSense> wordSenses;
   // TODO consider storing Relations indirectly
   // (all have common source == this?)
   // pos, synset offset, optionally Synset WordSense rank (NOT sense number which is Word-relative rank)
-  // also requires FileBackedDictionary ref
+  // also requires WordNet ref
   // increases Synset's direct 32-bit size
   // to 4+1+4+2 = 11 B, though may be able to pack synset offset and rank into less bytes
   // ! SoftReference is the way to go here !
@@ -66,7 +66,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   //
   // Constructor
   //
-  Synset(final String line, final FileBackedDictionary fileBackedDictionary) {
+  Synset(final String line, final WordNet fileBackedDictionary) {
     this.fileBackedDictionary = fileBackedDictionary;
     final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
     this.offset = tokenizer.nextInt();

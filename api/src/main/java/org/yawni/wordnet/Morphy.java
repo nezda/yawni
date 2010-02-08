@@ -28,7 +28,7 @@ import org.yawni.util.ImmutableList;
 import org.yawni.util.cache.Caches;
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.Utils;
-import org.yawni.wordnet.FileBackedDictionary.DatabaseKey;
+import org.yawni.wordnet.WordNet.DatabaseKey;
 
 /**
  * Java port of {@code morph.c}'s {@code morphstr} - WordNet's search
@@ -93,13 +93,13 @@ class Morphy {
     "between",
   };
 
-  private final FileBackedDictionary dictionary;
+  private final WordNet dictionary;
   private final Cache<DatabaseKey, ImmutableList<String>> morphyCache;
 
-  Morphy(final FileBackedDictionary dictionary) {
+  Morphy(final WordNet dictionary) {
     this.dictionary = dictionary;
     // 0 capacity is for performance debugging
-    final int morphyCacheCapacity = FileBackedDictionary.DEFAULT_CACHE_CAPACITY;
+    final int morphyCacheCapacity = WordNet.DEFAULT_CACHE_CAPACITY;
     this.morphyCache = Caches.withCapacity(morphyCacheCapacity);
   }
 
@@ -114,8 +114,8 @@ class Morphy {
    *   <li> Change ' ''s (spaces) to '_' (underscores) to allow searches to pass </li>
    * </ul>
    *
-   * <p> Also used in {@link FileBackedDictionary.SearchBySubstringIterator} and
-   * {@link FileBackedDictionary.SearchByPrefixIterator}.
+   * <p> Also used in {@link WordNet.SearchBySubstringIterator} and
+   * {@link WordNet.SearchByPrefixIterator}.
    */
   static String searchNormalize(String origstr) {
     final int underscore = origstr.indexOf('_');
@@ -204,7 +204,7 @@ class Morphy {
     }
 
     //TODO cache would have more coverage if searchNormalize()'d variant were used
-    final FileBackedDictionary.DatabaseKey cacheKey = new FileBackedDictionary.StringPOSDatabaseKey(origstr, pos);
+    final WordNet.DatabaseKey cacheKey = new WordNet.StringPOSDatabaseKey(origstr, pos);
     final ImmutableList<String> cached = morphyCache.get(cacheKey);
     if (cached != null) {
       //FIXME doesn't cache null (i.e., combinations not in WordNet)

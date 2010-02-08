@@ -46,7 +46,7 @@ import java.util.regex.Matcher;
  * are synchronized per file to maintain state including the file pointers'
  * position.
  */
-public final class FileManager implements FileManagerInterface {
+final class FileManager implements FileManagerInterface {
   private static final Logger log = LoggerFactory.getLogger(FileManager.class.getName());
 
 //  private String searchDirectory;

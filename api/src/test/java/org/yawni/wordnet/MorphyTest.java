@@ -46,10 +46,10 @@ import static org.fest.assertions.Assertions.assertThat;
  * TODO consider proper Parameterized tests
  */
 public class MorphyTest {
-  private DictionaryDatabase dictionary;
+  private WordNetInterface dictionary;
   @Before
   public void init() {
-    dictionary = FileBackedDictionary.getInstance();
+    dictionary = WordNet.getInstance();
   }
   
   @Test
@@ -243,7 +243,7 @@ public class MorphyTest {
 
   @Test
   public void testGetExceptions() {
-    final FileBackedDictionary fileBackedDictionary = (FileBackedDictionary) dictionary;
+    final WordNet fileBackedDictionary = (WordNet) dictionary;
     String lemma;
     lemma = "";
     assertThat(fileBackedDictionary.getExceptions(lemma, POS.NOUN)).isEmpty();

@@ -34,12 +34,12 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  * Goal: verify various iteration methods of dictionary behave as expected.
  */
 public class IterationTest {
-  private DictionaryDatabase dictionary;
+  private WordNetInterface dictionary;
   private Random rand;
   
   @Before
   public void init() {
-    dictionary = FileBackedDictionary.getInstance();
+    dictionary = WordNet.getInstance();
     // keep the test deterministic
     rand = new Random(0);
   }

@@ -52,12 +52,12 @@ import org.yawni.util.cache.Caches;
 import org.yawni.wordnet.WordSense.AdjPosition;
 
 /** 
- * A {@code DictionaryDatabase} that retrieves objects from the text files in the WordNet distribution
+ * A {@code WordNetInterface} that retrieves objects from the text files in the WordNet distribution
  * directory (typically <tt><em>$WNHOME</em>/dict/</tt>), or from a properly organized jar file containing it;
- * typical users will use {@link FileBackedDictionary#getInstance()} to get the canonical instance of this
+ * typical users will use {@link WordNet#getInstance()} to get the canonical instance of this
  * class.
  *
- * <p> A {@code FileBackedDictionary} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
+ * <p> A {@code WordNet} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
  * calls to {@link #lookupWord} with the same parameters would return the same value
  * ({@code ==} as well as {@code equals}), as would traversal of two {@link Relation}s
@@ -65,12 +65,12 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  * two different ({@code !=}, but still {@code equals}) objects to represent the same entity, 
  * if their retrieval is separated by other database operations.
  *
- * @see DictionaryDatabase
+ * @see WordNetInterface
  * @see Cache
  * @see LRUCache
  */
-public final class FileBackedDictionary implements DictionaryDatabase {
-  private static final Logger log = LoggerFactory.getLogger(FileBackedDictionary.class.getName());
+public final class WordNet implements WordNetInterface {
+  private static final Logger log = LoggerFactory.getLogger(WordNet.class.getName());
 
   private final FileManagerInterface fileManager;
   final Morphy morphy;
@@ -80,9 +80,9 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   //
 
   /**
-   * Construct a {@link DictionaryDatabase} that retrieves file data from {@code fileManager}.
+   * Construct a {@link WordNetInterface} that retrieves file data from {@code fileManager}.
    */
-  private FileBackedDictionary(final FileManagerInterface fileManager) {
+  private WordNet(final FileManagerInterface fileManager) {
     this.fileManager = fileManager;
     this.morphy = new Morphy(this);
   }
@@ -93,7 +93,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * See {@link FileManager} for a description of the location of the default
    * WordNet search directory ({@code $WNSEARCHDIR}).
    */
-  FileBackedDictionary() {
+  WordNet() {
     this(new FileManager());
   }
 
@@ -101,7 +101,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * Construct a dictionary backed by a set of files contained in
    * {@code search directory}.
    */
-//  FileBackedDictionary(final String searchDirectory) {
+//  WordNet(final String searchDirectory) {
 //    this(new FileManager(searchDirectory));
 //  }
 
@@ -109,7 +109,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   // http://tech.puredanger.com/2007/06/15/double-checked-locking/
   private static final class InstanceHolder {
     /** singleton reference */
-    static final FileBackedDictionary instance = new FileBackedDictionary();
+    static final WordNet instance = new WordNet();
   } // end class InstanceHolder
 
   /**
@@ -118,7 +118,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * See {@link FileManager} for a description of the location of the default
    * WordNet search directory ({@code $WNSEARCHDIR}).
    */
-  public static FileBackedDictionary getInstance() {
+  public static WordNet getInstance() {
     return InstanceHolder.instance;
   }
 
@@ -127,18 +127,18 @@ public final class FileBackedDictionary implements DictionaryDatabase {
    * in {@code searchDirectory}.
    */
   //FIXME ignores passed in searchDirectory reference
-//  public static FileBackedDictionary getInstance(final String searchDirectory) {
+//  public static WordNet getInstance(final String searchDirectory) {
 //    return InstanceHolder.instance;
 //  }
 
   /**
-   * Factory method to get <em>the</em> {@link DictionaryDatabase} that retrieves file data from
+   * Factory method to get <em>the</em> {@link WordNetInterface} that retrieves file data from
    * {@code fileManager}.  A client can use this to create a
-   * {@link DictionaryDatabase} backed by a {@link RemoteFileManager}.
+   * {@link WordNetInterface} backed by a {@link RemoteFileManager}.
    * @see RemoteFileManager
    */
   //FIXME ignores passed in fileManager reference
-//  public static FileBackedDictionary getInstance(final FileManagerInterface fileManager) {
+//  public static WordNet getInstance(final FileManagerInterface fileManager) {
 //    return InstanceHolder.instance;
 //  }
 
@@ -415,7 +415,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   // look in classpath for filters
   private static BloomFilter<CharSequence> getResource(final String resourceName) {
     try {
-      final URL url = FileBackedDictionary.class.getClassLoader().getResource(resourceName);
+      final URL url = WordNet.class.getClassLoader().getResource(resourceName);
       if (url == null) {
         log.info("resourceName: {} not found!", resourceName);
         return null;
@@ -906,7 +906,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   } // end class AbstractWordIterator
   
   /**
-   * @see DictionaryDatabase#words
+   * @see WordNetInterface#words
    */
   private class WordIterator extends AbstractWordIterator {
     WordIterator(final POS pos) {
@@ -922,7 +922,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
         if (line == null) {
           return endOfData();
         }
-        return new Word(line, offset, FileBackedDictionary.this);
+        return new Word(line, offset, WordNet.this);
       } catch (final IOException e) {
         throw new RuntimeException(e);
       }
@@ -947,7 +947,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#searchBySubstring
+   * @see WordNetInterface#searchBySubstring
    */
   private class SearchBySubstringIterator extends AbstractWordIterator {
     private final Matcher matcher;
@@ -993,7 +993,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#searchByPrefix
+   * @see WordNetInterface#searchByPrefix
    */
   private class SearchByPrefixIterator extends AbstractIterator<Word> {
     private final POS pos;
@@ -1041,7 +1041,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#searchGlossBySubstring
+   * @see WordNetInterface#searchGlossBySubstring
    */
   private class SearchGlossBySubstringIterator extends AbstractIterator<Synset> {
     private final Iterator<Synset> syns;
@@ -1135,7 +1135,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   } // end class AdjPositionIterator
 
   /**
-   * @see DictionaryDatabase#synsets
+   * @see WordNetInterface#synsets
    */
   private class POSSynsetsIterator extends AbstractIterator<Synset> {
     private final POS pos;
@@ -1186,7 +1186,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#wordSenses
+   * @see WordNetInterface#wordSenses
    */
   private class POSWordSensesIterator extends UnmodifiableIterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
@@ -1222,7 +1222,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#relations
+   * @see WordNetInterface#relations
    */
   private class POSRelationsIterator extends UnmodifiableIterator<Relation> {
     private final Iterator<Relation> relations;
@@ -1276,7 +1276,7 @@ public final class FileBackedDictionary implements DictionaryDatabase {
   }
 
   /**
-   * @see DictionaryDatabase#exceptions
+   * @see WordNetInterface#exceptions
    */
   private class POSExceptionsIterator extends AbstractIterator<List<String>> {
     private final POS pos;

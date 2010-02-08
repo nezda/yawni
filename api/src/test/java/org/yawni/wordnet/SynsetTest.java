@@ -29,10 +29,10 @@ import static org.yawni.util.Utils.contains;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SynsetTest {
-  private static DictionaryDatabase dictionary;
+  private static WordNetInterface dictionary;
   @BeforeClass
   public static void init() {
-    dictionary = FileBackedDictionary.getInstance();
+    dictionary = WordNet.getInstance();
   }
 
   @Test

@@ -17,8 +17,8 @@
 package org.yawni.wordnet.browser;
 
 import org.yawni.util.Utils;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.WordNetInterface;
+import org.yawni.wordnet.WordNet;
 import org.yawni.wordnet.POS;
 import org.yawni.wordnet.Relation;
 import org.yawni.wordnet.RelationTarget;
@@ -60,8 +60,8 @@ import org.yawni.util.WordCaseUtils;
 public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
 //  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
-  DictionaryDatabase dictionary() {
-    return FileBackedDictionary.getInstance();
+  WordNetInterface dictionary() {
+    return WordNet.getInstance();
   }
   private final Browser browser;
   private String currentlyDisplayedValue;

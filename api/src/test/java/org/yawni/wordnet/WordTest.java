@@ -21,10 +21,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class WordTest {
-  private static DictionaryDatabase dictionary;
+  private static WordNetInterface dictionary;
   @BeforeClass
   public static void init() {
-    dictionary = FileBackedDictionary.getInstance();
+    dictionary = WordNet.getInstance();
   }
 
   @Test

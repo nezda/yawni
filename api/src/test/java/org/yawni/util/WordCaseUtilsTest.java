@@ -19,17 +19,17 @@ package org.yawni.util;
 import org.yawni.util.WordCaseUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.yawni.wordnet.DictionaryDatabase;
-import org.yawni.wordnet.FileBackedDictionary;
+import org.yawni.wordnet.WordNetInterface;
+import org.yawni.wordnet.WordNet;
 import org.yawni.wordnet.POS;
 import org.yawni.wordnet.Word;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class WordCaseUtilsTest {
-  private DictionaryDatabase dictionary;
+  private WordNetInterface dictionary;
   @Before
   public void init() {
-    dictionary = FileBackedDictionary.getInstance();
+    dictionary = WordNet.getInstance();
   }
 
   @Test
