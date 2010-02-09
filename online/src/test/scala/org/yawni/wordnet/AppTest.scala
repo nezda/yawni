@@ -1,4 +1,4 @@
-package org.yawni.wn
+package org.yawni.wordnet
 
 import _root_.java.io.File
 import _root_.junit.framework._

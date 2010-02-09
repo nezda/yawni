@@ -15,7 +15,7 @@ import org.yawni.wordnet._;
 class Boot {
   def boot {
     // where to search snippet
-    LiftRules.addToPackages("org.yawni.wn")
+    LiftRules.addToPackages("org.yawni.wordnet")
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil

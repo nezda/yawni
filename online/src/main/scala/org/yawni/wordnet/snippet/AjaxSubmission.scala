@@ -1,4 +1,4 @@
-package org.yawni.wn.snippet
+package org.yawni.wordnet.snippet
 
 import net.liftweb.http.S
 import net.liftweb.http.SHtml

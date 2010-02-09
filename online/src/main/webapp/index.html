@@ -1,26 +1,12 @@
 <lift:surround with="default" at="content">
   <lift:Ajax.sample id_name="cnt_id" id_msgs="messages">
     <!--
-    <Ajax:clicker>
-      <span>Click me to increase the count (currently <span id='cnt_id'>0</span>)</span>
-    </Ajax:clicker>
-    <br/>
-    -->
-
-    <div id="messages"></div>
-
-    <!--
-    <Ajax:select>
-      You selected <sel:number/> From the select box.
-    </Ajax:select>
-    <br/>
-    -->
-
     <ajax:text>
       You entered <text:value/> in the text box.
     </ajax:text>
-
+    -->
+    <ajax:text/>
     <div id="resultz"></div>
-    
+    <div id="messages"></div>
   </lift:Ajax.sample>
 </lift:surround>
