@@ -1,0 +1,41 @@
+<lift:surround with="default" at="content">
+  <!--
+  <h2>Welcome to your project!</h2>
+  <p>
+    <lift:HelloWorld.howdy>
+      <span>Welcome to Yawni Online at <b:time/></span>
+    </lift:HelloWorld.howdy>
+  </p>
+  -->
+  <p>
+    <!-- <lift:snippet type="Submission:form" form="post" /> -->
+    <!-- <lift:snippet type="AjaxSubmission:form" form="ajax"/> -->
+  </p>
+
+  <lift:Ajax.sample id_name="cnt_id" id_msgs="messages">
+    <Ajax:clicker>
+      <span>Click me to increase the count (currently <span id='cnt_id'>0</span>)</span>
+    </Ajax:clicker>
+    <br/>
+
+    <div id="messages"></div>
+
+    <Ajax:select>
+      You selected <sel:number/> From the select box.
+    </Ajax:select>
+
+    <br/>
+    <Ajax:text>
+      You entered <text:value/> in the text box.
+    </Ajax:text>
+    
+    <!--
+    <br/>
+    
+    An example of autocomplete with a server round trip to
+    calculate the autocomplete list
+    <ajax:auto />
+    <br />
+    -->
+  </lift:Ajax.sample>
+</lift:surround>
