@@ -1,12 +1,13 @@
 package org.yawni.wordnet.snippet
 
-import scala.xml.{Text, NodeSeq}
-import net.liftweb.http.{S, SHtml}
+import scala.xml.{ Text, NodeSeq }
+import net.liftweb.http.{ S, SHtml }
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.util.Helpers._
 
 import org.yawni.wordnet._
+import org.yawni.wordnet.POS._
 import scala.collection.jcl.Conversions._
 
 class Ajax {
@@ -14,7 +15,7 @@ class Ajax {
   def sample(xhtml: NodeSeq): NodeSeq = {
     //// build up an ajax <a> tag to increment the counter
     //def doClicker(text: NodeSeq) =
-    //  a(() => {cnt = cnt + 1; SetHtml(spanName, Text(cnt.toString))}, text)
+    //  a(() => { cnt = cnt + 1; SetHtml(spanName, Text(cnt.toString)) }, text)
 
     //// create an ajax select box
     //def doSelect(msg: NodeSeq) =
@@ -43,23 +44,31 @@ class Ajax {
 
   def query(word: String): NodeSeq = {
     val wn = WordNet.getInstance
-
-    val nounResults = wn.lookupWordSenses(word, POS.NOUN)
-    //println("nounResults.size: "+nounResults.size);
-    //val verbResults = wn.lookupSynsets(word, POS.VERB)
-    //val adjResults = wn.lookupSynsets(word, POS.ADJ)
-    //val advResults = wn.lookupSynsets(word, POS.ADV)
-    
-    var results: NodeSeq = <h2>{word}</h2>
-    if (! nounResults.isEmpty) {
-      println("has nouns");
-      results ++= <h4>Noun</h4>
-      <ol>{
-        for (sense <- nounResults)
-          yield <li>{ sense.toString }</li>
-      }</ol>
+    var results: NodeSeq = <h2>“{ word }”</h2>
+    var inWordNet = false
+    // TODO add dividers between POS results
+    // TODO deal with case where there is stemming ambiguity (group by Word)
+    for (pos <- List(NOUN, VERB, ADJ, ADV)) {
+      val posResults = wn.lookupWordSenses(word, pos)
+      if (! posResults.isEmpty) {
+        inWordNet = true
+        results ++= <h4>{ pos.getLabel.capitalize }</h4>
+        <ol>{
+          for (sense <- posResults)
+            yield <li>{ render(sense) }</li>
+        }</ol>
+      }
     }
-    //println("results: "+results);
+    if (! inWordNet) {
+      results ++= <h4>No results found</h4>
+    }
     results
+  }
+
+  def render(sense: WordSense) = {
+    //sense.toString
+    //sense.getLongDescription
+    val verbose = false
+    sense.getSynset.getLongDescription(verbose)
   }
 }
