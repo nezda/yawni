@@ -1,12 +1,14 @@
 <lift:surround with="default" at="content">
   <lift:Ajax.sample id_name="cnt_id" id_msgs="messages">
-    <!--
-    <ajax:text>
-      You entered <text:value/> in the text box.
-    </ajax:text>
-    -->
-    <ajax:text/>
-    <div id="resultz"></div>
-    <div id="messages"></div>
+    <div class="span-16 last">
+      <!--
+      <ajax:text>
+        You entered <text:value/> in the text box.
+      </ajax:text>
+      -->
+      <p><ajax:text/></p>
+      <p id="resultz"></p>
+      <div id="messages"></div>
+    </div>
   </lift:Ajax.sample>
 </lift:surround>
