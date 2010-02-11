@@ -3,11 +3,11 @@
   <application>yawnionline</application>
   <version>3</version>
   <system-properties>
-    <property name="in.gae.j" value="true" />
+    <property name="in.gae.j" value="true"/>
   </system-properties>
   <sessions-enabled>true</sessions-enabled>
   <static-files>
-    <exclude path="/**" />
+    <include path="**.css"/>
   </static-files>
 </appengine-web-app>
 

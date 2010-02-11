@@ -1,12 +1,19 @@
 package bootstrap.liftweb
 
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.sitemap._
-import _root_.net.liftweb.sitemap.Loc._
+import net.liftweb.common._
+//import common.{Box, Full, Empty, Failure}
+import net.liftweb.util._
+//import util.{Helpers, Log, NamedPF, Props}
+import net.liftweb.http._
+import net.liftweb.sitemap._
+import net.liftweb.sitemap.Loc._
 import Helpers._
 import org.yawni.wordnet._;
+
+import _root_.net.liftweb._
+//import http._
+import provider._
+//import sitemap._
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -16,6 +23,8 @@ class Boot {
   def boot {
     // where to search snippet
     LiftRules.addToPackages("org.yawni.wordnet")
+
+    //LiftRules.fixCSS("css" :: Nil, Empty)
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
@@ -37,6 +46,23 @@ class Boot {
     val query = "was";
     //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
     //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
+    
+    LiftRules.early.append(makeUtf8)
+
+    // Dump browser information each time a new connection is made
+    LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing
+  }
+  private def makeUtf8(req: HTTPRequest): Unit = {req.setCharacterEncoding("UTF-8")}
+}
+
+object BrowserLogger {
+  object HaveSeenYou extends SessionVar(false)
+
+  def haveSeenYou(session: LiftSession, request: Req) {
+    if (!HaveSeenYou.is) {
+      Log.info("Created session " + session.uniqueId + " IP: {" + request.request.remoteAddress + "} UserAgent: {{" + request.userAgent.openOr("N/A") + "}}")
+      HaveSeenYou(true)
+    }
   }
 }
 
