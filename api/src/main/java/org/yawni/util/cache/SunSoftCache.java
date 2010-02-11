@@ -19,17 +19,19 @@ package org.yawni.util.cache;
 import java.util.Map;
 
 /**
- * Memory-sensitive {@code Cache} backed by {@link sun.misc.SoftCache} which
+ * Memory-sensitive {@code Cache} backed by {@link sun.misc.SunSoftCache} which
  * is based on {@link java.lang.ref.SoftReference}s.
  * All methods are thread-safe by brute-force synchronization.
+ * Due to usage of {@link sun.misc.SunSoftCache} (which is discouraged), this class
+ * is not compatible with Google App Engine.
  */
-public class SoftCache<K, V> implements Cache<K, V> {
+class SunSoftCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private final Map<K, V> backingMap;
 
   @SuppressWarnings("unchecked")
-  public SoftCache(final int initialCapacity) {
+  public SunSoftCache(final int initialCapacity) {
     this.backingMap = (Map<K, V>) new sun.misc.SoftCache(initialCapacity);
   }
 
