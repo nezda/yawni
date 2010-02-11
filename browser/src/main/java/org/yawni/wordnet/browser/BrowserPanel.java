@@ -672,7 +672,7 @@ public class BrowserPanel extends JPanel {
     final StringBuilder buffer = new StringBuilder();
     boolean definitionExists = false;
     for (final POS pos : POS.CATS) {
-      List<String> forms = wordNet().lookupBaseForms(inputString, pos);
+      final List<String> forms = wordNet().lookupBaseForms(inputString, pos);
       assert forms != null;
       //XXX debug crap
       boolean found = false;
@@ -683,8 +683,6 @@ public class BrowserPanel extends JPanel {
         }
       }
       if (! forms.isEmpty() && ! found) {
-//        System.err.println("    BrowserPanel inputString: \"" + inputString +
-//          "\" not found in forms: " + forms);
         log.error("    BrowserPanel inputString: \"{}\" not found in forms: {}",
           inputString, forms);
       }
