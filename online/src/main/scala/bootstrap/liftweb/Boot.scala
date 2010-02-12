@@ -15,6 +15,8 @@ import _root_.net.liftweb._
 import provider._
 //import sitemap._
 
+import org.yawni.wordnet.snippet._
+
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment
@@ -25,6 +27,8 @@ class Boot {
     LiftRules.addToPackages("org.yawni.wordnet")
 
     //LiftRules.fixCSS("css" :: Nil, Empty)
+
+    LiftRules.dispatch.prepend(Yawni.dispatch)
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
