@@ -22,7 +22,8 @@ package org.yawni.util.cache;
 public class Caches {
   /** Centralized {@link Cache} factory. */
   public static <K, V> Cache<K, V> withCapacity(final int capacity) {
-    return new SoftCache<K, V>(capacity);
+//    return new SunSoftCache<K, V>(capacity);
+    return new ConcurrentSoftCache<K, V>(capacity);
 //    return new LRUCache<K, V>(capacity);
 //    return new ConcurrentLRUCache<K, V>(capacity, LRU);
 //    return new ConcurrentLRUCache<K, V>(capacity, SECOND_CHANCE);
