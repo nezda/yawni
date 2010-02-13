@@ -1,9 +1,15 @@
 <lift:surround with="default" at="content">
   <lift:Ajax.sample id_name="cnt_id" id_msgs="messages">
-    <div class="span-16 last">
+    <div id="header" class="span-24 last">
+      <!-- <h1><img src="images/yawni_57x64_icon.png" alt="Yawni"/></h1> -->
+      <h1>Yawni Online</h1>
+    </div>
+    <div class="span-16 ">
       <ajax:text/>
       <div id="resultz"></div>
       <div id="messages"></div>
+    </div>
+    <div class="span-8 last">
     </div>
   </lift:Ajax.sample>
 </lift:surround>
