@@ -8,6 +8,7 @@
   <sessions-enabled>true</sessions-enabled>
   <static-files>
     <include path="**.css"/>
+    <include path="**.png"/>
   </static-files>
 </appengine-web-app>
 
