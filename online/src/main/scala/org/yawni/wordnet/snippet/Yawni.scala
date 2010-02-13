@@ -20,7 +20,7 @@ object Yawni {
   def dispatch: LiftRules.DispatchPF = {
     // Req(url_pattern_list, suffix, request_type)
     case Req("api" :: someString :: Nil, _, GetRequest) => () => Full(xmlResponse(someString))
-    case Req("about" :: Nil, _, GetRequest) => () Full(aboutResponse)
+    case Req("about" :: Nil, _, GetRequest) => () => Full(aboutResponse)
   }
 
   //def get = JsonResponse(JsArray(
@@ -33,7 +33,7 @@ object Yawni {
   //))
 
   def xmlResponse(someString: String) = {
-    XmlResponse(<html>{ query(someString) }</html>)
+    XmlResponse(<html> { query(someString) } </html>)
   }
 
   // report something like org.yawni.wordnet.browser.Application
@@ -73,8 +73,8 @@ object Yawni {
       }
     }
     if (results == NodeSeq.Empty) {
-      //println("No results found for: \""+someString+"\"")
-      results ++= <h4>No results found</h4>
+      if (someString.trim.length != 0)
+        results ++= <h4>No results found</h4>
     }
     //println(results)
     results
