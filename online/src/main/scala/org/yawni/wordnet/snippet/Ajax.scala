@@ -34,7 +34,8 @@ class Ajax {
       //                                 4 seconds, 1 second))
       
       //SHtml.ajaxText("", v => SetHtml("resultz", Text(query(v).toString)))
-      SHtml.ajaxText("Type a word to lookup in WordNet...", v => SetHtml("resultz", Yawni.query(v)))
+      //SHtml.ajaxText("Type a word to lookup in WordNet...", v => SetHtml("resultz", Yawni.query(v)), ("type", "search"), ("size", "50"))
+      FocusOnLoad(SHtml.ajaxText("", v => SetHtml("resultz", Yawni.query(v)), ("type", "search"), ("size", "50")))
 
     // bind the view to the functionality
     bind("ajax", xhtml,
