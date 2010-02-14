@@ -10,12 +10,11 @@ import net.liftweb.sitemap.Loc._
 import Helpers._
 import org.yawni.wordnet._;
 
-import _root_.net.liftweb._
-//import http._
+import net.liftweb._
 import provider._
-//import sitemap._
 
 import org.yawni.wordnet.snippet._
+import org.yawni.roundedcorners._
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -29,6 +28,7 @@ class Boot {
     //LiftRules.fixCSS("css" :: Nil, Empty)
 
     LiftRules.dispatch.prepend(Yawni.dispatch)
+    LiftRules.dispatch.prepend(RoundedCornerService.dispatch)
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
