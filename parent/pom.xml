@@ -480,6 +480,20 @@
               <!-- also have possibility of using <environmentVariables> -->
             </configuration>
           </plugin>
+          <!-- mvn doap:generate -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-doap-plugin</artifactId>
+            <version>1.0</version>
+            <configuration>
+             <doapOptions>
+               <programmingLanguage>java</programmingLanguage>
+             </doapOptions>
+             <asfExtOptions>
+               <included>false</included>
+             </asfExtOptions>
+            </configuration>
+          </plugin>
         </plugins>
       </build>
     </profile>
