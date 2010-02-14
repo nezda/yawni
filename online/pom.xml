@@ -95,6 +95,13 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <args>
+            <arg>-unchecked</arg>
+            <arg>-deprecation</arg>
+            <!-- <arg>-Xno-varargs-conversion</arg> -->
+          </args>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>net.sf.alchim</groupId>
