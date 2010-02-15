@@ -96,10 +96,14 @@
           </execution>
         </executions>
         <configuration>
+          <!-- <fork>false</fork> -->
+          <useFsc>true</useFsc>
+          <scalaVersion>${scala.version}</scalaVersion>
           <args>
             <arg>-unchecked</arg>
             <arg>-deprecation</arg>
             <!-- <arg>-Xno-varargs-conversion</arg> -->
+            <arg>-explaintypes</arg>
           </args>
         </configuration>
       </plugin>
