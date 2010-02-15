@@ -6,11 +6,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
-/**
- *
- */
-public class ShadowRendererOrig {
-
+class ShadowRendererOrig {
   // size of the shadow in pixels (defines the fuzziness)
   private int size = 5;
 
@@ -41,14 +37,6 @@ public class ShadowRendererOrig {
   }
 
   /**
-   * <p>Gets the color used by the renderer to generate shadows.</p>
-   * @return this renderer's shadow color
-   */
-  public Color getColor() {
-    return color;
-  }
-
-  /**
    * <p>Sets the color used by the renderer to generate shadows.</p>
    * <p>Consecutive calls to {@link #createShadow} will all use this color
    * until it is set again.</p>
@@ -63,16 +51,6 @@ public class ShadowRendererOrig {
   }
 
   /**
-   * <p>Gets the opacity used by the renderer to generate shadows.</p>
-   * <p>The opacity is comprised between 0.0f and 1.0f; 0.0f being fully
-   * transparent and 1.0f fully opaque.</p>
-   * @return this renderer's shadow opacity
-   */
-  public float getOpacity() {
-    return opacity;
-  }
-
-  /**
    * <p>Sets the opacity used by the renderer to generate shadows.</p>
    * <p>Consecutive calls to {@link #createShadow} will all use this opacity
    * until it is set again.</p>
@@ -83,7 +61,6 @@ public class ShadowRendererOrig {
    */
   public void setOpacity(final float shadowOpacity) {
     float oldOpacity = this.opacity;
-
     if (shadowOpacity < 0.0) {
       this.opacity = 0.0f;
     } else if (shadowOpacity > 1.0f) {
@@ -91,14 +68,6 @@ public class ShadowRendererOrig {
     } else {
       this.opacity = shadowOpacity;
     }
-  }
-
-  /**
-   * <p>Gets the size in pixel used by the renderer to generate shadows.</p>
-   * @return this renderer's shadow size
-   */
-  public int getSize() {
-    return size;
   }
 
   /**
@@ -111,7 +80,6 @@ public class ShadowRendererOrig {
    */
   public void setSize(final int shadowSize) {
     int oldSize = this.size;
-
     if (shadowSize < 0) {
       this.size = 0;
     } else {
@@ -233,13 +201,20 @@ public class ShadowRendererOrig {
         int a = dstBuffer[bufferOffset] >>> 24;         // extract alpha
         aHistory[historyIdx++] = a;                     // store into history
         aSum += a;                                      // and add to sum
+        System.err.println("x: "+x+" y: "+y+" aHistory["+(historyIdx-1)+"] "+aHistory[historyIdx-1]+" a: "+a);
       }
 
       bufferOffset = x;
       historyIdx = 0;
+      System.err.println("aSum: "+aSum);
+      System.err.println("x: "+x);
+      for (int i=0; i < aHistory.length; i++) {
+        System.err.println("aHistory["+i+"] "+aHistory[i]);
+      }
 
       // compute the blur average with pixels from the previous pass
       for (int y = 0; y < yStop; y++, bufferOffset += dstWidth) {
+        System.err.println("x: "+x+" y: "+y+" aSum: "+aSum);
         int a = vSumLookup[aSum];
         dstBuffer[bufferOffset] = a << 24 | shadowRgb;  // store alpha value + shadow color
 

@@ -1,3 +1,19 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.yawni.roundedcorners
 
 import java.awt._
@@ -6,116 +22,26 @@ import java.awt.image.Raster
 import java.awt.image.WritableRaster
 
 /**
- * A shadow renderer needs three properties to generate shadows.
- * These properties are:
- * <ul>
- *   <li><i>size</i>: The size, in pixels, of the shadow. This property also
- *   defines the fuzzyness.</li>
- *   <li><i>opacity</i>: The opacity, between 0.0 and 1.0, of the shadow.</li>
- *   <li><i>color</i>: The color of the shadow. Shadows are not meant to be
- *   black only.</li>
- * </ul>
- * @param size the size of the shadow in pixels. Defines the fuzziness.
- * @param opacity the opacity of the shadow.
- * @param color the color of the shadow.
+ * A shadow renderer needs three properties to generate shadows: size, opacity, and color
+ * @param size the size of the shadow in pixels. Defines the blur radius to create the fuzziness.
+ * @param opacity the opacity of the shadow; between 0.0 (totally transparent) and 1.0 (fully opaque)
+ * @param color the color of the shadow; {@link Color.BLACK} common, but not mandatory
  */
-class ShadowRenderer(private var size:Int, 
-                     private var opacity:Float, 
-                     private var color:Color) {
-  setSize(size)
-  setOpacity(opacity)
-  setColor(color)
+case class ShadowRenderer(size:Int, 
+                          opacity:Float, 
+                          color:Color) {
+  require(size >= 0)
+  require(color != null)
+  require(opacity >= 0.0f && opacity <= 1.0f)
 
-  // size of the shadow in pixels (defines the fuzziness)
-  //private val size = 5
-
-  // opacity of the shadow
-  //private val opacity = 0.5f
-  
-  // color of the shadow
-  //private val color = Color.BLACK
+  def this(size:Int, opacity:Float) = this(size, opacity, ShadowRenderer.DEFAULT_COLOR)
+  def this(size:Int) = this(size, ShadowRenderer.DEFAULT_OPACITY)
+  def this() = this(ShadowRenderer.DEFAULT_SIZE)
 
   /**
-   * Gets the color used by the renderer to generate shadows.
-   * @return this renderer's shadow color
-   */
-  def getColor() {
-    color
-  }
-
-  /**
-   * Sets the color used by the renderer to generate shadows.
-   * <p>Consecutive calls to {@link #createShadow} will all use this color
-   * until it is set again.</p>
-   * <p>If the color provided is null, the previous color will be retained.</p>
-   * @param shadowColor the generated shadows color
-   */
-  private def setColor(shadowColor:Color) {
-    if (shadowColor != null) {
-      val oldColor = this.color
-      this.color = shadowColor
-    }
-  }
-
-  /**
-   * Gets the opacity used by the renderer to generate shadows.
-   * <p>The opacity is comprised between 0.0f and 1.0f; 0.0f being fully
-   * transparent and 1.0f fully opaque.</p>
-   * @return this renderer's shadow opacity
-   */
-  def getOpacity() {
-    opacity
-  }
-
-  /**
-   * Sets the opacity used by the renderer to generate shadows.
-   * <p>Consecutive calls to {@link #createShadow} will all use this opacity
-   * until it is set again.</p>
-   * <p>The opacity is comprised between 0.0f and 1.0f; 0.0f being fully
-   * transparent and 1.0f fully opaque. If you provide a value out of these
-   * boundaries, it will be restrained to the closest boundary.</p>
-   * @param shadowOpacity the generated shadows opacity
-   */
-  private def setOpacity(shadowOpacity:Float) {
-    val oldOpacity = this.opacity
-    if (shadowOpacity < 0.0) {
-      this.opacity = 0.0f
-    } else if (shadowOpacity > 1.0f) {
-      this.opacity = 1.0f
-    } else {
-      this.opacity = shadowOpacity
-    }
-  }
-
-  /**
-   * Gets the size in pixel used by the renderer to generate shadows.
-   * @return this renderer's shadow size
-   */
-  def getSize() {
-    return size
-  }
-
-  /**
-   * Sets the size, in pixels, used by the renderer to generate shadows.
-   * <p>The size defines the blur radius applied to the shadow to create the
-   * fuzziness.</p>
-   * <p>There is virtually no limit to the size. The size cannot be negative.
-   * If you provide a negative value, the size will be 0 instead.</p>
-   * @param shadowSize the generated shadows size in pixels (fuzziness)
-   */
-  private def setSize(shadowSize:Int) {
-    val oldSize = this.size
-    if (shadowSize < 0) {
-      this.size = 0
-    } else {
-      this.size = shadowSize
-    }
-  }
-
-  /**
-   * Generates the shadow for a given picture and the current properties
+   * Generates the shadow for a given picture using the current properties
    * of the renderer.
-   * <p>The generated image dimensions are computed as following:</p>
+   * <p>The generated image dimensions are computed as follows:</p>
    * <pre>{@code
    * width  = imageWidth  + 2 * shadowSize
    * height = imageHeight + 2 * shadowSize
@@ -168,12 +94,12 @@ class ShadowRenderer(private var size:Int,
 
     // horizontal pass : extract the alpha mask from the source picture and
     // blur it into the destination picture
-    //XXX for (int srcY = 0, dstOffset = left * dstWidth; srcY < srcHeight; srcY++) {
+    //XXX for (int srcY = 0, dstOffset = left * dstWidth; srcY < srcHeight; srcY++)
     var dstOffset = left * dstWidth
     for {srcY <- 0 until srcHeight} {
       // first pixels are empty
-      for {historyIdx <- 0 until shadowSize} {
-        aHistory(historyIdx) = 0
+      for {i <- 0 until shadowSize} {
+        aHistory(i) = 0
       }
 
       aSum = 0
@@ -186,7 +112,7 @@ class ShadowRenderer(private var size:Int,
         dstBuffer(dstOffset) = a << 24   // store the alpha value only
         dstOffset += 1                   // the shadow color will be added in the next pass
         
-        aSum -= aHistory(historyIdx) // substract the oldest pixel from the sum
+        aSum -= aHistory(historyIdx)     // subtract the oldest pixel from the sum
 
         // extract the new pixel ...
         a = srcBuffer(srcOffset + srcX) >>> 24
@@ -205,7 +131,7 @@ class ShadowRenderer(private var size:Int,
         dstBuffer(dstOffset) = a << 24
         dstOffset += 1
 
-        // substract the oldest pixel from the sum ... and nothing new to add !
+        // subtract the oldest pixel from the sum ... and nothing new to add !
         aSum -= aHistory(historyIdx)
 
         historyIdx += 1
@@ -216,20 +142,19 @@ class ShadowRenderer(private var size:Int,
     }
 
     // vertical pass
-    //XXX for (var x <- 0 to dstWidth; bufferOffset <- 0 to ; x < dstWidth; x++, bufferOffset = x) {
-    //for (int x = 0, bufferOffset = 0; x < dstWidth; x++, bufferOffset = x) {
     var bufferOffset = 0
     for {x <- 0 until dstWidth} {
       bufferOffset = x
       aSum = 0
 
       // first pixels are empty
-      for {historyIdx <- 0 until left} {
-        aHistory(historyIdx) = 0
+      for {i <- 0 until left} {
+        aHistory(i) = 0
       }
+      historyIdx = left
 
       // and then they come from the dstBuffer
-      //XXX for (int y = 0 y < right; y++, bufferOffset += dstWidth) {
+      //XXX for (int y = 0 y < right; y++, bufferOffset += dstWidth)
       for {y <- 0 until right} {
         val a = dstBuffer(bufferOffset) >>> 24         // extract alpha
         aHistory(historyIdx) = a                       // store into history
@@ -242,12 +167,12 @@ class ShadowRenderer(private var size:Int,
       historyIdx = 0
 
       // compute the blur average with pixels from the previous pass
-      //XXX for (int y = 0 y < yStop; y++, bufferOffset += dstWidth) {
+      //XXX for (int y = 0; y < yStop; y++, bufferOffset += dstWidth)
       for {y <- 0 until yStop} {
         var a = vSumLookup(aSum)
         dstBuffer(bufferOffset) = a << 24 | shadowRgb  // store alpha value + shadow color
 
-        aSum -= aHistory(historyIdx)   // substract the oldest pixel from the sum
+        aSum -= aHistory(historyIdx)   // subtract the oldest pixel from the sum
         
         a = dstBuffer(bufferOffset + lastPixelOffset) >>> 24   // extract the new pixel ...
         aHistory(historyIdx) = a                               // ... and store its value into history
@@ -261,12 +186,12 @@ class ShadowRenderer(private var size:Int,
       }
 
       // blur the end of the column - no pixels to grab anymore
-      //XXX for (int y = yStop y < dstHeight; y++, bufferOffset += dstWidth) {
+      //XXX for (int y = yStop y < dstHeight; y++, bufferOffset += dstWidth)
       for {y <- yStop until dstHeight} {
         val a = vSumLookup(aSum)
         dstBuffer(bufferOffset) = a << 24 | shadowRgb
 
-        aSum -= aHistory(historyIdx)   // substract the oldest pixel from the sum
+        aSum -= aHistory(historyIdx)   // subtract the oldest pixel from the sum
 
         historyIdx += 1
         if (historyIdx >= shadowSize) {
@@ -298,10 +223,12 @@ class ShadowRenderer(private var size:Int,
    *   of length &lt; w*h
    */
   private def getPixels(img:BufferedImage, x:Int, y:Int, w:Int, h:Int, pxls:Array[Int]) {
-    if (w == 0 || h == 0) {
-      //return Array(0)
-      throw new IllegalArgumentException("w: "+w+" h: "+h);
-    }
+    require(w != 0)
+    require(h != 0)
+    //if (w == 0 || h == 0) {
+    //  //return Array(0)
+    //  throw new IllegalArgumentException("w: " + w + " h: " + h);
+    //}
 
     val pixels = 
       if (pxls == null) {
@@ -353,4 +280,10 @@ class ShadowRenderer(private var size:Int,
       img.setRGB(x, y, w, h, pixels, 0, w)
     }
   }
+}
+
+object ShadowRenderer {
+  val DEFAULT_SIZE = 5
+  val DEFAULT_COLOR = Color.BLACK
+  val DEFAULT_OPACITY = 0.5f
 }

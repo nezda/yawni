@@ -1,3 +1,19 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.yawni.wordnet.snippet
 
 import scala.xml.{ Text, NodeSeq }
@@ -47,10 +63,19 @@ object RoundedCornerService {
       0, 
       Nil, Nil, 500)
 
+  // FIXME potential memory leak!
   // holds pre-built binaries for previously generated colors
   private val imageCache = new scala.collection.mutable.HashMap[String, Array[Byte]]
 
   // ./rounded?c=FF9900&bc=white&w=60&h=60&a=tr&sw=3&o=.5
+  // ./rounded?
+  //   c=FF9900&
+  //   bc=white&
+  //   w=60&
+  //   h=60&
+  //   a=tr&
+  //   sw=3&
+  //   o=.5
 
   def dispatch: LiftRules.DispatchPF = {
     // Req(url_pattern_list, suffix, request_type)
@@ -82,21 +107,21 @@ object RoundedCornerService {
     //  return
     //}
 
-    val color = request.param(PARM_COLOR) openOr null
-    val bgColor = request.param(PARM_BACKGROUND_COLOR) openOr null
-    val width = request.param(PARM_WIDTH).flatMap(asInt) openOr -1
-    val height = request.param(PARM_HEIGHT).flatMap(asInt) openOr -1
-    val angle = request.param(PARM_ANGLE) openOr null
+    val color = request.param(PARM_COLOR)
+    val bgColor = request.param(PARM_BACKGROUND_COLOR)
+    val width = request.param(PARM_WIDTH).flatMap(asInt)
+    val height = request.param(PARM_HEIGHT).flatMap(asInt)
+    val angle = request.param(PARM_ANGLE)
 
-    val shadowWidth = request.param(PARM_SHADOW_WIDTH).flatMap(asInt) openOr -1
-    val shadowOpacity = request.param(PARM_SHADOW_OPACITY).flatMap(asFloat) openOr -1f
-    val side = request.param(PARM_SHADOW_SIDE) openOr null
+    val shadowWidth = request.param(PARM_SHADOW_WIDTH).flatMap(asInt)
+    val shadowOpacity = request.param(PARM_SHADOW_OPACITY).flatMap(asFloat)
+    val side = request.param(PARM_SHADOW_SIDE)
 
     val wholeShadow = request.param(PARM_WHOLE_SHADOW).flatMap(asBoolean) openOr false
-    val arcWidth = request.param(PARM_ARC_WIDTH).flatMap(asFloat) openOr -1f
-    val arcHeight = request.param(PARM_ARC_HEIGHT).flatMap(asFloat) openOr -1f
+    val arcWidth = request.param(PARM_ARC_WIDTH).flatMap(asFloat)
+    val arcHeight = request.param(PARM_ARC_HEIGHT).flatMap(asFloat)
 
-    val hashKey = color + bgColor + width + height + angle + shadowWidth + shadowOpacity + side + wholeShadow
+    val hashKey = color :: bgColor :: width :: height :: angle :: shadowWidth :: shadowOpacity :: side :: wholeShadow :: Nil toString
 
     val bo = new ByteArrayOutputStream
     try {
@@ -110,7 +135,7 @@ object RoundedCornerService {
       val image =
         if (wholeShadow)
           RoundedCornerGenerator.buildShadow(color, bgColor, width, height, arcWidth, arcHeight, shadowWidth, shadowOpacity)
-        else if (side != null)
+        else if (side.isDefined)
           RoundedCornerGenerator.buildSideShadow(side, shadowWidth, shadowOpacity)
         else
           RoundedCornerGenerator.buildCorner(color, bgColor, width, height, angle, shadowWidth, shadowOpacity)
@@ -153,7 +178,7 @@ object RoundedCornerService {
 
   def writeImageResponse(data:Array[Byte], imageType:String):StreamingResponse = {
     val headers = 
-      ("Expires" , EXPIRES.toString) :: 
+      ("Expires" , Helpers.toInternetDate(EXPIRES)) :: 
       ("Content-type" , "image/" + imageType) :: 
       ("Content-length" , data.length.toString) :: 
       ("X-Content-Type-Options" ,	"nosniff") ::
