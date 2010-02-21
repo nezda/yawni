@@ -34,17 +34,20 @@ import org.yawni.roundedcorners._
 
 /**
  * A class that's instantiated early and run.  It allows the application
- * to modify lift's environment
+ * to modify Lift's environment
  */
 class Boot {
   def boot {
-    // where to search snippet
+    // where to search for snippet (functions)
     LiftRules.addToPackages("org.yawni.wordnet")
 
     //LiftRules.fixCSS("css" :: Nil, Empty)
 
     LiftRules.dispatch.prepend(Yawni.dispatch)
     LiftRules.dispatch.prepend(RoundedCornerService.dispatch)
+
+    // manual plumbing/wiring for singleton object snippet:
+    LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
@@ -67,6 +70,18 @@ class Boot {
     //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
     //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
     
+    /*
+     * Show the spinny image when an Ajax call starts
+     */
+    LiftRules.ajaxStart =
+            Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
+
+    /*
+     * Make the spinny image go away when it ends
+     */
+    LiftRules.ajaxEnd =
+            Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+    
     LiftRules.early.append(makeUtf8)
 
     // Dump browser information each time a new connection is made
@@ -79,10 +94,11 @@ object BrowserLogger {
   object HaveSeenYou extends SessionVar(false)
 
   def haveSeenYou(session: LiftSession, request: Req) {
-    if (!HaveSeenYou.is) {
-      Log.info("Created session " + session.uniqueId + " IP: {" + request.request.remoteAddress + "} UserAgent: {{" + request.userAgent.openOr("N/A") + "}}")
+    if (! HaveSeenYou.is) {
+      Log.info("Created session " + session.uniqueId + 
+        " IP: {" + request.request.remoteAddress + 
+        "} UserAgent: {{" + request.userAgent.openOr("N/A") + "}}")
       HaveSeenYou(true)
     }
   }
 }
-
