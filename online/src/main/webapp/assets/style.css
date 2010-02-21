@@ -1,3 +1,7 @@
+body { font-size: 100%; }
+input[type="text"], input[type="search"] {
+  font-size:100%;
+}
 .pos { font-family: "Times New Roman", serif; }
 .focalWord { color: red; }
 .summaryWord { font-weight: bold; }
