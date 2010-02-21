@@ -1,5 +1,7 @@
-body { font-size: 100%; }
-input[type="text"], input[type="search"] {
+body {
+  font-size: 100%;
+}
+input.text {
   font-size:100%;
 }
 .pos { font-family: "Times New Roman", serif; }
