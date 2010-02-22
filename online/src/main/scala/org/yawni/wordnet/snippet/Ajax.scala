@@ -17,47 +17,64 @@
 package org.yawni.wordnet.snippet
 
 import scala.xml.{ Text, NodeSeq }
-import net.liftweb.http.{ S, SHtml }
+import net.liftweb.http.{ S, SHtml, DispatchSnippet }
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.util.Helpers._
 
-class Ajax {
+//  def doSearch(msg: NodeSeq) = {
+//    //SHtml.ajaxText("", q => DisplayMessage(msgName,
+//    //                                 bind("text", msg, "value" -> Text(q)),
+//    //                                 4 seconds, 1 second))
+//    //SHtml.ajaxText("", q => SetHtml("resultz", Text(query(q).toString)))
+//  }
+//}
 
-  def sample(xhtml: NodeSeq): NodeSeq = {
-    //// build up an ajax <a> tag to increment the counter
-    //def doClicker(text: NodeSeq) =
-    //  a(() => { cnt = cnt + 1; SetHtml(spanName, Text(cnt.toString)) }, text)
-
-    //// create an ajax select box
-    //def doSelect(msg: NodeSeq) =
-    //  ajaxSelect((1 to 50).toList.map(i => (i.toString, i.toString)),
-    //             Full(1.toString),
-    //             v => DisplayMessage(msgName,
-    //                                 bind("sel", msg, "number" -> Text(v)),
-    //                                 5 seconds, 1 second))
-
-// search field HTML
-// <form>
-//   <input onblur="if(this.value==''){this.value=this.defaultValue};this.style.color=(this.value==this.defaultValue)?'#aaa':'#000';" style="border-right: #666 1px solid; padding-right: 4px; border-top: #666 1px solid; padding-left: 22px; background: url(http://www.codestore.net/store.nsf/rsrc/bloggifs41/$file/find.gif) #fff no-repeat 3px 50%; padding-bottom: 4px; border-left: #666 1px solid; color: #aaa; padding-top: 4px; border-bottom: #666 1px solid" onfocus="this.style.color='#000';if(this.value==this.defaultValue){this.value=''}" value="Search Here"> 
-// </form>
-
-
+// Manual Plumbing/Wiring: dispatch method here and this line Boot:
+//   LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
+// If Ajax were a class, (but still extended and implemented DispatchSnippet), we could forgoe
+// this manual wiring in Boot.  Not clear why it can't look for object which extends DispatchSnippet ?
+//
+// Benefits: 
+// + much more efficient
+// + closure of handler method can have nested 'fields' and defs, thus it has equivalent power
+// Drawbacks: 
+// - more typing
+object Ajax extends DispatchSnippet {
+//class Ajax extends DispatchSnippet {
+  override def dispatch = { 
+    case "searchField" => searchField
+  }
+  // searchField closure
+  def searchField(xhtml: NodeSeq): NodeSeq = {
     // build up an ajax text box
-    def doText(msg: NodeSeq) =
-      //SHtml.ajaxText("", v => DisplayMessage(msgName,
-      //                                 bind("text", msg, "value" -> Text(v)),
-      //                                 4 seconds, 1 second))
-      
-      //SHtml.ajaxText("", v => SetHtml("resultz", Text(query(v).toString)))
-      //SHtml.ajaxText("Type a word to lookup in WordNet...", v => SetHtml("resultz", Yawni.query(v)), ("type", "search"), ("size", "50"))
-      FocusOnLoad(SHtml.ajaxText("", v => SetHtml("resultz", Yawni.query(v)), ("type", "search"), ("size", "50")))
-
+    def doSearch(msg: NodeSeq) = {
+      FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("class", "text"), ("tabindex", "1"), ("type", "search")))
+    }
     // bind the view to the functionality
     bind("ajax", xhtml,
-         //"clicker" -> doClicker _,
-         //"select" -> doSelect _,
-         "text" -> doText _
+         "searchBox" -> doSearch _
          )
   }
 }
+
+// Automatic Plumbing/Wiring: <lift:Ajax.searchField> in app template triggers search for 
+// public class (not object!) snippet.Ajax with public member method 'searchField'.
+// Benefits: 
+// + include simplicity / 'automaticness'
+// Drawbacks: 
+// - reflection search happens for every new session and is not cached, so it is not very efficient.
+// - magic is harder to follow and template naming is tightly bound to code (no indirection)
+//class Ajax {
+//  // searchField closure
+//  def searchField(xhtml: NodeSeq): NodeSeq = {
+//    // build up an ajax text box
+//    def doSearch(msg: NodeSeq) = {
+//      FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("type", "search"), ("class", "text")))
+//    }
+//    // bind the view to the functionality
+//    bind("ajax", xhtml,
+//         "searchBox" -> doSearch _
+//         )
+//  }
+//}
