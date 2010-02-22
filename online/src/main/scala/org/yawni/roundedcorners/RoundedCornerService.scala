@@ -38,6 +38,8 @@ import javax.imageio._
  * outlined here: <a href="http://xach.livejournal.com/95656.html">google's own cornershop</a>.
  * Still online supported: <a href="http://groups.google.com/groups/roundedcorners?c=999999&bc=white&w=60&h=60&a=tr">
  *   http://groups.google.com/groups/roundedcorners?c=999999&bc=white&w=60&h=60&a=tr</a>
+ *
+ * CSS3 has border-radius properties: http://www.w3.org/TR/2005/WD-css3-background-20050216/#the-border-radius
  */
 // test URLs
 // http://localhost:8080/rounded?c=FF9900&bc=white&w=60&h=60&a=tr&sw=3&o=.5

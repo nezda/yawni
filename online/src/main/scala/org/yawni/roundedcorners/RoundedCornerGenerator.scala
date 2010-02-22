@@ -76,6 +76,9 @@ object RoundedCornerGenerator {
   // 
   // * null fgColor should also mean transparent
   //
+  // transparency examples here:
+  // http://www.apl.jhu.edu/~hall/java/Java2D-Tutorial.html#Java2D-Tutorial-Transparency
+  //
   // TODO 
   // - add separate shadow color
   // - 
