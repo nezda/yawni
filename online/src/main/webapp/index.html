@@ -1,15 +1,36 @@
+<!-- 
+reads: "surround this application template with the default template 
+inserting it into the default template at the bind point "content" 
+-->
 <lift:surround with="default" at="content">
-  <lift:Ajax.sample id_name="cnt_id" id_msgs="messages">
+  <lift:ignore>
+  <!-- 
+  LiftRules.addToPackages("org.yawni.wordnet") in Boot 
+  effectively means: import org.yawni.wordnet.snippet._
+
+  This is a reflection snippet: class name -> tag name
+  Finding snippet implementation class tolerates case differences and snake_case/CamelCase
+
+  Reflectively located snippets are stored in a RequestVar.
+  A snippet is a closure: in the case below, it's a closure
+  over method Ajax.searchField
+
+  Attribute id_name 
+  -->
+  </lift:ignore>
+  <lift:Ajax.searchField id_msgs="messages">
     <div id="header" class="span-24 last">
       <!-- <h1><img src="images/yawni_57x64_icon.png" alt="Yawni"/></h1> -->
       <h1>Yawni Online</h1>
     </div>
-    <div class="span-16 ">
-      <ajax:text/>
+    <div class="span-16">
+      <!-- <ajax:searchBox class="text" tabindex="1" type="search" /> -->
+      <ajax:searchBox/>
+      <hr class="space"/>
       <div id="resultz"></div>
       <div id="messages"></div>
     </div>
     <div class="span-8 last">
     </div>
-  </lift:Ajax.sample>
+  </lift:Ajax.searchField>
 </lift:surround>
