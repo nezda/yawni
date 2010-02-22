@@ -266,7 +266,8 @@ case class ShadowRenderer(size:Int,
    */
   private def setPixels(img:BufferedImage, x:Int, y:Int, w:Int, h:Int, pixels:Array[Int]) {
     if (pixels == null || w == 0 || h == 0) {
-      return
+      //return
+      throw new IllegalArgumentException()
     } else if (pixels.length < w * h) {
       throw new IllegalArgumentException("pixels array must have a length >= w*h")
     }

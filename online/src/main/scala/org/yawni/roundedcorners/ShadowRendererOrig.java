@@ -119,7 +119,7 @@ class ShadowRendererOrig {
 
     int aSum;
 
-    BufferedImage dst = new BufferedImage(dstWidth, dstHeight, BufferedImage.TYPE_INT_ARGB);
+    final BufferedImage dst = new BufferedImage(dstWidth, dstHeight, BufferedImage.TYPE_INT_ARGB);
 
     int[] dstBuffer = new int[dstWidth * dstHeight];
     int[] srcBuffer = new int[srcWidth * srcHeight];

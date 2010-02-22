@@ -23,7 +23,7 @@ import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.util.Helpers
 import net.liftweb.util.Helpers._
 
-import net.liftweb.http.{ Req, GetRequest, PostRequest, LiftRules, JsonResponse, PlainTextResponse, StreamingResponse }
+import net.liftweb.http.{ LiftResponse, Req, GetRequest, PostRequest, LiftRules, JsonResponse, PlainTextResponse, InMemoryResponse }
 import net.liftweb.common.{Full, Box}
 import net.liftweb.http.js.JE._
 
@@ -57,16 +57,16 @@ object RoundedCornerService {
   private val MONTH_SECONDS = 60 * 60 * 24 * 30
   private val EXPIRES = System.currentTimeMillis() + 365 * 24 * 60 * 60 * 1000L
 
-  private lazy val ERROR_RESPONSE = StreamingResponse(
-      new java.io.ByteArrayInputStream(new Array[Byte](0)),
-      () => {},
-      0, 
+  private lazy val ERROR_RESPONSE = 
+    InMemoryResponse(
+      Array(),
       Nil, Nil, 500)
 
   // FIXME potential memory leak!
   // holds pre-built binaries for previously generated colors
   private val imageCache = new scala.collection.mutable.HashMap[String, Array[Byte]]
 
+  // Rounded Corner
   // ./rounded?c=FF9900&bc=white&w=60&h=60&a=tr&sw=3&o=.5
   // ./rounded?
   //   c=FF9900&
@@ -75,6 +75,25 @@ object RoundedCornerService {
   //   h=60&
   //   a=tr&
   //   sw=3&
+  //   o=.5
+  //
+  // Side Shadow
+  // ./rounded?s=right&sw=2
+  // ./rounded?
+  //   s=right&
+  //   sw=2
+  //
+  // Whole shadow
+  // ./rounded?c=white&bc=white&w=600&h=40&shadow=true&ah=10&aw=10&sw=4&o=.5
+  // ./rounded?
+  //   c=white&
+  //   bc=white&
+  //   w=600&
+  //   h=40&
+  //   shadow=true&
+  //   ah=10&
+  //   aw=10&
+  //   sw=4&
   //   o=.5
 
   def dispatch: LiftRules.DispatchPF = {
@@ -98,7 +117,7 @@ object RoundedCornerService {
   def asFloat(in: String): Box[Float] = Helpers.tryo(in.toFloat)
   def asBoolean(in: String): Box[Boolean] = Helpers.tryo(in.toBoolean)
 
-  def service(request:Req):StreamingResponse = {
+  def service(request:Req):LiftResponse = {
     //println("supportsGif: "+supportsGif+" got "+request)
     //println("If-Modified-Since: "+request.)
 
@@ -125,7 +144,8 @@ object RoundedCornerService {
 
     val bo = new ByteArrayOutputStream
     try {
-      val imageType = if (bgColor != null) nonTransparentFormatName else "png"
+      //XXX val imageType = if (bgColor.isDefined) nonTransparentFormatName else "png"
+      val imageType = "png"
 
       var data = imageCache.getOrElse(hashKey, null)
       if (data != null) {
@@ -145,38 +165,33 @@ object RoundedCornerService {
       data = bo.toByteArray()
 
       if (! success || data == null || data.length == 0) {
-        //_log.error("Image generated had zero length byte array or failed to convert from parameters of:\n"
-        //    + "[color:" + color + ", bgColor:" + bgColor
-        //    + ", width:" + width + ", height:" + height
-        //    + ", angle:" + angle + ", shadowWidth:" + shadowWidth
-        //    + ", shadowOpacity:" + shadowOpacity + ", side:" + side
-        //    + ", wholeShadow: " + wholeShadow + ", arcWidth: " + arcWidth
-        //    + ", arcHeight:" + arcHeight + "\n image: " + image)
-
-        //_response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+        System.err.println("Image generated had zero length byte array or failed to convert from parameters :\n"
+           + "[color:" + color + ", bgColor:" + bgColor
+           + ", width:" + width + ", height:" + height
+           + ", angle:" + angle + ", shadowWidth:" + shadowWidth
+           + ", shadowOpacity:" + shadowOpacity + ", side:" + side
+           + ", wholeShadow: " + wholeShadow + ", arcWidth: " + arcWidth
+           + ", arcHeight:" + arcHeight + "\n image: " + image)
         return ERROR_RESPONSE
       }
 
       imageCache.put(hashKey, data)
 
-      writeImageResponse(data, imageType)
+      return writeImageResponse(data, imageType)
     } catch {
       case eof:IOException => 
         // ignored / expected exceptions happen when browser prematurely abandons connections - IE does this a lot
       case ex:Throwable =>
+        System.err.println("Error creating image. "+ex);
         ex.printStackTrace()
-        //_exceptionReporter.reportRequestException("Error creating image.", ex)
     } finally {
-      try {
-        bo.close()
-      } catch {
-        case ioe:IOException => // ignore
-      }
+      bo.close
     }
     ERROR_RESPONSE
   }
 
-  def writeImageResponse(data:Array[Byte], imageType:String):StreamingResponse = {
+  def writeImageResponse(data:Array[Byte], imageType:String):LiftResponse = {
+    //System.err.println("EXPIRES: "+EXPIRES+" "+Helpers.toInternetDate(EXPIRES))
     val headers = 
       ("Expires" , Helpers.toInternetDate(EXPIRES)) :: 
       ("Content-type" , "image/" + imageType) :: 
@@ -184,10 +199,8 @@ object RoundedCornerService {
       ("X-Content-Type-Options" ,	"nosniff") ::
       ("Cache-Control" , "public, max-age=" + (MONTH_SECONDS * 3)) ::
       Nil
-    StreamingResponse(
-      new java.io.ByteArrayInputStream(data),
-      () => {},
-      data.length, 
+    InMemoryResponse(
+      data,
       headers, Nil, 200)
   }
 }

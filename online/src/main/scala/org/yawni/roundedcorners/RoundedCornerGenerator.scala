@@ -63,12 +63,33 @@ object RoundedCornerGenerator {
                 width.get, height.get, 
                 angle.map(getStartAngle).getOrElse(DEFAULT_ANGLE), shadowWidth.get, endOpacity.getOrElse(DEFAULT_SHADOW_OPACITY))
 
+  // issue:
+  // if shadowWidth=0
+  //   if bgColor == null
+  //     background is transparent
+  //   * opacity is ignored!?
+  // else // shadowWidth > 0
+  //   if bgColor == null
+  //     * opacity is ignored
+  //   else // bgColor != null
+  //     opacity seems to apply ONLY to shadow, not remainder of background
+  // 
+  // * null fgColor should also mean transparent
+  //
+  // TODO 
+  // - add separate shadow color
+  // - 
   private def buildCorner(fgColor:Color, bgColor:Color, width:Int, height:Int,
                           startAngle:Float, shadowWidth:Int, endOpacity:Float): BufferedImage = {
+    val msg = "fgColor: "+fgColor+" bgColor: "+bgColor+" width: "+width+" height: "+height+" startAngle: "+startAngle+
+      " shadowWidth: "+shadowWidth+" endOpacity: "+endOpacity;
+    //System.err.println(msg);
+
     val w = width * 2
     val h = height * 2
 
     //FIXME what's this supposed to do ?
+    //I think this is simply the case where the corner has no shadow
     if (shadowWidth <= 0) {
       val arc = drawArc(fgColor, w, h, startAngle, false, -1)
       var ret = arc
@@ -126,7 +147,7 @@ object RoundedCornerGenerator {
       g2.fill(arcArea.getBounds2D())
     }
 
-    val shadow = drawArcShadow(mask, fgColor, bgColor, w, h, startAngle, shadowWidth, endOpacity)
+    val shadow = drawArcShadow(mask, w, h, startAngle, shadowWidth, endOpacity)
 
     g2.setClip(arcArea)
     g2.drawImage(shadow, 0, 0, null)
@@ -136,16 +157,6 @@ object RoundedCornerGenerator {
 
     convertType(ret, BufferedImage.TYPE_INT_RGB).getSubimage(arcArea.getBounds2D.getX.toInt, arcArea.getBounds2D.getY.toInt,
                                                              arcArea.getBounds2D.getWidth.toInt, arcArea.getBounds2D.getHeight.toInt)
-  }
-
-  private def convertType(image:BufferedImage, imageType:Int):BufferedImage = {
-    val result = new BufferedImage(image.getWidth(), image.getHeight(), imageType)
-    val g = result.createGraphics()
-    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
-    g.drawRenderedImage(image, null)
-    g.dispose()
-    result
   }
 
   private def drawArc(arcColor:Color, width:Int, height:Int, angle:Float, masking:Boolean, shadowWidth:Int):BufferedImage = {
@@ -201,7 +212,7 @@ object RoundedCornerGenerator {
     img
   }
 
-  private def drawArcShadow(mask:BufferedImage, color:Color, bgColor:Color, width:Int, height:Int,
+  private def drawArcShadow(mask:BufferedImage, width:Int, height:Int, 
                             startAngle:Float, shadowWidth:Int, endOpacity:Float): BufferedImage = {
     val shadowSize = shadowWidth * 2
     var sampleY = 0
@@ -354,7 +365,7 @@ object RoundedCornerGenerator {
     val mask = new BufferedImage(maskWidth, maskHeight, BufferedImage.TYPE_INT_ARGB)
     var g2:Graphics2D = mask.createGraphics()
 
-    g2.setColor(Color.white)
+    g2.setColor(Color.WHITE)
     g2.fillRect(0, 0, maskWidth, maskHeight)
 
     g2.dispose()
@@ -369,7 +380,7 @@ object RoundedCornerGenerator {
 
     val clip = new Rectangle2D.Float(sampleX, sampleY, sampleWidth, sampleHeight)
 
-    g2.setColor(Color.white)
+    g2.setColor(Color.WHITE)
     g2.fill(clip)
 
     g2.drawImage(dropShadow, 0, 0, null)
@@ -392,39 +403,54 @@ object RoundedCornerGenerator {
     case BOTTOM_RIGHT => ANGLE_BOTTOM_RIGHT
   }
 
-  // css2 color spec - http://www.w3.org/TR/REC-CSS2/syndata.html#color-units
+  /** 
+   * CSS2 color spec <a href="http://www.w3.org/TR/REC-CSS2/syndata.html#color-units">
+   *   http://www.w3.org/TR/REC-CSS2/syndata.html#color-units</a>
+   */
   private val cssSpecMap = Map(
-    "aqua" -> new Color(0,255,255),
-    "black" -> Color.BLACK,
-    "blue" -> Color.BLUE,
-    "fuchsia" -> new Color(255,0,255),
-    "gray" -> Color.GRAY,
-    "green" -> Color.GREEN,
-    "lime" -> new Color(0,255,0),
     "maroon" -> new Color(128,0,0),
-    "navy" -> new Color(0,0,128),
+    "red" -> Color.RED,
+    "orange" -> Color.ORANGE,
+    "yellow" -> Color.YELLOW,
     "olive" -> new Color(128,128,0),
     "purple" -> new Color(128,0,128),
-    "red" -> Color.RED,
-    "silver" -> new Color(192,192,192),
-    "teal" -> new Color(0,128,128),
+    "fuchsia" -> new Color(255,0,255),
     "white" -> Color.WHITE,
-    "yellow" -> Color.YELLOW
+    "lime" -> new Color(0,255,0),
+    "green" -> Color.GREEN,
+    "navy" -> new Color(0,0,128),
+    "blue" -> Color.BLUE,
+    "aqua" -> new Color(0,255,255),
+    "teal" -> new Color(0,128,128),
+    "black" -> Color.BLACK,
+    "silver" -> new Color(192,192,192),
+    "gray" -> Color.GRAY
   )
 
   private val ColorRE = """0x.+"""r
 
   /**
    * Decodes the specified input color string into a compatible awt color object. Valid inputs
-   * are any in the css2 color spec or hex strings.
+   * are any in the CSS2 color spec or hex strings.
    * @param color The color to match.
    * @return The decoded color object, may be black if decoding fails.
    */
   private def decodeColor(code:String):Color = cssSpecMap.get(code) match {
-    case Some(color) => println("found css color: "+color+" for code: "+code); color
-    case None => println("din't find css color for "+code); code match {
-      case ColorRE => println("decoding hex color: "+code); Color.decode(code)
-      case _ => println("decoding bare color: "+code); Color.decode("0x"+code)
+    case Some(color) => color
+    case None => code match {
+      case ColorRE => Color.decode(code)
+      case _ => Color.decode("0x"+code)
     }
   }
+
+  private def convertType(image:BufferedImage, imageType:Int):BufferedImage = {
+    val result = new BufferedImage(image.getWidth(), image.getHeight(), imageType)
+    val g = result.createGraphics()
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+    g.drawRenderedImage(image, null)
+    g.dispose()
+    result
+  }
+
 }
