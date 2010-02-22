@@ -49,7 +49,7 @@ object Ajax extends DispatchSnippet {
   def searchField(xhtml: NodeSeq): NodeSeq = {
     // build up an ajax text box
     def doSearch(msg: NodeSeq) = {
-      FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("class", "text"), ("tabindex", "1"), ("type", "search")))
+      FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), /*("class", "text"),*/("size","30"), ("tabindex", "1"), ("type", "search")))
     }
     // bind the view to the functionality
     bind("ajax", xhtml,
