@@ -119,6 +119,8 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     // is weird; discussed here (esp. the comments):
     // http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
     //getRootPane().putClientProperty("apple.awt.draggableWindowBackground", Boolean.TRUE);
+    
+    this.setIconImage(getAppIcon().getImage());
 
     this.textAreaBorder = new BasicBorders.MarginBorder() {
       private final Insets insets = new Insets(pad, pad, pad, pad);
@@ -314,8 +316,6 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
         info.setBackground(Color.WHITE);
         info.setOpaque(true);
         info.setBorder(BorderFactory.createEtchedBorder());
-//        final ImageIcon icon = new ImageIcon(Browser.class.getResource("yawni_57x64_icon.png"));
-        final ImageIcon icon = new ImageIcon(Browser.class.getResource("yawni_115x128_icon.png"));
         final String[] options = new String[] { "Dismiss" };
           JOptionPane.showOptionDialog(
             Browser.this,
@@ -323,7 +323,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
             "About", // title
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.PLAIN_MESSAGE,
-            icon,
+            getAppIcon(),
             options,
             options[0]);
       }
@@ -388,6 +388,17 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     });
 
     browserPanel.debug();
+  }
+
+  //move to Application
+  private static ImageIcon APP_ICON;
+
+  private static ImageIcon getAppIcon() {
+    if (APP_ICON == null) {
+      //APP_ICON = new ImageIcon(Browser.class.getResource("yawni_57x64_icon.png"));
+      APP_ICON = new ImageIcon(Browser.class.getResource("yawni_115x128_icon.png"));
+    }
+    return APP_ICON;
   }
 
   private static final Vector<Browser> BROWSERS = new Vector<Browser>();
