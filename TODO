@@ -245,17 +245,93 @@ everything
     http://lucene.apache.org/java/2_9_0/api/core/org/apache/lucene/analysis/package-summary.html
     org.apache.lucene.analysis
 
-- NetBeans consuming 573MB Real Mem; ouch
 - review Scott Violet's fabric and Password app for more best practices
 - JIDE has some awesome (feel) open source components; auto-complete, IntelliHints, Searchable (aka FindAsYouType), and SearchableBar (like Firefox), JideSplitButton: PopdownButton with menu; license looks tricky
 
-- issues with checking out and building yawni
+  - WordNet online for inspiration
+  - http://www.yawni.org/wiki/Main/GettingStarted
+    - code inspiration from http://aboisvert.github.com/stopwatch/
+
++ bug: core: issues with checking out and building yawni
   + data sub-project currently needs my jar signature
-  - core depends on data
+  + core depends on data
     - couldn't figure out how to make this dependency <optional>; maybe no project-internal concept exists
-  - uncommented WNHOME system property
-    - got burned by WordNet version
+  + uncommented WNHOME system property
+    + got burned by WordNet version (2.1 vs. 3.0)
     - then got burned by WNSEARCHDIR still referencing old version
+
+~ feature: online: web interface written in Scala + Lift, executing Google App Engine (GAE)
+  + appid candidates ("yawni" not valid, "wordnet" not available)
+    + yawni-online
+    x yawnionline
+    x web-yawni
+    x yawniweb
+    x webyawni
+  + mvn archetype:generate -U \
+    -DarchetypeGroupId=net.liftweb \
+    -DarchetypeArtifactId=lift-archetype-blank \
+    -DarchetypeVersion=2.0-M1 \
+    -DremoteRepositories=http://scala-tools.org/repo-releases \
+    -DgroupId=org.yawni \
+    -DartifactId=yawni-wordnet-online \
+    -Dversion=2.0.0-SNAPSHOT
+  + gae error: "sun.misc.SoftCache is a restricted class"
+    + need to use alternate softcache impl
+      - Google Collections: ConcurrentMap<K, V> map = MapMaker.softValues().makeMap();
+- lift: rendering of attributes doesn't match template order which is confusing; related nit is indentation of <lift:CSS.blueprint /> and <lift:CSS.fancyType /> is an odd 6 spaces: 2 more more than others; for fun, see if LiftRules.fixCSS in Boot.scala fixes it
+  default.html:
+    <link href="/assets/style.css" type="text/css" rel="stylesheet"  media="screen, projection" />
+  rendered:
+    <link media="screen, projection" rel="stylesheet" type="text/css" href="/assets/style.css" />
+
+  default.html:
+    <link type="text/css" href="/assets/style.css" rel="stylesheet"  media="screen, projection" />
+  rendered:
+    <link media="screen, projection" rel="stylesheet" href="/assets/style.css" type="text/css" />
+
+  - looking for trouble: rename it wordnetnik :)
+
+  - yawni.org color scheme: 
+    - orange variant #F79910
+  - CSS
+    + font-size: 16px 
+    + line-height: 24px
+  - other typography enhancements
+    - color - get inspiration from wordnetweb and wordnik
+    - smart double quotes
+    - smart single quotes for single quoted items: `foo' → ‘foo’; 's → ’s
+    - bullet between examples ; •
+    - italicize examples; gray text (use BluePrint CSS class alt)
+    - em dash where apropos
+  - links to/from yawni.org
+  - meta keywords: WordNet
+  - recent searches on right hand side
+    - don't want REST API searches: 
+  - lift-widgets: autocomplete , (DHTML) menus , sparklines graphs
+  - rounded corners:
+    - Tapestry has neat REST service for this: http://tapestry.apache.org/tapestry4.1/developmentguide/hivemind/roundedcorners.html
+  - bugs
+    - aritfact name is still gae-2.0.0-SNAPSHOT.war ; change to ???
+    ! ajax page seems to reset when page is left and then revisited -- searchField focus issue ?
+      x main evidence is from appspot version of app
+      x could local and appspot versions running in different tabs be interacting (via cache or otherwise ?)
+      * Lift Garbage collection:
+        LiftRules.enableLiftGC = false
+    - spinning ajax thing not showing (yuicompressor-maven-plugin ?)
+      ? something missing in Boot
+    + Blackbird widget not working (yuicompressor-maven-plugin ?)
+    + browser scroll bar causes jarring left/right shift
+      html { overflow-y: scroll; }
+      http://www.w3.org/TR/CSS21/visufx.html#overflow
+  - custom 404 page
+    http://wiki.liftweb.net/index.php/Setting_up_a_custom_404_page
+  - tests
+    - lift example uses several test libraries: 'specs', 'mocikito', jwebunit-htmlunit
+    - Selenium tests
+    - load tests : JMeter
+      - http://code.google.com/p/perfbench/source/browse/trunk/perfbench
+
++ feature: core: before initial public release, get names right; rename package org.yawni.wn → org.yawni.wordnet ; rename groupId org.yawni.wn → org.yawni; rename artifactId yawni-core → yawni-wordnet-api; rename artifactId browser → yawni-wordnet-browser
 
 - feature: core: ⊚ incorporate other related lexico-semantic resources
   - new Princeton "Standoff Files"
@@ -1088,6 +1164,26 @@ x feature: howto for developing in NetBeans ?
       # uses WNHOME env AND has Bloom filters available: less memory avilable for caching decreases performance
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > filters
 
+      # using dist jar which includes data
+      # org/yawni/wordnet/browser/log4j.properties
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher > filters
+      # pipe into wc -c to verify correctness, without worrying about disk related issues (saves about 15% of time!) : expect 10905119
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -Xms128m -Xmx128m -Xbatch -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher | wc -c
+
+    * lots of variables when doing performance testing
+      - code
+        - various Cache implementations
+      - JVM options
+        -server
+        -Xbatch
+        -XX:SoftRefLRUPolicyMSPerMB=2500 http://java.sun.com/docs/hotspot/HotSpotFAQ.html
+        -Xmx !
+        -Xms (especially as times get very short - need longer test)
+      - environment
+        ! WNHOME / WNSEARCHDIR
+        - machine load
+        - machine on AC power (influences CPU down clocking)
+
     - optimization opportunities:
       * IO methods most costly: readLineWord(), scanForwardToLineBreak(), scanToSpace()
       + re-use StringBuilder (and ensureCapacity()) rather than making and tossing buffer every time
@@ -1125,7 +1221,7 @@ x feature: howto for developing in NetBeans ?
       real    0m25.552s
       user    0m21.326s
       sys     0m5.491s
-      
+
   < feature: core: implement CharSequences#sameLetterDigitSequence
     - a comparison predicate that specifically ignores case and ' ', '.', '-', '_'
     ? where would this be used ? getindex() impl ?
