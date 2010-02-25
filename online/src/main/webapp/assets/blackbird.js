@@ -36,40 +36,40 @@
 	function generateMarkup() { //build markup
 		var spans = [];
 		for ( type in messageTypes ) {
-			spans.push( [ '<span class="', type, '" type="', type, '"></span>'].join( '' ) );
+			spans.push( [ '<span class="bb-', type, '" type="', type, '"></span>'].join( '' ) );
 		}
 
-		var newNode = document.createElement( 'DIV' );
+		var newNode = document.createElement( 'div' );
 		newNode.id = IDs.blackbird;
 		newNode.style.display = 'none';
 		newNode.innerHTML = [
-			'<div class="header">',
-				'<div class="left">',
-					'<div id="', IDs.filters, '" class="filters" title="click to filter by message type">', spans.join( '' ), '</div>',
+			'<div class="bb-header">',
+				'<div class="bb-left">',
+					'<div id="', IDs.filters, '" title="click to filter by message type">', spans.join( '' ), '</div>',
 				'</div>',
-				'<div class="right">',
-					'<div id="', IDs.controls, '" class="controls">',
-						'<span id="', IDs.size ,'" title="contract" op="resize"></span>',
-						'<span class="clear" title="clear" op="clear"></span>',
-						'<span class="close" title="close" op="close"></span>',
+				'<div class="bb-right">',
+					'<div id="', IDs.controls, '">',
+						'<span id="', IDs.size ,'" op="resize"></span>',
+						'<span class="bb-clear" title="clear" op="clear"></span>',
+						'<span class="bb-close" title="close" op="close"></span>',
 					'</div>',
 				'</div>',
 			'</div>',
-			'<div class="main">',
-				'<div class="left"></div><div class="mainBody">',
+			'<div class="bb-main">',
+				'<div class="bb-left"></div><div class="bb-mainBody">',
 					'<ol>', cache.join( '' ), '</ol>',
-				'</div><div class="right"></div>',
+				'</div><div class="bb-right"></div>',
 			'</div>',
-			'<div class="footer">',
-				'<div class="left"><label for="', IDs.checkbox, '"><input type="checkbox" id="', IDs.checkbox, '" />Visible on page load</label></div>',
-				'<div class="right"></div>',
+			'<div class="bb-footer">',
+				'<div class="bb-left" id="', IDs.checkbox, '"><span></span>Visible on page load</div>',
+				'<div class="bb-right"></div>',
 			'</div>'
 		].join( '' );
 		return newNode;
 	}
 
-	function backgroundImage() { //(IE6 only) change <BODY> tag's background to resolve {position:fixed} support
-		var bodyTag = document.getElementsByTagName( 'BODY' )[ 0 ];
+	function backgroundImage() { //(IE6 only) change <body> tag's background to resolve {position:fixed} support
+		var bodyTag = document.getElementsByTagName( 'body' )[ 0 ];
 		
 		if ( bodyTag.currentStyle && IE6_POSITION_FIXED ) {
 			if (bodyTag.currentStyle.backgroundImage == 'none' ) {
@@ -84,13 +84,14 @@
 	function addMessage( type, content ) { //adds a message to the output list
 		content = ( content.constructor == Array ) ? content.join( '' ) : content;
 		if ( outputList ) {
-			var newMsg = document.createElement( 'LI' );
-			newMsg.className = type;
-			newMsg.innerHTML = [ '<span class="icon"></span>', content ].join( '' );
+			var newMsg = document.createElement( 'li' );
+			newMsg.className = 'bb-' + type;
+			newMsg.title = type;
+			newMsg.innerHTML = [ '<span class="bb-icon"></span>', content ].join( '' );
 			outputList.appendChild( newMsg );
 			scrollToBottom();
 		} else {
-			cache.push( [ '<li class="', type, '"><span class="icon"></span>', content, '</li>' ].join( '' ) );
+			cache.push( [ '<li class="bb-', type, '" title="', type ,' message"><span class="bb-icon"></span>', content, '</li>' ].join( '' ) );
 		}
 	}
 	
@@ -102,7 +103,7 @@
 		if ( !evt ) evt = window.event;
 		var el = ( evt.target ) ? evt.target : evt.srcElement;
 
-		if ( el.tagName == 'SPAN' ) {
+		if ( el.tagName == 'span' ) {
 			switch ( el.getAttributeNode( 'op' ).nodeValue ) {
 				case 'resize': resize(); break;
 				case 'clear':  clear();  break;
@@ -115,12 +116,12 @@
 		if ( !evt ) evt = window.event;
 		var span = ( evt.target ) ? evt.target : evt.srcElement;
 
-		if ( span && span.tagName == 'SPAN' ) {
+		if ( span && span.tagName == 'span' ) {
 
 			var type = span.getAttributeNode( 'type' ).nodeValue;
 
 			if ( evt.altKey ) {
-				var filters = document.getElementById( IDs.filters ).getElementsByTagName( 'SPAN' );
+				var filters = document.getElementById( IDs.filters ).getElementsByTagName( 'span' );
 
 				var active = 0;
 				for ( entry in messageTypes ) {
@@ -131,22 +132,22 @@
 				for ( var i = 0; filters[ i ]; i++ ) {
 					var spanType = filters[ i ].getAttributeNode( 'type' ).nodeValue;
 
-					filters[ i ].className = ( oneActiveFilter || ( spanType == type ) ) ? spanType : spanType + 'Disabled';
+					filters[ i ].className = ( oneActiveFilter || ( spanType == type ) ) ? 'bb-' + spanType : 'bb-' + spanType + ' bb-disabled';
 					messageTypes[ spanType ] = oneActiveFilter || ( spanType == type );
 				}
 			}
 			else {
 				messageTypes[ type ] = ! messageTypes[ type ];
-				span.className = ( messageTypes[ type ] ) ? type : type + 'Disabled';
+				span.className = ( messageTypes[ type ] ) ? 'bb-' + type : 'bb-' + type + ' bb-disabled';
 			}
 
 			//build outputList's class from messageTypes object
 			var disabledTypes = [];
 			for ( type in messageTypes ) {
-				if ( ! messageTypes[ type ] ) disabledTypes.push( type );
+				if ( ! messageTypes[ type ] ) disabledTypes.push( 'bb-' + type );
 			}
 			disabledTypes.push( '' );
-			outputList.className = disabledTypes.join( 'Hidden ' );
+			outputList.className = disabledTypes.join( '-hidden ' );
 
 			scrollToBottom();
 		}
@@ -155,8 +156,10 @@
 	function clickVis( evt ) {
 		if ( !evt ) evt = window.event;
 		var el = ( evt.target ) ? evt.target : evt.srcElement;
-
-		state.load = el.checked;
+		
+		var checkbox = ( el.tagName == 'span' ) ? el : el.getElementsByTagName( 'span' )[ 0 ];
+		checkbox.className = ( checkbox.className == '' ) ? 'checked' : '';
+		state.load = ( checkbox.className == 'checked' ) ? true : false;
 		setState();
 	}
 	
@@ -170,11 +173,11 @@
 	}
 
 	function hide() { 
-	  bbird.style.display = 'none';
+		bbird.style.display = 'none';
 	}
 			
 	function show() {
-		var body = document.getElementsByTagName( 'BODY' )[ 0 ];
+		var body = document.getElementsByTagName( 'body' )[ 0 ];
 		body.removeChild( bbird );
 		body.appendChild( bbird );
 		bbird.style.display = 'block';
@@ -187,10 +190,10 @@
 		}
 				
 		switch ( position ) {
-			case 0: classes[ 0 ] = 'bbTopLeft'; break;
-			case 1: classes[ 0 ] = 'bbTopRight'; break;
-			case 2: classes[ 0 ] = 'bbBottomLeft'; break;
-			case 3: classes[ 0 ] = 'bbBottomRight'; break;
+			case 0: classes[ 0 ] = 'bb-top-left'; break;
+			case 1: classes[ 0 ] = 'bb-top-right'; break;
+			case 2: classes[ 0 ] = 'bb-bottom-left'; break;
+			case 3: classes[ 0 ] = 'bb-bottom-right'; break;
 		}
 		state.pos = position;
 		setState();
@@ -199,13 +202,13 @@
 	function resize( size ) {
 		if ( size === undefined || size === null ) {
 			size = ( state && state.size == null ) ? 0 : ( state.size + 1 ) % 2;
-	  	}
+			}
 
-		classes[ 1 ] = ( size === 0 ) ? 'bbSmall' : 'bbLarge'
+		classes[ 1 ] = ( size === 0 ) ? 'bb-small' : 'bb-large'
 
 		var span = document.getElementById( IDs.size );
 		span.title = ( size === 1 ) ? 'small' : 'large';
-		span.className = span.title;	  
+		span.className = ( size === 1) ? 'bb-contract' : 'bb-expand';
 
 		state.size = size;
 		setState();
@@ -249,7 +252,7 @@
 			if ( visible && evt.shiftKey && evt.altKey ) clear();
 			else if	 (visible && evt.shiftKey ) reposition();
 			else if ( !evt.shiftKey && !evt.altKey ) {
-			  ( visible ) ? hide() : show();
+				( visible ) ? hide() : show();
 			}
 		}
 	}
@@ -268,19 +271,28 @@
 		if ( obj.detachEvent ) {
 			obj.detachEvent( 'on' + type, obj[ type + fn ] );
 			obj[ type + fn ] = null;
-	  } else obj.removeEventListener( type, fn, false );
+		} else obj.removeEventListener( type, fn, false );
 	}
 
+	
 	window[ NAMESPACE ] = {
 		toggle:
-			function() { ( isVisible() ) ? hide() : show(); },
+			function( visible ) { 
+				if ( visible === true || visible === false ) {
+					( visible ) ? show() : hide()
+				} else if ( isVisible() ) {
+					hide();
+				} else {
+					show();
+				}
+			},
 		resize:
 			function() { resize(); },
 		clear:
 			function() { clear(); },
 		move:
 			function() { reposition(); },
-		debug: 
+		debug:
 			function( msg ) { addMessage( 'debug', msg ); },
 		warn:
 			function( msg ) { addMessage( 'warn', msg ); },
@@ -288,7 +300,7 @@
 			function( msg ) { addMessage( 'info', msg ); },
 		error:
 			function( msg ) { addMessage( 'error', msg ); },
-		profile: 
+		profile:
 			function( label ) {
 				var currentTime = new Date(); //record the current time when profile() is executed
 				
@@ -296,7 +308,7 @@
 					addMessage( 'error', '<b>ERROR:</b> Please specify a label for your profile statement' );
 				}
 				else if ( profiler[ label ] ) {
-					addMessage( 'profile', [ label, ': ', currentTime - profiler[ label ],	'ms' ].join( '' ) );
+					addMessage( 'profile', [ label, ': ', currentTime - profiler[ label ], 'ms' ].join( '' ) );
 					delete profiler[ label ];
 				}
 				else {
@@ -307,40 +319,47 @@
 			}
 	}
 
-	addEvent( window, 'load', 
-		/* initialize Blackbird when the page loads */
-		function() {
-			var body = document.getElementsByTagName( 'BODY' )[ 0 ];
-			bbird = body.appendChild( generateMarkup() );
-			outputList = bbird.getElementsByTagName( 'OL' )[ 0 ];
-		
-			backgroundImage();
-		
-			//add events
-			addEvent( IDs.checkbox, 'click', clickVis );
-			addEvent( IDs.filters, 'click', clickFilter );
-			addEvent( IDs.controls, 'click', clickControl );
-			addEvent( document, 'keyup', readKey);
+	addEvent( window, 'load', function() { /* initialize Blackbird when the page loads */
+		var body = document.getElementsByTagName( 'body' )[ 0 ];
+		bbird = body.appendChild( generateMarkup() );
+		outputList = bbird.getElementsByTagName( 'ol' )[ 0 ];
+	
+		backgroundImage();
+	
+		//add events
+		addEvent( IDs.checkbox, 'click', clickVis );
+		addEvent( IDs.filters, 'click', clickFilter );
+		addEvent( IDs.controls, 'click', clickControl );
+		addEvent( document, 'keyup', readKey);
 
-			resize( state.size );
-			reposition( state.pos );
-			if ( state.load ) {
-				show();
-				document.getElementById( IDs.checkbox ).checked = true; 
-			}
+		resize( state.size );
+		reposition( state.pos );
+		if ( state.load ) {
+			show();
+			document.getElementById( IDs.checkbox ).getElementsByTagName( 'span')[ 0 ].className = 'checked'; 
+		}
 
-			scrollToBottom();
+		scrollToBottom();
 
-			window[ NAMESPACE ].init = function() {
-				show();
-				window[ NAMESPACE ].error( [ '<b>', NAMESPACE, '</b> can only be initialized once' ] );
-			}
-
-			addEvent( window, 'unload', function() {
-				removeEvent( IDs.checkbox, 'click', clickVis );
-				removeEvent( IDs.filters, 'click', clickFilter );
-				removeEvent( IDs.controls, 'click', clickControl );
-				removeEvent( document, 'keyup', readKey );
-			});
+		addEvent( window, 'unload', function() {
+			removeEvent( IDs.checkbox, 'click', clickVis );
+			removeEvent( IDs.filters, 'click', clickFilter );
+			removeEvent( IDs.controls, 'click', clickControl );
+			removeEvent( document, 'keyup', readKey );
 		});
+	});
+	
+	window.blackbird = {
+		namespace:
+			function( newNS ) {
+				if ( newNS && newNS.constructor === String ) {
+					window[ newNS ] = {};
+					for ( method in window[ NAMESPACE ] ) {
+						window[ newNS ][ method ] = window[ NAMESPACE ][ method ];
+					}
+					delete window[ NAMESPACE ];
+					NAMESPACE = newNS;
+				}
+			}
+	}
 })();
