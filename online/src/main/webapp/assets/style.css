@@ -1,14 +1,8 @@
-body {
-  font-size: 100%;
-}
-/*
-input.text {
-  font-size:100%;
-}
-*/
-input {
-  font-size:100%;
-}
+html { overflow-y: scroll; }
+body { font-size: 100%; }
+/* input.text { font-size:100%; } */
+input { font-size:100%; }
 .pos { font-family: "Times New Roman", serif; }
 .focalWord { color: red; }
 .summaryWord { font-weight: bold; }
+#blackbird { z-index:10000; }
