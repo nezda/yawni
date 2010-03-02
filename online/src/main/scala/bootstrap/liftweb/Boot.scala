@@ -16,8 +16,7 @@
  */
 package bootstrap.liftweb
 
-import net.liftweb.common._
-//import common.{Box, Full, Empty, Failure}
+import _root_.net.liftweb.common.{Box, Full, Empty, Failure}
 import net.liftweb.util._
 //import util.{Helpers, Log, NamedPF, Props}
 import net.liftweb.http._
@@ -43,46 +42,23 @@ class Boot {
 
     //LiftRules.fixCSS("css" :: Nil, Empty)
 
-    LiftRules.dispatch.prepend(Yawni.dispatch)
-    LiftRules.dispatch.prepend(RoundedCornerService.dispatch)
-
+    Yawni.init()
     // manual plumbing/wiring for singleton object snippet:
     LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
+
+    RoundedCornerService.init()
+
+    // Show the spinny image when an Ajax call starts
+    LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
+
+    // Make the spinny image go away when it ends
+    LiftRules.ajaxEnd = Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+    
+    LiftRules.early.append(makeUtf8)
 
     // Build SiteMap
     val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
     LiftRules.setSiteMap(SiteMap(entries:_*))
-
-    // not valid Scala
-    // WordNetInterface wn = WordNet.getInstance();
-    // String query = "was";
-    // verbse Scala
-    // val wn: WordNetInterface = WordNet.getInstance();
-    // val query: String = "was";
-    // typical compact Scala variants:
-    //  - semicolons often optional (usually elided)
-    //  - parens optional for zero arg methods (usually elided)
-    //  - method-invoking "." optional
-    // val wn = WordNet.getInstance()
-    // val wn = WordNet getInstance
-    val wn = WordNet.getInstance
-    val query = "was";
-    //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
-    //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
-    
-    /*
-     * Show the spinny image when an Ajax call starts
-     */
-    LiftRules.ajaxStart =
-            Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
-
-    /*
-     * Make the spinny image go away when it ends
-     */
-    LiftRules.ajaxEnd =
-            Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
-    
-    LiftRules.early.append(makeUtf8)
 
     // Dump browser information each time a new connection is made
     LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing
