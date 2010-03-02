@@ -97,6 +97,10 @@ object RoundedCornerService {
   //   aw=10&
   //   sw=4&
   //   o=.5
+  
+  def init() = {
+    LiftRules.dispatch.prepend(RoundedCornerService.dispatch)
+  }
 
   def dispatch: LiftRules.DispatchPF = {
     // Req(url_pattern_list, suffix, request_type)
