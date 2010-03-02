@@ -9,6 +9,7 @@
   <static-files>
     <include path="**.css"/>
     <include path="**.png"/>
+    <include path="**.gif"/>
     <include path="**.js"/>
   </static-files>
 </appengine-web-app>
