@@ -12,12 +12,19 @@
   <packaging>war</packaging>
   <properties>
     <scala.version>2.7.7</scala.version>
+    <lift.version>2.0-SNAPSHOT</lift.version>
+    <maven-scala-plugin.version>2.12.2</maven-scala-plugin.version>
   </properties>
   <repositories>
     <repository>
       <id>scala-tools.releases</id>
       <name>Scala-Tools Maven2 Repository for Releases</name>
       <url>http://scala-tools.org/repo-releases</url>
+    </repository>
+    <repository>
+      <id>scala-tools.snapshots</id>
+      <name>Scala-Tools Maven2 Repository for Snapshots</name>
+      <url>http://scala-tools.org/repo-snapshots</url>
     </repository>
   </repositories>
   <pluginRepositories>
@@ -49,7 +56,12 @@
     <dependency>
       <groupId>net.liftweb</groupId>
       <artifactId>lift-mapper</artifactId>
-      <version>2.0-M2</version>
+      <version>${lift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.liftweb</groupId>
+      <artifactId>lift-widgets</artifactId>
+      <version>${lift.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -78,7 +90,7 @@
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
-        <version>2.12.2</version>
+        <version>${maven-scala-plugin.version}</version>
         <executions>
           <execution>
             <id>scala-compile</id>
@@ -96,15 +108,18 @@
           </execution>
         </executions>
         <configuration>
+          <!-- <fork>false</fork> -->
           <useFsc>true</useFsc>
           <scalaVersion>${scala.version}</scalaVersion>
           <args>
             <arg>-unchecked</arg>
             <arg>-deprecation</arg>
+            <!-- <arg>-Xno-varargs-conversion</arg> -->
             <arg>-explaintypes</arg>
           </args>
         </configuration>
       </plugin>
+      <!--
       <plugin>
         <groupId>net.sf.alchim</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
@@ -120,6 +135,7 @@
           <nosuffix>true</nosuffix>
         </configuration>
       </plugin>
+      -->
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>maven-jetty-plugin</artifactId>
@@ -135,7 +151,7 @@
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
-        <version>2.12.2</version>
+        <version>${maven-scala-plugin.version}</version>
       </plugin>
     </plugins>
   </reporting>
