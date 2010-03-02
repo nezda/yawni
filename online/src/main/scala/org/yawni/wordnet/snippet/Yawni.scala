@@ -17,6 +17,15 @@ import net.liftweb.common.{Full, Box}
 import net.liftweb.http.js.JE._
 
 object Yawni {
+  def init() = {
+    LiftRules.dispatch.prepend(Yawni.dispatch)
+    // preload
+    val wn = WordNet.getInstance
+    val query = "was";
+    //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
+    //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
+  }
+
   def dispatch: LiftRules.DispatchPF = {
     // Req(url_pattern_list, suffix, request_type)
     case Req("api" :: someString :: Nil, _, GetRequest) => () => Full(xmlResponse(someString))
