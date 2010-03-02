@@ -9,14 +9,17 @@
     <lift:CSS.blueprint />
     <lift:CSS.fancyType />
     <link type="text/css" href="/assets/style.css" rel="stylesheet" media="screen, projection" />
+    <!--
     <link type="text/css" href="/assets/blackbird.css" rel="stylesheet" media="screen" />
     <script type="text/javascript" src="/assets/blackbird.js"></script>
+    -->
     <script type="text/javascript" src="/classpath/jquery.js" id="jquery"></script>
   </head>
   <body>
     <div class="container">
+      <div class="column span-1 last" style="float:right"><img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/></div>
       <lift:bind name="content"/>
-      <lift:msgs/>
+      <lift:Msgs/>
     </div>
   </body>
 </html>
