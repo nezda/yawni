@@ -19,18 +19,17 @@ inserting it into the default template at the bind point "content"
   -->
   </lift:ignore>
   <lift:Ajax.searchField id_msgs="messages">
-    <div id="header" class="span-24 last">
-      <!-- <h1><img src="images/yawni_57x64_icon.png" alt="Yawni"/></h1> -->
-      <h1>Yawni Online</h1>
+    <div class="span-16 search_panel">
+      <div class="append-bottom">
+        <span class="input_bubble">
+          <ajax:searchBox class="span-12" tabindex="1" type="search"/>
+          <ajax:searchButton/>
+        </span>
+        <div class="column span-1 last" style="float:right"><img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/></div>
+      </div>
+      <div id="resultz" class="resultz"></div>
+      <!-- <div id="messages"></div> -->
     </div>
-    <div class="span-16">
-      <!-- <ajax:searchBox class="text" tabindex="1" type="search" /> -->
-      <ajax:searchBox/>
-      <hr class="space"/>
-      <div id="resultz"></div>
-      <div id="messages"></div>
-    </div>
-    <div class="span-8 last">
-    </div>
+    <div class="recentQueries span-8 last"></div>
   </lift:Ajax.searchField>
 </lift:surround>
