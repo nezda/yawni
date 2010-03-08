@@ -16,7 +16,7 @@
  */
 package org.yawni.wordnet.snippet
 
-import scala.xml.{ Text, NodeSeq }
+import scala.xml.{ Elem, Text, NodeSeq, Group }
 import net.liftweb.http.{ S, SHtml, DispatchSnippet }
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
@@ -40,21 +40,25 @@ import net.liftweb.util.Helpers._
 // + closure of handler method can have nested 'fields' and defs, thus it has equivalent power
 // Drawbacks: 
 // - more typing
-object Ajax extends DispatchSnippet {
 //class Ajax extends DispatchSnippet {
+object Ajax extends DispatchSnippet {
   override def dispatch = { 
     case "searchField" => searchField
   }
   // searchField closure
   def searchField(xhtml: NodeSeq): NodeSeq = {
     // build up an ajax text box
-    def doSearch(msg: NodeSeq) = {
-      FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), /*("class", "text"),*/("size","30"), ("tabindex", "1"), ("type", "search")))
+    def searchBox = {
+      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxId"))
     }
-    // bind the view to the functionality
+    // searchBox ajaxText will activate on blur so this is just for show
+    def searchButton = {
+      SHtml.ajaxButton("Search", () => Noop)
+    }
     bind("ajax", xhtml,
-         "searchBox" -> doSearch _
-         )
+         "searchButton" -%> searchButton,
+         "searchBox" -%> searchBox
+    ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxId", "")))
   }
 }
 
@@ -69,13 +73,17 @@ object Ajax extends DispatchSnippet {
 //  // searchField closure
 //  def searchField(xhtml: NodeSeq): NodeSeq = {
 //    // build up an ajax text box
-//    def doSearch(msg: NodeSeq) = {
-//      //FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("type", "search"), ("class", "text")))
-//      FocusOnLoad(SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), /*("class", "text"),*/("size","30"), ("tabindex", "1"), ("type", "search")))
+//    def searchBox = {
+//      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxId"))
+//    }
+//    // searchBox ajaxText will activate on blur so this is just for show
+//    def searchButton = {
+//      SHtml.ajaxButton("Search", () => Noop)
 //    }
 //    // bind the view to the functionality
 //    bind("ajax", xhtml,
-//         "searchBox" -> doSearch _
-//         )
+//         "searchButton" -%> searchButton,
+//         "searchBox" -%> searchBox
+//    ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxId", "")))
 //  }
 //}
