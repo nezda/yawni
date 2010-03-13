@@ -19,7 +19,7 @@ import net.liftweb.http.js.JE._
 
 object Yawni {
   def init() = {
-    //LiftRules.dispatch.prepend(Yawni.dispatch)
+    LiftRules.dispatch.prepend(Yawni.dispatch)
     // trigger preload
     val wn = WordNet.getInstance
     val query = "was";
