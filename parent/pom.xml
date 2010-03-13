@@ -166,6 +166,13 @@
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty</artifactId>
+        <!-- 
+        mvn 2.2.0 regression causes mvn site to break with
+        java.lang.IllegalArgumentException: Invalid uri 
+        'http://repository.jboss.org/maven2/org/mortbay/jetty/jetty/[6.1.6,7.0)/jetty-[6.1.6,7.0).pom':
+        escaped absolute path not valid
+        <version>6.1.9</version>
+        -->
         <version>[6.1.6,7.0)</version>
       </dependency>
     </dependencies>
