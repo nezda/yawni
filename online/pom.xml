@@ -6,8 +6,8 @@
     <artifactId>yawni</artifactId>
     <version>2.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>gae</artifactId>
-  <name>yawni gae</name>
+  <artifactId>yawni-wordnet-online</artifactId>
+  <name>Yawni Online</name>
   <!-- <version>1.0.0-SNAPSHOT</version> -->
   <packaging>war</packaging>
   <properties>
