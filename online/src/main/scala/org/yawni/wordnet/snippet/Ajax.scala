@@ -48,17 +48,28 @@ object Ajax extends DispatchSnippet {
   // searchField closure
   def searchField(xhtml: NodeSeq): NodeSeq = {
     // build up an ajax text box
-    def searchBox = {
+    def searchBox: Elem = {
       SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxId"))
     }
     // searchBox ajaxText will activate on blur so this is just for show
-    def searchButton = {
+    def searchButton: Elem = {
       SHtml.ajaxButton("Search", () => Noop)
     }
     bind("ajax", xhtml,
          "searchButton" -%> searchButton,
          "searchBox" -%> searchBox
     ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxId", "")))
+    // Naftoli Gugenheim suggested something like this; can't get it to compile
+    //bind("ajax", xhtml,
+    //  //"searchButton" -%> searchButton,
+    //  "searchBox" -> {ns: NodeSeq =>
+    //    FocusOnLoad(
+    //      bind("ajax", ns,
+    //        "searchBox" -%> searchBox
+    //      )
+    //    )
+    //  }
+    //) 
   }
 }
 
