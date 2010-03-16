@@ -69,6 +69,14 @@ object Ajax extends DispatchSnippet {
     //      )
     //    )
     //  }
+    //)
+    // Naftoli Gugenheim's next suggestion; fails with MatchError
+    //bind("ajax", xhtml,
+    //  //"searchButton" -%> searchButton,
+    //  "searchBox" -> { ns: NodeSeq => ns match { 
+    //    case e: Elem =>
+    //      FocusOnLoad(searchBox % e.attributes)
+    //  }}
     //) 
   }
 }
