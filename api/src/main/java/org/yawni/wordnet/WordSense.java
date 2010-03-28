@@ -555,6 +555,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     return coreRank;
   }
 
+  /** {@inheritDoc} */
   public String getDescription() {
     if (getPOS() != POS.ADJ && getPOS() != POS.SAT_ADJ) {
       return lemma;
