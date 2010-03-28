@@ -59,25 +59,6 @@ object Ajax extends DispatchSnippet {
          "searchButton" -%> searchButton,
          "searchBox" -%> searchBox
     ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxId", "")))
-    // Naftoli Gugenheim suggested something like this; can't get it to compile
-    //bind("ajax", xhtml,
-    //  //"searchButton" -%> searchButton,
-    //  "searchBox" -> {ns: NodeSeq =>
-    //    FocusOnLoad(
-    //      bind("ajax", ns,
-    //        "searchBox" -%> searchBox
-    //      )
-    //    )
-    //  }
-    //)
-    // Naftoli Gugenheim's next suggestion; fails with MatchError
-    //bind("ajax", xhtml,
-    //  //"searchButton" -%> searchButton,
-    //  "searchBox" -> { ns: NodeSeq => ns match { 
-    //    case e: Elem =>
-    //      FocusOnLoad(searchBox % e.attributes)
-    //  }}
-    //) 
   }
 }
 
