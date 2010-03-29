@@ -1,6 +1,6 @@
 package org.yawni.wordnet.snippet
 
-import scala.xml.{ Text, NodeSeq }
+import scala.xml.{ Text, NodeSeq, NodeBuffer }
 import net.liftweb.http.{ S, SHtml, XmlResponse }
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
@@ -9,6 +9,7 @@ import net.liftweb.util.Helpers._
 import org.yawni.wordnet._
 import org.yawni.util._
 import org.yawni.wordnet.POS._
+import org.yawni.wordnet.GlossAndExampleUtils._
 import scala.collection.jcl.Conversions._
 import scala.collection.jcl._
 import java.util.TreeSet // don't want List
@@ -138,13 +139,48 @@ object Yawni {
 
   implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
 
+  //private def render(word: Word, wordSense: WordSense) = {
+  //  val verbose = false
+  //  wordSense.getSynset.getLongDescription(verbose)
+  //  <span>
+  //  { "{ " + wordSense.getSynset.map(_.getLemma).mkString(" • ") + " } — " + wordSense.getSynset.getGloss }
+  //  </span>
+  //}
+
+  //private def render(word: Word, wordSense: WordSense) = {
+  //  <div class="synset"> { wordSense.getSynset.map(_.getLemma).mkString(" • ") } </div> ++
+  //  <div class="gloss"> { wordSense.getSynset.getGloss } </div>
+  //}
+  
+  private def focalWord(word: Word, wordSense: WordSense) = {
+    if (word.getLowercasedLemma.equalsIgnoreCase(wordSense.getLemma))
+      <span class="focalWord">{ wordSense.getLemma }</span>
+    else
+      Text(wordSense.getLemma)
+  }
+
   private def render(word: Word, wordSense: WordSense) = {
-    //val verbose = false
-    //wordSense.getSynset.getLongDescription(verbose)
-    //<span>
-    //{ "{ " + wordSense.getSynset.map(_.getLemma).mkString(" • ") + " } — " + wordSense.getSynset.getGloss }
-    //</span>
-    <div class="synset"> { wordSense.getSynset.map(_.getLemma).mkString(" • ") } </div> ++
-    <div class="gloss"> { wordSense.getSynset.getGloss } </div>
+    val synset = wordSense.getSynset
+//    <div class="synset"> { synset.map(_.getLemma).mkString(" • ") } </div> ++
+    val wordSenses = synset.iterator()
+    val synsetXML = new NodeBuffer
+    if (wordSenses.hasNext) synsetXML.append(focalWord(word, wordSenses.next))
+    while (wordSenses.hasNext) {
+      synsetXML.append(Text(" • "))
+      synsetXML.append(focalWord(word, wordSenses.next))
+    }
+    <div class="synset"> { synsetXML } </div>
+    <div class="gloss">
+      <div class="definitions"> { getDefinitionsChunk(synset) } </div>
+      { renderExamples(synset) }
+    </div>
+  }
+
+  private def renderExamples(synset: Synset) = {
+    val examples = getExamplesChunk(synset)
+    if (! examples.isEmpty)
+      <div class="examples"> { examples } </div>
+    else
+      NodeSeq.Empty
   }
 }
