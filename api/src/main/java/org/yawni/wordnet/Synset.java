@@ -18,6 +18,8 @@ package org.yawni.wordnet;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
@@ -172,12 +174,12 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   }
 
   /**
-   * Returns the "gloss", or definition of this synset, and optionally some sample sentences.
+   * Returns the "gloss", or definition of this synset, and optionally some example sentences.
    */
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   public String getGloss() {
     final String line = wordNet.getSynsetLineAt(getPOS(), offset);
-    // parse gloss
+    // find gloss
     final int index = line.indexOf('|');
     if (index > 0) {
       // jump '|' and immediately following ' '
