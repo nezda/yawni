@@ -73,7 +73,7 @@
   <properties>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4jVersion>1.5.10</slf4jVersion>
+    <slf4jVersion>1.5.11</slf4jVersion>
   </properties>
   <!-- specify dependency versions -->
   <dependencyManagement>
