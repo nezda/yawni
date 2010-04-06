@@ -18,8 +18,6 @@ package org.yawni.wordnet;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
@@ -229,7 +227,10 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
     return wordSenses.iterator();
   }
 
-  int getOffset() {
+  /**
+   * @eturn this {@code Synset}'s offset in the data files.
+   */
+  public int getOffset() {
     return offset;
   }
 
