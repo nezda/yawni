@@ -30,19 +30,19 @@ import org.yawni.util.*;
 /**
  * Built for easy extension:
  * <ul>
- * <li> implements {@code ListModel}; built to display large {@code Iterable}s</li>
- * <li> results to display / filter are updated via an {@code Iterable} which
+ *   <li> implements {@code ListModel}; built to display large {@code Iterable}s</li>
+ *   <li> results to display / filter are updated via an {@code Iterable} which
  *   is traversed in its own thread; keeps filtering logic decoupled</li>
- * <li> implements {@code DocumentListener} for search field which will interactively issue
+ *   <li> implements {@code DocumentListener} for search field which will interactively issue
  *   queries via method:
  *     {@code abstract public Iterable search(final String query)}
  *   </li>
  *   <ul>
- *   <li> this method will be called in a separate thread and should ideally
+ *     <li> this method will be called in a separate thread and should ideally
  *     support thread interruption</li>
- *   <li> gets query from search field from {@code DocumentEvent} via the {@code Document}</li>
+ *     <li> gets query from search field from {@code DocumentEvent} via the {@code Document}</li>
  *   </ul>
- * <li> uses {@code JList} reference to maintain display correctness and optimize responsiveness</li>
+ *   <li> uses {@code JList} reference to maintain display correctness and optimize responsiveness</li>
  * </ul>
  *
  * <h4>XXX (older prose design notes) XXX</h4>
@@ -154,6 +154,10 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     lastTask = submittedTask;
     lastQuery = query;
   }
+  // runs in background thread; respects interrupts
+  // runs complete search in background, then updates displayed list
+  // TODO
+  // - run some of search, then display some of search, run more of search, update display
   private void doRedisplay(final Iterable toDisplay, final String query) {
     // redisplay() should be called in a non-event dispatch thread - it will need a little API
     // Easiest to use a single-threaded ExecutorService

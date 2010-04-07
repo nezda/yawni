@@ -39,7 +39,7 @@ import javax.xml.transform.stream.*;
  * - note odd Word/Collocation distinction - seems like this should be optional
  * 
  * Consider XStream (ThoughtWorks)
- * - supports JSON (REST)
+ * - supports JSON
  *
  * Goals:
  * - common XML serialization that apps / other APIs can be built out of using XSLT
