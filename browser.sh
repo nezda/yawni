@@ -29,6 +29,8 @@ CLASSPATH=/Users/nezda/cvs/yawni.git/browser/target/yawni-wordnet-browser-2.0.0-
 # outter parens make this a Bash array of space separated elements
 #JVM_ARGS+=()
 JVM_ARGS=(-Xdock:name="Yawni Browser")
+#JVM_ARGS+=(-Xdock:icon=jar://org/yawni/wordnet/browser/yawni_115x128_icon.png)
+#JVM_ARGS+=(-Xdock:icon=./browser/src/main/resources/org/yawni/wordnet/browser/yawni_115x128_icon.png)
 #JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/log4j.properties)
 JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/browser/log4j.properties)
 JVM_ARGS+=(-Dfile.encoding=UTF-8)
