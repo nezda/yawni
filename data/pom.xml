@@ -41,6 +41,8 @@
         <!-- don't want to corrupt the serialized filters ! -->
         <excludes>
           <exclude>**/*.bloom</exclude>
+          <exclude>**/dict/index.*</exclude>
+          <exclude>**/dict/data.*</exclude>
         </excludes>
       </resource>
       <resource>
