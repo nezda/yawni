@@ -126,7 +126,7 @@ Release TODOs
 //       - TokenFilter (input isa TokenStream) (Uwe says decorator pattern: TokenFilter adds functionality to a Tokenizer)
 //       - TeeSinkTokenFilter.SinkTokenStream
 //       - NumericTokenStream
-//   - "Attributes instead of Tokens"
+//   - "Attributes instead of fields of Tokens"
 //   - AttributeImpl implements Attribute
 //     - Token (implements Attribute,  FlagsAttribute, OffsetAttribute, PayloadAttribute, PositionIncrementAttribute, TermAttribute, TypeAttribute)
 //   - AttributeSource container of AttributeImpls
@@ -291,48 +291,118 @@ everything
 
   - looking for trouble: rename it wordnetnik :)
 
+  - feature: online: update appengine-web.xml <version> automatically with Maven; then Google App Engine will version our app !
   - yawni.org color scheme: 
     - orange variant #F79910
   - CSS
     + font-size: 16px 
     + line-height: 24px
   - other typography enhancements
-    - color - get inspiration from wordnetweb and wordnik
+    - color - get inspiration from wordnetweb
     - smart double quotes
     - smart single quotes for single quoted items: `foo' → ‘foo’; 's → ’s
     - bullet between examples ; •
+    - "space" bullet (\u00B7 MIDDLE DOT) between words of collocations ; wild-goose·chase ; attack·dog ; hard·cash
+      - only occasionally see this used, and often only for phonetic separation
     - italicize examples; gray text (use BluePrint CSS class alt)
     - em dash where apropos
-  - links to/from yawni.org
-  - meta keywords: WordNet
-  - recent searches on right hand side
-    - don't want REST API searches: 
-  - lift-widgets: autocomplete , (DHTML) menus , sparklines graphs
-  - rounded corners:
-    - Tapestry has neat REST service for this: http://tapestry.apache.org/tapestry4.1/developmentguide/hivemind/roundedcorners.html
+    - rounded corners:
+      - this site uses rounded corners a lot: http://scala-tools.org/mvnsites/maven-scala-plugin/
+        -moz-border-radius: 14px 14px 14px 14px !important
+      - Tapestry has neat REST service for this: http://tapestry.apache.org/tapestry4.1/developmentguide/hivemind/roundedcorners.html
+      - use div class showgrid to see the BluePrint grid
+        <span style="padding: 14px; -moz-border-radius: 14px 14px 14px 14px ! important; background: none repeat scroll 0% 0% white;">
+          <input>
+        </span>
+        <p/>
+        <div id="resultz" style="-moz-border-radius: 14px 14px 0px 0px ! important; background: none repeat scroll 0% 0% white; padding: 14px;">
+        </div>
+  - design
+    + orange background #F79910 (used ColorPicker to get this perfect)
+    + white capsule around search box
+    + downward facing rounded corners on results
+    + issues
+      - sense-horizontal-separating bullets are too big (Christine)
+      + ajax active spinner in unusual place
+        - maybe closer to search box
+      + ajax active spinner has white background which looks weird on non-white background
+        x make it transparent - better to match background colors
+        + http://www.ajaxload.info/
+      + rounded corners should work in Safari too
+      + add search button, if only for aesthetics (searchField activates onBlur anyway)
+      + add footer (copyright, etc.)
+  ~ links to/from yawni.org
+  + meta keywords: WordNet
+  - add recent searches on right hand side
+    - don't want REST API searches to be shown here
+  - scratch notes
+    
+    // <div>
+    //   <span> wrapping each sense
+    //   bullets between each sense <span>
+    NodeBuffer buffer = new NodeBuffer;
+    for (s <- senses) {
+      buffer &+ <span>s</span>
+    }
+    
+//    //val x = 1::2::3::4::Nil
+//
+//    //<ul>{x.map(w => <li>{ w }</li>)}</ul>
+//    
+//    //x.foldLeft(new NodeBuffer){(b, e) => b.append(<span> { e } </span>); b}
+//    //x./:(new NodeBuffer){(b, e) => b.append(<span> { e } </span>); b}
+//   (new NodeBuffer /:x){(b, e) => b.append(<span> { e } </span>); b}
+//   (new NodeBuffer /:x){(b, e) => b &+ <span> { e } </span>}
+//   //fail (new NodeBuffer /:x)( _ &+ <span>{ _ }</span>)
+//
+//    //val b = new xml.NodeBuffer
+//    //x./:(b){(b, e) => b.append(<span> { e } </span>); b}
+
+  - REST API can be totally stateless (see Lift example StatelessHtml.scala)
+    - David Pollack's advice
+      - serialize the forms to JSON and then make an Ajax call on a stable URL
+      - new Req.json features will allow easier extraction of JSON from a REST call
+        - this combined with disabling the Lift heartbeat should give you stateless support for JSON
+    
+  - lift-widgets: autocomplete, (DHTML) menus, sparkline graphs
+  - support different versions of WordNet :)
+    - should we vary yawni-wordnet-data project version or artifactName ? (or both?)
   - bugs
-    - aritfact name is still gae-2.0.0-SNAPSHOT.war ; change to ???
-    ! ajax page seems to reset when page is left and then revisited -- searchField focus issue ?
+    + aritfact name is still gae-2.0.0-SNAPSHOT.war ; change to yawni-online-2.0.0-SNAPSHOT.jar
+    + timed out issues
+      - empty responses returned from timed out sessions
+      - entry to "waiting" page is ignored; returns empty result !?
+      ! likely only occurs on GAE and is caused by 1 request being serviced by multiple JVMs; LiftSession is not fully stored in servlet session, so this clustered servicing fails to behave correctly
+    - rounded corners won't work on IE (5,6,7,8)
+      http://www.w3schools.com/browsers/browsers_stats.asp
+      ? what about Chrome & Opera ?
+    + SLF4J impl collision
+    + ajax page seems to reset when page is left and then revisited 
+      x searchField focus issue
       x main evidence is from appspot version of app
       x could local and appspot versions running in different tabs be interacting (via cache or otherwise ?)
-      * Lift Garbage collection:
+      + intentional effect of Lift (Session) Garbage collection: can be disabled, but not a good idea
         LiftRules.enableLiftGC = false
-    - spinning ajax thing not showing (yuicompressor-maven-plugin ?)
-      ? something missing in Boot
+    + ajax active spinner not showing
+      x something missing in Boot ?
+      + src/main/webapp/images/ajax-loader.gif was missing
+      + still doesn't work: had to add default hidden div to default.html
     + Blackbird widget not working (yuicompressor-maven-plugin ?)
+      + various problems with xhtml and this widget
     + browser scroll bar causes jarring left/right shift
       html { overflow-y: scroll; }
       http://www.w3.org/TR/CSS21/visufx.html#overflow
   - custom 404 page
     http://wiki.liftweb.net/index.php/Setting_up_a_custom_404_page
   - tests
-    - lift example uses several test libraries: 'specs', 'mocikito', jwebunit-htmlunit
+    - lift example uses several test libraries: 'specs', 'mockito', jwebunit-htmlunit
     - Selenium tests
     - load tests : JMeter
       - http://code.google.com/p/perfbench/source/browse/trunk/perfbench
 
-+ feature: core: before initial public release, get names right; rename package org.yawni.wn → org.yawni.wordnet ; rename groupId org.yawni.wn → org.yawni; rename artifactId yawni-core → yawni-wordnet-api; rename artifactId browser → yawni-wordnet-browser
+- Tapestry on Google App Engine ?
 
++ feature: core: before initial public release, get names right; rename package org.yawni.wn → org.yawni.wordnet ; rename groupId org.yawni.wn → org.yawni; rename artifactId yawni-core → yawni-wordnet-api; rename artifactId browser → yawni-wordnet-browser
 - feature: core: ⊚ incorporate other related lexico-semantic resources
   - new Princeton "Standoff Files"
     - The Morphosemantic Database
@@ -506,31 +576,7 @@ everything
   <link rel="shortcut icon" href="http://www.yawni.org/favicon.ico"/>
   <link rel="icon" type="image/x-icon" type="image/vnd.microsoft.icon" href="http://www.yawni.org/favicon.ico"/>
 
-
-// what the heck does this mean in CSS ?
-// ? class "body" without an element ?
-.body pre, #wikitext pre {
-
-// orig
-<div class="highlight"><span class="k">import</span> <span class="nn">stopwatch.Stopwatch</span>
-<span class="c1">// A stopwatch surrounds your code</span>
-<span class="nc">Stopwatch</span><span class="o">(</span><span class="s">&quot;someName&quot;</span><span class="o">)</span> <span class="o">{</span>
-  <span class="c1">// code being timed</span>
-  <span class="nf">doSomething</span><span class="o">()</span>
-  <span class="nf">somethingElse</span><span class="o">()</span>
-<span class="o">}</span>
-</div>
-
-<div class="highlight"><span class="k">import</span> <span class="nn">stopwatch.Stopwatch</span>
-<span class="c1">// A stopwatch surrounds your code</span>
-<span class="nc">Stopwatch</span><span class="o">(</span><span class="s">&quot;someName&quot;</span><span class="o">)</span> <span class="o">{</span>
-  <span class="c1">// code being timed</span>
-  doSomething();
-  somethingElse();
-<span class="o">}</span>
-</div>
-
-- Pivot
+- Apache Pivot
   - Web Start app probably more compelling than applet
     - could add a poll to site
   - Would be cool to download executable, single jar form too 
@@ -546,6 +592,21 @@ everything
     - ColorChooserButton
 
 - issues
+  x feature: core: Synset.getRelations() List<Relation> could be represented as Map<RelationType, List<Relation>>
+    - pro: subsumes getRelations(RelationType)
+    - cons: Map requires more memory than List ; Relation is already acting as Map.Entry ; Map has no order ; cannot customize (e.g., HYPERNYM implies INSTANCE HYPERNYM)
+  - feature: core: parse glosses / examples
+    - option 1: simply break gloss definition(s) part and examples part ; getDefintionChunk() / getExampleChunk() ; approach used by wordnet online
+    - option 2: break gloss into chunks (?) and examples into chunks ; this functionality is not provided by other libraries
+    - option 3: swallow exceptions of failed parses; provide both options
+    - option 4: getGlossesAndExamples()
+    * the advanced functions are primarily for use in UIs, and could start out in a utility class (e.g., Descriptions)
+  - bug: core: RelationTarget (WordSense and Synset) getDescription() / getDescription(boolean) / getLongDescription() / getLongDescription(boolean) methods are a little contrived; they are essentially for UIs only;  a more flexible impl would allow varying lexfile num, ...
+    - Describer / Description / Printer / Renderer / java.util.Formatter / java.util.Formattable / java.text.Format / MessageFormat
+    - java.util.Formatter - uses Formattable to allow customization of "%s" rendering ; can be parameterized some with FormattableFlags, int length, int precision
+      - could add Formattable to Word, WordSense, Synset, POS, Relation, RelationType, Lexname ; doesn't add much to toString()
+    - java.util.logging.Formatter - uses LogRecord
+    - made rough outline in org.yawni.wordnet.browser.Searcher
   - feature: core: create commandline tool (a la wn) based on Command interface ; consider supporting batch mode or RAFCharStream to minimize init lag
   - bug: core: record "Core" missing senseKeys (gvimdiff core active2.sorted)
   - feature: core: simple commandline utilizing synsets(query) / wordSenses(query) akin to 'wn' (e.g., -grep{n|v|a|r})
@@ -558,7 +619,7 @@ everything
     + requires no manual parsing
     -? necessarily more public API commitments
   - feature: core: doc: describe regex term search support
-  - feature: core: orthographic case features ("true case")
+  - feature: core: doc: describe orthographic case features ("true case")
   - feature: core: doc: describe regex gloss search support
   - feature: core: add glob support; translate "*yawn*" → ".*yawn.*"
   ~ feature: core: lookupWordSenses(String someString, POS pos) ; add unit tests; make examples with it
@@ -648,6 +709,70 @@ everything
     How can we test behavior in the sandboxed, high security environment?
   + bug: core: gui: default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
   - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
+
+To use Yawni, you must include its core api jar file in your classpath; this is easiest with a Maven dependency:
+
+>>frame<<
+[@
+<dependency>
+  <groupId>org.yawni</groupId>
+  <artifactId>yawni-wordnet-api</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+</dependency>
+@]
+>><<
+
+Yawni also includes an optional jar file containing all the data from WordNet version 3.0 which simplifies deployment (e.g., client doesn't need to download WordNet, export environment variables, etc.); this Maven dependency is all you need:
+
+>>frame<<
+[@
+<dependency>
+  <groupId>org.yawni</groupId>
+  <artifactId>yawni-wordnet-data</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+</dependency>
+@]
+>><<
+
+To integrate Yawni into your project, you'll need to choose the [[http://www.slf4j.org/|SLF4J]] logging implementation that is compatible with your project's logging: all this requires is adding a small jar file to your classpath, and you can automate this with a Maven dependency.  For example:
+
+>>frame<<
+If your project doesn't use logging, add this to your @@pom.xml@@:
+
+[@
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-nop</artifactId>
+  <version>1.5.11</version>
+</dependency>
+@]
+>><<
+
+>>frame<<
+If your project uses @@java.util.logging@@, add this to your @@pom.xml@@:
+
+[@
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-jdk14</artifactId>
+  <version>1.5.11</version>
+</dependency>
+@]
+>><<
+
+>>frame<<
+If your project uses log4j, add this to your pom.xml:
+
+[@
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-log4j12</artifactId>
+  <version>1.5.11</version>
+</dependency>
+@]
+>><<
+
+A more detailed explanation can be found [[http://mina.apache.org/logging-configuration.html]] or in the [[http://www.slf4j.org/manual.html|SLF4J manual]].
     
   - bug: core: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
     - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
@@ -719,7 +844,17 @@ everything
     - at least disable controls ? (like POS dropdowns)
   - feature: gui: "placard" (not BottomBar) which shows adjustable (font) zoom level, etc.
   < feature: gui: View menu / dropdown somewhere for advanced options; is this too advanced to make so available to regular user, e.g.,
-    Show Synset Offsets / Hide Synset Offsets
+    Show/Hide Glosses
+    Show/Hide Example Sentences
+    Show/Hide Synset Offsets (aka Database Locations)
+    Show/Hide Frequency Counts
+    Show/Hide Lexical File Info
+    Show/Hide Lexical File Numbers
+    Show/Hide Sense Keys
+    Show/Hide Sense Numbers
+    Show/Hide Core WordNet Rank
+    Show/Hide WordSense Antonyms
+    Show/Hide WordSense AdjPosition
   + feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); http://tips4java.wordpress.com/2009/11/29/text-prompt/
     * verify with author that Apache License is OK ?
     - text "Type a word to lookup in WordNet…" requires more width in searchField than we have
@@ -1337,7 +1472,7 @@ x feature: howto for developing in NetBeans ?
     - Linux doesn't use anti-aliased fonts
     - Linux and OS X + Java 5: preferred button size much smaller (esp on Linux)
     - Linux and OS X + Java 5: fonts much smaller ⌘
-    - Linux and OS X + Java 6: font sizes OK, but File→"Substring Search" menu label overwritten by accelerator text "⌘+F"
+    - Linux and OS X + Java 6: font sizes OK, but File → "Substring Search" menu label overwritten by accelerator text "⌘+F"
   ~ feature: gui: find-as-type (at least in substring search)
     - optimize re-fill, esp for short searches ('a')
       - caching recent searches would be effective (lotsa RAM?)
