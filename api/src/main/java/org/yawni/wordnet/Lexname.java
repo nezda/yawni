@@ -91,7 +91,7 @@ enum Lexname {
   NOUN_SUBSTANCE("27", "noun.substance", NOUN, "substance"),
   /** {@link POS#NOUN nouns} denoting time and temporal relations */
   NOUN_TIME("28", "noun.time", NOUN, "time"),
-  /** {@link POS#VERB verbs} of grooming, dressing and bodily care */
+  /** {@link POS#VERB verbs} of grooming, dressing, and bodily care */
   VERB_BODY("29", "verb.body", VERB),
   /** {@link POS#VERB verbs} of size, temperature change, intensifying */
   VERB_CHANGE("30", "verb.change", VERB, "change"),
