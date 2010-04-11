@@ -21,7 +21,7 @@ import org.yawni.wordnet.Word;
 import org.yawni.util.WordCaseUtils;
 
 /**
- * @see WordCaseUtils#getDominantCasedLemma(org.yawni.wn.Word)
+ * @see WordCaseUtils#getDominantCasedLemma(Word)
  */
 final class WordToLemma extends MutatedIterable<Word, String> {
   public WordToLemma(final Iterable<Word> iterable) {
