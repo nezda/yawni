@@ -4,7 +4,7 @@
 <preferences EXTERNAL_XML_VERSION="1.0"> 
   <root type="user"> 
   <map/> 
-  <node name="org/yawni/wn"> 
+  <node name="org/yawni/wordnet"> 
   <map>
     <!-- TODO add OS specific defaults -->
     <entry key="WNHOME" value=""/>
@@ -12,10 +12,10 @@
     <node name="browser"> 
     <map>
       <!-- 
-        "System" will be interpretted as UIManager.getSystemLookAndFeelClassName() 
-        "CrossPlatform" will be interpretted as UIManager.getCrossPlatformLookAndFeelClassName() 
+        "SYSTEM" will be interpretted as UIManager.getSystemLookAndFeelClassName() 
+        "CROSS_PLATFORM" will be interpretted as UIManager.getCrossPlatformLookAndFeelClassName() 
       -->
-      <entry key="lookAndFeel" value="System"/> 
+      <entry key="lookAndFeel" value="SYSTEM"/> 
       <entry key="antiAliased" value="true"/> 
       <!-- "0" will be interpretted as use system default -->
       <entry key="fontSize" value="0"/>
@@ -38,13 +38,13 @@
       </node>
       <node name="SearchFrame"> 
       <map>
-        <!-- "0" will be interpretted as preferred width -->
+        <!-- TODO "0" will be interpretted as preferred width -->
         <entry key="width" value="0"/> 
         <entry key="height" value="300"/> 
         <!-- "-1","-1" will be interpretted as adjacent to Browser -->
         <entry key="x" value="-1"/> 
         <entry key="y" value="-1"/> 
-        <entry key="searchType" value="SUBSTRING"/>
+        <entry key="searchType" value="PREFIX"/>
         <entry key="searchPOS" value="ALL"/>
         <!-- TODO how to represent search history ? -->
       </map> 
