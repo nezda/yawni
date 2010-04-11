@@ -295,7 +295,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
    * for which it is the source <em>and</em> {@link LexicalRelation}s for which one of its
    * senses is the source.
    * 
-   * @see Synset#getSemanticRelations(org.yawni.wn.RelationType)
+   * @see Synset#getSemanticRelations(RelationType)
    */
   public List<Relation> getRelations() {
     return relations;
