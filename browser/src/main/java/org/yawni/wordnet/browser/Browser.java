@@ -66,10 +66,10 @@ import javax.swing.plaf.basic.BasicBorders;
  *
  * <p> The browser can be invoked as follows:
  * <ul>
- *   <li> {@code java org.yawni.wn.Browser}<br>
+ *   <li> {@code java org.yawni.wordnet.browser.Browser}<br>
  *        To invoke a browser on the local database. </li>
  *
- *   <li> {@code java org.yawni.wn.Browser <dir>}<br>
+ *   <li> {@code java org.yawni.wordnet.browser.Browser <dir>}<br>
  *        To invoke a browser on a local database stored at {@code <dir>}. </li>
  * </ul>
  */
