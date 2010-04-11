@@ -28,6 +28,7 @@ import java.util.Map;
  * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
  *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
+// TODO integrate into API
 enum TeleologicalRelation {
   ACTION, // 448 instances
   THEME, // 214 instances
