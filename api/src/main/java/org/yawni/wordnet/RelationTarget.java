@@ -49,7 +49,7 @@ public interface RelationTarget extends Iterable<WordSense> {
   /** Returns the targets of the {@code Relation}s returned by {@link #getRelations()}. */
   public List<RelationTarget> getRelationTargets();
 
-  /** Returns the targets of the {@code Relation}s returned by {@link #getRelationTargets(org.yawni.wn.RelationType)} */
+  /** Returns the targets of the {@code Relation}s returned by {@link #getRelationTargets(RelationType)} */
   public List<RelationTarget> getRelationTargets(RelationType type);
 
   /** {@code Synset} returns itself, {@code WordSense} returns its {@code Synset} */
