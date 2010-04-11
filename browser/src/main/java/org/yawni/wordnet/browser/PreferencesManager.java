@@ -86,21 +86,21 @@ class PreferencesManager implements AWTEventListener {
 
   /** Utility enum to change the Swing LookAndFeel */
   enum LookAndFeel {
-    System {
+    SYSTEM {
       public void set() {
         try {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+          System.err.println("Error setting LAF "+this+" " + e);
         }
       }
     },
-    CrossPlatform {
+    CROSS_PLATFORM {
       public void set() {
         try {
           UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception e) {
-          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+          System.err.println("Error setting LAF "+this+" " + e);
         }
       }
     },
@@ -109,7 +109,7 @@ class PreferencesManager implements AWTEventListener {
         try {
           UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
         } catch (Exception e) {
-          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+          System.err.println("Error setting LAF "+this+" " + e);
         }
       }
     },
@@ -118,7 +118,7 @@ class PreferencesManager implements AWTEventListener {
         try {
           UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
         } catch (Exception e) {
-          java.lang.System.err.println("Error setting LAF "+this+" " + e);
+          System.err.println("Error setting LAF "+this+" " + e);
         }
       }
     }
@@ -132,29 +132,29 @@ class PreferencesManager implements AWTEventListener {
   static void setLookAndFeel() {
     // set manually
     //LookAndFeel.GTK.set();
-    //LookAndFeel.System.set();
+    //LookAndFeel.SYSTEM.set();
     // even OS X LAF has bugs
-    //LookAndFeel.CrossPlatform.set();
+    //LookAndFeel.CROSS_PLATFORM.set();
 
     //System.getProperty("os.name").toLowerCase().startsWith("mac os x");
 
-    //for(final UIManager.LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
+    //for (final UIManager.LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
     //  System.err.println("lafInfo: "+lafInfo);
     //}
 
     // ideal behavior:
     // if not Linux (OS X or Windows)
-    //   use System
+    //   use SYSTEM
     // else
-    //   use CrossPlatform
+    //   use CROSS_PLATFORM
   
     //TODO loadDefaults();
-    final String defaultLnFName = "System";
-    //final String defaultLnFName = "CrossPlatform";
+    final String defaultLnFName = "SYSTEM";
+    //final String defaultLnFName = "CROSS_PLATFORM";
     String lnfName;
     lnfName = prefs.get("lookAndFeel", defaultLnFName);
 //    lnfName = "GTK";
-    //lnfName = "CrossPlatform";
+    //lnfName = "CROSS_PLATFORM";
     LookAndFeel.valueOf(lnfName).set();
   }
 
@@ -212,7 +212,7 @@ class PreferencesManager implements AWTEventListener {
         //System.err.println("closing event: " + evt);
         final JFrame frame = (JFrame)cev.getComponent();
         final String name = frame.getName();
-        if (name.startsWith("org.yawni.wn.browser") == false) {
+        if (! name.startsWith("org.yawni.wordnet.browser")) {
           return;
         }
         //XXX saveSettings(frame);
@@ -225,7 +225,7 @@ class PreferencesManager implements AWTEventListener {
         //System.err.println("closing event: " + evt);
         final JFrame frame = (JFrame)cev.getComponent();
         final String name = frame.getName();
-        if (name.startsWith("org.yawni.wn.browser") == false) {
+        if (! name.startsWith("org.yawni.wordnet.browser")) {
           return;
         }
         loadSettings(frame);
@@ -238,19 +238,19 @@ class PreferencesManager implements AWTEventListener {
 
   // how to clear stored preferences ?
   // On OS X:
-  //   ~/Library/Preferences/org.yawni.wn.plist
+  //   ~/Library/Preferences/org.yawni.wordnet.plist
   //   Editable with Property List Editor
   // On Linux:
-  //   ?
+  //   ~/.java/.userPrefs/org/yawni/browser/
   static void loadSettings(final JFrame frame) {
-    // "org.yawni.wn.browser.Browser-0"
+    // "org.yawni.wordnet.browser.Browser-0"
     final String name = frame.getName();
     //System.err.println("load name: " + name);
     final int x = prefs.getInt(name + ".x", -1);
     final int y = prefs.getInt(name + ".y", -1);
     final int w = prefs.getInt(name + ".width", 640);
     final int h = prefs.getInt(name + ".height", 480);
-    //FIXME interpret width / height 0 as preferred
+    //TODO interpret width / height 0 as preferred
     final Dimension dim = new Dimension(w, h);
     frame.setPreferredSize(dim);
     frame.setSize(dim);
