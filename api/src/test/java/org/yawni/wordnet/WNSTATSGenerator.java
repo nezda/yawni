@@ -26,7 +26,7 @@ import org.yawni.util.Utils;
  */
 public class WNSTATSGenerator {
   public static void main(String[] args) {
-    final WordNetInterface dictionary = WordNet.getInstance();
+    final WordNetInterface wordNet = WordNet.getInstance();
     System.out.println("Number of words, synsets, and senses");
     
     //POS     Unique    Synsets     Total
@@ -35,19 +35,19 @@ public class WNSTATSGenerator {
     totalWordCount = totalSynsetCount = totalWordSenseCount = 0;
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
-      final long wordCount = Utils.distance(dictionary.words(pos));
+      final long wordCount = Utils.distance(wordNet.words(pos));
       totalWordCount += wordCount;
-      final long synsetCount = Utils.distance(dictionary.synsets(pos));
+      final long synsetCount = Utils.distance(wordNet.synsets(pos));
       totalSynsetCount += synsetCount;
-      final long wordSenseCount = Utils.distance(dictionary.wordSenses(pos));
+      final long wordSenseCount = Utils.distance(wordNet.wordSenses(pos));
       totalWordSenseCount += wordSenseCount;
       final String row = String.format("%-10s%20d%20d%20d\n",
         posLabel, wordCount, synsetCount, wordSenseCount);
       System.out.print(row);
     }
-    Preconditions.checkState(totalWordCount == Utils.distance(dictionary.words(POS.ALL)));
-    Preconditions.checkState(totalSynsetCount == Utils.distance(dictionary.synsets(POS.ALL)));
-    Preconditions.checkState(totalWordSenseCount == Utils.distance(dictionary.wordSenses(POS.ALL)));
+    Preconditions.checkState(totalWordCount == Utils.distance(wordNet.words(POS.ALL)));
+    Preconditions.checkState(totalSynsetCount == Utils.distance(wordNet.synsets(POS.ALL)));
+    Preconditions.checkState(totalWordSenseCount == Utils.distance(wordNet.wordSenses(POS.ALL)));
 
     final String sumary = String.format("%-10s%20d%20d%20d\n",
         "Totals", totalWordCount, totalSynsetCount, totalWordSenseCount);
@@ -61,9 +61,9 @@ public class WNSTATSGenerator {
     //          Words and Senses    Words               Senses
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
-      final long monosemousWordCount = monosemousWordCount(pos, dictionary);
-      final long polysemousWordCount = polysemousWordCount(pos, dictionary);
-      final long polysemousWordSensesCount = polysemousWordSensesCount(pos, dictionary);
+      final long monosemousWordCount = monosemousWordCount(pos, wordNet);
+      final long polysemousWordCount = polysemousWordCount(pos, wordNet);
+      final long polysemousWordSensesCount = polysemousWordSensesCount(pos, wordNet);
       final String row = String.format("%-10s%20d%20d%20d\n",
         posLabel, monosemousWordCount, polysemousWordCount, polysemousWordSensesCount);
       System.out.print(row);
@@ -77,10 +77,10 @@ public class WNSTATSGenerator {
     //          Including Monosemous Words      Excluding Monosemous Words
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
-      final long numWords = Utils.distance(dictionary.words(pos));
-      final long numWordSenses = Utils.distance(dictionary.wordSenses(pos));
-      final long polysemousWordCount = polysemousWordCount(pos, dictionary);
-      final long numPolysemousWordSenses = polysemousWordSensesCount(pos, dictionary);
+      final long numWords = Utils.distance(wordNet.words(pos));
+      final long numWordSenses = Utils.distance(wordNet.wordSenses(pos));
+      final long polysemousWordCount = polysemousWordCount(pos, wordNet);
+      final long numPolysemousWordSenses = polysemousWordSensesCount(pos, wordNet);
       final double averagePolysemy = ((double)numWordSenses) / numWords;
       final double averagePolysemousPolysemy = ((double)numPolysemousWordSenses) / polysemousWordCount;
       final String row = String.format("%-10s%20.2f%20.2f\n",
@@ -100,10 +100,10 @@ public class WNSTATSGenerator {
       Utils.distance(
         Utils.uniq(
          MergedIterable.merge(validateSort,
-          new WordToLowercasedLemma(dictionary.words(POS.NOUN)),
-          new WordToLowercasedLemma(dictionary.words(POS.VERB)),
-          new WordToLowercasedLemma(dictionary.words(POS.ADJ)),
-          new WordToLowercasedLemma(dictionary.words(POS.ADV)))));
+          new WordToLowercasedLemma(wordNet.words(POS.NOUN)),
+          new WordToLowercasedLemma(wordNet.words(POS.VERB)),
+          new WordToLowercasedLemma(wordNet.words(POS.ADJ)),
+          new WordToLowercasedLemma(wordNet.words(POS.ADV)))));
 
     // The total of all unique noun, verb, adjective, and adverb strings is actually 147278
     System.out.println("The total of all unique noun, verb, adjective, and adverb strings is actually "+

@@ -24,12 +24,12 @@ import static org.junit.Assert.*;
 // - produces no duplicates
 
 public class GetIndexTest {
-  private static WordNetInterface dictionary;
+  private static WordNetInterface wordNet;
   private static Morphy morphy;
   @BeforeClass
   public static void init() {
-    dictionary = WordNet.getInstance();
-    morphy = ((WordNet)dictionary).morphy;
+    wordNet = WordNet.getInstance();
+    morphy = ((WordNet)wordNet).morphy;
   }
   @Test
   public void test2() {

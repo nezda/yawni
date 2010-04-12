@@ -21,10 +21,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class WordTest {
-  private static WordNetInterface dictionary;
+  private static WordNetInterface wordNet;
   @BeforeClass
   public static void init() {
-    dictionary = WordNet.getInstance();
+    wordNet = WordNet.getInstance();
   }
 
   @Test
@@ -33,7 +33,7 @@ public class WordTest {
     final int[] lengths = new int[30];
     final int[] dashes = new int[30];
     final int[] periods = new int[30];
-    for (final Word word : dictionary.words(POS.ALL)) {
+    for (final Word word : wordNet.words(POS.ALL)) {
       final int currLen = Morphy.countWords(word.getLowercasedLemma(), '-');
       lengths[currLen]++;
       dashes[count(word.getLowercasedLemma(), '-')]++;

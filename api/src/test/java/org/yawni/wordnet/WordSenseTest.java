@@ -22,35 +22,35 @@ import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class WordSenseTest {
-  private static WordNetInterface dictionary;
+  private static WordNetInterface wordNet;
   @BeforeClass
   public static void init() {
-    dictionary = WordNet.getInstance();
+    wordNet = WordNet.getInstance();
   }
 
   @Test
   public void testSpecificLexicalRelations() {
     System.err.println("testSpecificLexicalRelations");
-    final WordSense viral = dictionary.lookupWord("viral", POS.ADJ).getSense(1);
-    final WordSense virus = dictionary.lookupWord("virus", POS.NOUN).getSense(1);
+    final WordSense viral = wordNet.lookupWord("viral", POS.ADJ).getSense(1);
+    final WordSense virus = wordNet.lookupWord("virus", POS.NOUN).getSense(1);
     assertThat(viral.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(virus);
     assertThat(virus.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(viral);
 
-    final WordSense hypocrite = dictionary.lookupWord("hypocrite", POS.NOUN).getSense(1);
-    final WordSense hypocritical = dictionary.lookupWord("hypocritical", POS.ADJ).getSense(1);
+    final WordSense hypocrite = wordNet.lookupWord("hypocrite", POS.NOUN).getSense(1);
+    final WordSense hypocritical = wordNet.lookupWord("hypocritical", POS.ADJ).getSense(1);
 
     // relation missing from WordNet 3.0!
     // assertThat(hypocrite.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocritical);
     // relation missing from WordNet 3.0!
     // assertThat(hypocritical.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocrite);
 
-    final WordSense hypocrisy = dictionary.lookupWord("hypocrisy", POS.NOUN).getSense(1);
+    final WordSense hypocrisy = wordNet.lookupWord("hypocrisy", POS.NOUN).getSense(1);
     assertThat(hypocritical.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocrisy);
     assertThat(hypocrisy.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocritical);
 
-    final WordSense palatine = dictionary.lookupWord("palatine", POS.NOUN).getSense(1);
+    final WordSense palatine = wordNet.lookupWord("palatine", POS.NOUN).getSense(1);
     // roman2 is a hypernym of palatine
-    final WordSense roman2 = dictionary.lookupWord("roman", POS.NOUN).getSense(2);
+    final WordSense roman2 = wordNet.lookupWord("roman", POS.NOUN).getSense(2);
     // this will fail because the WordSense palatine has NO HYPERNYMs ? this is VERY confusing
 //    assertThat(palatine.getRelationTargets(RelationType.HYPERNYM)).contains(roman2);
     assertThat(palatine.getRelationTargets(RelationType.HYPERNYM)).contains(roman2.getSynset());
@@ -62,7 +62,7 @@ public class WordSenseTest {
   @Test
   public void testLexicalRelations() {
     System.err.println("testRelations");
-    for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
+    for (final WordSense sense : wordNet.wordSenses(POS.ALL)) {
       for (final Relation relation : sense.getRelations()) {
         assertThat(relation.isLexical() ^ ! relation.getSource().equals(sense)).isTrue();
         //assertTrue("! type.isLexical(): "+relation, relation.getType().isLexical());
@@ -79,7 +79,7 @@ public class WordSenseTest {
   @Test
   public void testSenseKey() {
     System.err.println("testSenseKey");
-    for (final WordSense sense : dictionary.wordSenses(POS.ALL)) {
+    for (final WordSense sense : wordNet.wordSenses(POS.ALL)) {
       // NOTE: String != StringBuilder ! (use .toString() or contentEquals())
       assertThat(sense.getSenseKey().toString()).isEqualTo(getSenseKey(sense).toString());
     }
