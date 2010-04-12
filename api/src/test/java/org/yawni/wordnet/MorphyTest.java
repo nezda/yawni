@@ -148,7 +148,10 @@ public class MorphyTest {
       { POS.NOUN.name(), "15_minutes", "15 minutes" },
       { POS.NOUN.name(), "talks", "talk", "talks" },
       { POS.NOUN.name(), "talk", "talk" }, // note asymmetry: "talk" → {"talk"}, "talks" → {"talk", "talks"}
+      { POS.NOUN.name(), "values", "value", "values" },
+      { POS.NOUN.name(), "value", "value" }, // note asymmetry: "value" → {"value"}, "values" → {"value", "values"}
       { POS.NOUN.name(), "wounded", "wounded" },
+      { POS.NOUN.name(), "yourselves", "yourself", "yourselves" }, // no Word for this pronoun
       { POS.NOUN.name(), "wounding", "wounding" },
       { POS.NOUN.name(), "'s Gravenhage", "'s Gravenhage" },
       { POS.NOUN.name(), "parts of speech", "part of speech" },
@@ -156,6 +159,10 @@ public class MorphyTest {
       //{ POS.NOUN.name(), "read write memory", "read/write memory"}, // WN doesn't get this
       { POS.NOUN.name(), "roma", "rom", "roma", "Roma"}, // "Rom" is the singular form of "Roma": this is reflected in the exceptions file, but missing elsewhere; "roma" (is artifact of exceptions file)
       { POS.NOUN.name(), "rom", "ROM"}, // only "read-only memory"
+      { POS.ADJ.name(), "KO'd", "KO'd" },
+      { POS.VERB.name(), "KO'd", "ko", "ko'd" }, // no Word for the verb form of this ∴ no true case support
+      { POS.VERB.name(), "booby-trapped", "booby-trap", "booby-trapped" }, // no Word for the verb form of this
+      { POS.VERB.name(), "bird-dogged", "bird-dog", "bird-dogged" }, // no Word for this exceptional verb
       { POS.VERB.name(), "wounded", "wound" },
       { POS.VERB.name(), "wound", "wind", "wound" },
       { POS.ADJ.name(), "wounded", "wounded" },
