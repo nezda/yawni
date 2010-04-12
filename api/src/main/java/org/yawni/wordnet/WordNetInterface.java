@@ -40,11 +40,19 @@ public interface WordNetInterface {
   public Word lookupWord(final CharSequence lemma, final POS pos);
 
   /**
-   * Return all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems"),
-   * as well as any exceptional forms, of {@code someString} in {@code pos} (e.g., "mice" returns {"mouse", "mice"}).
-   * Typicaly, there will be a single result
+   * Returns all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems"),
+   * followed by any exceptional forms, of {@code someString} in {@code pos} (e.g., "mice" returns {"mouse", "mice"}).
    * Utilizes an implementation of the {@code morphstr()} and {@code getindex()} algorithms.
    * See {@link WordSense#getLemma()} for a description of "true cased" base forms.
+   *
+   * <p> The output of this method is often used as input to {@link #lookupWord(CharSequence, POS)}.  Typically,
+   * this method will return exactly one result (or none for terms not in WordNet) and that result,
+   * in conjunction with {@code pos} will correspond to a particular {@link Word} (e.g., the noun "mouse").  However,
+   * due to lexical ambiguity, sometimes a given input will correspond to more than one {@code Word} (e.g.,
+   * "values" returns {"value", "values"} which are distinct familiar nouns).  Other times, due to
+   * incompleteness and inconsistencies in the WordNet data files, none of the strings returned by this
+   * method will correspond to a {@code Word} (e.g., "yourselves" returns {"yourself", "yourselves"}, but this
+   * is not in WordNet, presumably because it is a pronon).
    * @param someString Some string (need <em>not</em> be a base form).
    * @param pos The part-of-speech.
    * @return an immutable list of the baseform(s) of {@code someString}
