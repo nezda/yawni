@@ -19,6 +19,9 @@ package org.yawni.util.cache;
 //import org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy;
 //import static org.yawni.util.cache.ConcurrentLinkedHashMap.EvictionPolicy.*;
 
+/**
+ * Factory used to centralize {@link Cache} creation throughout Yawni.
+ */
 public class Caches {
   /** Centralized {@link Cache} factory. */
   public static <K, V> Cache<K, V> withCapacity(final int capacity) {
