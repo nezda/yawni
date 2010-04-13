@@ -363,12 +363,19 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <quiet/>
-          <!-- <bottom>Copyright &#169; {inceptionYear}-{currentYear} {organizationName}. All Rights Reserved.</bottom> -->
           <links>
             <url>http://java.sun.com/j2se/1.5.0/docs/api/</url>
           </links>
           <encoding>UTF-8</encoding>
           <docencoding>UTF-8</docencoding>
+          <!--
+          default 
+            <doctitle>${project.name} ${project.version} API</doctitle> 
+            looks dumb: Yawni WordNet API 2.0.0-SNAPSHOT API
+          -->
+          <!-- <bottom>Copyright &#169; {inceptionYear}-{currentYear} {organizationName}. All Rights Reserved.</bottom> -->
+          <doctitle>${project.name} ${project.version}</doctitle>
+          <windowtitle>${project.name} ${project.version}</windowtitle>
           <tags>
             <tag>
               <name>yawni.experimental</name>
