@@ -24,7 +24,7 @@ import java.util.Map;
  * <h2>Use this at your own risk; expect {@link OutOfMemoryError}.</h2>
  * All methods are thread-safe by brute-force synchronization.
  */
-public class UnboundedCache<K, V> implements Cache<K, V> {
+class UnboundedCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
   
   private final Map<K, V> backingMap;

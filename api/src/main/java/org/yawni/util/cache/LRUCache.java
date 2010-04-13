@@ -23,7 +23,7 @@ import java.util.*;
  * with the {@code n} most recently accessed keys.
  * All methods are thread-safe by brute-force synchronization.
  */
-public class LRUCache<K, V> implements Cache<K, V> {
+class LRUCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private static final float DEFAULT_LOAD_FACTOR = 0.75f;

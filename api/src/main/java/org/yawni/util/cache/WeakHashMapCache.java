@@ -22,7 +22,7 @@ import java.util.WeakHashMap;
  * Simple {@code Cache} backed by {@link WeakHashMap}.
  * All methods are thread-safe by brute-force synchronization.
  */
-public class WeakHashMapCache<K, V> implements Cache<K, V> {
+class WeakHashMapCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
 
   private final WeakHashMap<K, V> backingMap;
