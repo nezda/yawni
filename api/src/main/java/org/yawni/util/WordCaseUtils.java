@@ -23,8 +23,9 @@ public final class WordCaseUtils {
   private WordCaseUtils(){ }
   
   /**
-   * @yawni.experimental; note this only adds case variants within its POS
+   * note this only adds case variants within its POS
    * weird cases exist: NOUN "Romaic", ADJ "romaic"
+   * @yawni.experimental
    */
   public static List<String> getUniqueLemmaCaseVariants(final Word word) {
     return ImmutableList.copyOf(Utils.uniq(new WordSenseToLemma(word.getWordSenses())));

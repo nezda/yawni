@@ -29,7 +29,7 @@ import static org.yawni.util.Utils.add;
 /**
  * A {@code WordSense} represents the precise lexical information related to a specific sense of a {@link Word}.
  *
- * <p> {@code WordSense}'s are linked by {@link Relation}s into a network of lexically related {@link Synset}s
+ * <p> {@code WordSense}s are linked by {@link Relation}s into a network of lexically related {@link Synset}s
  * and {@code WordSense}s.
  * {@link WordSense#getRelationTargets WordSense.getRelationTargets()} retrieves the targets of these links, and
  * {@link WordSense#getRelations WordSense.getRelations()} retrieves the relations themselves.
@@ -226,7 +226,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /**
-   * Build '{@code sensekey}'; used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>.
+   * Builds '{@code sensekey}'; used for searching <tt>cntlist.rev</tt> and <tt>sents.vrb</tt>.
    *
    * <p> High-level description:
    * <blockquote>{@code lemma}<b>%</b>{@code ss_type}<b>:</b>{@code lex_filenum}<b>:</b>{@code lex_id}<b>:</b>{@code head_word}<b>:</b>{@code head_id}</blockquote>

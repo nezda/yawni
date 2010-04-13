@@ -31,7 +31,7 @@ import static org.yawni.wordnet.RelationTypeFlag.*;
  *   <li> a human-readable label </li>
  *   <li> an optional symmetric (i.e., reflexive) type that labels links pointing the opposite direction </li>
  *   <li> an encoding of parts-of-speech that it applies to </li>
- *   <li> a short string that represents it in the dictionary files </li>
+ *   <li> a short string that represents it in the WordNet data files ({@link #getKey()}) </li>
  * </ul>
  *
  * <p> This class used to be called {@code PointerType}.
@@ -420,6 +420,9 @@ public enum RelationType {
     }
   }
 
+  /** 
+   * a short string that represents this {@code RelationType} in the WordNet data files
+   */
   public String getKey() {
     return this.key;
   }
@@ -448,13 +451,13 @@ public enum RelationType {
     return symmetricType != null && symmetricType.equals(type);
   }
 
-  public List<RelationType> getSuperTypes() {
-    return this.superTypes;
-  }
+//  public List<RelationType> getSuperTypes() {
+//    return this.superTypes;
+//  }
 
-  public List<RelationType> getSubTypes() {
-    return this.subTypes;
-  }
+//  public List<RelationType> getSubTypes() {
+//    return this.subTypes;
+//  }
 } // end enum RelationType
 
 /**

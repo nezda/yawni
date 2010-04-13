@@ -34,7 +34,7 @@ import static org.yawni.wordnet.RelationType.INSTANCE_HYPONYM;
  * that names that concept (and each of which is therefore synonymous with the other {@code WordSense}s in the
  * {@code Synset}).
  *
- * <p> {@code Synset}'s are linked by {@link Relation}s into a network of related concepts; this is the <em>Net</em>
+ * <p> {@code Synset}s are linked by {@link Relation}s into a network of related concepts; this is the <em>Net</em>
  * in WordNet.  {@link Synset#getRelationTargets Synset.getRelationTargets()} retrieves the targets of these links, and
  * {@link Synset#getRelations Synset.getRelations()} retrieves the relations themselves.
  *
@@ -228,7 +228,7 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   }
 
   /**
-   * @eturn this {@code Synset}'s offset in the data files.
+   * @return this {@code Synset}'s offset in the data files.
    */
   public int getOffset() {
     return offset;

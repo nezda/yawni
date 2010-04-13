@@ -51,14 +51,14 @@ import org.yawni.util.cache.Caches;
 import org.yawni.wordnet.WordSense.AdjPosition;
 
 /** 
- * A {@code WordNetInterface} that retrieves objects from the text files in the WordNet distribution
+ * An implementation of {@code WordNetInterface} that retrieves objects from the text files in the WordNet distribution
  * directory (typically <tt><em>$WNHOME</em>/dict/</tt>), or from a properly organized jar file containing it;
  * typical users will use {@link WordNet#getInstance()} to get the canonical instance of this
  * class.
  *
  * <p> A {@code WordNet} has an <em>entity cache</em>.  The entity cache is used to resolve multiple
  * temporally contiguous lookups of the same entity to the same object -- for example, successive
- * calls to {@link #lookupWord} with the same parameters would return the same value
+ * calls to {@link #lookupWord(CharSequence, POS)} with the same parameters would return the same value
  * ({@code ==} as well as {@code equals}), as would traversal of two {@link Relation}s
  * that shared the same target.  Under memory pressure, it is possible for
  * two different ({@code !=}, but still {@code equals}) objects to represent the same entity, 
@@ -66,7 +66,6 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  *
  * @see WordNetInterface
  * @see Cache
- * @see LRUCache
  */
 public final class WordNet implements WordNetInterface {
   private static final Logger log = LoggerFactory.getLogger(WordNet.class.getName());

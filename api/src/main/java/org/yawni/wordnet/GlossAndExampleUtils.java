@@ -25,6 +25,7 @@ import org.yawni.util.ImmutableList;
 import org.yawni.util.Joiner;
 
 /**
+ * Utility methods for heuristically parsing WordNet glosses to separate definitions and examples.
  * @yawni.experimental
  */
 public class GlossAndExampleUtils {
