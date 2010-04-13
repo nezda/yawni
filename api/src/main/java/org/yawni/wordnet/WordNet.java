@@ -23,7 +23,6 @@ import static org.yawni.util.ConcatenatedIterable.concat;
 import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
 import org.yawni.util.ImmutableList;
-import org.yawni.util.cache.LRUCache;
 import org.yawni.util.MultiLevelIterable;
 import org.yawni.util.MutatedIterable;
 import org.yawni.util.Utils;
