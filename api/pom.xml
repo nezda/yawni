@@ -55,10 +55,10 @@
       <name>JBoss releases</name>
       <url>http://repository.jboss.org/maven2</url>
       <releases>
-        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
       </releases>
       <snapshots>
-        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
       </snapshots>
     </repository>
   </repositories>
