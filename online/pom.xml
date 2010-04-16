@@ -20,11 +20,23 @@
       <id>scala-tools.releases</id>
       <name>Scala-Tools Maven2 Repository for Releases</name>
       <url>http://scala-tools.org/repo-releases</url>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
     </repository>
     <repository>
       <id>scala-tools.snapshots</id>
       <name>Scala-Tools Maven2 Repository for Snapshots</name>
       <url>http://scala-tools.org/repo-snapshots</url>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
     </repository>
   </repositories>
   <pluginRepositories>
@@ -32,6 +44,12 @@
       <id>scala-tools.org</id>
       <name>Scala-Tools Maven2 Repository</name>
       <url>http://scala-tools.org/repo-releases</url>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
   <dependencies>
