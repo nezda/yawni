@@ -48,9 +48,11 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>false</filtering>
-        <!-- copy the serialized filters ! -->
+        <!-- copy the data files and serialized filters -->
         <includes>
           <include>**/*.bloom</include>
+          <include>**/dict/index.*</include>
+          <include>**/dict/data.*</include>
         </includes>
       </resource>
       <resource>
