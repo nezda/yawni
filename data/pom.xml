@@ -38,7 +38,7 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
-        <!-- don't want to corrupt the serialized filters ! -->
+        <!-- don't want to corrupt the serialized filters ; don't need to filter the data files -->
         <excludes>
           <exclude>**/*.bloom</exclude>
           <exclude>**/dict/index.*</exclude>
