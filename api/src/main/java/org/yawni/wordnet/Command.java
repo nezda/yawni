@@ -26,8 +26,8 @@ import org.yawni.util.ImmutableList;
 import org.yawni.util.Preconditions;
 
 /**
- * Handler for {@link WordNet#synsets(java.lang.String)} and
- * {@link WordNet#wordSenses(java.lang.String)}.
+ * Handler for {@link WordNet#synsets(String)} and
+ * {@link WordNet#wordSenses(String)}.
  */
 // Most comands are "filter"s
 // Command composition would be sweet
@@ -166,7 +166,7 @@ enum Command {
     }
   }
 
-  /** Customized form of {@link #valueOf(java.lang.String)} */
+  /** Customized form of {@link #valueOf(String)} */
   static Command fromValue(final String name) {
     final Command toReturn = ALIASES.get(name);
     Preconditions.checkArgument(toReturn != null, "unknown command name: "+name);

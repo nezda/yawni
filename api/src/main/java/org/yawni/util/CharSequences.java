@@ -25,14 +25,14 @@ public class CharSequences {
   private CharSequences() {}
 
   /**
-   * @see java.lang.String#hashCode()
+   * @see String#hashCode()
    */
   public static int hashCode(final CharSequence seq) {
     return hashCode(seq, false);
   }
 
   /**
-   * @see java.lang.String#hashCode()
+   * @see String#hashCode()
    */
   public static int hashCode(final CharSequence seq, final boolean ignoreCase) {
     if (! ignoreCase && seq instanceof String) {
@@ -60,7 +60,7 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#equals
+   * @see String#equals
    */
   public static boolean equals(final CharSequence s1, final CharSequence s2) {
     final int s2Len = s2.length();
@@ -68,14 +68,14 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#startsWith
+   * @see String#startsWith
    */
   public static boolean startsWith(final CharSequence s1, final CharSequence s2) {
     return regionMatches(s1, 0, s2, 0, s2.length());
   }
 
   /**
-   * @see java.lang.String#regionMatches
+   * @see String#regionMatches
    */
   public static boolean regionMatches(final CharSequence s1, int offset1,
       final CharSequence s2, int offset2, int len) {
@@ -83,7 +83,7 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#regionMatches
+   * @see String#regionMatches
    */
   public static boolean regionMatches(final boolean ignoreCase, final CharSequence s1, int offset1,
       final CharSequence s2, int offset2, int len) {
@@ -318,7 +318,7 @@ public class CharSequences {
   }
 
   /**
-   * @see java.lang.String#substring(int, int)
+   * @see String#substring(int, int)
    */
   public static String substring(final CharSequence charSequence,
       final int offset, final int end) {

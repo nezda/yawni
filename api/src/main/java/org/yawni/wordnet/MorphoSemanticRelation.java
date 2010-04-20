@@ -55,7 +55,7 @@ enum MorphoSemanticRelation {
     registerAlias(name().toLowerCase(), this);
   }
 
-  /** Customized form of {@link #valueOf(java.lang.String)} */
+  /** Customized form of {@link #valueOf(String)} */
   public static MorphoSemanticRelation fromValue(final String name) {
     final MorphoSemanticRelation toReturn = ALIASES.get(name);
     if (toReturn == null) {

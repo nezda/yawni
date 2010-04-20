@@ -108,7 +108,7 @@ final class FileManager implements FileManagerInterface {
   /**
    * Directory which contains all WordNet data files defined by {@code $WNSEARCHDIR}.
    * The {@code WNsearchDir} is typically {@code $WNHOME/dict}
-   * @see #getFileStream(java.lang.String, boolean)
+   * @see #getFileStream(String, boolean)
    */
   private static String getWNSearchDir() {
     final String searchDir = getValidatedPathNamed("WNSEARCHDIR");
