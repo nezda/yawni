@@ -19,14 +19,14 @@ package org.yawni.wordnet;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MorphoSemanticRelationTest {
+public class MorphosemanticRelationTest {
   @Test
   public void test() {
-    System.err.println("values: "+MorphoSemanticRelation.getStringToRelMap());
-    assertThat(MorphoSemanticRelation.AGENT).isSameAs(MorphoSemanticRelation.valueOf("AGENT"));
-    assertThat(MorphoSemanticRelation.fromValue("AGENT")).isSameAs(MorphoSemanticRelation.valueOf("AGENT"));
+    System.err.println("values: "+MorphosemanticRelation.getStringToRelMap());
+    assertThat(MorphosemanticRelation.AGENT).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
+    assertThat(MorphosemanticRelation.fromValue("AGENT")).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
     
-    assertThat(MorphoSemanticRelation.fromValue("BY_MEANS_OF")).isSameAs(MorphoSemanticRelation.BY_MEANS_OF);
-    assertThat(MorphoSemanticRelation.fromValue("by-means-of")).isSameAs(MorphoSemanticRelation.BY_MEANS_OF);
+    assertThat(MorphosemanticRelation.fromValue("BY_MEANS_OF")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
+    assertThat(MorphosemanticRelation.fromValue("by-means-of")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
   }
 }
