@@ -290,6 +290,11 @@ public final class WordNet implements WordNetInterface {
     return "core-wordnet.ranked";
   }
 
+  private static String getMorphosemanticRelationsFilename() {
+    //return "morphosemantic-links.xls.tsv.sensekeys.bidi";
+    return "morphosemantic-links.xls.tsv.offsets.bidi";
+  }
+
   private static String getVerbSentencesIndexFilename() {
     return "sentidx.vrb";
   }
@@ -754,6 +759,23 @@ public final class WordNet implements WordNetInterface {
         line = null;
       } else {
         line = fileManager.readLineAt(offset, getCoreRankFilename());
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+    return line;
+  }
+
+  // throws IllegalStateException if data file is not found
+  String lookupMorphoSemanticRelationLine(final CharSequence senseKey) {
+    final int offset;
+    final String line;
+    try {
+      offset = fileManager.getIndexedLinePointer(senseKey, getMorphosemanticRelationsFilename());
+      if (offset < 0) {
+        line = null;
+      } else {
+        line = fileManager.readLineAt(offset, getMorphosemanticRelationsFilename());
       }
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
