@@ -19,9 +19,9 @@ package org.yawni.wordnet;
 import java.util.List;
 
 /**
- * A class that implements this interface is a broker or factory
- * for objects that model WordNet lexical and semantic entities.
+ * A represenation the WordNet computational lexicon.
  *
+ * @see <a href="http://wordnet.princeton.edu/">http://wordnet.princeton.edu/</a>
  * @see WordNet
  */
 public interface WordNetInterface {
