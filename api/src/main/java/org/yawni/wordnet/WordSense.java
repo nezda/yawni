@@ -519,10 +519,10 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   public int getCoreRank() {
     if (coreRank == 0) {
       final CharSequence senseKey = getSenseKey();
-      final WordNet wn = synset.wordNet;
+      final WordNet wordNet = synset.wordNet;
       final String line;
       try {
-        line = wn.lookupCoreRankLine(senseKey);
+        line = wordNet.lookupCoreRankLine(senseKey);
       } catch (IllegalStateException ise) {
         return 0;
       }
