@@ -22,25 +22,55 @@ import java.util.Map;
 
 /**
  * Morpho-semantic relations between morphologically related nouns and verbs, parallel
- * with {@link RelationType#DERIVATIONALLY_RELATED} {@link Relation}s.
+ * with {@link RelationType#DERIVATIONALLY_RELATED} {@link Relation}s.  This work is outlined
+ * in the 2007 paper "Putting Semantics into WordNet's "Morphosemantic" Links" by Fellbaum, et al.
  *
  * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
  *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
 enum MorphoSemanticRelation {
+  /** e.g., employ/employment (in essence an identity or equality relation) */
   EVENT, // 8158 instances
+  /** e.g., employer/employ, inventor/invent, producer/produce */
   AGENT,  // 3043 instances
+  /**
+   * aka Cause
+   * e.g., liquify/liquid
+   */
   RESULT, // 1439 instances
+  /** e.g., dilate/dilator; sense-sensor */
   BY_MEANS_OF("by-means-of"), // 1273 instances
+  /**
+   * aka Patient
+   * e.g., employee/employ
+   */
   UNDERGOER, // 878 instances
+  /**
+   * An Instrument does not act alone but implies an Agent who controls it, usually with intention;
+   * e.g., poke/poker
+   */
   INSTRUMENT, // 813 instances
+  /**
+   * aka Purpose/Function
+   * e.g., harness/harness; train/trainer (shoes)
+   */
   USES, // 740 instances
+  /** e.g., transcend/transcendence */
   STATE, // 528 instances
+  /** e.g., cool/cool */
   PROPERTY, // 318 instances
+  /** e.g., bath/bath */
   LOCATION, // 288 instances
+  /**
+   * aka Inanimate Agent/Cause
+   * e.g., insulate/insulator
+   */
   MATERIAL, // 114 intances
+  /** e.g., kayak/kayak; cruiser/cruise */
   VEHICLE, // 87 instances
+  /** e.g., abduct/abductor */
   BODY_PART("body-part"), // 43 instances
+  /** e.g., tee/tee */
   DESTINATION, // 17 instances
   ;
   
