@@ -117,6 +117,16 @@ public abstract class Relation implements Comparable<Relation> {
     return source;
   }
 
+  // internal dev method
+  POS getTargetPOS() {
+    return POS.fromOrdinal(targetPOSOrdinal);
+  }
+  
+  // internal dev method
+  int getTargetOffset() {
+    return targetOffset;
+  }
+
   /**
    * @return target vertex of this directed relationship
    */
@@ -124,7 +134,7 @@ public abstract class Relation implements Comparable<Relation> {
     return Relation.resolveTarget(
         // using source.getSynset() to avoid requiring a local field
         source.getSynset().wordNet.getSynsetAt(
-          POS.fromOrdinal(targetPOSOrdinal),
+          getTargetPOS(),
           targetOffset),
         targetIndex);
   }
