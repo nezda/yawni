@@ -28,7 +28,7 @@ import java.util.Map;
  * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
  *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
-enum MorphoSemanticRelation {
+enum MorphosemanticRelation {
   /** e.g., employ/employment (in essence an identity or equality relation) */
   EVENT, // 8158 instances
   /** e.g., employer/employ, inventor/invent, producer/produce */
@@ -74,20 +74,20 @@ enum MorphoSemanticRelation {
   DESTINATION, // 17 instances
   ;
   
-  private MorphoSemanticRelation(final String shallowForm) {
+  private MorphosemanticRelation(final String shallowForm) {
     this();
     registerAlias(shallowForm.toLowerCase(), this);
     registerAlias(shallowForm.toUpperCase(), this);
   }
   
-  private MorphoSemanticRelation() {
+  private MorphosemanticRelation() {
     registerAlias(name(), this);
     registerAlias(name().toLowerCase(), this);
   }
 
   /** Customized form of {@link #valueOf(String)} */
-  public static MorphoSemanticRelation fromValue(final String name) {
-    final MorphoSemanticRelation toReturn = ALIASES.get(name);
+  public static MorphosemanticRelation fromValue(final String name) {
+    final MorphosemanticRelation toReturn = ALIASES.get(name);
     if (toReturn == null) {
       throw new IllegalArgumentException("unknown name");
     }
@@ -96,15 +96,15 @@ enum MorphoSemanticRelation {
 
   // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
   // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, MorphoSemanticRelation> ALIASES;
+  private static Map<String, MorphosemanticRelation> ALIASES;
   // accessor for testing only
-  static Map<String, MorphoSemanticRelation> getStringToRelMap() {
+  static Map<String, MorphosemanticRelation> getStringToRelMap() {
     return Collections.unmodifiableMap(ALIASES);
   }
   
-  private static void registerAlias(final String form, final MorphoSemanticRelation rel) {
+  private static void registerAlias(final String form, final MorphosemanticRelation rel) {
     if (ALIASES == null) {
-      ALIASES = new HashMap<String, MorphoSemanticRelation>();
+      ALIASES = new HashMap<String, MorphosemanticRelation>();
     }
     ALIASES.put(form, rel);
   }
