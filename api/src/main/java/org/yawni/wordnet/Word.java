@@ -139,11 +139,6 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    */
   public Set<RelationType> getRelationTypes() {
     if (relationTypes == null) {
-      // these are not always correct XXX this comment no longer applies
-      // RelationType.INSTANCE_HYPERNYM
-      // RelationType.HYPERNYM
-      // RelationType.INSTANCE_HYPONYM
-      // RelationType.HYPONYM
       final EnumSet<RelationType> localRelationTypes = EnumSet.noneOf(RelationType.class);
       for (final WordSense sense : getWordSenses()) {
         for (final Relation relation : sense.getRelations()) {
