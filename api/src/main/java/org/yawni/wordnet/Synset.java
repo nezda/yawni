@@ -41,7 +41,7 @@ import static org.yawni.wordnet.RelationType.INSTANCE_HYPONYM;
  * @see WordSense
  * @see Relation
  */
-public final class Synset implements RelationTarget, Comparable<Synset>, Iterable<WordSense> {
+public final class Synset implements RelationArgument, Comparable<Synset>, Iterable<WordSense> {
   private static final Logger log = LoggerFactory.getLogger(Synset.class.getName());
   //
   // Instance implementation
@@ -357,17 +357,17 @@ public final class Synset implements RelationTarget, Comparable<Synset>, Iterabl
   }
 
   /** {@inheritDoc} */
-  public List<RelationTarget> getRelationTargets() {
+  public List<RelationArgument> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
   /** {@inheritDoc} */
-  public List<RelationTarget> getRelationTargets(final RelationType type) {
+  public List<RelationArgument> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
 
-  static List<RelationTarget> collectTargets(final List<? extends Relation> relations) {
-    final RelationTarget[] targets = new RelationTarget[relations.size()];
+  static List<RelationArgument> collectTargets(final List<? extends Relation> relations) {
+    final RelationArgument[] targets = new RelationArgument[relations.size()];
     for (int i = 0, n = relations.size(); i < n; i++) {
       targets[i] = relations.get(i).getTarget();
     }
