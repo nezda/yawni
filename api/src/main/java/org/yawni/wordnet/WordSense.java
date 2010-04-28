@@ -41,7 +41,7 @@ import static org.yawni.util.Utils.add;
  * @see Synset
  * @see Word
  */
-public final class WordSense implements RelationTarget, Comparable<WordSense> {
+public final class WordSense implements RelationArgument, Comparable<WordSense> {
   /**
    * <em>Optional</em> restrictions for the position(s) an {@linkplain POS#ADJ adjective} can take
    * relative to the noun it modifies. aka "adjclass".
@@ -246,7 +246,7 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
     final String searchWord;
     final int headSense;
     if (getSynset().isAdjectiveCluster()) {
-      final List<RelationTarget> adjsses = getSynset().getRelationTargets(RelationType.SIMILAR_TO);
+      final List<RelationArgument> adjsses = getSynset().getRelationTargets(RelationType.SIMILAR_TO);
       assert adjsses.size() == 1;
       final Synset adjss = (Synset) adjsses.get(0);
       // if satellite, key lemma in cntlist.rev
@@ -566,10 +566,10 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
       description.append(adjFlagsToString());
       description.append(')');
     }
-    final List<RelationTarget> targets = getRelationTargets(RelationType.ANTONYM);
+    final List<RelationArgument> targets = getRelationTargets(RelationType.ANTONYM);
     if (! targets.isEmpty()) {
       // adj 'acidic' has more than 1 antonym ('alkaline' and 'amphoteric')
-      for (final RelationTarget target : targets) {
+      for (final RelationArgument target : targets) {
         description.append(" (vs. ");
         final WordSense antonym = (WordSense)target;
         description.append(antonym.getLemma());
@@ -641,12 +641,12 @@ public final class WordSense implements RelationTarget, Comparable<WordSense> {
   }
 
   /** {@inheritDoc} */
-  public List<RelationTarget> getRelationTargets() {
+  public List<RelationArgument> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
   /** {@inheritDoc} */
-  public List<RelationTarget> getRelationTargets(final RelationType type) {
+  public List<RelationArgument> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
 
