@@ -53,14 +53,14 @@ public abstract class Relation implements Comparable<Relation> {
    */
   private final int index;
   private final byte relationTypeOrdinal;
-  private final RelationTarget source;
+  private final RelationArgument source;
 
   //
   // Constructor
   //
 
   Relation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int index, final RelationTarget source, final byte relationTypeOrdinal) {
+    final int index, final RelationArgument source, final byte relationTypeOrdinal) {
     this.targetOffset = targetOffset;
     this.targetIndex = targetIndex;
     this.targetPOSOrdinal = targetPOSOrdinal;
@@ -81,7 +81,7 @@ public abstract class Relation implements Comparable<Relation> {
     final int sourceIndex = linkIndices >> 8; // select high byte
     final int targetIndex = linkIndices & 0xFF; // select low byte
 
-    final RelationTarget source = Relation.resolveTarget(synset, sourceIndex);
+    final RelationArgument source = Relation.resolveTarget(synset, sourceIndex);
     if (source instanceof WordSense) {
       return new LexicalRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
     } else if (source instanceof Synset) {
@@ -113,9 +113,14 @@ public abstract class Relation implements Comparable<Relation> {
   /**
    * @return source vertex of this directed relationship
    */
-  public RelationTarget getSource() {
+  public RelationArgument getSource() {
     return source;
   }
+
+//  // internal dev method
+//  int getSourceOffset() {
+//    return source.getOffset();
+//  }
 
   // internal dev method
   POS getTargetPOS() {
@@ -130,7 +135,7 @@ public abstract class Relation implements Comparable<Relation> {
   /**
    * @return target vertex of this directed relationship
    */
-  public RelationTarget getTarget() {
+  public RelationArgument getTarget() {
     return Relation.resolveTarget(
         // using source.getSynset() to avoid requiring a local field
         source.getSynset().wordNet.getSynsetAt(
@@ -139,7 +144,7 @@ public abstract class Relation implements Comparable<Relation> {
         targetIndex);
   }
 
-  private static RelationTarget resolveTarget(final Synset synset, final int index) {
+  private static RelationArgument resolveTarget(final Synset synset, final int index) {
     if (index == 0) {
       return synset;
     } else {
