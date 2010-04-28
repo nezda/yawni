@@ -132,7 +132,7 @@ public class SynsetTest {
     };
     //FIXME assert something here, don't just print
     for (final RelationType relationType : relationTypes) {
-      for (final RelationTarget target : word.getSense(7).getSynset().getRelationTargets(relationType)) {
+      for (final RelationArgument target : word.getSense(7).getSynset().getRelationTargets(relationType)) {
         System.err.println(relationType + " target: " + target);
       }
     }
@@ -150,7 +150,7 @@ public class SynsetTest {
     };
     //FIXME assert something here, don't just print
     for (final RelationType relationType : relationTypes) {
-      for (final RelationTarget target : word.getSense(1).getSynset().getRelationTargets(relationType)) {
+      for (final RelationArgument target : word.getSense(1).getSynset().getRelationTargets(relationType)) {
         System.err.println("  "+relationType+" target: "+target);
       }
     }
@@ -190,14 +190,14 @@ public class SynsetTest {
       RelationType.INSTANCE_HYPERNYM,
     };
     for (final RelationType relationType : relationTypes) {
-      final List<RelationTarget> targets = georgeBush.getSense(1).getSynset().getRelationTargets(relationType);
+      final List<RelationArgument> targets = georgeBush.getSense(1).getSynset().getRelationTargets(relationType);
       //assertTrue("type: "+relationType, targets.isEmpty() == false);
       // woah - WordSense targets are different than Synset targets ??
       // at a minimum this needs to be documented
-      final List<RelationTarget> targetsAlt = georgeBush.getSense(1).getRelationTargets(relationType);
+      final List<RelationArgument> targetsAlt = georgeBush.getSense(1).getRelationTargets(relationType);
 //      assertEquals("relationType: "+relationType, targets, targetsAlt);
       //assertTrue(targets == targetsAlt);
-      for (final RelationTarget target : targets) {
+      for (final RelationArgument target : targets) {
         System.err.println("  " + relationType + " target: " + target);
       }
     }
@@ -210,7 +210,7 @@ public class SynsetTest {
     final Word word = wordNet.lookupWord("turn", POS.VERB);
 
     for (final WordSense sense : word) {
-      final List<RelationTarget> g = new ArrayList<RelationTarget>();
+      final List<RelationArgument> g = new ArrayList<RelationArgument>();
       gather(sense.getSynset(), RelationType.VERB_GROUP, g);
       if (g.isEmpty()) {
         continue;
@@ -226,7 +226,7 @@ public class SynsetTest {
     System.err.println(word);
     final WordSense s1 = word.getSense(1);
     System.err.println("  "+s1);
-    RelationTarget syn1 = s1.getSynset();
+    RelationArgument syn1 = s1.getSynset();
     System.err.println("  "+syn1);
     // VERB_GROUP targets form a chain/tree: syn1 → {syn2}, syn2 → {syn3, syn4}, ...
     // To reveal the whole extent of the relation, the transitive closure implied by the explicit relations
@@ -234,7 +234,7 @@ public class SynsetTest {
     // This is not easily represented in our API without additional containers (e.g., List<List<Synset>>).
     
     // - gather these recursively
-    final List<RelationTarget> g1 = new ArrayList<RelationTarget>();
+    final List<RelationArgument> g1 = new ArrayList<RelationArgument>();
     gather(syn1, RelationType.VERB_GROUP, g1);
 //    System.err.println("g1: "+g1);
     System.err.println("g1:\n  "+Joiner.on("\n  ").join(g1));
@@ -251,12 +251,12 @@ public class SynsetTest {
 //    [Synset 458471@[POS verb]<verb.change>{sour#1, turn#25, ferment#4, work#26}]
   }
 
-  private static class FocalWordSynsetComparator implements Comparator<RelationTarget> {
+  private static class FocalWordSynsetComparator implements Comparator<RelationArgument> {
     private final Word focalWord;
     FocalWordSynsetComparator(final Word focalWord) {
       this.focalWord = focalWord;
     }
-    public int compare(RelationTarget s1, RelationTarget s2) {
+    public int compare(RelationArgument s1, RelationArgument s2) {
       final WordSense ws1 = focalSense(s1.getSynset());
       final WordSense ws2 = focalSense(s2.getSynset());
       return Integer.signum(ws1.getSenseNumber() - ws2.getSenseNumber());
@@ -270,10 +270,10 @@ public class SynsetTest {
     }
   } // end class FocalWordSynsetComparator
 
-  private static void gather(final RelationTarget source, final RelationType type, final List<RelationTarget> accum) {
-//    for (final RelationTarget target : source.getRelationTargets(type)) {
+  private static void gather(final RelationArgument source, final RelationType type, final List<RelationArgument> accum) {
+//    for (final RelationArgument target : source.getRelationTargets(type)) {
     for (final Relation rel : source.getRelations(type)) {
-      final RelationTarget target = rel.getTarget();
+      final RelationArgument target = rel.getTarget();
 //      System.err.println("rel: "+rel);
       if (accum.contains(target)) {
         continue;
