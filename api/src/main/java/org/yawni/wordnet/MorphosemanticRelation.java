@@ -29,30 +29,40 @@ import java.util.Map;
  *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
 enum MorphosemanticRelation {
-  /** e.g., employ/employment (in essence an identity or equality relation) */
+  /** 
+   * e.g., employ/employment (in essence an identity or equality relation)
+   */
   EVENT, // 8158 instances
-  /** e.g., employer/employ, inventor/invent, producer/produce */
+  /**
+   * e.g., employ/employer, invent/inventor, produce/producer;
+   * (nouns denote the Agents of the events referred to by the verbs);
+   * 'employer' is the Agent of the event denoted by 'employ',
+   * 'inventor' is the Agent of the event denoted by 'invent',
+   * 'producer' is the Agent of the event denoted by 'produce'
+   */
   AGENT,  // 3043 instances
   /**
    * aka Cause
    * e.g., liquify/liquid
    */
   RESULT, // 1439 instances
-  /** e.g., dilate/dilator; sense-sensor */
+  /** 
+   * e.g., dilate/dilator; sense-sensor
+   */
   BY_MEANS_OF("by-means-of"), // 1273 instances
   /**
    * aka Patient
-   * e.g., employee/employ
+   * e.g., employ/employee
    */
   UNDERGOER, // 878 instances
   /**
    * An Instrument does not act alone but implies an Agent who controls it, usually with intention;
-   * e.g., poke/poker
+   * e.g., poke/poker, shred/shredder
    */
   INSTRUMENT, // 813 instances
   /**
    * aka Purpose/Function
-   * e.g., harness/harness; train/trainer (shoes)
+   * e.g., harness/harness
    */
   USES, // 740 instances
   /** e.g., transcend/transcendence */
@@ -66,7 +76,7 @@ enum MorphosemanticRelation {
    * e.g., insulate/insulator
    */
   MATERIAL, // 114 intances
-  /** e.g., kayak/kayak; cruiser/cruise */
+  /** e.g., kayak/kayak; cruise/cruiser */
   VEHICLE, // 87 instances
   /** e.g., abduct/abductor */
   BODY_PART("body-part"), // 43 instances
