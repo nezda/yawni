@@ -114,11 +114,11 @@ public class WordNetInterfaceTest {
     final List<WordSense> senses = synonym.getWordSenses();
     assertThat(senses).hasSize(1);
     final WordSense sense = senses.get(0);
-    final List<RelationTarget> parents = sense.getRelationTargets(RelationType.HYPERNYM);
+    final List<RelationArgument> parents = sense.getRelationTargets(RelationType.HYPERNYM);
     assertThat(parents).hasSize(1); // though most Synsets have a single parent, not all do
-    final RelationTarget parent = parents.get(0);
+    final RelationArgument parent = parents.get(0);
     //final Synset parentSyn = parent.getSynset();
-    final List<RelationTarget> coordinateTerms = parent.getRelationTargets(RelationType.HYPONYM);
+    final List<RelationArgument> coordinateTerms = parent.getRelationTargets(RelationType.HYPONYM);
 
     // TODO
     // this is a confusing example :)
