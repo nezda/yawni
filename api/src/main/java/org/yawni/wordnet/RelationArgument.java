@@ -19,10 +19,10 @@ package org.yawni.wordnet;
 import java.util.List;
 
 /**
- * A {@code RelationTarget} is the <em>source</em> or <em>target</em> of a {@link Relation}.
+ * A {@code RelationArgument} is the <em>source</em> or <em>target</em> of a {@link Relation}.
  * The target (and source) of a {@link SemanticRelation} is a {@link Synset};
  * the target (and source) of a {@link LexicalRelation} is a {@link WordSense}.
- * {@code RelationTarget} acts as common interface to {@code Synset} and {@code WordSense},
+ * {@code RelationArgument} acts as common interface to {@code Synset} and {@code WordSense},
  * which form a composite pair, as evidenced by both being {@code Iterable<WordSense>} and
  * having {@link #getSynset()}.
  *
@@ -32,7 +32,7 @@ import java.util.List;
  * @see Synset
  * @see WordSense
  */
-public interface RelationTarget extends Iterable<WordSense> {
+public interface RelationArgument extends Iterable<WordSense> {
   /**
    * Returns the outgoing {@code Relation}s from <em>this</em> target, i.e., those
    * {@code Relation}s that have this object as their source.  For a {@code WordSense},
@@ -47,10 +47,10 @@ public interface RelationTarget extends Iterable<WordSense> {
   public List<Relation> getRelations(RelationType type);
 
   /** Returns the targets of the {@code Relation}s returned by {@link #getRelations()}. */
-  public List<RelationTarget> getRelationTargets();
+  public List<RelationArgument> getRelationTargets();
 
   /** Returns the targets of the {@code Relation}s returned by {@link #getRelationTargets(RelationType)} */
-  public List<RelationTarget> getRelationTargets(RelationType type);
+  public List<RelationArgument> getRelationTargets(RelationType type);
 
   /** {@code Synset} returns itself, {@code WordSense} returns its {@code Synset} */
   public Synset getSynset();
