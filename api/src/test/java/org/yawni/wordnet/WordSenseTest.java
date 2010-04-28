@@ -94,7 +94,7 @@ public class WordSenseTest {
   }
 
   private String oldAdjClusterSenseKey(final WordSense sense) {
-    final List<RelationTarget> adjsses = sense.getSynset().getRelationTargets(RelationType.SIMILAR_TO);
+    final List<RelationArgument> adjsses = sense.getSynset().getRelationTargets(RelationType.SIMILAR_TO);
     assert adjsses.size() == 1;
     final Synset adjss = (Synset) adjsses.get(0);
     // if satellite, key lemma in cntlist.rev
