@@ -21,7 +21,7 @@ import org.yawni.wordnet.WordNetInterface;
 import org.yawni.wordnet.WordNet;
 import org.yawni.wordnet.POS;
 import org.yawni.wordnet.Relation;
-import org.yawni.wordnet.RelationTarget;
+import org.yawni.wordnet.RelationArgument;
 import org.yawni.wordnet.RelationType;
 import org.yawni.wordnet.Synset;
 import org.yawni.wordnet.Word;
@@ -854,12 +854,12 @@ public class BrowserPanel extends JPanel {
       }
       buffer.append(sense.getLongDescription(verbose));
       if (verbose) {
-        final List<RelationTarget> similarTos = sense.getRelationTargets(SIMILAR_TO);
+        final List<RelationArgument> similarTos = sense.getRelationTargets(SIMILAR_TO);
         if (! similarTos.isEmpty()) {
           buffer.append("<br>\n");
           buffer.append("Similar to:");
           buffer.append("<ul>\n");
-          for (final RelationTarget similarTo : similarTos) {
+          for (final RelationArgument similarTo : similarTos) {
             buffer.append(listOpen());
             final Synset targetSynset = (Synset) similarTo;
             buffer.append(targetSynset.getLongDescription(verbose));
@@ -868,14 +868,14 @@ public class BrowserPanel extends JPanel {
           buffer.append("</ul>\n");
         }
 
-        final List<RelationTarget> seeAlsos = sense.getRelationTargets(SEE_ALSO);
+        final List<RelationArgument> seeAlsos = sense.getRelationTargets(SEE_ALSO);
         if (! seeAlsos.isEmpty()) {
           if (similarTos.isEmpty()) {
             buffer.append("<br>");
           }
           buffer.append("Also see: ");
           int seeAlsoNum = 0;
-          for (final RelationTarget seeAlso : seeAlsos) {
+          for (final RelationArgument seeAlso : seeAlsos) {
             buffer.append(seeAlso.getDescription());
             for (final WordSense wordSense : seeAlso) {
               buffer.append('#');
@@ -973,7 +973,7 @@ public class BrowserPanel extends JPanel {
   private void appendSenseChain(
     final StringBuilder buffer,
     final WordSense rootWordSense,
-    final RelationTarget sense,
+    final RelationArgument sense,
     final RelationType inheritanceType,
     final RelationType attributeType) {
     updateStatusBar(Status.SEARCHING);
@@ -996,7 +996,7 @@ public class BrowserPanel extends JPanel {
   private void appendSenseChain(
     final StringBuilder buffer,
     final WordSense rootWordSense,
-    final RelationTarget sense,
+    final RelationArgument sense,
     final RelationType inheritanceType,
     final RelationType attributeType,
     final int tab,
@@ -1021,7 +1021,7 @@ public class BrowserPanel extends JPanel {
 
     if (attributeType != null) {
       for (final Relation relation : sense.getRelations(attributeType)) {
-        final RelationTarget target = relation.getTarget();
+        final RelationArgument target = relation.getTarget();
         final boolean srcMatch;
         if (relation.isLexical()) {
           srcMatch = relation.getSource().equals(rootWordSense);
@@ -1061,7 +1061,7 @@ public class BrowserPanel extends JPanel {
 //      System.err.println("ancestors == null || does not contain sense "+sense+
 //        " "+attributeType+" ancestors: "+ancestors);
       ancestors = new Link(sense, ancestors);
-      for (final RelationTarget parent : sense.getRelationTargets(inheritanceType)) {
+      for (final RelationArgument parent : sense.getRelationTargets(inheritanceType)) {
         buffer.append("<ul>\n");
         appendSenseChain(buffer, rootWordSense, parent, inheritanceType, attributeType, tab + 1, ancestors);
         buffer.append("</ul>\n");
@@ -1103,15 +1103,15 @@ public class BrowserPanel extends JPanel {
 
   //FIXME pretty old-fashioned and error prone.  List ? LinkedList ?
   private static class Link {
-    private final RelationTarget relationTarget;
+    private final RelationArgument relationTarget;
     private final Link link;
 
-    Link(final RelationTarget relationTarget, final Link link) {
+    Link(final RelationArgument relationTarget, final Link link) {
       this.relationTarget = relationTarget;
       this.link = link;
     }
 
-    boolean contains(final RelationTarget object) {
+    boolean contains(final RelationArgument object) {
       for (Link head = this; head != null; head = head.link) {
         if (head.relationTarget.equals(object)) {
           return true;
