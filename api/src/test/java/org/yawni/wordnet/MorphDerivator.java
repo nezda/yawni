@@ -16,35 +16,42 @@
  */
 package org.yawni.wordnet;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.POS;
-import org.yawni.wordnet.RelationArgument;
-import org.yawni.wordnet.RelationArgument;
-import org.yawni.wordnet.RelationType;
-import org.yawni.wordnet.RelationType;
-import org.yawni.wordnet.WordNet;
-import org.yawni.wordnet.WordNet;
-import org.yawni.wordnet.WordSense;
-import org.yawni.wordnet.WordSense;
+import com.google.common.collect.ImmutableSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import org.yawni.util.WordSenseToLemma;
+import static com.google.common.collect.Iterables.transform;
 
 /**
- * Run easily with this Maven incantation:
- * {@code mvn exec:java -Dexec.mainClass="org.yawni.wordnet.MorphDerivator" -Dexec.classpathScope=test -Dexec.args="employ" }
+ * Run easily with this Maven incantation: {@code
+ *   mvn exec:java -Dexec.mainClass="org.yawni.wordnet.MorphDerivator" -Dexec.classpathScope=test -Dexec.args="employ"
+ * }
+ * NOTE: you <em>must</em> compile test!
  */
 public class MorphDerivator {
+  // recursively follow derivational relations
+  // note: WordNet 3.0 is missing the deriavational relation between "recursion"#n and "recursive"#adj, although it
+  // spells it out in "recursive"'s defintion ("of or relating to a recursion")
+  private static void gather(final WordSense wordSense, final Set<WordSense> derivs) {
+    for (final RelationArgument morphDerivSenseArg : wordSense.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)) {
+      final WordSense morphDerivSense = (WordSense) morphDerivSenseArg;
+      // avoid cycles (infinite recursion)
+      if (! derivs.contains(morphDerivSense)) {
+        derivs.add(morphDerivSense);
+        gather(morphDerivSense, derivs);
+      }
+    }
+  }
+
   public static void main(String[] args) {
     final WordNet wordnet = WordNet.getInstance();
     for (final String arg : args) {
-      final List<String> morphDerivs = new ArrayList<String>();
+      final Set<WordSense> seen = new LinkedHashSet<WordSense>();
       for (final WordSense wordSense : wordnet.lookupWordSenses(arg, POS.ALL)) {
-        for (final RelationArgument morphDerivSenseArg : wordSense.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)) {
-          final WordSense morphDerivSense = (WordSense) morphDerivSenseArg;
-          morphDerivs.add(morphDerivSense.getLemma());
-        }
+        gather(wordSense, seen);
       }
-      System.err.println("input: "+arg+" morphDerivs: "+morphDerivs);
+      final ImmutableSet<String> morphDerivs = ImmutableSet.copyOf(transform(seen, new WordSenseToLemma()));
+      System.err.format("input: %20s morphDerivs: %s\n", arg, morphDerivs);
     }
   }
 }
