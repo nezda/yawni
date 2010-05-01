@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import org.yawni.util.cache.Caches;
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.Utils;
@@ -94,7 +94,7 @@ class Morphy {
   };
 
   private final WordNet dictionary;
-  private final Cache<DatabaseKey, ImmutableList<String>> morphyCache;
+  private final Cache<DatabaseKey, LightImmutableList<String>> morphyCache;
 
   Morphy(final WordNet dictionary) {
     this.dictionary = dictionary;
@@ -198,14 +198,14 @@ class Morphy {
    * TODO simplify this code - is a brute force port from tricky C code.
    * Consider Java idioms like StringTokenizer/Scanner.
    */
-  ImmutableList<String> morphstr(final String origstr, POS pos) {
+  LightImmutableList<String> morphstr(final String origstr, POS pos) {
     if (pos == POS.SAT_ADJ) {
       pos = POS.ADJ;
     }
 
     //TODO cache would have more coverage if searchNormalize()'d variant were used
     final WordNet.DatabaseKey cacheKey = new WordNet.StringPOSDatabaseKey(origstr, pos);
-    final ImmutableList<String> cached = morphyCache.get(cacheKey);
+    final LightImmutableList<String> cached = morphyCache.get(cacheKey);
     if (cached != null) {
       //FIXME doesn't cache null (i.e., combinations not in WordNet)
       return cached;
@@ -214,7 +214,7 @@ class Morphy {
     // Assume string hasn't had spaces substituted with '_'
     final String str = searchNormalize(origstr);
     if (str.length() == 0) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     int wordCount = countWords(str, '_');
     if (log.isTraceEnabled()) {
@@ -230,7 +230,7 @@ class Morphy {
     final List<String> toReturn = new ArrayList<String>();
 
     // First try exception list
-    ImmutableList<String> tmp = dictionary.getExceptions(str, pos);
+    LightImmutableList<String> tmp = dictionary.getExceptions(str, pos);
     if (! tmp.isEmpty() && ! tmp.get(1).equals(str)) {
       // force next time to pass null
       svcnt = 1;
@@ -364,7 +364,7 @@ class Morphy {
       final String queryStr = wordStr = str.substring(st_idx);
 
       // this will trivially return null if queryStr == ""
-      final ImmutableList<String> morphWords = morphword(queryStr, pos);
+      final LightImmutableList<String> morphWords = morphword(queryStr, pos);
 
       assert searchstr != null;
 
@@ -444,7 +444,7 @@ class Morphy {
     }
     //TODO toReturn has output with spaces (not underscores) and may include case
     //
-    final ImmutableList<String> uniqed = ImmutableList.copyOf(Utils.dedup(toReturn));
+    final LightImmutableList<String> uniqed = LightImmutableList.copyOf(Utils.dedup(toReturn));
     morphyCache.put(cacheKey, uniqed);
     if (log.isDebugEnabled()) {
       log.debug("returning "+uniqed+" for origstr: \""+origstr+"\" "+pos+" str: "+str);
@@ -469,13 +469,13 @@ class Morphy {
     return dictionary.lookupWord(lemma, pos);
   }
 
-  static <T> ImmutableList<T> addUnique(T item, ImmutableList<T> items) {
+  static <T> LightImmutableList<T> addUnique(T item, LightImmutableList<T> items) {
     if (items.isEmpty()) {
-      items = ImmutableList.of(item);
+      items = LightImmutableList.of(item);
     } else if (! items.contains(item)) {
       final List<T> appended = new ArrayList<T>(items);
       appended.add(item);
-      items = ImmutableList.copyOf(appended);
+      items = LightImmutableList.copyOf(appended);
     }
     return items;
   }
@@ -485,12 +485,12 @@ class Morphy {
    * in POS {@code pos}.
    * <p> Port of {@code morph.c morphword()}.
    */
-  private ImmutableList<String> morphword(final String wordStr, final POS pos) {
+  private LightImmutableList<String> morphword(final String wordStr, final POS pos) {
     if (wordStr == null || wordStr.length() == 0) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     // first look for word on exception list
-    final ImmutableList<String> tmp = dictionary.getExceptions(wordStr, pos);
+    final LightImmutableList<String> tmp = dictionary.getExceptions(wordStr, pos);
     if (! tmp.isEmpty()) {
       // found it in exception list
       // LN skips first one because of modified getExceptions semantics
@@ -499,7 +499,7 @@ class Morphy {
 
     if (pos == POS.ADV) {
       // use only the exception list for adverbs
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
 
     String tmpbuf = null;
@@ -511,7 +511,7 @@ class Morphy {
         // special case for *ful "boxesful" → "boxful"
       } else if (wordStr.length() <= 2 || wordStr.endsWith("ss")) {
         // check for noun ending with 'ss' or short words
-        return ImmutableList.of();
+        return LightImmutableList.of();
       }
     }
 
@@ -543,10 +543,10 @@ class Morphy {
         if (log.isDebugEnabled()) {
           log.debug("returning retval+end: " + retval + end + " retval: \"" + retval + "\" end: \"" + end+"\"");
         }
-        return ImmutableList.of(retval + end);
+        return LightImmutableList.of(retval + end);
       }
     }
-    return ImmutableList.of();
+    return LightImmutableList.of();
   }
 
   /**
@@ -601,7 +601,7 @@ class Morphy {
     // off, check for validity, then try various morphs with the
     // rest of the phrase tacked on, trying to find a match.
     
-    ImmutableList<String> lastwd = ImmutableList.of();
+    LightImmutableList<String> lastwd = LightImmutableList.of();
     String end = null;
     final int rest = s.indexOf('_');
     final int last = s.lastIndexOf('_');
@@ -628,7 +628,7 @@ class Morphy {
     // First try to find the verb (which we are assuming is the first word) in
     // the exception list
 
-    final ImmutableList<String> exc_words = dictionary.getExceptions(firstWord, POS.VERB);
+    final LightImmutableList<String> exc_words = dictionary.getExceptions(firstWord, POS.VERB);
     if (log.isDebugEnabled() &&
         ! exc_words.isEmpty() && ! exc_words.get(1).equals(firstWord)) {
       log.debug("exc_words " + exc_words +
@@ -704,7 +704,7 @@ class Morphy {
     return null;
   }
 
-  private void checkLosingVariants(final ImmutableList<String> words, final String message) {
+  private void checkLosingVariants(final LightImmutableList<String> words, final String message) {
     if (words.size() != 1) {
       log.warn("{} losing variants!: {}", message, words);
     }
