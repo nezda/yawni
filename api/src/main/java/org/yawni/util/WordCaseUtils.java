@@ -18,6 +18,7 @@ package org.yawni.util;
 
 import java.util.List;
 import org.yawni.wordnet.Word;
+import static com.google.common.collect.Iterables.transform;
 
 public final class WordCaseUtils {
   private WordCaseUtils(){ }
@@ -28,7 +29,7 @@ public final class WordCaseUtils {
    * @yawni.experimental
    */
   public static List<String> getUniqueLemmaCaseVariants(final Word word) {
-    return LightImmutableList.copyOf(Utils.uniq(new WordSenseToLemma(word.getWordSenses())));
+    return LightImmutableList.copyOf(Utils.uniq(transform(word.getWordSenses(), new WordSenseToLemma())));
   }
 
   /**
