@@ -16,13 +16,10 @@
  */
 package org.yawni.util;
 
-import org.yawni.util.MutatedIterable;
+import com.google.common.base.Function;
 import org.yawni.wordnet.WordSense;
 
-final class WordSenseToLemma extends MutatedIterable<WordSense, String> {
-  public WordSenseToLemma(final Iterable<WordSense> iterable) {
-    super(iterable);
-  }
+public final class WordSenseToLemma implements Function<WordSense, String> {
   @Override
   public String apply(final WordSense wordSense) {
     return wordSense.getLemma();
