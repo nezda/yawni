@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.yawni.util.CharSequences;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import static org.yawni.util.Utils.add;
 
 /**
@@ -156,7 +156,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
 
   /** {@inheritDoc} */
   public Iterator<WordSense> iterator() {
-    return ImmutableList.of(this).iterator();
+    return LightImmutableList.of(this).iterator();
   }
 
   String adjFlagsToString() {
@@ -445,12 +445,12 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
    */
   public List<String> getVerbFrames() {
     if (getPOS() != POS.VERB) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     final CharSequence senseKey = getSenseKey();
     final WordNet wn = synset.wordNet;
     final String sentenceNumbers = wn.lookupVerbSentencesNumbers(senseKey);
-    List<String> frames = ImmutableList.of();
+    List<String> frames = LightImmutableList.of();
     if (sentenceNumbers != null) {
       frames = new ArrayList<String>();
       // fetch the illustrative sentences indicated in sentenceNumbers
@@ -500,7 +500,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
         }
       }
     }
-    return ImmutableList.copyOf(frames);
+    return LightImmutableList.copyOf(frames);
   }
 
   /**
@@ -625,9 +625,9 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       list = add(list, relation);
     }
     if (list == null) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
-    return ImmutableList.copyOf(list);
+    return LightImmutableList.copyOf(list);
   }
 
   /** {@inheritDoc} */
@@ -650,7 +650,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     return Synset.collectTargets(getRelations(type));
   }
 
-  // TODO consider getLexicalRelations() / getLexicalRelations(RelationType)
+  // TODO consider getLexicalRelations() / getLexicalRelations(RelationType) / getLexicalRelationTargets()
 
   //
   // Object methods
