@@ -28,7 +28,7 @@ public final class WordCaseUtils {
    * @yawni.experimental
    */
   public static List<String> getUniqueLemmaCaseVariants(final Word word) {
-    return ImmutableList.copyOf(Utils.uniq(new WordSenseToLemma(word.getWordSenses())));
+    return LightImmutableList.copyOf(Utils.uniq(new WordSenseToLemma(word.getWordSenses())));
   }
 
   /**
