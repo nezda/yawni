@@ -34,40 +34,53 @@ import java.util.List;
  */
 public interface RelationArgument extends Iterable<WordSense> {
   /**
-   * Returns the outgoing {@code Relation}s from <em>this</em> target, i.e., those
-   * {@code Relation}s that have this object as their source.  For a {@code WordSense},
-   * this method returns all of the {@link LexicalRelation}s emanating from it,
-   * and all {@link SemanticRelation}s sourced at its {@link WordSense#getSynset()}.
-   * For a {@code Synset}, this method returns all {@link SemanticRelation}s sourced at it,
-   * and <em>all</em> {@link LexicalRelation}s emanating from <em>all</em> of its {@code WordSense}s.
+   * Returns the outgoing {@link Relation}s from <em>this</em> argument, i.e., those
+   * {@code Relation}s that have this object as their source.
+   * <ul>
+   *   <li>For a {@link WordSense}, this method returns all of the {@link LexicalRelation}s emanating from it,
+   *   <em>and</em> all {@link SemanticRelation}s sourced at its {@link WordSense#getSynset() synset}.</li>
+   * 
+   *   <li>For a {@link Synset}, this method returns all {@link SemanticRelation}s sourced at it,
+   *   <em>and</em> <em>all</em> {@link LexicalRelation}s emanating from <em>all</em> of its {@code WordSense}s.</li>
+   * </ul>
    */
   public List<Relation> getRelations();
 
-  /** Filters {@link #getRelations()} by type {@code type}. */
+  /** Filters {@link #getRelations() getRelations()} by type {@code type}. */
   public List<Relation> getRelations(RelationType type);
 
-  /** Returns the targets of the {@code Relation}s returned by {@link #getRelations()}. */
+  /** Returns the targets of the {@code Relation}s returned by {@link #getRelations() getRelations()}. */
   public List<RelationArgument> getRelationTargets();
 
-  /** Returns the targets of the {@code Relation}s returned by {@link #getRelationTargets(RelationType)} */
+  /**
+   * Returns the targets of the {@code Relation}s returned by
+   * {@link #getRelations(RelationType) getRelations(RelationType)}
+   */
   public List<RelationArgument> getRelationTargets(RelationType type);
 
   /** {@code Synset} returns itself, {@code WordSense} returns its {@code Synset} */
   public Synset getSynset();
 
+  /**
+   * If word does not intersect this argument, returns {@code null}, else
+   * returns the apropos {@code WordSense}
+   */
   public WordSense getWordSense(Word word);
 
+  /**
+   * Returns the part of speech of this argument; notably will never be {@link POS#ALL}
+   */
   public POS getPOS();
 
   /**
-   * Returns a description of the target.  For a {@code WordSense}, this is
+   * Returns a description of this argument.  For a {@code WordSense}, this is
    * its lemma; for a {@code Synset}, it's the concatenated lemmas of
    * its {@code WordSense}s.
    */
   public String getDescription();
 
   /**
-   * Returns a long description of the target.  This is its description,
+   * Returns a long description of this argument.  This is its description,
    * appended by, if it exists, a dash and its gloss.
    */
   public String getLongDescription();
