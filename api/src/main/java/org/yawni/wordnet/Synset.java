@@ -21,7 +21,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import static org.yawni.util.Utils.add;
 import static org.yawni.wordnet.RelationType.HYPERNYM;
 import static org.yawni.wordnet.RelationType.HYPONYM;
@@ -50,7 +50,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   final WordNet wordNet;
   /** offset in <code>data.<em>pos</em></code> file; {@code Synset.hereiam} in {@code wn.h} */
   private final int offset;
-  private final ImmutableList<WordSense> wordSenses;
+  private final LightImmutableList<WordSense> wordSenses;
   // TODO consider storing Relations indirectly
   // (all have common source == this?)
   // pos, synset offset, optionally Synset WordSense rank (NOT sense number which is Word-relative rank)
@@ -58,7 +58,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   // increases Synset's direct 32-bit size
   // to 4+1+4+2 = 11 B, though may be able to pack synset offset and rank into less bytes
   // ! SoftReference is the way to go here !
-  private final ImmutableList<Relation> relations;
+  private final LightImmutableList<Relation> relations;
   private final byte posOrdinal;
   private final byte lexfilenum;
   private final boolean isAdjectiveCluster;
@@ -113,14 +113,14 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       }
       localWordSenses[i] = new WordSense(this, lemma.replace('_', ' '), lexid, flags);
     }
-    this.wordSenses = ImmutableList.of(localWordSenses);
+    this.wordSenses = LightImmutableList.of(localWordSenses);
 
     final int relationCount = tokenizer.nextInt();
     final Relation[] localRelations = new Relation[relationCount];
     for (int i = 0; i < relationCount; i++) {
       localRelations[i] = Relation.makeRelation(this, i, tokenizer);
     }
-    this.relations = ImmutableList.of(localRelations);
+    this.relations = LightImmutableList.of(localRelations);
 
     if (posOrdinal == POS.VERB.ordinal()) {
       final int f_cnt = tokenizer.nextInt();
@@ -327,9 +327,9 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 //      } else {
 //        //System.err.println("type "+type+" for "+this+" has no subTypes");
 //      }
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
-    return ImmutableList.copyOf(list);
+    return LightImmutableList.copyOf(list);
   }
 
   // consider getSemanticRelations()
@@ -351,9 +351,9 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       }
     }
     if (list == null) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
-    return ImmutableList.copyOf(list);
+    return LightImmutableList.copyOf(list);
   }
 
   /** {@inheritDoc} */
@@ -371,7 +371,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     for (int i = 0, n = relations.size(); i < n; i++) {
       targets[i] = relations.get(i).getTarget();
     }
-    return ImmutableList.of(targets);
+    return LightImmutableList.of(targets);
   }
 
   /** {@inheritDoc} */
