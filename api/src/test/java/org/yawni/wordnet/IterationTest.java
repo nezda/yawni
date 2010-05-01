@@ -26,6 +26,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.yawni.util.Utils;
 import static org.yawni.util.Utils.first;
+import static com.google.common.collect.Iterables.transform;
 import static org.yawni.util.Utils.isEmpty;
 import org.yawni.util.MergedIterable;
 import org.yawni.wordnet.WordSense.AdjPosition;
@@ -156,7 +157,7 @@ public class IterationTest {
     for (final POS pos : POS.CATS) {
       final Iterable<Word> leadingDashPrefix = wordNet.searchByPrefix("-", pos);
       assertTrue(isEmpty(leadingDashPrefix));
-      final Iterable<String> leadingDashPrefixLemma = new WordToLowercasedLemma(wordNet.searchByPrefix("-", pos));
+      final Iterable<String> leadingDashPrefixLemma = transform(wordNet.searchByPrefix("-", pos), new WordToLowercasedLemma());
       assertTrue(isEmpty(leadingDashPrefixLemma));
       final Iterable<Word> leadingSpacePrefix = wordNet.searchByPrefix(" ", pos);
       assertTrue(isEmpty(leadingSpacePrefix));
@@ -189,9 +190,10 @@ public class IterationTest {
     assertTrue(isEmpty(anyLeadingDashPrefix));
 
     final Iterable<String> runs = Utils.uniq(
-        new WordToLowercasedLemma(MergedIterable.merge(true,
+        transform(MergedIterable.merge(true,
             wordNet.searchByPrefix("run", POS.NOUN),
-            wordNet.searchByPrefix("run", POS.VERB))));
+            wordNet.searchByPrefix("run", POS.VERB)),
+            new WordToLowercasedLemma()));
     assertTrue(Utils.isUnique(runs, true));
 
     final Iterable<Word> spaceWords = wordNet.searchBySubstring(" ", POS.NOUN);
