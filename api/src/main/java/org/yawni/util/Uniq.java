@@ -16,6 +16,7 @@
  */
 package org.yawni.util;
 
+import com.google.common.collect.UnmodifiableIterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

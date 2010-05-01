@@ -16,6 +16,8 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.UnmodifiableIterator;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
@@ -43,9 +45,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.yawni.util.AbstractIterator;
 import org.yawni.util.StringTokenizer;
-import org.yawni.util.UnmodifiableIterator;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
 import org.yawni.wordnet.WordSense.AdjPosition;
