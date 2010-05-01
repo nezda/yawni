@@ -16,17 +16,55 @@
  */
 package org.yawni.wordnet;
 
+import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MorphosemanticRelationTest {
+  private WordNet wordNet;
+
+  @Before
+  public void init() {
+    wordNet = WordNet.getInstance();
+  }
+
   @Test
-  public void test() {
-    System.err.println("values: "+MorphosemanticRelation.getStringToRelMap());
+  public void testEnum() {
+    System.err.println("enum values: "+MorphosemanticRelation.getStringToRelMap());
     assertThat(MorphosemanticRelation.AGENT).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
     assertThat(MorphosemanticRelation.fromValue("AGENT")).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
     
     assertThat(MorphosemanticRelation.fromValue("BY_MEANS_OF")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
     assertThat(MorphosemanticRelation.fromValue("by-means-of")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
+  }
+
+  @Test
+  public void testValues() {
+    System.err.println("values");
+    for (final Synset synset : wordNet.synsets(POS.VERB)) {
+      final int offset = synset.getOffset();
+      //String s = synset.toString();
+      //System.err.println(s);
+      for (final Relation morphDeriv : synset.getRelations(RelationType.DERIVATIONALLY_RELATED)) {
+        final LexicalRelation lexRel = (LexicalRelation) morphDeriv;
+        if (morphDeriv.getTarget().getPOS() != POS.NOUN) {
+          continue;
+        }
+        final List<Relation> reverse = morphDeriv.getTarget().getRelations(RelationType.DERIVATIONALLY_RELATED);
+        if (reverse.isEmpty()) {
+          System.err.println("reverse missing: "+lexRel);
+        }
+        final String offsetKey = String.format("2%08d", offset);
+        String lexRelLine = wordNet.lookupMorphoSemanticRelationLine(offsetKey);
+        if (lexRelLine != null) {
+          // TODO parse the line
+          System.err.println("MorphoSemanticRelation line: "+lexRelLine);
+        } else {
+          //System.err.println("eek! "+this+" target NOUN offset: "+lexRel.getTargetOffset());
+          System.err.println("eek! "+lexRel);
+        }
+      }
+    }
   }
 }
