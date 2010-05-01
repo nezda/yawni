@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
-import org.yawni.util.AbstractIterator;
+import com.google.common.collect.AbstractIterator;
 
 /**
  * General programming technique called <a href="http://en.wikipedia.org/wiki/Continuation-passing_style">
