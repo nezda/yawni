@@ -53,7 +53,7 @@ import java.util.RandomAccess;
  *
  * <p> Random notes
  * <ul>
- *   <li> Using {@code Iterator}s is slow compared to {@link ImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
+ *   <li> Using {@code Iterator}s is slow compared to {@link LightImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
  *        Unfortunately, the new {@code foreach} syntax is so convenient.
  *   </li>
  *   <li> speed: inefficiencies in most implementations of base {@link Collection} classes ({@link java.util.AbstractCollection},
@@ -87,44 +87,44 @@ import java.util.RandomAccess;
 // - consider generating code for methods like get(i), subList
 //
 // - hopefully compiler won't have problems with deeply nested implementation classes
-//   ImmutableList → AbstractList → Singleton → Doubleton → ...
+//   LightImmutableList → AbstractList → Singleton → Doubleton → ...
 //
-// - ImmutableList should be an interface
+// - LightImmutableList should be an interface
 //   - ideally above List, but for compat has to be
 //     below it and therefore we can't remove methods from it
 //   - could be sneaky and duplicate the methods, but this kinda sucks too
 
-public abstract class ImmutableList<E> implements List<E>, RandomAccess {
+public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
   @SuppressWarnings("unchecked")
-  public static <E> ImmutableList<E> of() {
+  public static <E> LightImmutableList<E> of() {
     return Nothington.INSTANCE;
   }
-  public static <E> ImmutableList<E> of(E e0) {
+  public static <E> LightImmutableList<E> of(E e0) {
     return new Singleton<E>(e0);
   }
-  public static <E> ImmutableList<E> of(E e0, E e1) {
+  public static <E> LightImmutableList<E> of(E e0, E e1) {
     return new Doubleton<E>(e0, e1);
   }
-  public static <E> ImmutableList<E> of(E e0, E e1, E e2) {
+  public static <E> LightImmutableList<E> of(E e0, E e1, E e2) {
     return new Tripleton<E>(e0, e1, e2);
   }
-  public static <E> ImmutableList<E> of(E e0, E e1, E e2, E e3) {
+  public static <E> LightImmutableList<E> of(E e0, E e1, E e2, E e3) {
     return new Quadrupleton<E>(e0, e1, e2, e3);
   }
-  public static <E> ImmutableList<E> of(E e0, E e1, E e2, E e3, E e4) {
+  public static <E> LightImmutableList<E> of(E e0, E e1, E e2, E e3, E e4) {
     return new Quintupleton<E>(e0, e1, e2, e3, e4);
   }
   /**
    * Selects the most efficient implementation based on the length of {@code all}
    */
-  public static <E> ImmutableList<E> of(E... all) {
+  public static <E> LightImmutableList<E> of(E... all) {
     switch (all.length) {
-      case 0: return ImmutableList.of();
-      case 1: return ImmutableList.of(all[0]);
-      case 2: return ImmutableList.of(all[0], all[1]);
-      case 3: return ImmutableList.of(all[0], all[1], all[2]);
-      case 4: return ImmutableList.of(all[0], all[1], all[2], all[3]);
-      case 5: return ImmutableList.of(all[0], all[1], all[2], all[3], all[4]);
+      case 0: return LightImmutableList.of();
+      case 1: return LightImmutableList.of(all[0]);
+      case 2: return LightImmutableList.of(all[0], all[1]);
+      case 3: return LightImmutableList.of(all[0], all[1], all[2]);
+      case 4: return LightImmutableList.of(all[0], all[1], all[2], all[3]);
+      case 5: return LightImmutableList.of(all[0], all[1], all[2], all[3], all[4]);
       default:
         if (all.length > 5) {
           //return new Restleton<E>(all);
@@ -135,55 +135,55 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
         }
     }
   }
-  public static <E> ImmutableList<E> copyOf(final Iterable<? extends E> elements) {
-    if (elements instanceof ImmutableList) {
+  public static <E> LightImmutableList<E> copyOf(final Iterable<? extends E> elements) {
+    if (elements instanceof LightImmutableList) {
       @SuppressWarnings("unchecked")
-      final ImmutableList<E> elementsAsImmutableList = (ImmutableList<E>) elements;
+      final LightImmutableList<E> elementsAsImmutableList = (LightImmutableList<E>) elements;
       return elementsAsImmutableList;
     } else if (elements instanceof Collection) {
       @SuppressWarnings("unchecked")
       final Collection<E> elementsAsCollection = (Collection<E>) elements;
       final int size = elementsAsCollection.size();
       if (size == 0) {
-        return ImmutableList.of();
+        return LightImmutableList.of();
       }
       @SuppressWarnings("unchecked")
       final E[] elementsAsArray = (E[]) new Object[size];
       final E[] returnedElementsAsArray = elementsAsCollection.toArray(elementsAsArray);
       assert returnedElementsAsArray == elementsAsArray;
-      return ImmutableList.of(elementsAsArray);
+      return LightImmutableList.of(elementsAsArray);
     } else {
       final Collection<E> elementsAsCollection = new ArrayList<E>();
       for (final E e : elements) {
         elementsAsCollection.add(e);
       }
       // recursive call
-      return ImmutableList.copyOf(elementsAsCollection);
+      return LightImmutableList.copyOf(elementsAsCollection);
     }
   }
-  public static <E> ImmutableList<E> copyOf(final Iterator<? extends E> elements) {
+  public static <E> LightImmutableList<E> copyOf(final Iterator<? extends E> elements) {
     if (! elements.hasNext()) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     final E e0 = elements.next();
     if (! elements.hasNext()) {
-      return ImmutableList.of(e0);
+      return LightImmutableList.of(e0);
     }
     final E e1 = elements.next();
     if (! elements.hasNext()) {
-      return ImmutableList.of(e0, e1);
+      return LightImmutableList.of(e0, e1);
     }
     final E e2 = elements.next();
     if (! elements.hasNext()) {
-      return ImmutableList.of(e0, e1, e2);
+      return LightImmutableList.of(e0, e1, e2);
     }
     final E e3 = elements.next();
     if (! elements.hasNext()) {
-      return ImmutableList.of(e0, e1, e2, e3);
+      return LightImmutableList.of(e0, e1, e2, e3);
     }
     final E e4 = elements.next();
     if (! elements.hasNext()) {
-      return ImmutableList.of(e0, e1, e2, e3, e4);
+      return LightImmutableList.of(e0, e1, e2, e3, e4);
     }
     // give up; copy em' into temp var
     final Collection<E> elementsAsCollection = new ArrayList<E>();
@@ -196,10 +196,10 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       elementsAsCollection.add(elements.next());
     } while (elements.hasNext());
     // recursive call
-    return ImmutableList.copyOf(elementsAsCollection);
+    return LightImmutableList.copyOf(elementsAsCollection);
   }
 
-  private ImmutableList() {}
+  private LightImmutableList() {}
 
   static boolean eq(Object obj, Object e) {
     return obj == null ? e == null : obj.equals(e);
@@ -282,7 +282,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       return Collections.<E>emptyList().listIterator(index);
     }
     /* @Override */
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       if (fromIndex != 0 || toIndex != 0) {
         throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
             + ".." + toIndex + ", list size is 0");
@@ -354,17 +354,17 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
     /* @Override */
     @SuppressWarnings("fallthrough")
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // valid indices = {0,1}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
-            case 0: return ImmutableList.of();
+            case 0: return LightImmutableList.of();
             case 1: return this;
           }
         case 1:
           switch (toIndex) {
-            case 1: return ImmutableList.of();
+            case 1: return LightImmutableList.of();
           }
       }
       throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
@@ -421,23 +421,23 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
     @Override
     @SuppressWarnings("fallthrough")
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // valid indices = {0,1,2}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
-            case 0: return ImmutableList.of();
-            case 1: return ImmutableList.of(e0);
+            case 0: return LightImmutableList.of();
+            case 1: return LightImmutableList.of(e0);
             case 2: return this;
           }
         case 1:
           switch (toIndex) {
-            case 1: return ImmutableList.of();
-            case 2: return ImmutableList.of(e1);
+            case 1: return LightImmutableList.of();
+            case 2: return LightImmutableList.of(e1);
           }
         case 2:
           switch (toIndex) {
-            case 2: return ImmutableList.of();
+            case 2: return LightImmutableList.of();
           }
       }
       throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
@@ -501,30 +501,30 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
     @Override
     @SuppressWarnings("fallthrough")
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // valid indices = {0,1,2,3}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
-            case 0: return ImmutableList.of();
-            case 1: return ImmutableList.of(e0);
-            case 2: return ImmutableList.of(e0, e1);
+            case 0: return LightImmutableList.of();
+            case 1: return LightImmutableList.of(e0);
+            case 2: return LightImmutableList.of(e0, e1);
             case 3: return this;
           }
         case 1:
           switch (toIndex) {
-            case 1: return ImmutableList.of();
-            case 2: return ImmutableList.of(e1);
-            case 3: return ImmutableList.of(e1, e2);
+            case 1: return LightImmutableList.of();
+            case 2: return LightImmutableList.of(e1);
+            case 3: return LightImmutableList.of(e1, e2);
           }
         case 2:
           switch (toIndex) {
-            case 2: return ImmutableList.of();
-            case 3: return ImmutableList.of(e2);
+            case 2: return LightImmutableList.of();
+            case 3: return LightImmutableList.of(e2);
           }
         case 3:
           switch (toIndex) {
-            case 3: return ImmutableList.of();
+            case 3: return LightImmutableList.of();
           }
       }
       throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
@@ -595,38 +595,38 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
     @Override
     @SuppressWarnings("fallthrough")
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // valid indices = {0,1,2,3,4}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
-            case 0: return ImmutableList.of();
-            case 1: return ImmutableList.of(e0);
-            case 2: return ImmutableList.of(e0, e1);
-            case 3: return ImmutableList.of(e0, e1, e2);
+            case 0: return LightImmutableList.of();
+            case 1: return LightImmutableList.of(e0);
+            case 2: return LightImmutableList.of(e0, e1);
+            case 3: return LightImmutableList.of(e0, e1, e2);
             case 4: return this;
           }
         case 1:
           switch (toIndex) {
-            case 1: return ImmutableList.of();
-            case 2: return ImmutableList.of(e1);
-            case 3: return ImmutableList.of(e1, e2);
-            case 4: return ImmutableList.of(e1, e2, e3);
+            case 1: return LightImmutableList.of();
+            case 2: return LightImmutableList.of(e1);
+            case 3: return LightImmutableList.of(e1, e2);
+            case 4: return LightImmutableList.of(e1, e2, e3);
           }
         case 2:
           switch (toIndex) {
-            case 2: return ImmutableList.of();
-            case 3: return ImmutableList.of(e2);
-            case 4: return ImmutableList.of(e2, e3);
+            case 2: return LightImmutableList.of();
+            case 3: return LightImmutableList.of(e2);
+            case 4: return LightImmutableList.of(e2, e3);
           }
         case 3:
           switch (toIndex) {
-            case 3: return ImmutableList.of();
-            case 4: return ImmutableList.of(e3);
+            case 3: return LightImmutableList.of();
+            case 4: return LightImmutableList.of(e3);
           }
         case 4:
           switch (toIndex) {
-            case 4: return ImmutableList.of();
+            case 4: return LightImmutableList.of();
           }
       }
       throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
@@ -704,47 +704,47 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
     }
     @Override
     @SuppressWarnings("fallthrough")
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // valid indices = {0,1,2,3,4,5}
       switch (fromIndex) {
         case 0:
           switch (toIndex) {
-            case 0: return ImmutableList.of();
-            case 1: return ImmutableList.of(e0);
-            case 2: return ImmutableList.of(e0, e1);
-            case 3: return ImmutableList.of(e0, e1, e2);
-            case 4: return ImmutableList.of(e0, e1, e2, e3);
+            case 0: return LightImmutableList.of();
+            case 1: return LightImmutableList.of(e0);
+            case 2: return LightImmutableList.of(e0, e1);
+            case 3: return LightImmutableList.of(e0, e1, e2);
+            case 4: return LightImmutableList.of(e0, e1, e2, e3);
             case 5: return this;
           }
         case 1:
           switch (toIndex) {
-            case 1: return ImmutableList.of();
-            case 2: return ImmutableList.of(e1);
-            case 3: return ImmutableList.of(e1, e2);
-            case 4: return ImmutableList.of(e1, e2, e3);
-            case 5: return ImmutableList.of(e1, e2, e3, e4);
+            case 1: return LightImmutableList.of();
+            case 2: return LightImmutableList.of(e1);
+            case 3: return LightImmutableList.of(e1, e2);
+            case 4: return LightImmutableList.of(e1, e2, e3);
+            case 5: return LightImmutableList.of(e1, e2, e3, e4);
           }
         case 2:
           switch (toIndex) {
-            case 2: return ImmutableList.of();
-            case 3: return ImmutableList.of(e2);
-            case 4: return ImmutableList.of(e2, e3);
-            case 5: return ImmutableList.of(e2, e3, e4);
+            case 2: return LightImmutableList.of();
+            case 3: return LightImmutableList.of(e2);
+            case 4: return LightImmutableList.of(e2, e3);
+            case 5: return LightImmutableList.of(e2, e3, e4);
           }
         case 3:
           switch (toIndex) {
-            case 3: return ImmutableList.of();
-            case 4: return ImmutableList.of(e3);
-            case 5: return ImmutableList.of(e3, e4);
+            case 3: return LightImmutableList.of();
+            case 4: return LightImmutableList.of(e3);
+            case 5: return LightImmutableList.of(e3, e4);
           }
         case 4:
           switch (toIndex) {
-            case 4: return ImmutableList.of();
-            case 5: return ImmutableList.of(e4);
+            case 4: return LightImmutableList.of();
+            case 5: return LightImmutableList.of(e4);
           }
         case 5:
           switch (toIndex) {
-            case 5: return ImmutableList.of();
+            case 5: return LightImmutableList.of();
           }
       }
       throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
@@ -820,7 +820,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
 //      }
 //      return -1;
 //    }
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // - using 2 ints (b, end) and parent reference (Object(8)+4+4+parent(4) = 24 on 32-bit arch
       //   - could optimize with b=0 and end=size() variants :)
       if (fromIndex < 0 || toIndex > size() || fromIndex > toIndex) {
@@ -828,7 +828,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
             + ".." + toIndex + ", list size is " + size());
       }
       if (fromIndex == toIndex) {
-        return ImmutableList.of();
+        return LightImmutableList.of();
       } else if (fromIndex == 0 && toIndex == size()) {
         return this;
       } else {
@@ -884,7 +884,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
         return Restleton.this.get(index);
       }
       /* @Override */
-      public ImmutableList<E> subList(int fromIndex, int toIndex) {
+      public LightImmutableList<E> subList(int fromIndex, int toIndex) {
 //        if (fromIndex < 0) {
 //          throw new IndexOutOfBoundsException();
 //        }
@@ -896,7 +896,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
 //        }
 //        return Restleton.this.subList(fromIndex, toIndex);
         if (fromIndex == toIndex) {
-          return ImmutableList.of();
+          return LightImmutableList.of();
         } else if (fromIndex == 0 && toIndex == size()) {
           return this;
         } else {
@@ -912,7 +912,7 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
   
   /**
    * Classic {@code ArrayList}-style implementation.  Implementation liberally copied
-   * from Google Collections ImmutableList.RegularImmutableList
+   * from Google Collections LightImmutableList.RegularImmutableList
    * @param <E>
    */
   private static final class RegularImmutableList<E> extends AbstractImmutableList<E> {
@@ -957,13 +957,13 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
       return (E) array[index + offset];
     }
     @Override
-    public ImmutableList<E> subList(int fromIndex, int toIndex) {
+    public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
         throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
             + ".." + toIndex + ", list size is " + size);
       }
       return (fromIndex == toIndex)
-          ? ImmutableList.<E>of()
+          ? LightImmutableList.<E>of()
           : new RegularImmutableList<E>(
               array, offset + fromIndex, toIndex - fromIndex);
     }
@@ -973,9 +973,9 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
    * {@inheritDoc}
    * Makes covariant subList type inference work.
    */
-  public abstract ImmutableList<E> subList(int fromIndex, int toIndex);
+  public abstract LightImmutableList<E> subList(int fromIndex, int toIndex);
 
-  static abstract class AbstractImmutableList<E> extends ImmutableList<E> {
+  static abstract class AbstractImmutableList<E> extends LightImmutableList<E> {
     // base implementation
     /* @Override */
     public boolean contains(Object target) {
@@ -1165,11 +1165,11 @@ public abstract class ImmutableList<E> implements List<E>, RandomAccess {
         //System.out.println("begin(): "+begin()+" end(): "+end()+" size(): "+size());
         final E next = get(i);
         buffer.append(", ");
-        // there is no way to have an ImmutableList which contains itself
+        // there is no way to have an LightImmutableList which contains itself
         //if (next != this) {
           buffer.append(next);
         //} else {
-        //  buffer.append("(this ImmutableList)");
+        //  buffer.append("(this LightImmutableList)");
         //}
       }
       return buffer.append(']').toString();

@@ -24,18 +24,18 @@ import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class ImmutableListTest {
+public class LightImmutableListTest {
   @Test
   public void nothington() {
     System.out.println("nothington()");
     Integer[] elements = new Integer[]{};
     List<Integer> expResult = Collections.<Integer>emptyList();
-    ImmutableList<Integer> result = ImmutableList.of();
-    assertTrue(result instanceof ImmutableList.Nothington);
+    LightImmutableList<Integer> result = LightImmutableList.of();
+    assertTrue(result instanceof LightImmutableList.Nothington);
     listTest(expResult, result);
-    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    assertTrue(resultFromArray instanceof ImmutableList.Nothington);
+    listTest(expResult, LightImmutableList.copyOf(expResult.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    assertTrue(resultFromArray instanceof LightImmutableList.Nothington);
     listTest(result, resultFromArray);
   }
   @Test
@@ -44,12 +44,12 @@ public class ImmutableListTest {
     Integer[] elements = new Integer[]{ 0 };
     Integer e0 = elements[0];
     List<Integer> expResult = Collections.singletonList(e0);
-    ImmutableList<Integer> result = ImmutableList.of(e0);
-    assertTrue(result instanceof ImmutableList.Singleton);
+    LightImmutableList<Integer> result = LightImmutableList.of(e0);
+    assertTrue(result instanceof LightImmutableList.Singleton);
     listTest(expResult, result);
-    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    assertTrue(resultFromArray instanceof ImmutableList.Singleton);
+    listTest(expResult, LightImmutableList.copyOf(expResult.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    assertTrue(resultFromArray instanceof LightImmutableList.Singleton);
     listTest(result, resultFromArray);
   }
   @Test
@@ -61,15 +61,15 @@ public class ImmutableListTest {
     List<Integer> expResult1 = Arrays.asList(e0, e1);
     List<Integer> expResult2 = new ArrayList<Integer>(Arrays.asList(e0, e1));
     List<Integer> expResult3 = new LinkedList<Integer>(Arrays.asList(e0, e1));
-    ImmutableList<Integer> result = ImmutableList.of(e0, e1);
-    assertTrue(result instanceof ImmutableList.Singleton); // implementation detail
-    assertTrue(result instanceof ImmutableList.Doubleton);
+    LightImmutableList<Integer> result = LightImmutableList.of(e0, e1);
+    assertTrue(result instanceof LightImmutableList.Singleton); // implementation detail
+    assertTrue(result instanceof LightImmutableList.Doubleton);
     listTest(expResult1, result);
     listTest(expResult2, result);
     listTest(expResult3, result);
-    listTest(expResult1, ImmutableList.copyOf(expResult1.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    assertTrue(resultFromArray instanceof ImmutableList.Doubleton);
+    listTest(expResult1, LightImmutableList.copyOf(expResult1.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    assertTrue(resultFromArray instanceof LightImmutableList.Doubleton);
     listTest(result, resultFromArray);
   }
   @Test
@@ -80,12 +80,12 @@ public class ImmutableListTest {
     Integer e1 = elements[1];
     Integer e2 = elements[2];
     List<Integer> expResult = Arrays.asList(e0, e1, e2);
-    ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2);
-    assertTrue(result instanceof ImmutableList.Tripleton);
+    LightImmutableList<Integer> result = LightImmutableList.of(e0, e1, e2);
+    assertTrue(result instanceof LightImmutableList.Tripleton);
     listTest(expResult, result);
-    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    assertTrue(resultFromArray instanceof ImmutableList.Tripleton);
+    listTest(expResult, LightImmutableList.copyOf(expResult.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    assertTrue(resultFromArray instanceof LightImmutableList.Tripleton);
     listTest(result, resultFromArray);
   }
   @Test
@@ -97,12 +97,12 @@ public class ImmutableListTest {
     Integer e2 = elements[2];
     Integer e3 = elements[3];
     List<Integer> expResult = Arrays.asList(e0, e1, e2, e3);
-    ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2, e3);
-    assertTrue(result instanceof ImmutableList.Quadrupleton);
+    LightImmutableList<Integer> result = LightImmutableList.of(e0, e1, e2, e3);
+    assertTrue(result instanceof LightImmutableList.Quadrupleton);
     listTest(expResult, result);
-    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    assertTrue(resultFromArray instanceof ImmutableList.Quadrupleton);
+    listTest(expResult, LightImmutableList.copyOf(expResult.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    assertTrue(resultFromArray instanceof LightImmutableList.Quadrupleton);
     listTest(result, resultFromArray);
   }
   @Test
@@ -115,12 +115,12 @@ public class ImmutableListTest {
     Integer e3 = elements[3];
     Integer e4 = elements[4];
     List<Integer> expResult = Arrays.asList(e0, e1, e2, e3, e4);
-    ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2, e3, e4);
-    assertTrue(result instanceof ImmutableList.Quintupleton);
+    LightImmutableList<Integer> result = LightImmutableList.of(e0, e1, e2, e3, e4);
+    assertTrue(result instanceof LightImmutableList.Quintupleton);
     listTest(expResult, result);
-    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    assertTrue(resultFromArray instanceof ImmutableList.Quintupleton);
+    listTest(expResult, LightImmutableList.copyOf(expResult.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    assertTrue(resultFromArray instanceof LightImmutableList.Quintupleton);
     listTest(result, resultFromArray);
   }
   @Test
@@ -134,12 +134,12 @@ public class ImmutableListTest {
     Integer e4 = elements[4];
     Integer e5 = elements[5];
     List<Integer> expResult = Arrays.asList(e0, e1, e2, e3, e4, e5);
-    ImmutableList<Integer> result = ImmutableList.of(e0, e1, e2, e3, e4, e5);
-    //assertTrue(result instanceof ImmutableList.Restleton);
+    LightImmutableList<Integer> result = LightImmutableList.of(e0, e1, e2, e3, e4, e5);
+    //assertTrue(result instanceof LightImmutableList.Restleton);
     listTest(expResult, result);
-    listTest(expResult, ImmutableList.copyOf(expResult.iterator()));
-    ImmutableList<Integer> resultFromArray = ImmutableList.of(elements);
-    //assertTrue(resultFromArray instanceof ImmutableList.Restleton);
+    listTest(expResult, LightImmutableList.copyOf(expResult.iterator()));
+    LightImmutableList<Integer> resultFromArray = LightImmutableList.of(elements);
+    //assertTrue(resultFromArray instanceof LightImmutableList.Restleton);
     listTest(result, resultFromArray);
   }
   @Test
@@ -152,10 +152,10 @@ public class ImmutableListTest {
     Integer e3 = elements[3];
     Integer e4 = elements[4];
     List<Integer> expResult = Collections.unmodifiableList(Arrays.asList(e0, e1, e2, e3, e4));
-    ImmutableList<Integer> result = ImmutableList.copyOf(expResult);
+    LightImmutableList<Integer> result = LightImmutableList.copyOf(expResult);
     // compile test for covariant subList
-    ImmutableList<Integer> immutableSubList = result.subList(0, 1);
-    assertTrue(result instanceof ImmutableList.Quintupleton);
+    LightImmutableList<Integer> immutableSubList = result.subList(0, 1);
+    assertTrue(result instanceof LightImmutableList.Quintupleton);
     listTest(expResult, result);
   }
   @Test
@@ -176,12 +176,12 @@ public class ImmutableListTest {
     final List<List<Integer>> expResult = Collections.unmodifiableList(elements);
     @SuppressWarnings("unchecked") // Arrays.asList complains when making list of parameterized types
     final List<List<Integer>> altExpResult = Arrays.asList(e0, e1, e2, e3, e4);
-    // ImmutableList provides overloads for up to 5 arguments, and only for 6+ will
+    // LightImmutableList provides overloads for up to 5 arguments, and only for 6+ will
     // if fall back to pure varargs
-    final ImmutableList<List<Integer>> result = ImmutableList.of(e0, e1, e2, e3, e4);
+    final LightImmutableList<List<Integer>> result = LightImmutableList.of(e0, e1, e2, e3, e4);
     // compile test for covariant subList
-    //ImmutableList<Integer> immutableSubList = result.subList(0, 1);
-    assertTrue(result instanceof ImmutableList.Quintupleton);
+    //LightImmutableList<Integer> immutableSubList = result.subList(0, 1);
+    assertTrue(result instanceof LightImmutableList.Quintupleton);
     listTest(expResult, result);
   }
   private <E> void listTest(List<E> expResult, List<E> result) {
@@ -227,7 +227,7 @@ public class ImmutableListTest {
     Integer[] reference = new Integer[0];
     int length = 0;
     Integer[] expResult = reference;
-    Integer[] result = ImmutableList.newArray(reference, length);
+    Integer[] result = LightImmutableList.newArray(reference, length);
     assertTrue(Arrays.equals(expResult, result));
   }
 }
