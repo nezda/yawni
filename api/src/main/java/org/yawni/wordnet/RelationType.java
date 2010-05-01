@@ -20,7 +20,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import static org.yawni.wordnet.RelationTypeFlag.*;
 
 /**
@@ -302,9 +302,9 @@ public enum RelationType {
      * e.g., { Bill Clinton } (* the Synset) --instance hypernym--> { President of the United States }
      * which in turn has (normal) hypernyms
      */
-    HYPERNYM.superTypes = ImmutableList.of(INSTANCE_HYPERNYM);
-    INSTANCE_HYPERNYM.superTypes = ImmutableList.of(HYPERNYM);
-//    INSTANCE_HYPERNYM.subTypes = ImmutableList.of(HYPERNYM);
+    HYPERNYM.superTypes = LightImmutableList.of(INSTANCE_HYPERNYM);
+    INSTANCE_HYPERNYM.superTypes = LightImmutableList.of(HYPERNYM);
+//    INSTANCE_HYPERNYM.subTypes = LightImmutableList.of(HYPERNYM);
     /**
      * e.g., { President of the United States } (* the Synset) --instance hyponyms--> ({ Bill Clinton }, ...) AND
      * (normal) hyponyms ({ chief of state }, ...).  Note that while { President of the United States } also
@@ -312,15 +312,15 @@ public enum RelationType {
      * it is more lexically specified.
      * FIXME this example seems to show a bad, unneeded asymmetry
      */
-    HYPONYM.subTypes = ImmutableList.of(INSTANCE_HYPONYM);
-//    HYPONYM.superTypes = ImmutableList.of(INSTANCE_HYPONYM);
+    HYPONYM.subTypes = LightImmutableList.of(INSTANCE_HYPONYM);
+//    HYPONYM.superTypes = LightImmutableList.of(INSTANCE_HYPONYM);
 
-//    MERONYM.subTypes = ImmutableList.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
+//    MERONYM.subTypes = LightImmutableList.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
     // don't assign superTypes since MERONYM is pure-virtual
-//    HOLONYM.subTypes = ImmutableList.of(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
+//    HOLONYM.subTypes = LightImmutableList.of(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
     // don't assign superTypes since HOLONYM is pure-virtual
 
-//    DOMAIN.subTypes = ImmutableList.of(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
+//    DOMAIN.subTypes = LightImmutableList.of(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
     // don't assign superTypes since DOMAIN is pure-virtual
 
     //TODO check sanity conditions
@@ -359,8 +359,8 @@ public enum RelationType {
   private final String toString;
   private RelationType symmetricType;
   // experimental fields
-  ImmutableList<RelationType> subTypes;
-  private ImmutableList<RelationType> superTypes;
+  LightImmutableList<RelationType> subTypes;
+  private LightImmutableList<RelationType> superTypes;
 
   RelationType(final String label, final String key, final int value, final int flags) {
     this(label, key, value, flags, null, null);
@@ -390,8 +390,8 @@ public enum RelationType {
         this.longVerbLabel = label;
       }
     }
-    this.superTypes = ImmutableList.of();
-    this.subTypes = ImmutableList.of();
+    this.superTypes = LightImmutableList.of();
+    this.subTypes = LightImmutableList.of();
     //XXX System.err.println(this+" longNounLabel: "+this.longNounLabel+" longVerbLabel: "+this.longVerbLabel+" label: "+this.label);
   }
 
