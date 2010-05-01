@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Preconditions;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.Preconditions;
 
 /**
  * Handler for {@link WordNet#synsets(String)} and
