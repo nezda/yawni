@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.yawni.util.CharSequenceTokenizer;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 
 /**
  * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file (e.g., {@code index.noun}).
@@ -179,7 +179,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     return getWordCount() > 1;
   }
 
-  // little tricky to implement efficiently once we switch to ImmutableList
+  // little tricky to implement efficiently once we switch to LightImmutableList
   // if we maintain the sometimes-offets/sometimes-Synsets optimization because somewhat inefficient to store Integer vs int
   // still much smaller than Synset objects, and still prevents "leaks"
 //  public int getSenseCount() {
@@ -212,7 +212,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
           syns[i] = wordNet.getSynsetAt(getPOS(), synsetOffsets[i]);
           assert syns[i] != null : "null Synset at index "+i+" of "+this;
         }
-        this.synsets = ImmutableList.of(syns);
+        this.synsets = LightImmutableList.of(syns);
       }
       // else assert this.synsets instanceof List<Synset> already
       @SuppressWarnings("unchecked")
@@ -238,8 +238,8 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
           this + " null WordSense at senseNumberMinusOne: " + senseNumberMinusOne;
         senseNumberMinusOne++;
       }
-      return ImmutableList.of(sensesArray);
-//      toReturn = ImmutableList.of(sensesArray);
+      return LightImmutableList.of(sensesArray);
+//      toReturn = LightImmutableList.of(sensesArray);
 //      senses = new SoftReference<List<WordSense>>(toReturn);
 //    }
 //    return toReturn;
