@@ -20,11 +20,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
-import com.google.common.collect.UnmodifiableIterator;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
-import static org.yawni.util.ConcatenatedIterable.concat;
 import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
@@ -1209,7 +1207,7 @@ public final class WordNet implements WordNetInterface {
   /**
    * @see WordNetInterface#wordSenses
    */
-  private class POSWordSensesIterator extends UnmodifiableIterator<WordSense> {
+  private class POSWordSensesIterator extends AbstractIterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
     POSWordSensesIterator(final POS pos) {
       // uses 2 level Iterator - first is Words, second is their WordSenses
@@ -1217,11 +1215,12 @@ public final class WordNet implements WordNetInterface {
       // Only second level's elements are emitted.
       this.wordSenses = concat(words(pos)).iterator();
     }
-    public boolean hasNext() {
-      return wordSenses.hasNext();
-    }
-    public WordSense next() {
-      return wordSenses.next();
+    @Override
+    protected WordSense computeNext() {
+      if (wordSenses.hasNext()) {
+        return wordSenses.next();
+      }
+      return endOfData();
     }
   } // end class POSWordSensesIterator
 
@@ -1245,16 +1244,17 @@ public final class WordNet implements WordNetInterface {
   /**
    * @see WordNetInterface#relations
    */
-  private class POSRelationsIterator extends UnmodifiableIterator<Relation> {
+  private class POSRelationsIterator extends AbstractIterator<Relation> {
     private final Iterator<Relation> relations;
     POSRelationsIterator(final POS pos, final RelationType relationType) {
       this.relations = concat(transform(synsets(pos), new SynsetToRelations(relationType))).iterator();
     }
-    public boolean hasNext() {
-      return relations.hasNext();
-    }
-    public Relation next() {
-      return relations.next();
+    @Override
+    protected Relation computeNext() {
+      if (relations.hasNext()) {
+        return relations.next();
+      }
+      return endOfData();
     }
   } // end class POSRelationsIterator
 
