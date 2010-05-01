@@ -16,7 +16,7 @@
  */
 package org.yawni.util.cache;
 
-import org.yawni.util.MapMaker;
+import com.google.common.collect.MapMaker;
 import java.util.concurrent.ConcurrentMap;
 
 /**

@@ -16,8 +16,8 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Preconditions;
 import org.yawni.util.MergedIterable;
-import org.yawni.util.Preconditions;
 import org.yawni.util.Utils;
 
 /**

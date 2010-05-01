@@ -16,11 +16,11 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.Test;
-import org.yawni.util.Joiner;
 import static org.junit.Assert.*;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.yawni.wordnet.GlossAndExampleUtils.*;
