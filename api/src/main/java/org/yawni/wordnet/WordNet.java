@@ -22,7 +22,7 @@ import static org.yawni.util.MergedIterable.merge;
 import static org.yawni.util.ConcatenatedIterable.concat;
 import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import org.yawni.util.MultiLevelIterable;
 import org.yawni.util.MutatedIterable;
 import org.yawni.util.Utils;
@@ -494,7 +494,7 @@ public final class WordNet implements WordNetInterface {
   /** {@inheritDoc} */
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     if (pos == POS.ALL) {
-      return ImmutableList.copyOf(uniq(merge(
+      return LightImmutableList.copyOf(uniq(merge(
         lookupBaseForms(someString, POS.NOUN),
         lookupBaseForms(someString, POS.VERB),
         lookupBaseForms(someString, POS.ADJ),
@@ -507,7 +507,7 @@ public final class WordNet implements WordNetInterface {
   /** {@inheritDoc} */
   public List<Synset> lookupSynsets(final String someString, final POS pos) {
     if (pos == POS.ALL) {
-      return ImmutableList.copyOf(uniq(merge(
+      return LightImmutableList.copyOf(uniq(merge(
         lookupSynsets(someString, POS.NOUN),
         lookupSynsets(someString, POS.VERB),
         lookupSynsets(someString, POS.ADJ),
@@ -519,9 +519,9 @@ public final class WordNet implements WordNetInterface {
 
   private List<Synset> doLookupSynsets(final String someString, final POS pos) {
     checkValidPOS(pos);
-    final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
+    final LightImmutableList<String> morphs = morphy.morphstr(someString, pos);
     if (morphs.isEmpty()) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     // 0. if we have morphs, we will usually have syns
     // 1. get all the Words (usually 1, except for exceptional forms (e.g., 'geese'))
@@ -544,16 +544,16 @@ public final class WordNet implements WordNetInterface {
     // FIXME annoying that morphy sometimes returns undefined variants
     if (! morphs.isEmpty() && syns.isEmpty()) {
       //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     // TODO dedup this ?
-    return ImmutableList.copyOf(syns);
+    return LightImmutableList.copyOf(syns);
   }
 
   /** {@inheritDoc} */
   public List<WordSense> lookupWordSenses(final String someString, final POS pos) {
     if (pos == POS.ALL) {
-      return ImmutableList.copyOf(uniq(merge(
+      return LightImmutableList.copyOf(uniq(merge(
         lookupWordSenses(someString, POS.NOUN),
         lookupWordSenses(someString, POS.VERB),
         lookupWordSenses(someString, POS.ADJ),
@@ -566,9 +566,9 @@ public final class WordNet implements WordNetInterface {
   // FIXME refactor! this is copy paste from doLookupSynsets ; however, code is really short
   private List<WordSense> doLookupWordSenses(final String someString, final POS pos) {
     checkValidPOS(pos);
-    final ImmutableList<String> morphs = morphy.morphstr(someString, pos);
+    final LightImmutableList<String> morphs = morphy.morphstr(someString, pos);
     if (morphs.isEmpty()) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     // 0. if we have morphs, we will usually have syns
     // 1. get all the Words (usually 1, except for exceptional forms (e.g., 'geese'))
@@ -591,10 +591,10 @@ public final class WordNet implements WordNetInterface {
     // FIXME annoying that morphy sometimes returns undefined variants
     if (! morphs.isEmpty() && wordSenses.isEmpty()) {
       //log.log(Level.WARNING, "no syns for \""+someString+"\" morphs: "+morphs+" "+pos);
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     // TODO dedup this ?
-    return ImmutableList.copyOf(wordSenses);
+    return LightImmutableList.copyOf(wordSenses);
   }
 
   /** {@inheritDoc} */
@@ -624,9 +624,9 @@ public final class WordNet implements WordNetInterface {
           final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
           final Synset synset = getSynsetAt(pos, offset);
           if (synset != null) {
-            return ImmutableList.of(synset);
+            return LightImmutableList.of(synset);
           } else {
-            return ImmutableList.of();
+            return LightImmutableList.of();
           }
         } else if (cmdToValue.containsKey(Command.WORD)) {
           final String someString = cmdToValue.get(Command.WORD);
@@ -666,7 +666,7 @@ public final class WordNet implements WordNetInterface {
           if (synset != null) {
             return synset;
           } else {
-            return ImmutableList.of();
+            return LightImmutableList.of();
           }
         } else if (cmdToValue.containsKey(Command.WORD)) {
           final String someString = cmdToValue.get(Command.WORD);
@@ -677,7 +677,7 @@ public final class WordNet implements WordNetInterface {
     throw new IllegalArgumentException("unsatisfiable query "+query);
   }
 
-  private final Cache<DatabaseKey, ImmutableList<String>> exceptionsCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
+  private final Cache<DatabaseKey, LightImmutableList<String>> exceptionsCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
 
   /**
    * <em>looks up</em> word in the appropriate <em>exc</em>eptions file for the given {@code pos}.
@@ -688,13 +688,13 @@ public final class WordNet implements WordNetInterface {
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    */
-  ImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
+  LightImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
     checkValidPOS(pos);
     if (! maybeException(someString, pos)) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(someString, pos);
-    final ImmutableList<String> cached = exceptionsCache.get(cacheKey);
+    final LightImmutableList<String> cached = exceptionsCache.get(cacheKey);
     if (cached != null) {
       return cached;
     }
@@ -706,17 +706,17 @@ public final class WordNet implements WordNetInterface {
       final int offset = fileManager.getIndexedLinePointer(someString, filename);
       if (offset >= 0) {
         final String line = fileManager.readLineAt(offset, filename);
-        final ImmutableList<String> toReturn = ImmutableList.copyOf(new StringTokenizer(line, " "));
+        final LightImmutableList<String> toReturn = LightImmutableList.copyOf(new StringTokenizer(line, " "));
         assert toReturn.size() >= 2;
         exceptionsCache.put(cacheKey, toReturn);
         return toReturn;
       } else {
-        exceptionsCache.put(cacheKey, ImmutableList.<String>of());
+        exceptionsCache.put(cacheKey, LightImmutableList.<String>of());
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return ImmutableList.of();
+    return LightImmutableList.of();
   }
 
   /**
@@ -1314,7 +1314,7 @@ public final class WordNet implements WordNetInterface {
           return endOfData();
         }
         nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
-        final ImmutableList<String> toReturn = ImmutableList.of(line.split(" "));
+        final LightImmutableList<String> toReturn = LightImmutableList.of(line.split(" "));
         assert toReturn.size() >= 2;
         return toReturn;
       } catch (IOException e) {
