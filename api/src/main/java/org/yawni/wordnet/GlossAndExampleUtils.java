@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import org.yawni.util.Joiner;
 
 /**
@@ -134,7 +134,7 @@ public class GlossAndExampleUtils {
         definitions.add(groupText);
       }
     }
-    return ImmutableList.copyOf(definitions);
+    return LightImmutableList.copyOf(definitions);
   }
 
   /**
@@ -152,7 +152,7 @@ public class GlossAndExampleUtils {
     }
     final int groupCount = match.groupCount();
     if (groupCount == 0) {
-      return ImmutableList.of();
+      return LightImmutableList.of();
     }
     final List<String> examples = new ArrayList<String>(groupCount);
     for (int i = 0; i < groupCount; i++) {
@@ -161,6 +161,6 @@ public class GlossAndExampleUtils {
         examples.add(groupText);
       }
     }
-    return ImmutableList.copyOf(examples);
+    return LightImmutableList.copyOf(examples);
   }
 }
