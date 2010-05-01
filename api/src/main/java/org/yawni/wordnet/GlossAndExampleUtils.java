@@ -16,13 +16,13 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.Joiner;
 
 /**
  * Utility methods for heuristically parsing WordNet glosses to separate definitions and examples.
