@@ -19,6 +19,7 @@ package org.yawni.wordnet;
 import com.google.common.base.Preconditions;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils;
+import static com.google.common.collect.Iterables.transform;
 
 /**
  * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">wnstats</a>.
@@ -100,10 +101,10 @@ public class WNSTATSGenerator {
       Utils.distance(
         Utils.uniq(
          MergedIterable.merge(validateSort,
-          new WordToLowercasedLemma(wordNet.words(POS.NOUN)),
-          new WordToLowercasedLemma(wordNet.words(POS.VERB)),
-          new WordToLowercasedLemma(wordNet.words(POS.ADJ)),
-          new WordToLowercasedLemma(wordNet.words(POS.ADV)))));
+          transform(wordNet.words(POS.NOUN), new WordToLowercasedLemma()),
+          transform(wordNet.words(POS.VERB), new WordToLowercasedLemma()),
+          transform(wordNet.words(POS.ADJ), new WordToLowercasedLemma()),
+          transform(wordNet.words(POS.ADV), new WordToLowercasedLemma()))));
 
     // The total of all unique noun, verb, adjective, and adverb strings is actually 147278
     System.out.println("The total of all unique noun, verb, adjective, and adverb strings is actually "+
