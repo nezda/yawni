@@ -16,14 +16,12 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.util.MutatedIterable;
-
 // hack - represent Synset as lemma of first WordSense.
+
+import com.google.common.base.Function;
+
 // Note, this is NOT the same as that WordSense's Word's "1st sense"
-final class SynsetToLemma extends MutatedIterable<Synset, String> {
-  public SynsetToLemma(final Iterable<Synset> iterable) {
-    super(iterable);
-  }
+final class SynsetToLemma implements Function<Synset, String> {
   @Override
   public String apply(final Synset synset) {
     return synset.getWordSenses().get(0).getLemma();
