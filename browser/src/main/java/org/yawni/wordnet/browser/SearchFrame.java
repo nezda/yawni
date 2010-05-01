@@ -20,6 +20,7 @@ import org.yawni.wordnet.POS;
 import org.yawni.wordnet.Word;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils;
+import static com.google.common.collect.Iterables.transform;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -248,7 +249,7 @@ class SearchFrame extends JDialog {
           default:
             throw new IllegalArgumentException("unsupported SearchType "+searchType);
         }
-        return Utils.uniq(new WordToLemma(searchResults));
+        return Utils.uniq(transform(searchResults, new WordToLemma()));
       }
       @Override
       public void searchDone(final String query, final int numHits) {
