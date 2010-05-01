@@ -16,17 +16,14 @@
  */
 package org.yawni.wordnet.browser;
 
-import org.yawni.util.MutatedIterable;
 import org.yawni.wordnet.Word;
 import org.yawni.util.WordCaseUtils;
+import com.google.common.base.Function;
 
 /**
  * @see WordCaseUtils#getDominantCasedLemma(Word)
  */
-final class WordToLemma extends MutatedIterable<Word, String> {
-  public WordToLemma(final Iterable<Word> iterable) {
-    super(iterable);
-  }
+final class WordToLemma implements Function<Word, String> {
   @Override
   public String apply(final Word word) {
     return WordCaseUtils.getDominantCasedLemma(word);
