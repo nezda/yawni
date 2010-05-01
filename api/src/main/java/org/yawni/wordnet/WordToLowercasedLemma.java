@@ -16,12 +16,9 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.util.MutatedIterable;
+import com.google.common.base.Function;
 
-final class WordToLowercasedLemma extends MutatedIterable<Word, String> {
-  public WordToLowercasedLemma(final Iterable<Word> iterable) {
-    super(iterable);
-  }
+final class WordToLowercasedLemma implements Function<Word, String> {
   @Override
   public String apply(final Word word) {
     return word.getLowercasedLemma();
