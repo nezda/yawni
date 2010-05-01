@@ -16,7 +16,10 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.concat;
 import com.google.common.collect.UnmodifiableIterator;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
@@ -25,8 +28,6 @@ import static org.yawni.util.ConcatenatedIterable.concat;
 import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.MultiLevelIterable;
-import org.yawni.util.MutatedIterable;
 import org.yawni.util.Utils;
 
 import org.slf4j.Logger;
@@ -1211,10 +1212,10 @@ public final class WordNet implements WordNetInterface {
   private class POSWordSensesIterator extends UnmodifiableIterator<WordSense> {
     private final Iterator<WordSense> wordSenses;
     POSWordSensesIterator(final POS pos) {
-      // uses 2 level Iterator - first is Synsets, second is their WordSenses
+      // uses 2 level Iterator - first is Words, second is their WordSenses
       // Both levels have a variable number of members
       // Only second level's elements are emitted.
-      this.wordSenses = MultiLevelIterable.of(words(pos)).iterator();
+      this.wordSenses = concat(words(pos)).iterator();
     }
     public boolean hasNext() {
       return wordSenses.hasNext();
@@ -1222,7 +1223,7 @@ public final class WordNet implements WordNetInterface {
     public WordSense next() {
       return wordSenses.next();
     }
-  } // end class POSSynsetsIterator
+  } // end class POSWordSensesIterator
 
   /** {@inheritDoc} */
   public Iterable<WordSense> wordSenses(final POS pos) {
@@ -1247,7 +1248,7 @@ public final class WordNet implements WordNetInterface {
   private class POSRelationsIterator extends UnmodifiableIterator<Relation> {
     private final Iterator<Relation> relations;
     POSRelationsIterator(final POS pos, final RelationType relationType) {
-      this.relations = MultiLevelIterable.of(new SynsetsToRelations(synsets(pos), relationType)).iterator();
+      this.relations = concat(transform(synsets(pos), new SynsetToRelations(relationType))).iterator();
     }
     public boolean hasNext() {
       return relations.hasNext();
@@ -1257,10 +1258,9 @@ public final class WordNet implements WordNetInterface {
     }
   } // end class POSRelationsIterator
 
-  private static class SynsetsToRelations extends MutatedIterable<Synset, List<Relation>> {
+  private static class SynsetToRelations implements Function<Synset, List<Relation>> {
     private final RelationType relationType;
-    SynsetsToRelations(final Iterable<Synset> iterable, final RelationType relationType) {
-      super(iterable);
+    SynsetToRelations(final RelationType relationType) {
       this.relationType = relationType;
     }
     @Override
@@ -1271,7 +1271,7 @@ public final class WordNet implements WordNetInterface {
         return synset.getRelations(relationType);
       }
     }
-  } // end class SynsetsToRelations
+  } // end class SynsetToRelations
 
   /** {@inheritDoc} */
   public Iterable<Relation> relations(final POS pos) {
