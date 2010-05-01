@@ -147,6 +147,11 @@ class PreferencesManager implements AWTEventListener {
     //   use SYSTEM
     // else
     //   use CROSS_PLATFORM
+
+    // do it like JNLP does it (prefix of System. property os):
+    // os="Linux"
+    // os="Mac OS X"
+    // os="Windows"
   
     //TODO loadDefaults();
     final String defaultLnFName = "SYSTEM";
