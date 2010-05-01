@@ -22,7 +22,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequences;
-import org.yawni.util.ImmutableList;
+import org.yawni.util.LightImmutableList;
 import org.yawni.util.Preconditions;
 
 /**
@@ -145,7 +145,7 @@ enum Command {
   private static final Logger log = LoggerFactory.getLogger(Command.class.getName());
 
   private List<String> variants() {
-    return ImmutableList.of(name().toLowerCase(), name());
+    return LightImmutableList.of(name().toLowerCase(), name());
   }
 
   /**
