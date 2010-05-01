@@ -33,6 +33,8 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
+import org.yawni.wordnet.RelationArgument;
+import org.yawni.wordnet.RelationType;
 
 /**
  * Try to use <a href="http://www.w3.org/TR/wordnet-rdf/">http://www.w3.org/TR/wordnet-rdf/</a>
@@ -163,6 +165,55 @@ public class Searcher {
     System.out.println(xmlString);
   }
 
+  private static void torture(final WordNetInterface wn, final String lemma, final POS pos) {
+    final Word word = wn.lookupWord(lemma, pos);
+    if (word == null) {
+      return;
+    }
+    for (final Synset synset : word.getSynsets()) {
+      // count hypernyms
+      System.err.println(lemma+" "+pos+" hypers: "+countHypernyms(wn, synset, new LinkedHashSet<RelationArgument>()));
+    }
+  }
+
+  // wnb detects prints cycle for a while, then dumps this to stderr: WordNet library error: Error Cycle detected\ninhibit
+  // wordnet online just says: WARNING: The search exceeded the result limit, so the following list is valid but incomplete. Only the top levels of the list are displayed.
+  // cycles in hypernyms
+  // - control#2V
+  //   - restrain#V
+  //     - inhibit#1V
+  //       - restrain#1V
+
+  // only found a couple Hypernym cycles:
+  // 2982 cycle: [Synset 2422663@[POS verb]<verb.social>{restrain, keep, keep back, hold back}]
+  // 335 cycle: [Synset 2423762@[POS verb]<verb.social>{inhibit, bottle up, suppress}]
+
+//   hyponym cycles
+//   hold
+//   reduce
+//   wink
+//   mortify
+//   classify
+//   trellis
+//   snaffle
+//   suppurate
+
+  private static int countHypernyms(final WordNetInterface wn, final RelationArgument child, LinkedHashSet<RelationArgument> path) {
+//    System.err.println("child: "+child);
+//    for (final RelationArgument parent : child.getRelationTargets(RelationType.HYPERNYM)) {
+    for (final RelationArgument parent : child.getRelationTargets(RelationType.HYPONYM)) {
+      if (path.contains(parent)) {
+        System.err.println("cycle: "+parent);
+        continue;
+      }
+      path.add(parent);
+      countHypernyms(wn, parent, path);
+//      System.err.println("parent: "+parent);
+      path.remove(parent);
+    }
+    return path.size();
+  }
+
   private static void trueCaseLemmatize(final WordNetInterface wn, final String word, final Appendable output) throws Exception {
     for (final POS pos : POS.CATS) {
       boolean posShown = false;
@@ -174,6 +225,7 @@ public class Searcher {
         }
         output.append(lemma);
         output.append(' ');
+        torture(wn, lemma, pos);
       }
     }
     // using POS.ALL - slightly more efficient, but can't know POS of stem
