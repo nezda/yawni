@@ -137,7 +137,8 @@ public class RelationTest {
   public void testInstances() {
     System.err.println("testInstances");
     // noun "George Bush"#1 has
-    final Word georgeBush = wordNet.lookupWord("George Bush", POS.NOUN);
+//    final Word georgeBush = wordNet.lookupWord("George Bush", POS.NOUN);
+    final Word georgeBush = wordNet.lookupWord("Odessa", POS.NOUN);
     System.err.println("word: "+georgeBush+" relationTypes: "+georgeBush.getRelationTypes());
     System.err.println("  "+georgeBush.getSense(1).getLongDescription());
     final RelationType[] relationTypes = new RelationType[] {
@@ -328,7 +329,7 @@ public class RelationTest {
           }
         }
         // check if isLexical, relation source and target are WordSenses,
-        // else neither the source nor the target are WordSenses
+        // else both the source nor the target are Synsets
         if (relation.isLexical()) {
           assertThat(relation.getSource()).isInstanceOf(WordSense.class);
           assertThat(relation.getTarget()).isInstanceOf(WordSense.class);
