@@ -71,7 +71,7 @@ public abstract class Relation implements Comparable<Relation> {
 
   /** Factory method */
   static Relation makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
-    final byte relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken()).ordinal();
+    final byte relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken(), synset.getPOS()).ordinal();
 
     final int targetOffset = tokenizer.nextInt();
 
