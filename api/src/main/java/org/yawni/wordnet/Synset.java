@@ -302,7 +302,14 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /** {@inheritDoc} */
-  public List<Relation> getRelations(final RelationType type) {
+  public List<Relation> getRelations(final RelationType soughtType) {
+    // regardless of includeAuxiliaryTypes
+    // - type == MERONYM should auxiliary type variants
+    // - type == HOLONYM should auxiliary type variants
+    // - type == DOMAIN should auxiliary type variants
+    // - type == DOMAIN_MEMBER should auxiliary type variants
+    // really, includeAuxiliaryTypes should only mean include instances
+    final boolean includeInstances = true;
     List<Relation> list = null;
     //TODO
     // if superTypes exist, search them
@@ -310,13 +317,17 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     // if subTypes exist, search them
     for (final Relation relation : relations) {
       final RelationType rType = relation.getType();
-      if (type == HYPONYM && (rType == HYPONYM || rType == INSTANCE_HYPONYM)) {
-        list = add(list, relation);
-      } else if (type == HYPERNYM && (rType == HYPERNYM || rType == INSTANCE_HYPERNYM)) {
-        list = add(list, relation);
-      } else if (rType == type) {
-        list = add(list, relation);
-      }
+//      } else if (includeInstances && soughtType == HYPONYM && rType == INSTANCE_HYPONYM) {
+//        list = add(list, relation);
+//      } else if (includeInstances && soughtType == HYPERNYM && rType == INSTANCE_HYPERNYM) {
+//        list = add(list, relation);
+//      }
+        if (rType == soughtType) {
+          list = add(list, relation);
+//        } else if (rType.auxiliaryTypes.contains(soughtType)) {
+        } else if (soughtType.auxiliaryTypes.contains(rType)) {
+          list = add(list, relation);
+        }
     }
     // if list == null && type has auxType, recall this method with that auxtype
     if (list == null) {
