@@ -187,24 +187,24 @@ public class RelationTest {
     //   entailment *                   numLexical:            0 numSemantic:          408
     //   cause >                        numLexical:            0 numSemantic:          220
     // * verb group $                   numLexical:            2 numSemantic:        1,748
-    // 0 meronym %                      numLexical:            0 numSemantic:            0
+    //   meronym %                      numLexical:            0 numSemantic:       22,187
     //   member meronym %m              numLexical:            0 numSemantic:       12,293
     //   substance meronym %s           numLexical:            0 numSemantic:          797
     //   part meronym %p                numLexical:            0 numSemantic:        9,097
-    // 0 holonym #                      numLexical:            0 numSemantic:            0
+    //   holonym #                      numLexical:            0 numSemantic:       22,187
     //   member holonym #m              numLexical:            0 numSemantic:       12,293
     //   substance holonym #s           numLexical:            0 numSemantic:          797
     //   part holonym #p                numLexical:            0 numSemantic:        9,097
-    // 0 Domain Member -                numLexical:            0 numSemantic:            0
+    //   Domain Member -                numLexical:          435 numSemantic:        8,955
     // * Member of TOPIC domain -c      numLexical:           11 numSemantic:        6,643
     // * Member of USAGE domain -u      numLexical:          409 numSemantic:          967
     // * Member of REGION domain -r     numLexical:           15 numSemantic:        1,345
     //   similar to &                   numLexical:            0 numSemantic:       21,386
     //   participle of <                numLexical:           73 numSemantic:            0
-    //   pertainym \                    numLexical:        8,023 numSemantic:            0
-    // 0 derived from \                 numLexical:            0 numSemantic:            0
+    //   pertainym \                    numLexical:        4,801 numSemantic:            0
+    //   derived from \                 numLexical:        3,222 numSemantic:            0
     //   antonym !                      numLexical:        7,979 numSemantic:            0
-    // 0 Domain ;                       numLexical:            0 numSemantic:            0
+    //   Domain ;                       numLexical:          435 numSemantic:        8,955
     // * Domain of synset - TOPIC ;c    numLexical:           11 numSemantic:        6,643
     // * Domain of synset - USAGE ;u    numLexical:          409 numSemantic:          967
     // * Domain of synset - REGION ;r   numLexical:           15 numSemantic:        1,345
