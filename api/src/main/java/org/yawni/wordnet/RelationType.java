@@ -16,11 +16,10 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import org.yawni.util.LightImmutableList;
 import static org.yawni.wordnet.RelationTypeFlag.*;
 
 /**
@@ -302,8 +301,8 @@ public enum RelationType {
      * e.g., { Bill Clinton } (* the Synset) --instance hypernym--> { President of the United States }
      * which in turn has (normal) hypernyms
      */
-    HYPERNYM.superTypes = LightImmutableList.of(INSTANCE_HYPERNYM);
-    INSTANCE_HYPERNYM.superTypes = LightImmutableList.of(HYPERNYM);
+    HYPERNYM.superTypes = ImmutableSet.of(INSTANCE_HYPERNYM);
+    INSTANCE_HYPERNYM.superTypes = ImmutableSet.of(HYPERNYM);
 //    INSTANCE_HYPERNYM.subTypes = LightImmutableList.of(HYPERNYM);
     /**
      * e.g., { President of the United States } (* the Synset) --instance hyponyms--> ({ Bill Clinton }, ...) AND
@@ -312,7 +311,7 @@ public enum RelationType {
      * it is more lexically specified.
      * FIXME this example seems to show a bad, unneeded asymmetry
      */
-    HYPONYM.subTypes = LightImmutableList.of(INSTANCE_HYPONYM);
+    HYPONYM.subTypes = ImmutableSet.of(INSTANCE_HYPONYM);
 //    HYPONYM.superTypes = LightImmutableList.of(INSTANCE_HYPONYM);
 
 //    MERONYM.subTypes = LightImmutableList.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
@@ -326,6 +325,13 @@ public enum RelationType {
     //TODO check sanity conditions
     //- type should never be its own supertype
     //- type should never be its own subtype
+
+    HYPERNYM.auxiliaryTypes = ImmutableSet.of(INSTANCE_HYPERNYM);
+    HYPONYM.auxiliaryTypes = ImmutableSet.of(INSTANCE_HYPONYM);
+    MERONYM.auxiliaryTypes = ImmutableSet.of(MEMBER_MERONYM, PART_MERONYM, SUBSTANCE_MERONYM);
+    HOLONYM.auxiliaryTypes = ImmutableSet.of(MEMBER_HOLONYM, PART_HOLONYM, SUBSTANCE_HOLONYM);
+    DOMAIN.auxiliaryTypes = ImmutableSet.of(DOMAIN_OF_TOPIC, DOMAIN_OF_REGION, DOMAIN_OF_USAGE);
+    DOMAIN_MEMBER.auxiliaryTypes = ImmutableSet.of(MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_REGION_DOMAIN, MEMBER_OF_USAGE_DOMAIN);
   }
 
   private static final RelationType[] VALUES = values();
@@ -335,13 +341,28 @@ public enum RelationType {
   }
 
   /**
-   * @return the {@code RelationType} whose key matches {@code key}.
+   * @return the {@code RelationType} whose key matches {@code key}, resolving collisions with {@code pos}.
    * @throws NoSuchElementException If {@code key} doesn't name any {@code RelationType}.
    */
-  public static RelationType parseKey(final CharSequence key) {
+  static RelationType parseKey(final CharSequence key, final POS pos) {
     for (final RelationType pType : VALUES) {
       if (pType.key.contentEquals(key)) {
-        return pType;
+        switch (pType) {
+          // resolves collision between PERTAINYM (for adjectives) and DERIVED (for adverbs)
+          // thanks to David Ayre (http://sourceforge.net/users/dayre/) for pointing this out!
+          // http://sourceforge.net/tracker/index.php?func=detail&aid=1372493&group_id=33824&atid=409470
+          case DERIVED:
+          case PERTAINYM:
+            if (pos == POS.ADJ) {
+              return PERTAINYM;
+            } else if (pos == POS.ADV) {
+              return DERIVED;
+            } else {
+              throw new IllegalStateException();
+            }
+          default:
+            return pType;
+        }
       }
     }
     throw new NoSuchElementException("unknown link type " + key);
@@ -359,8 +380,9 @@ public enum RelationType {
   private final String toString;
   private RelationType symmetricType;
   // experimental fields
-  LightImmutableList<RelationType> subTypes;
-  private LightImmutableList<RelationType> superTypes;
+  ImmutableSet<RelationType> auxiliaryTypes;
+  ImmutableSet<RelationType> subTypes;
+  ImmutableSet<RelationType> superTypes;
 
   RelationType(final String label, final String key, final int value, final int flags) {
     this(label, key, value, flags, null, null);
@@ -390,9 +412,9 @@ public enum RelationType {
         this.longVerbLabel = label;
       }
     }
-    this.superTypes = LightImmutableList.of();
-    this.subTypes = LightImmutableList.of();
-    //XXX System.err.println(this+" longNounLabel: "+this.longNounLabel+" longVerbLabel: "+this.longVerbLabel+" label: "+this.label);
+    this.auxiliaryTypes = ImmutableSet.of();
+    this.superTypes = ImmutableSet.of();
+    this.subTypes = ImmutableSet.of();
   }
 
   /** {@inheritDoc} */
