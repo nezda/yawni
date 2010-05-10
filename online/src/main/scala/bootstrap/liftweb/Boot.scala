@@ -43,10 +43,14 @@ class Boot {
     //LiftRules.fixCSS("css" :: Nil, Empty)
 
     Yawni.init()
+
+    StatelessJson.init()
+    LiftRules.enableLiftGC = false
+
     // manual plumbing/wiring for singleton object snippet:
     LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
 
-    RoundedCornerService.init()
+//    RoundedCornerService.init()
 
     // Show the spinny image when an Ajax call starts
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
@@ -57,8 +61,8 @@ class Boot {
     LiftRules.early.append(makeUtf8)
 
     // Build SiteMap
-    val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
-    LiftRules.setSiteMap(SiteMap(entries:_*))
+//    val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
+//    LiftRules.setSiteMap(SiteMap(entries:_*))
 
     // Dump browser information each time a new connection is made
     LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing
