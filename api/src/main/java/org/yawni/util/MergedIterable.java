@@ -184,8 +184,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
     
     /** {@inheritDoc} */
     public T next() {
-      // find min() of non-SENTINEL tops, tag its Iterator again, and return that
-      // min item
+      // find min() of non-SENTINEL tops, tag its Iterator again, and return that min item
       int min = 0;
       for (int i = 1; i < tops.length; i++) {
         if (tops[i] != SENTINEL) {
