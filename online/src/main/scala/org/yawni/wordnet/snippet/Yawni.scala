@@ -18,6 +18,12 @@ import net.liftweb.http.{ Req, GetRequest, PostRequest, LiftRules, JsonResponse,
 import net.liftweb.common.{Full, Box}
 import net.liftweb.http.js.JE._
 
+import net.liftweb.json._
+import net.liftweb.json.JsonAST._
+
+/**
+ * Handles rendering of 
+ */
 object Yawni {
   def init() = {
     LiftRules.dispatch.prepend(Yawni.dispatch)
@@ -87,6 +93,38 @@ object Yawni {
     )
   }
 
+  implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
+
+  def suggest(prefix: String):JArray = {
+    val wn = WordNet.getInstance
+    val toReturn = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+    for (pos <- List(NOUN, VERB, ADJ, ADV);
+         forms <- wn.searchByPrefix(prefix, pos);
+         form <- forms if toReturn.size < 10
+         ) { toReturn.add(form.getLemma) }
+    // too simple
+    //JArray(toReturn.map(JString(_)).toList)
+    //fail JArray(toReturn.map(JObject(JField("id"), JString(_), JField("name"), JString(_)).toList)
+    //fail x.map(JObject(JField("id", JString(_:String)) :: JField("name", JString(_:String)) :: Nil))
+    //fail x.map(JObject(JField("id", "1") :: JField("name", JString(_)) :: Nil))
+    //experimental JArray(for (s <- x) yield JObject(JField("id", s) :: JField("name", s) :: Nil))
+    JArray((for (s <- toReturn) yield JObject(JField("value", JString(s)) :: JField("name", JString(s)) :: Nil)).toList)
+  }
+
+  // required data format described http://docs.jquery.com/Plugins/Autocomplete/autocomplete#url_or_dataoptions
+  def autocomplete(prefix: String, limit: Int):String = {
+    val wn = WordNet.getInstance
+    val toReturn = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+    for (pos <- List(NOUN, VERB, ADJ, ADV);
+         forms <- wn.searchByPrefix(prefix, pos);
+         form <- forms if toReturn.size < limit
+         ) { toReturn.add(form.getLemma) }
+    //JArray(toReturn.map(JString(_)).toList)
+    // really weird that it can't handle JSON ??
+    //JString(toReturn.mkString("\n"))
+    toReturn.mkString("\n")
+  }
+
   // group by Word
   def query(someString: String): NodeSeq = {
     val wn = WordNet.getInstance
@@ -137,7 +175,7 @@ object Yawni {
     }</ol>
   }
 
-  implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
+  //implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
 
   //private def render(word: Word, wordSense: WordSense) = {
   //  val verbose = false
