@@ -38,7 +38,7 @@ object StatelessJson {
     }
   }
   
-  implicit def iterableToBox[X](in: Iterable[X]): Box[X] = in.toList.headOption
+  implicit def iterableToBox[X](in: Iterable[X]): Box[X] = in.toList.firstOption
 
   def handleJson(req: Req): Box[LiftResponse] =
     for {
