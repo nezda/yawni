@@ -19,7 +19,6 @@ package org.yawni.wordnet.snippet
 import scala.xml.{ Elem, Text, NodeSeq, Group }
 import net.liftweb.http.{ S, SHtml, DispatchSnippet }
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.util.Helpers._
 
 //  def doSearch(msg: NodeSeq) = {
@@ -58,7 +57,7 @@ object Ajax extends DispatchSnippet {
     bind("ajax", xhtml,
          "searchButton" -%> searchButton,
          "searchBox" -%> searchBox
-    ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxId", "")))
+    ) ++ Script(OnLoad(SetValueAndFocus("searchBoxId", "")))
   }
 }
 
