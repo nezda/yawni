@@ -96,11 +96,6 @@
       <artifactId>yawni-wordnet-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.swinglabs</groupId>
-      <artifactId>swingx</artifactId>
-      <version>1.6</version>
-    </dependency>
-    <dependency>
       <groupId>org.yawni</groupId>
       <artifactId>yawni-wordnet-data</artifactId>
       <scope>test</scope>
