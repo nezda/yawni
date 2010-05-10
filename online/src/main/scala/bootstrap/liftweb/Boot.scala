@@ -16,7 +16,7 @@
  */
 package bootstrap.liftweb
 
-import _root_.net.liftweb.common.{Box, Full, Empty, Failure}
+import _root_.net.liftweb.common.{Box, Full, Empty, Failure, Logger}
 import net.liftweb.util._
 //import util.{Helpers, Log, NamedPF, Props}
 import net.liftweb.http._
@@ -72,6 +72,7 @@ class Boot {
 
 object BrowserLogger {
   object HaveSeenYou extends SessionVar(false)
+  object Log extends Logger
 
   def haveSeenYou(session: LiftSession, request: Req) {
     if (! HaveSeenYou.is) {
