@@ -12,7 +12,7 @@
   <packaging>war</packaging>
   <properties>
     <scala.version>2.7.7</scala.version>
-    <lift.version>2.0-M4</lift.version>
+    <lift.version>2.0-M5</lift.version>
     <maven-scala-plugin.version>2.12.2</maven-scala-plugin.version>
   </properties>
   <repositories>
