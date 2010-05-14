@@ -1,41 +1,48 @@
 <lift:surround with="default" at="content">
   <lift:ignore>
   </lift:ignore>
+  <head>
+    <script type="text/javascript">
+      function doSearch() {
+        $.ajax({
+          url : 'search', 
+          data : $.toJSON({command : 'show', params : $('#searchBoxID').val()}), 
+          type : 'POST', dataType : 'script', contentType : 'text/json', timeout : 5000, cache : true,
+          beforeSend : function() {$('#ajax-loader').show();}, 
+          complete :   function() {
+            $('#ajax-loader').hide();
+            /* hide completions menu when a search is initiated */
+            $('.ac_results').hide();
+          }
+          });
+      }
+      $(window).load(function () {
+        $(':input:visible:enabled:first').focus();
+      });
+      $(document).ready(function() {
+        $('#searchBoxID').keyup(function(event) {
+          if (event.which == 13) {
+            /* forward to autocomplete 'result()' */
+            $('#searchBoxID').search();
+          }
+          /* TODO tab key (9) should be translated to arrow down */
+          if (event.which == 9) {
+            /* event.which = 40 */
+          }
+        });
+        $('#searchBoxID').autocomplete('autocomplete', {matchCase: false, max: 25, cacheLength: 100, autoFill: true, selectFirst: false}).
+          result(function(event, data, formatted) {
+            doSearch();
+          });
+      });
+    </script>
+  </head>
+  <!--  NOTE: this uses the Ajax.scala class!! -->
   <lift:Ajax.searchField id_msgs="messages">
     <div class="span-16 search_panel">
       <div class="append-bottom">
         <span class="input_bubble">
-          <script type="text/javascript">
-            $(window).load(function () {
-              $(':input:visible:enabled:first').focus();
-            });
-            $(document).ready(function() {
-              $('#searchBox').keyup(function(event) {
-                if (event.keyCode == 13) {
-                  $('#searchButton').click();
-                }
-              });
-            });
-            /*
-            http://code.drewwilson.com/entry/autosuggest-jquery-plugin
-            $(document).ready(function() {
-              $('#searchBox').autoSuggest('http://localhost:8080/suggest', {matchCase: false});
-            });
-            */
-            $(document).ready(function() {
-              $('#searchBox').autocomplete('autocomplete', {matchCase: false, max: 25, autoFill: true});
-            });
-            function doSearch() {
-              $.ajax({
-                url : 'stateless_json_call', 
-                data : JSON.stringify({'command' : 'show', 'params' : $('#searchBox').val()}), 
-                type : 'POST', dataType : 'script', contentType : 'text/json', timeout : 5000, cache : true,
-                beforeSend : function() {$('#ajax-loader').show();}, 
-                complete :   function() {$('#ajax-loader').hide();}
-                });
-            }
-          </script>
-          <input id="searchBox" class="span-12" tabindex="1" type="search"/>
+          <input id="searchBoxID" class="span-12" tabindex="1" type="search"/>
           <button id="searchButton" onclick="doSearch();">Search</button> 
         </span>
         <div class="column span-1 last" style="float:right"><img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/></div>
