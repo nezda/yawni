@@ -32,8 +32,7 @@ object StatelessJson {
   def init() {
     // register the JSON handler
     LiftRules.statelessDispatchTable.append {
-      case r @ Req("stateless_json_call" :: Nil, _, PostRequest) => () => handleJson(r)
-      case r @ Req("suggest" :: Nil, _, GetRequest) => () => handleSuggest(r)
+      case r @ Req("search" :: Nil, _, PostRequest) => () => handleJson(r)
       case r @ Req("autocomplete" :: Nil, _, GetRequest) => () => handleAutocomplete(r)
     }
   }
@@ -50,12 +49,6 @@ object StatelessJson {
           //case "count" => Text(params.length+" Characters")
           case x => <b>Problem... didn't handle JSON message {x}</b>
         }))
-
-  // http://localhost:8080/suggest?q=dog
-  def handleSuggest(req: Req): Box[LiftResponse] =
-    for {
-      q <- req.param("q")
-    } yield JsonResponse(Yawni.suggest(q)) // build the response
 
   // http://localhost:8080/autocomplete?q=dog
   // can't handle a JSON response ??
