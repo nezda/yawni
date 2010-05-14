@@ -46,6 +46,8 @@ class Boot {
 
     StatelessJson.init()
     LiftRules.enableLiftGC = false
+    // autocomplete mouse over seems to require this
+    LiftRules.useXhtmlMimeType = false
 
     // manual plumbing/wiring for singleton object snippet:
     LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
