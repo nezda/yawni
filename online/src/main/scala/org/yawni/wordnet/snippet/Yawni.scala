@@ -95,22 +95,6 @@ object Yawni {
 
   implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
 
-  def suggest(prefix: String):JArray = {
-    val wn = WordNet.getInstance
-    val toReturn = new TreeSet(String.CASE_INSENSITIVE_ORDER)
-    for (pos <- List(NOUN, VERB, ADJ, ADV);
-         forms <- wn.searchByPrefix(prefix, pos);
-         form <- forms if toReturn.size < 10
-         ) { toReturn.add(form.getLemma) }
-    // too simple
-    //JArray(toReturn.map(JString(_)).toList)
-    //fail JArray(toReturn.map(JObject(JField("id"), JString(_), JField("name"), JString(_)).toList)
-    //fail x.map(JObject(JField("id", JString(_:String)) :: JField("name", JString(_:String)) :: Nil))
-    //fail x.map(JObject(JField("id", "1") :: JField("name", JString(_)) :: Nil))
-    //experimental JArray(for (s <- x) yield JObject(JField("id", s) :: JField("name", s) :: Nil))
-    JArray((for (s <- toReturn) yield JObject(JField("value", JString(s)) :: JField("name", JString(s)) :: Nil)).toList)
-  }
-
   // required data format described http://docs.jquery.com/Plugins/Autocomplete/autocomplete#url_or_dataoptions
   def autocomplete(prefix: String, limit: Int):String = {
     val wn = WordNet.getInstance
