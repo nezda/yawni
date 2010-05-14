@@ -48,7 +48,7 @@ object Ajax extends DispatchSnippet {
   def searchField(xhtml: NodeSeq): NodeSeq = {
     // build up an ajax text box
     def searchBox: Elem = {
-      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxId"))
+      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxID"))
     }
     // searchBox ajaxText will activate on blur so this is just for show
     def searchButton: Elem = {
@@ -57,7 +57,7 @@ object Ajax extends DispatchSnippet {
     bind("ajax", xhtml,
          "searchButton" -%> searchButton,
          "searchBox" -%> searchBox
-    ) ++ Script(OnLoad(SetValueAndFocus("searchBoxId", "")))
+    ) ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
   }
 }
 
@@ -73,7 +73,7 @@ object Ajax extends DispatchSnippet {
 //  def searchField(xhtml: NodeSeq): NodeSeq = {
 //    // build up an ajax text box
 //    def searchBox = {
-//      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxId"))
+//      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxID"))
 //    }
 //    // searchBox ajaxText will activate on blur so this is just for show
 //    def searchButton = {
@@ -83,6 +83,6 @@ object Ajax extends DispatchSnippet {
 //    bind("ajax", xhtml,
 //         "searchButton" -%> searchButton,
 //         "searchBox" -%> searchBox
-//    ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxId", "")))
+//    ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxID", "")))
 //  }
 //}
