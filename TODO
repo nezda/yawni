@@ -30,10 +30,9 @@ Yawni Subprojects
   - should there be 1 per WN version? (..., 2.1, 3.0, ..., etc.)
 + browser
   - depends on core
-  - build standalone
-    mvn clean install -PuseYawniData,useLog4j,makeShadedJar
-
-    -Dmaven.test.skip=true
+  - build standalone (aka dist jar)
+    mvn -Dmaven.test.skip=true -PuseYawniData,useLog4j,makeShadedJar clean package
+    mvn -Dmaven.test.skip=true -PuseYawniData,useLog4j,makeSignedJar,makeShadedJar clean package (9.6 MB target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar)
 
 Bob Carpenter's Stemming Examples (http://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
   * odious: odious ? probably means "odium" or could mean it has no further stem ?
@@ -71,6 +70,11 @@ Compounds
     + are derivationally related forms of adjectives "Pertainyms" ? no
     + is this just for "sense context" ? -- appears so, just missing level of indent to show this
 
+- WordNet data omissions
+  - derivational link from "employ" -> "employable"
+  - derivational link from "recursion" -> "recusrive"
+  - exceptional spelling for "blogging" (double-'g' form missing)
+
 Release TODOs
 
 - wild idea:
@@ -79,7 +83,7 @@ Release TODOs
     ! fail: at least for Word, VERB_GROUP would need List<List<RelationTarget>> since it clumps
     - wilder idea: make a MetaSynset/VerbGroup object
 
-- synset groups
+- synset groups ; simple pair (Relation) usually suffices
   verb VERB_GROUP
   adj SIMILAR_TO
    - connects satellite adjectives to their head and vice-versa
@@ -137,7 +141,7 @@ Release TODOs
 
 - Ted Pederson's WordNet stop list; "normally used as function words"
   I, a, an, as, at, by, he, his, me, or, thou, us, who
-  - missing 'it'
+  - missing 'it'; 'his' not in WordNet 3.0
   - Paul R. Dunn's stop list; Christiane Fellbaum adds that they are often ADV
     (author of Visuwords: dunnbypaul.net
     - ActionScript / Flash
@@ -267,6 +271,7 @@ everything
     x web-yawni
     x yawniweb
     x webyawni
+    x looking for trouble: rename it wordnetnik :)
   + mvn archetype:generate -U \
     -DarchetypeGroupId=net.liftweb \
     -DarchetypeArtifactId=lift-archetype-blank \
@@ -275,25 +280,25 @@ everything
     -DgroupId=org.yawni \
     -DartifactId=yawni-wordnet-online \
     -Dversion=2.0.0-SNAPSHOT
+  - gae details
+    - update online version: 
+      ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update online/target/yawni-wordnet-online-2.0.0-SNAPSHOT
+      can tweak GAE "version" in WEB-INF/appengine-web.xml ; previous versions remain available and web accessisble! e.g., http://5.latest.yawni-online.appspot.com/rest.html
+  - online version features
+    - autocomplete
+      - show 'hint' text : conflicts with "default focus" behavior :/
+      - fade-in/fade-out of suggestions would be slick (like http://loopj.com/tokeninput/demo.html)
+      - support tab / shift-tab navigation like TagDragon (and Firefox search widget)
+      - decrease lag from 400ms to less
+      - should indicate no known matches; could also try 1 additional search using morphological processing
+      - suggesting near-hits would be sweet
   + gae error: "sun.misc.SoftCache is a restricted class"
     + need to use alternate softcache impl
-      - Google Collections: ConcurrentMap<K, V> map = MapMaker.softValues().makeMap();
-- lift: rendering of attributes doesn't match template order which is confusing; related nit is indentation of <lift:CSS.blueprint /> and <lift:CSS.fancyType /> is an odd 6 spaces: 2 more more than others; for fun, see if LiftRules.fixCSS in Boot.scala fixes it
-  default.html:
-    <link href="/assets/style.css" type="text/css" rel="stylesheet"  media="screen, projection" />
-  rendered:
-    <link media="screen, projection" rel="stylesheet" type="text/css" href="/assets/style.css" />
-
-  default.html:
-    <link type="text/css" href="/assets/style.css" rel="stylesheet"  media="screen, projection" />
-  rendered:
-    <link media="screen, projection" rel="stylesheet" href="/assets/style.css" type="text/css" />
-
-  - looking for trouble: rename it wordnetnik :)
+      + Google Collections: ConcurrentMap<K, V> map = MapMaker.softValues().makeMap();
 
   - feature: online: update appengine-web.xml <version> automatically with Maven; then Google App Engine will version our app !
   - yawni.org color scheme: 
-    - orange variant #F79910
+    + orange variant #F79910
   - CSS
     + font-size: 16px 
     + line-height: 24px
@@ -302,7 +307,7 @@ everything
     - smart double quotes
     - smart single quotes for single quoted items: `foo' → ‘foo’; 's → ’s
     - bullet between examples ; •
-    - "space" bullet (\u00B7 MIDDLE DOT) between words of collocations ; wild-goose·chase ; attack·dog ; hard·cash
+    x "space" bullet (\u00B7 MIDDLE DOT) between words of collocations ; wild-goose·chase ; attack·dog ; hard·cash
       - only occasionally see this used, and often only for phonetic separation
     - italicize examples; gray text (use BluePrint CSS class alt)
     - em dash where apropos
@@ -335,28 +340,6 @@ everything
   + meta keywords: WordNet
   - add recent searches on right hand side
     - don't want REST API searches to be shown here
-  - scratch notes
-    
-    // <div>
-    //   <span> wrapping each sense
-    //   bullets between each sense <span>
-    NodeBuffer buffer = new NodeBuffer;
-    for (s <- senses) {
-      buffer &+ <span>s</span>
-    }
-    
-//    //val x = 1::2::3::4::Nil
-//
-//    //<ul>{x.map(w => <li>{ w }</li>)}</ul>
-//    
-//    //x.foldLeft(new NodeBuffer){(b, e) => b.append(<span> { e } </span>); b}
-//    //x./:(new NodeBuffer){(b, e) => b.append(<span> { e } </span>); b}
-//   (new NodeBuffer /:x){(b, e) => b.append(<span> { e } </span>); b}
-//   (new NodeBuffer /:x){(b, e) => b &+ <span> { e } </span>}
-//   //fail (new NodeBuffer /:x)( _ &+ <span>{ _ }</span>)
-//
-//    //val b = new xml.NodeBuffer
-//    //x./:(b){(b, e) => b.append(<span> { e } </span>); b}
 
   - REST API can be totally stateless (see Lift example StatelessHtml.scala)
     - David Pollack's advice
@@ -364,7 +347,6 @@ everything
       - new Req.json features will allow easier extraction of JSON from a REST call
         - this combined with disabling the Lift heartbeat should give you stateless support for JSON
     
-  - lift-widgets: autocomplete, (DHTML) menus, sparkline graphs
   - support different versions of WordNet :)
     - should we vary yawni-wordnet-data project version or artifactName ? (or both?)
   - bugs
@@ -381,7 +363,7 @@ everything
       x searchField focus issue
       x main evidence is from appspot version of app
       x could local and appspot versions running in different tabs be interacting (via cache or otherwise ?)
-      + intentional effect of Lift (Session) Garbage collection: can be disabled, but not a good idea
+      + intentional effect of Lift (Session) Garbage collection (heartbeat driven): can be disabled, but not a good idea
         LiftRules.enableLiftGC = false
     + ajax active spinner not showing
       x something missing in Boot ?
@@ -402,18 +384,51 @@ everything
 
 - Tapestry on Google App Engine ?
 
+- feature: core: alternate an all caps WordNet term with one with periods after each letter so "CEO" matches input "C.E.O."
+  - this article has such an example of "C.E.O.": http://www.nytimes.com/2008/11/23/magazine/23Netflix-t.html?_r=2&pagewanted=all
+- feature: core: expose WordNet data version (e.g., 3.0)
+- feature: core: expose About dialog diagnostics as Map (code currently inlined in Browser.java; some of this info in browser.Application)
+  - maybe should have Application or Module or something in every subproj
 + feature: core: before initial public release, get names right; rename package org.yawni.wn → org.yawni.wordnet ; rename groupId org.yawni.wn → org.yawni; rename artifactId yawni-core → yawni-wordnet-api; rename artifactId browser → yawni-wordnet-browser
++ feature: core: before initial public releease, get names right; rename RelationTarget → RelationArgument (less confusing)
 - feature: core: ⊚ incorporate other related lexico-semantic resources
   - new Princeton "Standoff Files"
     - The Morphosemantic Database
       - adds 1 of 14 semantic types to the existing DERIVATIONALLY_RELATED WordNet relation
         example line:
-          <arg1 sensekey>	<arg1 offset>	<relation>	<arg2 sensekey>	<arg2 offset>	<arg1 gloss (abbreviated)>	<arg2 gloss (abbreviated)>
+          <arg1 (verb) sensekey>	<arg1 offset>	<relation>	<arg2 sensekey>	<arg2 offset>	<arg1 gloss (abbreviated)>	<arg2 gloss (abbreviated)>
           cannibalize%2:34:00::	201162291	agent	cannibal%1:18:00::	109891079	eat human flesh	a person who eats human flesh
-      * note "offset" has pos ordinal prepended; e.g., in "201162291", leading "2" means VERB, rest "01162291" is "cannibalize" synset offset 
+        - 17,739 row; 16,995 sort-uniq'd by sense keys 
+      * note "offset" has pos ordinal prepended; e.g., in "201162291", leading digit ("2") means VERB, rest ("01162291") is ("cannibalize") synset offset 
         - note: synset offset gets search to right synset, lemma from senseKey required to get to right WordSense
-      * distill down to <arg1 offset><tab><relation><tab><arg2 offset>; rest is for annotator convenience
-      * could automate parsing with POI
+      * distill down to <arg1 offset> <relation> <arg2 offset>; rest is for annotator convenience
+          # sense keys and offsets: verb -> noun; 1,077,470 B / 218,758 B gzip'd
+          cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $1 " " $2 " " $3 " " $4 " " $5}' | sort | uniq | gzip - | wc -c
+          # sense keys and offsets: verb -> noun AND noun -> verb; 2,154,940 B / 324,103 B gzip'd
+          cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $1 " " $2 " " $3 " " $4 " " $5 "\n" $4 " " $5 " " $3 " " $1 " " $2}' | sort | uniq | gzip - | wc -c
+
+          # offsets and sense keys: verb -> noun AND noun -> verb; 2,154,940 B / 324,103 B gzip'd
+          cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $2 " " $1 " " $3 " " $5 " " $4 "\n" $5 " " $4 " " $3 " " $2 " " $1}' | sort | uniq | gzip - | wc -c
+          # only sensekeys: verb -> noun; 737,570 B / 113,004 B gzip'd
+          cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $1 " " $3 " " $4}' | sort | uniq | gzip - | wc -c
+        - alternate distillation is <arg1 sensekey> <relation> <arg2 sensekey>
+          - more readable/verifable
+          - how to expose MorphosemanticSemanticRelation ?
+            - enums make subclassing impossible 
+            - closest existing equivalents are pure-virtual types: MERONYM <- { PART_MERONYM, MEMBER_MERONYM, SUBSTANCE_MERONYM } ...
+            - merging them into RelationType and representing them as Relations probably easiest for users
+      - database only contains explicit verb -> noun relations
+        ? is inverse implied ?
+        ? some verb -> noun instances don't seem to be present ?
+          src: breathe%2:29:00::
+            -> breather ()
+            -> breathing (syn respiration#3 is represented)
+          src: respire%2:29:02::
+            -> respiration#1
+            -> respiration#3
+      * could automate XLS "parsing"/interpretation with Apache POI
+        - for easy binary search, duplicate each relation forward and reversed (and overall sorted)
+          * note these will have to be divided by POS
       - 14 different morphosematic relations
         8158 event
         3043 agent
@@ -469,6 +484,7 @@ everything
 
   - Geo-WN ; toponym disambiguation
   - VerbNet
+  - FrameNet
   - SentiWordNet (crappy non-commercial license)
   - SUMO: mappings http://sigmakee.cvs.sourceforge.net/sigmakee/KBs/WordNetMappings/
   - Collins English Dictionary (CED) old edition available cheaply from LDC ($100); challenging to parse
@@ -476,7 +492,7 @@ everything
   - Roget's Thesaurus (old (i.e., 1900) Project Gutenburg?); JWord uses this
   - The English Tree of Roots (old (i.e., 1900) Project Gutenburg?); JWord uses this
 
-  - GeoSemCor2.0
+  - GeoSemCor 2.0
     
   - create tool support for dealing with new data
     - expert query modes will be very helpful, e.g., senseKey
@@ -486,11 +502,15 @@ everything
   - performing mapping/conversion of resources bound to other WordNet versions
     e.g., SentiWordNet is tied to WordNet 2.0 (need 2.0→2.1→3.0)
 
+- interesting homonym
+  weakened vs. weekend
+
 - command to make local browser standalone executable jar
   time mci -PuseLog4j,useYawniData,makeShadedJar
 
 - site element notes
   + link to yawni.sourceforge.net (which is linked to yawni.org)
+  - add WordNet 3.0 documentation since http://wordnet.princeton.edu seems to be down often
   + Google Analytics include
   + name
   + description
@@ -499,6 +519,24 @@ everything
   + browser features
   + (browser) screenshot
   - examples / getting started
+    - list numbers in WordNet
+    - normalize integers (adjectives: 1st -> first, ..., 49th, 50th, 60th,..., 100th, ...,  ? 115th, ..., 130th, ...)
+      - digits, textual, Roman numerals (* lowercase)
+      * limited fraction synonyms ("one-half" = "half", "one-fourth" = "one quarter" = "twenty-five percent")
+    - mine for capitalized adjectives and verbs (shows off true case)
+    - mine nouns for acronyms and their expansions (USA, U.S.A., AN, WMD, WHO); substring search for "\."
+    - mine nouns for name alternations: {Rockefeller, John D. Rockefeller, John Davison Rockefeller}, {Davis, Miles Davis, Miles Dewey Davis Jr.}
+    - mine for distinct Words whose lexical form is only different by spaces (e.g., "date line" vs. "dateline")
+    - mine for gender information (famous person names, etc.)
+    - easiest things in WordNet:
+      - single sense words (* with (bad) closed world assumption :))
+      - words in core WordNet (* not personally used)
+      - 1st senses, especially those with disproportionate max (always max) of sense tagged frequency
+    - ghetto, closed-world-assuming "POS tagger"
+      - some form of longest match
+      - use basic stop terms
+      - ignore initcap terms
+      - check case ? ("was" != "WA")
   - FAQ
   - JavaDoc
   - maven info
@@ -506,6 +544,8 @@ everything
   ~ sourceforge project URL
   + sourceforge icon + URL (for tracking)
   - Amazon Associates book links
+    - this site has a link for an Erlang book: http://www.satine.org/archives/2007/12/13/amazon-simpledb/
+  + new screenshot of substring search window: http://grab.by/3GWK ; replaces http://grab.by/1Ic4#file.png (before brushed metal fix)
   + donations link / directions / terse plea
   - ohloh link
   - freshmeat link
@@ -536,7 +576,8 @@ everything
       ? what's this called in 'wnb' interface
     + Note that it does not query any of the online versions of WordNet
     + Optionally supports WordNet data file versions 1.5, 1.6, 1.7, 2.0, 2.1, 3.0
-
+  - ssh to sourceforge site
+    ssh -t lnezda,yawni@shell.sourceforge.net create
   - follow FEST projects' lead: use pmwiki, ask for Atlassin Confluence, Jira, and Fisheye
     http://www.pmwiki.org/wiki/Cookbook/SourceForgeServers
     + yawni icon URL
@@ -1245,7 +1286,7 @@ x feature: howto for developing in NetBeans ?
 + bug: need to create new key (with keytool) to sign the jar (with jarsigner via Maven)
   and upload it with Cyberduck
   keytool -genkey -alias "Luke Nezda" # password "secret", makes new keystore
-  keytool -selfcert -alias "Luke Nezda" # issue myself a new key
+  keytool -selfcert -alias "Luke Nezda" # issue myself a new/extended certificate
   ! if jarsigner shows:
     Warning: The signer certificate has expired.
     jnlp on OS X acts crazy (basically hangs and has to be Force Quit-killed)
@@ -1299,7 +1340,7 @@ x feature: howto for developing in NetBeans ?
       # uses WNHOME env AND has Bloom filters available: less memory avilable for caching decreases performance
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -cp data/target/signed/yawni-data-2.0.0-SNAPSHOT.jar:browser/target/signed/yawni-browser-2.0.0-SNAPSHOT.jar org.yawni.wn.browser.Searcher > filters
 
-      # using dist jar which includes data
+      # using dist jar which includes data (target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar 9.6MB)
       # org/yawni/wordnet/browser/log4j.properties
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher > filters
       # pipe into wc -c to verify correctness, without worrying about disk related issues (saves about 15% of time!) : expect 10905119
@@ -1381,6 +1422,7 @@ x feature: howto for developing in NetBeans ?
     o "wild goose chase" should match "wild-goose chase"
     o "f.d. roosevelt" → "f. d. roosevelt" →? "fd roosevelt"
     o "a.k.a." → "aka"
+    o "C.E.O." → "CEO"
     o "Dr." → "Dr" (like "Mr." matches "Mr")
     o "e.g." → "e.g" →? "eg"
     o "et al" → "et. al." → "et al."
