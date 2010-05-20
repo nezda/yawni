@@ -19,8 +19,9 @@
 package org.yawni.util;
 
 //import java.io.Serializable;
-import java.lang.reflect.Array;
+import com.google.common.collect.UnmodifiableIterator;
 import java.util.ArrayList;
+import static com.google.common.collect.ObjectArrays.newArray;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -205,20 +206,6 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     return obj == null ? e == null : obj.equals(e);
   }
 
-  /**
-   * Returns a new array of the given length with the same type as a reference array.
-   * @param reference any array of the desired type
-   * @param length the length of the new array
-   */
-  // lifted from Google Collections ObjectArrays
-  static <T> T[] newArray(T[] reference, int length) {
-    final Class<?> type = reference.getClass().getComponentType();
-    // the cast is safe because result.getClass() == reference.getClass()
-    @SuppressWarnings("unchecked")
-    final T[] result = (T[]) Array.newInstance(type, length);
-    return result;
-  }
-
   // lifted from Google Collections
   private static Object[] copyIntoArray(Object... items) {
     final Object[] array = new Object[items.length];
@@ -241,11 +228,11 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     private Nothington() {
       // no reason to make more than 1 of these
     }
-    /* @Override */
+    @Override
     public E get(int index) {
       throw new IndexOutOfBoundsException("Index: " + index);
     }
-    /* @Override */
+    @Override
     public int size() {
       return 0;
     }
@@ -281,7 +268,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     public ListIterator<E> listIterator(int index) {
       return Collections.<E>emptyList().listIterator(index);
     }
-    /* @Override */
+    @Override
     public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       if (fromIndex != 0 || toIndex != 0) {
         throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
@@ -325,7 +312,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     Singleton(E e0) {
       this.e0 = e0;
     }
-    /* @Override */
+    @Override
     public E get(int index) {
       // this impl looks clunky for Singleton, but pays off in Doubleton, ...
       switch (index) {
@@ -333,7 +320,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
         default: throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size());
       }
     }
-    /* @Override */
+    @Override
     public int size() {
       return 1;
     }
@@ -977,7 +964,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
 
   static abstract class AbstractImmutableList<E> extends LightImmutableList<E> {
     // base implementation
-    /* @Override */
+    @Override
     public boolean contains(Object target) {
       for (int i = begin(), n = end(); i < n; i++) {
         // TODO redundant null check
@@ -988,7 +975,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       return false;
     }
     // only Nothington overrides
-    /* @Override */
+    @Override
     public boolean isEmpty() {
       return false;
     }
@@ -1011,26 +998,26 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       return -1;
     }
     // only Nothington overrides
-    /* @Override */
+    @Override
     public Iterator<E> iterator() {
       return new SimpleListIterator();
     }
     // only Nothington overrides
-    /* @Override */
+    @Override
     public ListIterator<E> listIterator() {
       return new FullListIterator(begin());
     }
-    /* @Override */
+    @Override
     public ListIterator<E> listIterator(int index) {
       return new FullListIterator(index);
     }
     // only Nothington overrides
-    /* @Override */
+    @Override
     public boolean containsAll(Collection<?> c) {
-      // TODO consider optimiziation strategies - c not necessarily a RandomAccess & List, but
+      // TODO consider optimization strategies - c not necessarily a RandomAccess & List, but
       // we made that assumption for equals()
       for (final Object target : c) {
-        if (false == contains(target)) {
+        if (! contains(target)) {
           return false;
         }
       }
@@ -1039,7 +1026,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final boolean add(E e) {
       throw new UnsupportedOperationException();
     }
@@ -1064,47 +1051,47 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final boolean retainAll(Collection<?> c) {
       throw new UnsupportedOperationException();
     }
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final boolean addAll(int index, Collection<? extends E> c) {
       throw new UnsupportedOperationException();
     }
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final E remove(int idx) {
       throw new UnsupportedOperationException();
     }
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final void add(int idx, E e) {
       throw new UnsupportedOperationException();
     }
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final E set(int idx, E e) {
       throw new UnsupportedOperationException();
     }
     /**
      * @throws UnsupportedOperationException
      */
-    /* @Override */
+    @Override
     public final void clear() {
       throw new UnsupportedOperationException();
     }
     
-    /* @Override */
+    @Override
     public Object[] toArray() {
       final Object[] newArray = new Object[size()];
       for (int i = begin(), n = end(); i < n; i++) {
@@ -1112,7 +1099,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       }
       return newArray;
     }
-    /* @Override */
+    @Override
     public <T> T[] toArray(T[] other) {
       if (other.length < size()) {
         other = newArray(other, size());
@@ -1133,7 +1120,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       if (this == obj) {
         return true;
       }
-      if (false == (obj instanceof List)) {
+      if (! (obj instanceof List)) {
         return false;
       }
       final List<?> that = (List<?>) obj;
@@ -1141,7 +1128,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
         return false;
       }
       for (int i = begin(), n = this.end(); i < n; i++) {
-        if (false == eq(that.get(i), this.get(i))) {
+        if (! eq(that.get(i), this.get(i))) {
           return false;
         }
       }
@@ -1189,13 +1176,13 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
      * have implicit {@code AbstractImmutableList.this} reference.
      */
     // Lifted from Apache Harmony
-    class SimpleListIterator implements Iterator<E> {
+    class SimpleListIterator extends UnmodifiableIterator<E> {
       int pos = begin() - 1;
-      /* @Override */
+      @Override
       public final boolean hasNext() {
         return pos + 1 < end();
       }
-      /* @Override */
+      @Override
       public E next() {
         try {
           final E result = get(pos + 1);
@@ -1204,13 +1191,6 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
         } catch (IndexOutOfBoundsException e) {
           throw new NoSuchElementException();
         }
-      }
-      /**
-       * @throws UnsupportedOperationException
-       */
-      /* @Override */
-      public final void remove() {
-        throw new UnsupportedOperationException();
       }
     } // end class SimpleListIterator
 
@@ -1238,15 +1218,15 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
           throw new NoSuchElementException();
         }
       }
-      /* @Override */
+      @Override
       public boolean hasPrevious() {
         return pos >= begin();
       }
-      /* @Override */
+      @Override
       public int nextIndex() {
         return pos + 1;
       }
-      /* @Override */
+      @Override
       public E previous() {
         try {
           final E result = get(pos);
@@ -1256,21 +1236,21 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
           throw new NoSuchElementException();
         }
       }
-      /* @Override */
+      @Override
       public int previousIndex() {
         return pos;
       }
       /**
        * @throws UnsupportedOperationException
        */
-      /* @Override */
+      @Override
       public void add(E object) {
         throw new UnsupportedOperationException();
       }
       /**
        * @throws UnsupportedOperationException
        */
-      /* @Override */
+      @Override
       public void set(E object) {
         throw new UnsupportedOperationException();
       }
