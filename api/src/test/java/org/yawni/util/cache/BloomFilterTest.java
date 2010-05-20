@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 public class BloomFilterTest {
   private static final Hasher<CharSequence> CHARSEQUENCE_HASHER = new Hasher<CharSequence>() {
     public int hashCode(Object o) {
-      if (false == (o instanceof String) &&
+      if (! (o instanceof String) &&
           o instanceof CharSequence) {
        final CharSequence seq = (CharSequence)o;
        return CharSequences.hashCode(seq);
