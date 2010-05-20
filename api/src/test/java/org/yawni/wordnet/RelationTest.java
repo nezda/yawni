@@ -167,7 +167,7 @@ public class RelationTest {
     System.err.println("exhaustivelyTestRelations");
     for (final RelationType relType : RelationType.values()) {
       int numLexical = 0, numSemantic = 0;
-      for (Relation rel : wordNet.relations(relType, POS.ALL)) {
+      for (final Relation rel : wordNet.relations(relType, POS.ALL)) {
         if (rel.isLexical()) {
           numLexical++;
         } else {
