@@ -44,7 +44,6 @@ import java.util.RandomAccess;
  *   ? XML parsing / parse tree (read-only JDOM? would be fun to template that anyway if JAXB isn't already far superior)
  *   ? graph / tree data structures
  *   ? ML data structures
- *   - Web-2.0 tags
  *
  * TODO
  * - make this class package private and move it accordingly ?  just an implementation detail for now
