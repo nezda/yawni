@@ -50,10 +50,10 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
   }
 
   private void validateSort(final boolean validateSort, final Iterable<T> base) {
-    if (false == validateSort) {
+    if (! validateSort) {
       return;
     }
-    if (Utils.isSorted(base, true) == false) {
+    if (! Utils.isSorted(base, true)) {
       final StringBuilder msg = new StringBuilder("Iterable ").
         append(base).append(" violates sort criteria.");
       throw new IllegalArgumentException(msg.toString());
