@@ -290,10 +290,10 @@ public class MorphyTest {
           final String lemma = wordSense.getLemma();
           final List<String> restems = stem(lemma, pos);
           String msg = "ok";
-          if (false == restems.contains(lemma)) {
+          if (! restems.contains(lemma)) {
             msg = "restems: " + restems + " doesn't contain lemma: " + lemma;
             issues++;
-            boolean nonCaseIssue = false == containsIgnoreCase(lemma, restems);
+            boolean nonCaseIssue = ! containsIgnoreCase(lemma, restems);
             if (nonCaseIssue) {
               nonCaseIssues++;
             }
@@ -387,10 +387,10 @@ public class MorphyTest {
   //        }
   //        //XXX final List<String> restems = stem(lemma, pos);
   //        //XXX String msg = "ok";
-  //        //XXX if(false == restems.contains(lemma)) {
+  //        //XXX if(! restems.contains(lemma)) {
   //        //XXX   msg = "restems: "+restems+" doesn't contain lemma: "+lemma;
   //        //XXX   ++issues;
-  //        //XXX   boolean nonCaseIssue = false == containsIgnoreCase(lemma, restems);
+  //        //XXX   boolean nonCaseIssue = ! containsIgnoreCase(lemma, restems);
   //        //XXX   if(nonCaseIssue) {
   //        //XXX     ++nonCaseIssues;
   //        //XXX   }
