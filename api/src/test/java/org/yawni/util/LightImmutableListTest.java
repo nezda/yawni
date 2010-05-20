@@ -222,12 +222,4 @@ public class LightImmutableListTest {
       }
     }
   }
-  @Test
-  public void testNewArray() {
-    Integer[] reference = new Integer[0];
-    int length = 0;
-    Integer[] expResult = reference;
-    Integer[] result = LightImmutableList.newArray(reference, length);
-    assertTrue(Arrays.equals(expResult, result));
-  }
 }
