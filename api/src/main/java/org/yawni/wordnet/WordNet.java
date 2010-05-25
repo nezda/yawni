@@ -16,10 +16,12 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
+import static com.google.common.base.Preconditions.*;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
@@ -230,6 +232,8 @@ public final class WordNet implements WordNetInterface {
     if (toReturn == null) {
       throw new IllegalArgumentException("no filename for pos "+pos);
     }
+    //don't like the potential varargs cost
+    //checkArgument(toReturn != null, "no filename for pos %s", pos);
     return toReturn;
   }
 
@@ -289,7 +293,8 @@ public final class WordNet implements WordNetInterface {
     return "core-wordnet.ranked";
   }
 
-  private static String getMorphosemanticRelationsFilename() {
+  @VisibleForTesting
+  static String getMorphosemanticRelationsFilename() {
     //return "morphosemantic-links.xls.tsv.sensekeys.bidi";
     return "morphosemantic-links.xls.tsv.offsets.bidi";
   }
