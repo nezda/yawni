@@ -235,8 +235,9 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
    *   <li> {@code sstype} is {@link POS}; see {@link POS#getWordNetCode()} </li>
    *   <li> {@code lex_filenum} is {@link Synset#lexfilenum()} </li>
    *   <li> {@code lex_id} is {@link WordSense#getLexid()} </li>
-   *   <li> {@code head_word:head_id} only applies to adjectives </li>
+   *   <li> {@code head_word:head_id} applies <em>only</em> to {@link POS#ADJ adjectives} </li>
    * </ul>
+   * For example, <tt>communicate%2:40:10::</tt>
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3">
    *   http://wordnet.princeton.edu/wordnet/man/senseidx.5WN.html#sect3</a>
    */
