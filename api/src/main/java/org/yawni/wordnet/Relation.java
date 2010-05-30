@@ -47,12 +47,12 @@ public abstract class Relation implements Comparable<Relation> {
   // Instance variables
   //
 
+  private final byte relationTypeOrdinal;
   /**
-   * The index of this Relation within the array of Relation's in the source Synset.
+   * The index of this {@code Relation} within the array of {@code Relation}s in the source {@code Synset}.
    * Used in {@code equals}.
    */
-  private final int index;
-  private final byte relationTypeOrdinal;
+  private final int relationIndex;
   private final RelationArgument source;
 
   //
@@ -60,13 +60,25 @@ public abstract class Relation implements Comparable<Relation> {
   //
 
   Relation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int index, final RelationArgument source, final byte relationTypeOrdinal) {
+    final int relationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
     this.targetOffset = targetOffset;
     this.targetIndex = targetIndex;
     this.targetPOSOrdinal = targetPOSOrdinal;
-    this.index = index;
+    this.relationIndex = relationIndex;
     this.source = source;
     this.relationTypeOrdinal = relationTypeOrdinal;
+  }
+
+  /**
+   * Copy constructor to create Relation with equal source and target, but different type
+   */
+  Relation(final Relation that, final byte relationTypeOrdinal) {
+    this(that.targetOffset,
+         that.targetIndex,
+         that.targetPOSOrdinal,
+         that.relationIndex,
+         that.source,
+         relationTypeOrdinal);
   }
 
   /** Factory method */
@@ -140,7 +152,7 @@ public abstract class Relation implements Comparable<Relation> {
         // using source.getSynset() to avoid requiring a local field
         source.getSynset().wordNet.getSynsetAt(
           getTargetPOS(),
-          targetOffset),
+          getTargetOffset()),
         targetIndex);
   }
 
@@ -161,13 +173,13 @@ public abstract class Relation implements Comparable<Relation> {
   public boolean equals(final Object that) {
     return (that instanceof Relation)
       && ((Relation) that).source.equals(this.source)
-      && ((Relation) that).index == this.index;
+      && ((Relation) that).relationIndex == this.relationIndex;
   }
 
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    return source.hashCode() + index;
+    return source.hashCode() + relationIndex;
   }
 
   /** {@inheritDoc} */
@@ -191,12 +203,13 @@ public abstract class Relation implements Comparable<Relation> {
 
   /** {@inheritDoc} */
   public int compareTo(final Relation that) {
+    //FIXME shouldn't this ordering include RelationType ?
     // order by source Synset
     // then by 'index' field
     int result;
     result = this.getSource().getSynset().compareTo(that.getSource().getSynset());
     if (result == 0) {
-      result = this.index - that.index;
+      result = this.relationIndex - that.relationIndex;
     }
     return result;
   }
