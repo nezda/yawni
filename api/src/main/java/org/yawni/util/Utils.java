@@ -16,8 +16,12 @@
  */
 package org.yawni.util;
 
-import java.util.ArrayList;
+import com.google.common.base.Objects;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
 import java.util.RandomAccess;
@@ -309,59 +313,72 @@ public class Utils {
     return list;
   }
 
+  @Deprecated // use com.google.common.collect.Iterables#isEmpty
   public static <T> boolean isEmpty(final Iterable<T> iterable) {
-    return ! iterable.iterator().hasNext();
+//    return ! iterable.iterator().hasNext();
+    return Iterables.isEmpty(iterable);
   }
 
+  @Deprecated // kinda odd, destructive construction
   public static <T> boolean isEmpty(final Iterator<T> iterator) {
     return ! iterator.hasNext();
   }
 
+  @Deprecated // use com.google.common.collect.Iterables#elementsEqual
   public static <T> boolean equals(final Iterable<T> it1, Iterable<T> it2) {
-    return equals(it1.iterator(), it2.iterator());
+//    return equals(it1.iterator(), it2.iterator());
+    return Iterables.elementsEqual(it1, it2);
   }
 
+  @Deprecated // use com.google.common.collect.Iterators#elementsEqual
   public static <T> boolean equals(final Iterator<T> it1, Iterator<T> it2) {
-    while (true) {
-      final boolean i1 = it1.hasNext();
-      final boolean i2 = it2.hasNext();
-      if (i1 && i2) {
-        if (equals(it1.next(), it2.next())) {
-          continue;
-        }
-      } else if (i1 ^ i2) {
-        // len mismatch
-        return false;
-      } else {
-        // same len; exhausted
-        assert !(i1 && i2);
-        return true;
-      }
-    }
+//    while (true) {
+//      final boolean i1 = it1.hasNext();
+//      final boolean i2 = it2.hasNext();
+//      if (i1 && i2) {
+//        if (equals(it1.next(), it2.next())) {
+//          continue;
+//        }
+//      } else if (i1 ^ i2) {
+//        // len mismatch
+//        return false;
+//      } else {
+//        // same len; exhausted
+//        assert !(i1 && i2);
+//        return true;
+//      }
+//    }
+    return Iterators.elementsEqual(it1, it2);
   }
 
+  @Deprecated // use com.google.common.collect.Iterables#contains
   public static <T> boolean contains(final Iterable<T> iterable, T item) {
-    for (final T t : iterable) {
-      if (t.equals(item)) {
-        return true;
-      }
-    }
-    return false;
+//    for (final T t : iterable) {
+//      if (t.equals(item)) {
+//        return true;
+//      }
+//    }
+//    return false;
+    return Iterables.contains(iterable, item);
   }
 
   /**
    * {@code null}-tolerant version of {@link Object#equals}
    */
+  @Deprecated // use com.google.common.base.Objects#equal
   public static boolean equals(final Object o1, final Object o2) {
-    return o1 == o2 || (o1 != null && o1.equals(o2));
+//    return o1 == o2 || (o1 != null && o1.equals(o2));
+    return Objects.equal(o1, o2);
   }
 
+  @Deprecated // use com.google.common.collect.Lists#newArrayList
   public static <T> List<T> asList(final Iterable<T> iterable) {
-    final List<T> list = new ArrayList<T>();
-    for (final T t : iterable) {
-      list.add(t);
-    }
-    return list;
+    return Lists.newArrayList(iterable);
+//    final List<T> list = new ArrayList<T>();
+//    for (final T t : iterable) {
+//      list.add(t);
+//    }
+//    return list;
   }
 
   /**
@@ -398,8 +415,8 @@ public class Utils {
    */
   public static <T> List<T> add(List<T> list, final T item) {
     if (item != null) {
-      if (list == null) {
-        list = new ArrayList<T>();
+      if (list == null || list == Collections.emptyList()) {
+        list = Lists.newArrayList();
       }
       list.add(item);
     }
