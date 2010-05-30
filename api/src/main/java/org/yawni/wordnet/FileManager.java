@@ -172,16 +172,28 @@ final class FileManager implements FileManagerInterface {
    * Primary abstraction of file content used in {@code FileManager}.
    * NOTE: CharStream is stateful (i.e., not thread-safe)
    */
-  static abstract class CharStream {
+  static abstract class CharStream implements CharSequence {
     protected final String filename;
+    protected final StringBuilder stringBuffer;
     /** Force subclasses to call this */
     CharStream(final String filename) {
       this.filename = filename;
+      this.stringBuffer = new StringBuilder();
     }
     abstract void seek(final int position) throws IOException;
     abstract int position() throws IOException;
-    abstract char charAt(int position) throws IOException;
-    abstract int length() throws IOException;
+    // IOExceptions laundered as RuntimeExceptions
+    public abstract char charAt(int position);
+    // IOExceptions laundered as RuntimeExceptions
+    public abstract int length();
+    public CharSequence subSequence(int s, int e) {
+      final boolean doBuffer = true;
+      resetBuffer(doBuffer);
+      for (int i = s; i < e; i++) {
+        stringBuffer.append(charAt(i));
+      }
+      return stringBuffer.toString();
+    }
     /**
      * This works just like {@link RandomAccessFile#readLine} -- doesn't
      * support Unicode.
@@ -192,6 +204,7 @@ final class FileManager implements FileManagerInterface {
     }
     // reads line, returns first space delimited word
     String readLineWord() throws IOException {
+      // basic, inefficient impl
       final String ret = readLine();
       if (ret == null) {
         return null;
@@ -216,6 +229,11 @@ final class FileManager implements FileManagerInterface {
       }
       return readLine();
     }
+    protected void resetBuffer(final boolean doBuffer) {
+      if (doBuffer) {
+        stringBuffer.setLength(0);
+      }
+    }
   } // end class CharStream
 
   /**
@@ -237,13 +255,21 @@ final class FileManager implements FileManagerInterface {
       return (int) raf.getFilePointer();
     }
     @Override
-    char charAt(int position) throws IOException {
-      seek(position);
-      return (char)raf.readByte();
+    public char charAt(int position) {
+      try {
+        seek(position);
+        return (char)raf.readByte();
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
     }
     @Override
-    int length() throws IOException {
-      return (int) raf.length();
+    public int length() {
+      try {
+        return (int) raf.length();
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
     }
     @Override
     String readLine() throws IOException {
@@ -258,19 +284,16 @@ final class FileManager implements FileManagerInterface {
    * requires a {@code ByteBuffer} which is usually most easily derived
    * from an {@code FileChannel}. aka {@code mmap CharStream}
    */
-  private static class NIOCharStream extends CharStream {
+  private static class NIOCharStream extends CharStream implements CharSequence {
     //FIXME position seems redundant (ByteCharBuffer has position())
     private int position;
     private final ByteBuffer bbuff;
-    //private final ByteCharBuffer bbuff;
-    private final StringBuilder stringBuffer;
     private final int capacity;
 
     NIOCharStream(final String filename, final ByteBuffer bbuff) throws IOException {
       super(filename);
       this.bbuff = bbuff;
       this.capacity = bbuff.capacity();
-      this.stringBuffer = new StringBuilder();
     }
     NIOCharStream(final String filename, final RandomAccessFile raf) throws IOException {
       this(filename, asByteBuffer(raf));
@@ -292,16 +315,16 @@ final class FileManager implements FileManagerInterface {
       this.position = position;
     }
     @Override
-    int position() throws IOException {
+    int position() {
       return position;
     }
     @Override
-    char charAt(final int p) throws IOException {
+    public char charAt(final int p) {
       return (char) bbuff.get(p);
     }
     @Override
-    int length() throws IOException {
-      return bbuff.capacity();
+    public int length() {
+      return capacity;
     }
     @Override
     String readLine() throws IOException {
@@ -332,7 +355,7 @@ final class FileManager implements FileManagerInterface {
       resetBuffer(true /* doBuffer */);
       char c;
       while (position < capacity) {
-        c = (char) bbuff.get(position++);
+        c = charAt(position++);
         if (c == ' ') {
           return position - 1;
         }
@@ -343,7 +366,13 @@ final class FileManager implements FileManagerInterface {
     private int scanForwardToLineBreak() {
       return scanForwardToLineBreak(false /* don't buffer */);
     }
-    /** Modifies {@code position} field */
+    /**
+     * Returns exclusive offset of next start of the line delimiter, or capacity, whichever comes next.
+     * Modifies {@code position} field, leaving it at start of following line.
+     *
+     * Typical usage is to store current position, s, and e = scanForwardToLineBreak(), line content
+     * is buffer[s, e).  This can be done repeatedly to get sequential lines.
+     */
     private int scanForwardToLineBreak(final boolean doBuffer) {
       // scan from current position to first ("\r\n"|"\r"|"\n")
       boolean done = false;
@@ -351,11 +380,11 @@ final class FileManager implements FileManagerInterface {
       resetBuffer(doBuffer);
       char c;
       while (! done && position < capacity) {
-        c = (char) bbuff.get(position++);
+        c = charAt(position++);
         switch (c) {
           case '\r':
             // if next is \n, skip that too
-            c = (char) bbuff.get(position++);
+            c = charAt(position++);
             if (c != '\n') {
               // put it back
               position--;
@@ -375,16 +404,6 @@ final class FileManager implements FileManagerInterface {
       }
       // return exclusive end chopping line break delimitter(s)
       return crnl ? position - 2 : position - 1;
-    }
-    private int scanBackwardToLineBreak() {
-      // scan backwards to first \n
-      // - if immediately preceding char is \n, keep going
-      throw new UnsupportedOperationException();
-    }
-    private void resetBuffer(final boolean doBuffer) {
-      if (doBuffer) {
-        stringBuffer.setLength(0);
-      }
     }
   } // end class NIOCharStream
   
@@ -760,7 +779,7 @@ final class FileManager implements FileManagerInterface {
           // - scan through short lines?
           while (stream.position() < stop) {
             final int result = stream.position();
-            // note the spaces of this 'word' are underscores
+            // note spaces within 'word' must be represented by underscores
             final CharSequence word = stream.readLineWord();
             if (log.isTraceEnabled()) {
               log.trace("  . \""+word+"\" → "+(0 == compare(target, word)));
@@ -800,7 +819,7 @@ final class FileManager implements FileManagerInterface {
   public WordNetLexicalComparator comparator() {
     // caseless searches rely on this
     return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE;
-    //return Utils.WordNetLexicalComparator.GIVEN_CASE_INSTANCE;
+    //return WordNetLexicalComparator.GIVEN_CASE_INSTANCE;
   }
 
   private int compare(final CharSequence s1, final CharSequence s2) {
