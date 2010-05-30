@@ -16,8 +16,9 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.util.Utils;
+import com.google.common.collect.Iterables;
 import static org.yawni.util.Utils.*;
+import static com.google.common.collect.Iterables.isEmpty;
 import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
 import org.junit.BeforeClass;
@@ -244,7 +245,7 @@ public class WordNetInterfaceTest {
     final Iterable<Synset> result2 = wordNet.synsets(query2);
     assertThat(isEmpty(result1)).isFalse();
     assertThat(isEmpty(result2)).isFalse();
-    assertThat(Utils.equals(result1, result2)).isTrue();
+    assertThat(Iterables.elementsEqual(result1, result2)).isTrue();
 
     // word query
     query = "?word=yawn";
