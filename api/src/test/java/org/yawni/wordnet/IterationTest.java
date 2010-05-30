@@ -27,7 +27,7 @@ import java.util.regex.PatternSyntaxException;
 import org.yawni.util.Utils;
 import static org.yawni.util.Utils.first;
 import static com.google.common.collect.Iterables.transform;
-import static org.yawni.util.Utils.isEmpty;
+import static com.google.common.collect.Iterables.isEmpty;
 import org.yawni.util.MergedIterable;
 import org.yawni.wordnet.WordSense.AdjPosition;
 
