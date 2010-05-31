@@ -16,7 +16,11 @@
  */
 package org.yawni.util;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import java.nio.CharBuffer;
+import java.util.List;
+import java.util.NoSuchElementException;
 import static org.yawni.util.AbstractCharSequenceTokenizer.*;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
@@ -116,4 +120,63 @@ public class CharSequenceTokenizerTest {
     assertThat(tokenizer.next()).isEqualTo("name");
     assertThat(tokenizer.next()).isEqualTo("value");
   }
+
+  @Test(expected = NoSuchElementException.class)
+  public void testBoundary() {
+    final List<String> items = ImmutableList.of("A", "B", "C", "D");
+    final String delim = "\r\n";
+    final String c = Joiner.on(delim).join(items);
+    CharSequenceTokenizer tok = new CharSequenceTokenizer(c, delim);
+    for (int i = 0; i < items.size() + 1; i++) {
+      tok.next();
+    }
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void testBeginBoundary() {
+//    System.err.println("testBeginBoundary");
+    final List<String> items = ImmutableList.of("A", "B", "C", "D");
+    final String delim = "\r\n";
+    final String c = Joiner.on(delim).join(items);
+    CharSequenceTokenizer tok = new CharSequenceTokenizer(c, delim);
+    for (int i = 0; i < items.size(); i++) {
+      final CharSequence t = tok.next();
+//      System.err.println("next: "+t);
+    }
+    for (int i = 0; i < items.size() + 1; i++) {
+      final CharSequence t = tok.previous();
+//      System.err.println("prev: "+t);
+    }
+//    System.err.println("testBeginBoundary done");
+  }
+
+  @Test
+  public void testLineBreaker() {
+    final List<String> items = ImmutableList.of("A", "B", "C", "D");
+    final String delim = "\r\n";
+    final String c = Joiner.on(delim).join(items);
+    CharSequenceTokenizer tok = new CharSequenceTokenizer(c, delim);
+    assertThat(ImmutableList.copyOf(tok)).isEqualTo(items);
+    
+    tok = new CharSequenceTokenizer(c, delim);
+    assertThat(tok.hasPrevious()).isFalse();
+    assertThat(tok.next()).isEqualTo("A");
+    assertThat(tok.next()).isEqualTo("B");
+    assertThat(tok.next()).isEqualTo("C");
+    assertThat(tok.next()).isEqualTo("D");
+    assertThat(tok.previous()).isEqualTo("D");
+    assertThat(tok.previous()).isEqualTo("C");
+    assertThat(tok.previous()).isEqualTo("B");
+    assertThat(tok.previous()).isEqualTo("A");
+    assertThat(tok.next()).isEqualTo("A");
+    tok.skipNextToken();
+    assertThat(tok.next()).isEqualTo("C");
+    tok.skipPreviousToken();
+    assertThat(tok.previous()).isEqualTo("B");
+  }
+
+  // many more boundary cases could be tested
+  // - edge delimitter content (esp. trailing)
+  // - pure delimitter input
+  // - attempting to use tokenizer again after it has thrown a NSEE
 }
