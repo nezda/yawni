@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.Lists;
 import org.yawni.util.CharSequences;
 
 import org.slf4j.Logger;
@@ -32,8 +33,10 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import org.yawni.util.LightImmutableList;
 
 /**
  * An implementation of {@code FileManagerInterface} that reads WordNet data
@@ -50,32 +53,31 @@ final class FileManager implements FileManagerInterface {
   private static final Logger log = LoggerFactory.getLogger(FileManager.class.getName());
 
 //  private String searchDirectory;
-  private final Map<String, CharStream> filenameCache = new HashMap<String, CharStream>();
+  private final Map<String, CharStream> fileNameCache = new HashMap<String, CharStream>();
 
   static class NextLineOffsetCache {
-    private String filename;
+    private String fileName;
     private int previous;
     private int next;
 
     /**
-     * synchronization keeps this consistent since multiple filename's may call
+     * synchronization keeps this consistent since multiple fileName's may call
      * this at the same time
      */
-    synchronized void setNextLineOffset(final String filename, final int previous, final int next) {
-      this.filename = filename;
+    synchronized void setNextLineOffset(final String fileName, final int previous, final int next) {
+      this.fileName = fileName;
       this.previous = previous;
       this.next = next;
     }
 
     /**
-     * synchronization keeps this consistent since multiple filename's may call
+     * synchronization keeps this consistent since multiple fileName's may call
      * this at the same time
      */
-    synchronized int matchingOffset(final String filename, final int offset) {
-      if (this.filename == null ||
+    synchronized int matchingOffset(final String fileName, final int offset) {
+      if (this.fileName == null ||
           previous != offset ||
-          //! this.filename.equals(filename)
-          ! this.filename.equals(filename)
+          ! this.fileName.equals(fileName)
           ) {
         return -1;
       } else {
@@ -173,11 +175,11 @@ final class FileManager implements FileManagerInterface {
    * NOTE: CharStream is stateful (i.e., not thread-safe)
    */
   static abstract class CharStream implements CharSequence {
-    protected final String filename;
+    protected final String fileName;
     protected final StringBuilder stringBuffer;
     /** Force subclasses to call this */
-    CharStream(final String filename) {
-      this.filename = filename;
+    CharStream(final String fileName) {
+      this.fileName = fileName;
       this.stringBuffer = new StringBuilder();
     }
     abstract void seek(final int position) throws IOException;
@@ -242,8 +244,8 @@ final class FileManager implements FileManagerInterface {
    */
   static class RAFCharStream extends CharStream {
     private final RandomAccessFile raf;
-    RAFCharStream(final String filename, final RandomAccessFile raf) {
-      super(filename);
+    RAFCharStream(final String fileName, final RandomAccessFile raf) {
+      super(fileName);
       this.raf = raf;
     }
     @Override
@@ -290,13 +292,13 @@ final class FileManager implements FileManagerInterface {
     private final ByteBuffer bbuff;
     private final int capacity;
 
-    NIOCharStream(final String filename, final ByteBuffer bbuff) throws IOException {
-      super(filename);
+    NIOCharStream(final String fileName, final ByteBuffer bbuff) throws IOException {
+      super(fileName);
       this.bbuff = bbuff;
       this.capacity = bbuff.capacity();
     }
-    NIOCharStream(final String filename, final RandomAccessFile raf) throws IOException {
-      this(filename, asByteBuffer(raf));
+    NIOCharStream(final String fileName, final RandomAccessFile raf) throws IOException {
+      this(fileName, asByteBuffer(raf));
     }
     private static ByteBuffer asByteBuffer(final RandomAccessFile raf) throws IOException {
       final FileChannel fileChannel = raf.getChannel();
@@ -414,13 +416,13 @@ final class FileManager implements FileManagerInterface {
    */
   private static class InputStreamCharStream extends NIOCharStream {
     /**
-     * @param filename interpretted as classpath relative path
+     * @param fileName interpretted as classpath relative path
      * @param input
      * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
      * 1 buffer thus maximizing efficiency.
      */
-    InputStreamCharStream(final String filename, final InputStream input, final int len) throws IOException {
-      super(filename, asByteBuffer(input, len, filename));
+    InputStreamCharStream(final String fileName, final InputStream input, final int len) throws IOException {
+      super(fileName, asByteBuffer(input, len, fileName));
     }
 //    /**
 //     * @param filepath
@@ -432,9 +434,9 @@ final class FileManager implements FileManagerInterface {
      * @param input
      * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
      * 1 buffer thus maximizing efficiency.
-     * @param filename 
+     * @param fileName
      */
-    private static ByteBuffer asByteBuffer(final InputStream input, final int len, final String filename) throws IOException {
+    private static ByteBuffer asByteBuffer(final InputStream input, final int len, final String fileName) throws IOException {
       if (len == -1) {
         throw new RuntimeException("unknown length not currently supported");
       }
@@ -446,7 +448,7 @@ final class FileManager implements FileManagerInterface {
       }
       // could resize buffer
       if (len != totalBytesRead) {
-        throw new RuntimeException("Read error. Only read "+totalBytesRead+" of "+len+" for "+filename);
+        throw new RuntimeException("Read error. Only read "+totalBytesRead+" of "+len+" for "+fileName);
       }
       return ByteBuffer.wrap(buffer);
     }
@@ -455,25 +457,25 @@ final class FileManager implements FileManagerInterface {
   private long streamInitTime;
 
   /**
-   * @param filename
-   * @param filenameIsWnRelative is a boolean which indicates that {@code filename}
+   * @param fileName
+   * @param fileNameIsWnRelative is a boolean which indicates that {@code fileName}
    * is relative (else, it's absolute); this facilitates testing and reuse.
-   * @return CharStream representing {@code filename} or null if no such file exists.
+   * @return CharStream representing {@code fileName} or null if no such file exists.
    */
-  private synchronized CharStream getFileStream(final String filename, final boolean filenameIsWnRelative) throws IOException {
-    CharStream stream = filenameCache.get(filename);
+  private synchronized CharStream getFileStream(final String fileName, final boolean fileNameIsWnRelative) throws IOException {
+    CharStream stream = fileNameCache.get(fileName);
     if (stream == null) {
       final long start = System.nanoTime();
 
-      stream = getURLStream(filename);
+      stream = getURLStream(fileName);
       if (stream != null) {
         log.trace("URLCharStream: {}", stream);
       } else {
         final String pathname =
-          filenameIsWnRelative ?
-            getWNSearchDir() + File.separator + filename :
-            filename;
-        log.trace("filename: {} pathname: {}", filename, pathname);
+          fileNameIsWnRelative ?
+            getWNSearchDir() + File.separator + fileName :
+            fileName;
+        log.trace("fileName: {} pathname: {}", fileName, pathname);
 
         final File file = new File(pathname);
         log.debug("pathname: {}", pathname);
@@ -496,14 +498,14 @@ final class FileManager implements FileManagerInterface {
 //      if (stream == null) {
 //        return null;
 //      }
-      filenameCache.put(filename, stream);
+      fileNameCache.put(fileName, stream);
     }
     
     return stream;
   }
 
-  synchronized CharStream getFileStream(final String filename) throws IOException {
-    return getFileStream(filename, true);
+  synchronized CharStream getFileStream(final String fileName) throws IOException {
+    return getFileStream(fileName, true);
   }
 
   /**
@@ -536,9 +538,9 @@ final class FileManager implements FileManagerInterface {
     return new InputStreamCharStream(resourcename, input, len);
   }
 
-  private void requireStream(final CharStream stream, final String filename) {
+  private void requireStream(final CharStream stream, final String fileName) {
     if (stream == null) {
-      throw new IllegalStateException("Yawni can't open '"+filename+
+      throw new IllegalStateException("Yawni can't open '"+fileName+
         "'. Yawni needs either the yawni-data jar in the classpath, or correctly defined " +
         " $WNSEARCHDIR or $WNHOME environment variable or system property referencing the WordNet data.");
     }
@@ -551,8 +553,8 @@ final class FileManager implements FileManagerInterface {
   /**
    * {@inheritDoc}
    */
-  public String readLineNumber(final int linenum, final String filename) throws IOException {
-    final CharStream stream = getFileStream(filename);
+  public String readLineNumber(final int linenum, final String fileName) throws IOException {
+    final CharStream stream = getFileStream(fileName);
     if (stream == null) {
       return null;
     }
@@ -565,9 +567,9 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Core search routine.  Only called from within synchronized blocks.
    */
-  public String readLineAt(final int offset, final String filename) throws IOException {
-    final CharStream stream = getFileStream(filename);
-    requireStream(stream, filename);
+  public String readLineAt(final int offset, final String fileName) throws IOException {
+    final CharStream stream = getFileStream(fileName);
+    requireStream(stream, fileName);
     synchronized (stream) {
       stream.seek(offset);
       final String line = stream.readLine();
@@ -576,7 +578,7 @@ final class FileManager implements FileManagerInterface {
       if (line == null) {
         nextOffset = -1;
       }
-      nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
+      nextLineOffsetCache.setNextLineOffset(fileName, offset, nextOffset);
       return line;
     }
   }
@@ -585,12 +587,12 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Core search routine.  Only called from within synchronized blocks.
    */
-  public int getNextLinePointer(final int offset, final String filename) throws IOException {
-    final CharStream stream = getFileStream(filename);
-    requireStream(stream, filename);
+  public int getNextLinePointer(final int offset, final String fileName) throws IOException {
+    final CharStream stream = getFileStream(fileName);
+    requireStream(stream, fileName);
     synchronized (stream) {
       final int next;
-      if (0 <= (next = nextLineOffsetCache.matchingOffset(filename, offset))) {
+      if (0 <= (next = nextLineOffsetCache.matchingOffset(fileName, offset))) {
         return next;
       }
       stream.seek(offset);
@@ -609,15 +611,15 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    */
   // used by substring search iterator
-  public int getMatchingLinePointer(int offset, final Matcher matcher, final String filename) throws IOException {
+  public int getMatchingLinePointer(int offset, final Matcher matcher, final String fileName) throws IOException {
     if (matcher.pattern().pattern().length() == 0) {
       // shunt behavior where empty string matches everything
       // assert "anything".matches("");
       // assert "anything".contains("");
       return -1;
     }
-    final CharStream stream = getFileStream(filename);
-    requireStream(stream, filename);
+    final CharStream stream = getFileStream(fileName);
+    requireStream(stream, fileName);
     synchronized (stream) {
       stream.seek(offset);
       do {
@@ -626,7 +628,7 @@ final class FileManager implements FileManagerInterface {
         if (word == null) {
           return -1;
         }
-        nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
+        nextLineOffsetCache.setNextLineOffset(fileName, offset, nextOffset);
         // note the spaces of this 'word' are underscores
         if (matcher.reset(word).find()) {
           return offset;
@@ -640,16 +642,16 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    */
   // used by prefix search iterator
-  public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String filename) throws IOException {
+  public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
     if (prefix.length() == 0) {
       return -1;
     }
-    final int foffset = getIndexedLinePointer(prefix, offset, filename, true);
+    final int foffset = getIndexedLinePointer(prefix, offset, fileName, true);
     final int zoffset;
     if (foffset < 0) {
       // invert -(o - 1)
       final int moffset = -(foffset + 1);
-      final String aline = readLineAt(moffset, filename);
+      final String aline = readLineAt(moffset, fileName);
       if (aline == null || ! CharSequences.startsWith(aline, prefix)) {
         zoffset = foffset;
       } else {
@@ -666,11 +668,11 @@ final class FileManager implements FileManagerInterface {
    * XXX old version only languishing to verify new version
    */
   // used by prefix search iterator
-  int oldGetPrefixMatchLinePointer(int offset, final CharSequence prefix, final String filename) throws IOException {
+  int oldGetPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
     if (prefix.length() == 0) {
       return -1;
     }
-    final CharStream stream = getFileStream(filename);
+    final CharStream stream = getFileStream(fileName);
     final int origOffset = offset;
     synchronized (stream) {
       stream.seek(offset);
@@ -681,10 +683,10 @@ final class FileManager implements FileManagerInterface {
         if (word == null) {
           return -1;
         }
-        nextLineOffsetCache.setNextLineOffset(filename, offset, nextOffset);
+        nextLineOffsetCache.setNextLineOffset(fileName, offset, nextOffset);
         if (CharSequences.startsWith(word, prefix)) {
-          if (! checkPrefixBinarySearch(prefix, origOffset, filename)) {
-            throw new IllegalStateException("search failed for prefix: "+prefix+" filename: "+filename);
+          if (! checkPrefixBinarySearch(prefix, origOffset, fileName)) {
+            throw new IllegalStateException("search failed for prefix: "+prefix+" fileName: "+fileName);
           }
 
           return offset;
@@ -695,8 +697,8 @@ final class FileManager implements FileManagerInterface {
   }
 
   // throw-away test method until confidence in binary-search based version gets near 100%
-  private boolean checkPrefixBinarySearch(final CharSequence prefix, final int offset, final String filename) throws IOException {
-    final int foffset = getIndexedLinePointer(prefix, offset, filename, true);
+  private boolean checkPrefixBinarySearch(final CharSequence prefix, final int offset, final String fileName) throws IOException {
+    final int foffset = getIndexedLinePointer(prefix, offset, fileName, true);
     //XXX System.err.println("foffset: "+foffset+" prefix: \""+prefix+"\"");
     final String aline;
     //int zoffset;
@@ -705,14 +707,14 @@ final class FileManager implements FileManagerInterface {
       final int moffset = -(foffset + 1);
       //zoffset = moffset;
       // if moffset < size && line[moffset].startsWith(prefix)
-      aline = readLineAt(moffset, filename);
+      aline = readLineAt(moffset, fileName);
     } else {
-      aline = readLineAt(foffset, filename);
+      aline = readLineAt(foffset, fileName);
       //zoffset = foffset;
     }
     //XXX System.err.println("aline: \""+aline+"\" zoffset: "+zoffset);
 
-    //System.err.println("line:  \""+line+"\" filename: "+filename);
+    //System.err.println("line:  \""+line+"\" fileName: "+fileName);
 
     //if (aline != null && aline.startsWith(prefix)) {
     //  //assert offset >= 0;
@@ -728,14 +730,14 @@ final class FileManager implements FileManagerInterface {
   /**
    * {@inheritDoc}
    */
-  public int getIndexedLinePointer(final CharSequence target, final String filename) throws IOException {
-    return getIndexedLinePointer(target, 0, filename, true);
+  public int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException {
+    return getIndexedLinePointer(target, 0, fileName, true);
   }
 
   /**
    * {@inheritDoc}
    */
-  public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException {
+  public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean fileNameWnRelative) throws IOException {
     // This binary search method provides output usable by prefix search
     // changing this operation from linear time to logarithmic time.
     //
@@ -747,10 +749,10 @@ final class FileManager implements FileManagerInterface {
       return -1;
     }
     if (log.isTraceEnabled()) {
-      log.trace("target: "+target+" filename: "+filename);
+      log.trace("target: "+target+" fileName: "+fileName);
     }
-    final CharStream stream = getFileStream(filename, filenameWnRelative);
-    requireStream(stream, filename);
+    final CharStream stream = getFileStream(fileName, fileNameWnRelative);
+    requireStream(stream, fileName);
     synchronized (stream) {
       int stop = stream.length();
       while (true) {
@@ -810,6 +812,60 @@ final class FileManager implements FileManagerInterface {
         }
       }
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Iterable<CharSequence> getMatchingLines(final CharSequence target, final String fileName) throws IOException {
+    if (target.length() == 0) {
+      return LightImmutableList.of();
+    }
+    // construct q s.t. it precisely preceeds target in sorted order, and leverage
+    // feature of binary search returning (-insertion_point - 1) for non-matches
+    final char last = target.charAt(target.length() - 1);
+    final char prev = (char)(last - 1);
+    String q = target.toString().substring(0, target.length() - 1) + prev;
+//    System.err.println("target: "+target+" q: "+q);
+    final boolean fileNameWnRelative = false;
+    final int i = getIndexedLinePointer(q, 0, fileName, fileNameWnRelative);
+    // we're using modified target, so if it gets a hit (i >= 0),
+    // we need to skip line(s) until actual match of original query hits
+    int idx;
+    if (i >= 0) {
+      idx = i;
+    } else {
+      // i == -insertion_point - 1
+      // i + 1 = -insertion_point
+      // -i - 1 = insertion_point
+      idx = -i - 1;
+    }
+    CharSequence line = readLineAt(idx, fileName);
+
+//    System.err.println("XXX line: "+line+" idx: "+idx+" i: "+i);
+    final List<CharSequence> matches = Lists.newArrayList();
+    int j = idx;
+    if (i < 0) {
+      // has potential to match query (NOT q since q != query)
+      assert line == null || ! CharSequences.startsWith(line, q);
+    } else {
+      assert i >= 0; // has potential to match q one or more times (NOT q since q != query)
+      // skip all lines which match q
+      // loop will advance j if need be
+      while (line != null && CharSequences.startsWith(line, q)) {
+        j += (line.length() + 1);
+        line = readLineAt(j, fileName);
+//        System.err.println("YYY line: "+line+" j: "+j);
+      }
+    }
+    while (line != null && CharSequences.startsWith(line, target)) {
+      matches.add(line);
+      j += (line.length() + 1);
+      line = readLineAt(j, fileName);
+//      System.err.println("ZZZ line: "+line+" j: "+j);
+    }
+    return matches;
   }
 
   /**
