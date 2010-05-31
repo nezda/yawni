@@ -56,11 +56,13 @@ interface FileManagerInterface {
   /**
    * Binary searches for line whose first word <em>is</em> {@code target} (that
    * is, that begins with {@code target} followed by a space or dash) in
-   * file implied by {@code filename}.  Assumes this file is sorted by its
+   * file implied by {@code fileName}.  Assumes this file is sorted by its
    * first textual column of <em>lowercased</em> words.  This condition can be verified
-   * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>
+   * with UNIX <tt>sort</tt> with the command <tt>sort -k1,1 -c</tt>.
+   * If the array contains multiple elements with the specified value, there is no
+   * guarantee which one will be found.
    * @param target string sought
-   * @param filename filename to search; filenameWnRelative = {@code true}
+   * @param fileName filename to search; fileNameWnRelative = {@code true}
    * @return The file offset of the start of the matching line if one exists.
    * Otherwise, {@code (-(insertion point) - 1)}.
    * The insertion point is defined as the point at which the target would be
@@ -72,22 +74,32 @@ interface FileManagerInterface {
    * @throws IOException
    * @see #comparator()
    */
-  public int getIndexedLinePointer(final CharSequence target, final String filename) throws IOException;
+  public int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException;
 
   /**
    * @param target string sought
    * @param start file offset to start at
-   * @param filenameWnRelative if {@code true}, {@code filename} is relative to <tt>WNSEARCHDIR</tt>, else
-   * {@code filename} is absolute or classpath relative.
+   * @param fileName
+   * @param filenNameWnRelative if {@code true}, {@code fileName} is relative to <tt>WNSEARCHDIR</tt>, else
+   * {@code fileName} is absolute or classpath relative.
    * @throws IOException
    */
-  public int getIndexedLinePointer(final CharSequence target, int start, final String filename, final boolean filenameWnRelative) throws IOException;
+  public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean filenNameWnRelative) throws IOException;
 
   /**
-   * Read the line that begins at file offset {@code offset} in the file named by {@code filename}.
+   * Efficient query method for sorted input which may have duplicates that returns ALL matches.
+   * @param target prefix word sought
+   * @param fileName
+   * @throws IOException
+   * @see #getIndexedLinePointer(java.lang.CharSequence, java.lang.String)
+   */
+  public Iterable<CharSequence> getMatchingLines(final CharSequence target, final String fileName) throws IOException;
+
+  /**
+   * Read the line that begins at file offset {@code offset} in the file named by {@code fileName}.
    * @throws IOException
    */
-  public String readLineAt(final int offset, final String filename) throws IOException;
+  public String readLineAt(final int offset, final String fileName) throws IOException;
 
   /**
    * Search for the line following the line that begins at {@code offset}.
@@ -95,7 +107,7 @@ interface FileManagerInterface {
    *         is the last line in the file.
    * @throws IOException
    */
-  public int getNextLinePointer(final int offset, final String filename) throws IOException;
+  public int getNextLinePointer(final int offset, final String fileName) throws IOException;
 
   /**
    * Search for a line whose index word <em>contains</em> {@code pattern} (case insensitive).
@@ -103,7 +115,7 @@ interface FileManagerInterface {
    *         no such line exists.
    * @throws IOException
    */
-  public int getMatchingLinePointer(final int offset, final Matcher pattern, final String filename) throws IOException;
+  public int getMatchingLinePointer(final int offset, final Matcher pattern, final String fileName) throws IOException;
 
   /**
    * Search for a line whose index word <em>begins with</em> {@code prefix} (case insensitive).
@@ -111,14 +123,14 @@ interface FileManagerInterface {
    *         no such line exists.
    * @throws IOException
    */
-  public int getPrefixMatchLinePointer(final int offset, final CharSequence prefix, final String filename) throws IOException;
+  public int getPrefixMatchLinePointer(final int offset, final CharSequence prefix, final String fileName) throws IOException;
 
   /**
    * Treat file contents like an array of lines and return the zero-based,
-   * inclusive line corresponding to {@code linenum}
+   * inclusive line corresponding to {@code linenum; not currently implemented efficiently
    * @throws IOException
    */
-  public String readLineNumber(final int linenum, final String filename) throws IOException;
+  public String readLineNumber(final int linenum, final String fileName) throws IOException;
 
   /**
    * The {@link Comparator Comparator<CharSequence>} that defines the sort order of the WordNet data files.
