@@ -16,6 +16,8 @@
  */
 package org.yawni.wordnet;
 
+import org.yawni.util.Utils;
+
 /**
  * A {@code LexicalRelation} encodes a lexical relationship between {@link WordSense}s.
  */
@@ -25,6 +27,13 @@ public final class LexicalRelation extends Relation {
     super(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
     assert super.getSource() instanceof WordSense;
     // can't call getTarget() - infinite recursion
+  }
+
+  /**
+   * Copy constructor to create Relation with equal source and target, but different type
+   */
+  LexicalRelation(final LexicalRelation that, final RelationType relationType) {
+    super(that, Utils.checkedCast(relationType.ordinal()));
   }
 
   /** {@inheritDoc} */
