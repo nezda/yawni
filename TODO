@@ -80,7 +80,7 @@ Release TODOs
 - wild idea:
   - do per-RelationType customized behaviors in getRelations() e.g., VERB_GROUP,
     and maybe MERONYM, HOLONYM, DOMAIN
-    ! fail: at least for Word, VERB_GROUP would need List<List<RelationTarget>> since it clumps
+    ! fail: at least for Word, VERB_GROUP would need List<List<RelationArgument>> since it clumps
     - wilder idea: make a MetaSynset/VerbGroup object
 
 - synset groups ; simple pair (Relation) usually suffices
@@ -396,9 +396,9 @@ everything
     - The Morphosemantic Database
       - adds 1 of 14 semantic types to the existing DERIVATIONALLY_RELATED WordNet relation
         example line:
-          <arg1 (verb) sensekey>	<arg1 offset>	<relation>	<arg2 sensekey>	<arg2 offset>	<arg1 gloss (abbreviated)>	<arg2 gloss (abbreviated)>
+          <arg1 (verb) sensekey $1>	<arg1 offset $2>	<relationType $3>	<arg2 sensekey $4>	<arg2 offset $5>	<arg1 gloss (abbreviated)>	<arg2 gloss (abbreviated)>
           cannibalize%2:34:00::	201162291	agent	cannibal%1:18:00::	109891079	eat human flesh	a person who eats human flesh
-        - 17,739 row; 16,995 sort-uniq'd by sense keys 
+        - 17,739 row; 16,995 sort-uniq'd by sense keys
       * note "offset" has pos ordinal prepended; e.g., in "201162291", leading digit ("2") means VERB, rest ("01162291") is ("cannibalize") synset offset 
         - note: synset offset gets search to right synset, lemma from senseKey required to get to right WordSense
       * distill down to <arg1 offset> <relation> <arg2 offset>; rest is for annotator convenience
@@ -411,12 +411,35 @@ everything
           cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $2 " " $1 " " $3 " " $5 " " $4 "\n" $5 " " $4 " " $3 " " $2 " " $1}' | sort | uniq | gzip - | wc -c
           # only sensekeys: verb -> noun; 737,570 B / 113,004 B gzip'd
           cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $1 " " $3 " " $4}' | sort | uniq | gzip - | wc -c
+
+          # both offsets, both sense keys: verb -> noun AND noun -> verb; 2,154,940 B / 324,103 B gzip'd
+          cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $2 " " $5 " " $1 " " $4 " " $3 "\n" $5 " " $2 " " $4 " " $1 " " $3}' | sort | uniq | gzip - | wc -c
+
+          # both offsets, only source senseKey : verb -> noun AND noun -> verb; 2,154,940 B / 324,103 B gzip'd
+          cat morphosemantic-links.xls.tsv | awk -F'\t' '{print $2 " " $5 " " $1 " " $3 "\n" $5 " " $2 " " $4 " " $3}' | sort | uniq | gzip - | wc -c
+
+          translate pos + offset + senseKey → pos + offset + synsetWordIdx; 1,055,246 B / 256,753 B
+          100003553 unit%1:03:00:: result 201462005 unify%2:35:00::
+
+          30658 unique offset pairs
+          * 3332 lost
+        * 33990 unique offset+senseKey pairs
+          33606 unique offset pairs + source w/ senseKey
+          * 384 losts
+
+          # simplest, most efficient solution is to translate sensekeys to format used in WordNet's data files
+          #  - see Relation parsing in Relation.makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer)
+          #  - components: 
+          #    - synset (offset + POS)
+          #    - 'index' within Synset's list of relations
+          #    - relationTypeOrdinal (parsed)
+          #    - target POS
         - alternate distillation is <arg1 sensekey> <relation> <arg2 sensekey>
           - more readable/verifable
           - how to expose MorphosemanticSemanticRelation ?
             - enums make subclassing impossible 
             - closest existing equivalents are pure-virtual types: MERONYM <- { PART_MERONYM, MEMBER_MERONYM, SUBSTANCE_MERONYM } ...
-            - merging them into RelationType and representing them as Relations probably easiest for users
+            - merging them into RelationType and representing them as Relations easiest for users
       - database only contains explicit verb -> noun relations
         ? is inverse implied ?
         ? some verb -> noun instances don't seem to be present ?
@@ -489,10 +512,12 @@ everything
   - SUMO: mappings http://sigmakee.cvs.sourceforge.net/sigmakee/KBs/WordNetMappings/
   - Collins English Dictionary (CED) old edition available cheaply from LDC ($100); challenging to parse
   - Wiktionary; hard to parse; Ninja Words uses this
+  - LDOCE: Procter, Paul (Ed.). 1978. Longman Dictionary of Contemporary English
+    - uses a restricted vocabulary of about 2000 words in its definitions and example sentences
   - Roget's Thesaurus (old (i.e., 1900) Project Gutenburg?); JWord uses this
   - The English Tree of Roots (old (i.e., 1900) Project Gutenburg?); JWord uses this
 
-  - GeoSemCor 2.0
+  - GeoSemCor 2.0 (SemCor stands for "Semantic Concordance")
     
   - create tool support for dealing with new data
     - expert query modes will be very helpful, e.g., senseKey
@@ -642,7 +667,7 @@ everything
     - option 3: swallow exceptions of failed parses; provide both options
     - option 4: getGlossesAndExamples()
     * the advanced functions are primarily for use in UIs, and could start out in a utility class (e.g., Descriptions)
-  - bug: core: RelationTarget (WordSense and Synset) getDescription() / getDescription(boolean) / getLongDescription() / getLongDescription(boolean) methods are a little contrived; they are essentially for UIs only;  a more flexible impl would allow varying lexfile num, ...
+  - bug: core: RelationArgument (WordSense and Synset) getDescription() / getDescription(boolean) / getLongDescription() / getLongDescription(boolean) methods are a little contrived; they are essentially for UIs only;  a more flexible impl would allow varying lexfile num, ...
     - Describer / Description / Printer / Renderer / java.util.Formatter / java.util.Formattable / java.text.Format / MessageFormat
     - java.util.Formatter - uses Formattable to allow customization of "%s" rendering ; can be parameterized some with FormattableFlags, int length, int precision
       - could add Formattable to Word, WordSense, Synset, POS, Relation, RelationType, Lexname ; doesn't add much to toString()
@@ -1084,8 +1109,8 @@ A more detailed explanation can be found [[http://mina.apache.org/logging-config
     - displaySenses(Word word)
       - appendSenses(word, buffer, true);
     - displaySenseChain(Word word, RelationType relationType)
-      - appendSenseChain(StringBuilder buffer, WordSense rootWordSense, RelationTarget sense, RelationType inheritanceType, RelationType attributeType)
-        - appendSenseChain(StringBuilder buffer, WordSense rootWordSense, RelationTarget sense, RelationType inheritanceType, RelationType attributeType, int tab, Link ancestors)
+      - appendSenseChain(StringBuilder buffer, WordSense rootWordSense, RelationArgument sense, RelationType inheritanceType, RelationType attributeType)
+        - appendSenseChain(StringBuilder buffer, WordSense rootWordSense, RelationArgument sense, RelationType inheritanceType, RelationType attributeType, int tab, Link ancestors)
     - displayVerbFrames(Word word)
       
 
@@ -1345,6 +1370,21 @@ x feature: howto for developing in NetBeans ?
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher > filters
       # pipe into wc -c to verify correctness, without worrying about disk related issues (saves about 15% of time!) : expect 10905119
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -Xms128m -Xmx128m -Xbatch -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher | wc -c
+      # combine stdout & stderr
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -Xms128m -Xmx128m -Xbatch -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher 2>&1 | wc -c
+      * in hypernyms mode, wc -c = 81389992 ; 
+        real	1m49.083s
+        user	1m11.643s
+        sys	  0m41.823
+
+        real	1m36.346s
+        user	1m11.141s
+        sys	  0m41.721s
+        
+        real	1m37.840s
+        user	1m11.293s
+        sys	  0m41.029s
+        
 
     * lots of variables when doing performance testing
       - code
@@ -1423,12 +1463,14 @@ x feature: howto for developing in NetBeans ?
     o "f.d. roosevelt" → "f. d. roosevelt" →? "fd roosevelt"
     o "a.k.a." → "aka"
     o "C.E.O." → "CEO"
-    o "Dr." → "Dr" (like "Mr." matches "Mr")
+    o "C.I.A." → "CIA"
+    o "Dr." → "Dr" (like "Mr." matches "Mr", though is ambiguous with "Drive")
     o "e.g." → "e.g" →? "eg"
     o "et al" → "et. al." → "et al."
     o "etc." → "etc"
     o "DOA" → "d.o.a"
     o "BTU" → "b.t.u."
+    o "U.S.S. Cole" → "USS Cole"
     * many initials already have their period-free form in the data files
   - feature: core: create lemmatizing Lucene analyzer
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
