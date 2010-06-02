@@ -422,4 +422,17 @@ public class Utils {
     }
     return list;
   }
+
+  /**
+   * Verifies argument is in valid range of (signed) byte, else throws {@code IllegalArgumentException}.
+   * Very similar to Google Guava's {@code SignedBytes.checkedCast(long)}, but
+   * takes an {@code int} rather than a {@code long}.
+   */
+  public static byte checkedCast(int i) {
+    if (i <= Byte.MAX_VALUE && i >= Byte.MIN_VALUE) {
+      return (byte)i;
+    } else {
+      throw new IllegalArgumentException("int "+i+" outside byte range");
+    }
+  }
 }
