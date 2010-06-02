@@ -45,7 +45,7 @@ import static org.yawni.wordnet.RelationTypeFlag.*;
  * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN.html#sect4">WordNet Searches</a>
  */
 public enum RelationType {
-  // consider Unicde ellipsis: "…" instead of "..."
+  // consider Unicode ellipsis: "…" instead of "..."
 
   // Nouns and Verbs
   /** "a word that is <em>more generic</em> than a given word" */
@@ -177,46 +177,77 @@ public enum RelationType {
    * @see RelationType#DOMAIN_OF_REGION
    * @see RelationType#DOMAIN_OF_USAGE
    */
-  DOMAIN("Domain", ";", 21, N | V | ADJ | ADV);
+  DOMAIN("Domain", ";", 21, N | V | ADJ | ADV),
+
+  // {@link MorphosemanticRelation}s
+
+  EVENT(MorphosemanticRelation.EVENT),
+
+  AGENT(MorphosemanticRelation.AGENT),
+
+  RESULT(MorphosemanticRelation.RESULT),
+
+  BY_MEANS_OF(MorphosemanticRelation.BY_MEANS_OF),
+
+  UNDERGOER(MorphosemanticRelation.UNDERGOER),
+
+  INSTRUMENT(MorphosemanticRelation.INSTRUMENT),
+
+  USES(MorphosemanticRelation.USES),
+
+  STATE(MorphosemanticRelation.STATE),
+
+  PROPERTY(MorphosemanticRelation.PROPERTY),
+
+  LOCATION(MorphosemanticRelation.LOCATION),
+
+  MATERIAL(MorphosemanticRelation.MATERIAL),
+
+  VEHICLE(MorphosemanticRelation.VEHICLE),
+
+  BODY_PART(MorphosemanticRelation.BODY_PART),
+
+  DESTINATION(MorphosemanticRelation.DESTINATION)
+  ;
 
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
 
-  /**
-   * A list of all {@code RelationType}s.
-   * Don't want to export this mutable, easily derived information.
-   * @see RelationType#values()
-   */
-  private static final EnumSet<RelationType> TYPES = EnumSet.of(
-    ANTONYM, HYPERNYM, HYPONYM, ATTRIBUTE, SEE_ALSO,
-    ENTAILMENT, CAUSE, VERB_GROUP,
-    MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
-    MEMBER_HOLONYM, SUBSTANCE_HOLONYM, PART_HOLONYM,
-    SIMILAR_TO, PARTICIPLE_OF, PERTAINYM, DERIVED,
-    DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION,
-    MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_REGION_DOMAIN, MEMBER_OF_USAGE_DOMAIN,
-    DERIVATIONALLY_RELATED,
-    INSTANCE_HYPERNYM, INSTANCE_HYPONYM
-  );
-
-  //XXX this seems to indicate DOMAIN implies DOMAIN_PART
-  //XXX SAT_ADJ seems to be an index-only POS
-  private static final Set<RelationType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
-
-  static {
-    // checks for completeness of these 2 lists (TYPES and INDEX_ONLY = all the types)
-    assert EnumSet.complementOf(TYPES).equals(INDEX_ONLY);
-  }
-
-  /**
-   * A "pure-virtual" concept (i.e., one that cannot be directly instantiated).
-   * Index-only relation types are used only for parsing index file records.
-   * {@code isIndexOnly} {@code RelationType}s are not used to determine relationships between words.
-   * @param relationType
-   * @return {@code true} if the {@code relationType} is an index-only relation type, otherwise {@code false}.
-   */
-  public static boolean isIndexOnly(final RelationType relationType) {
-    return INDEX_ONLY.contains(relationType);
-  }
+//  /**
+//   * A list of all {@code RelationType}s.
+//   * Don't want to export this mutable, easily derived information.
+//   * @see RelationType#values()
+//   */
+//  private static final EnumSet<RelationType> TYPES = EnumSet.of(
+//    ANTONYM, HYPERNYM, HYPONYM, ATTRIBUTE, SEE_ALSO,
+//    ENTAILMENT, CAUSE, VERB_GROUP,
+//    MEMBER_MERONYM, SUBSTANCE_MERONYM, PART_MERONYM,
+//    MEMBER_HOLONYM, SUBSTANCE_HOLONYM, PART_HOLONYM,
+//    SIMILAR_TO, PARTICIPLE_OF, PERTAINYM, DERIVED,
+//    DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION,
+//    MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_REGION_DOMAIN, MEMBER_OF_USAGE_DOMAIN,
+//    DERIVATIONALLY_RELATED,
+//    INSTANCE_HYPERNYM, INSTANCE_HYPONYM
+//  );
+//
+//  //XXX this seems to indicate DOMAIN implies DOMAIN_PART
+//  //XXX SAT_ADJ seems to be an index-only POS
+//  private static final Set<RelationType> INDEX_ONLY = EnumSet.of(DOMAIN_MEMBER, DOMAIN, HOLONYM, MERONYM);
+//
+//  static {
+//    // checks for completeness of these 2 lists (TYPES and INDEX_ONLY = all the types)
+//    assert EnumSet.complementOf(TYPES).equals(INDEX_ONLY);
+//  }
+//
+//  /**
+//   * A "pure-virtual" concept (i.e., one that cannot be directly instantiated).
+//   * Index-only relation types are used only for parsing index file records.
+//   * {@code isIndexOnly} {@code RelationType}s are not used to determine relationships between words.
+//   * @param relationType
+//   * @return {@code true} if the {@code relationType} is an index-only relation type, otherwise {@code false}.
+//   */
+//  public static boolean isIndexOnly(final RelationType relationType) {
+//    return INDEX_ONLY.contains(relationType);
+//  }
 
   /**
    * i.e., {@code HYPERNYM.isSymmetricTo(HYPONYM)}
@@ -226,6 +257,8 @@ public enum RelationType {
     b.symmetricType = a;
   }
 
+  // documented as 'reflect' at
+  // http://wordnet.princeton.edu/man/wninput.5WN.html#sect3
   static {
     setSymmetric(ANTONYM, ANTONYM);
     setSymmetric(HYPERNYM, HYPONYM);
@@ -235,7 +268,7 @@ public enum RelationType {
     setSymmetric(PART_MERONYM, PART_HOLONYM);
     setSymmetric(SIMILAR_TO, SIMILAR_TO);
     setSymmetric(ATTRIBUTE, ATTRIBUTE);
-    setSymmetric(DERIVATIONALLY_RELATED, DERIVATIONALLY_RELATED);
+    setSymmetric(DERIVATIONALLY_RELATED, DERIVATIONALLY_RELATED); // FIXME: MorphosemanticRelation's don't seem to have this property
     setSymmetric(DOMAIN_OF_TOPIC, MEMBER_OF_TOPIC_DOMAIN);
     setSymmetric(DOMAIN_OF_REGION, MEMBER_OF_REGION_DOMAIN);
     setSymmetric(DOMAIN_OF_USAGE, MEMBER_OF_USAGE_DOMAIN);
@@ -346,6 +379,9 @@ public enum RelationType {
    */
   static RelationType parseKey(final CharSequence key, final POS pos) {
     for (final RelationType pType : VALUES) {
+      if (pType.relationTypeType == RelationTypeType.MORPHOSEMANTIC) {
+        continue;
+      }
       if (pType.key.contentEquals(key)) {
         switch (pType) {
           // resolves collision between PERTAINYM (for adjectives) and DERIVED (for adverbs)
@@ -368,6 +404,11 @@ public enum RelationType {
     throw new NoSuchElementException("unknown link type " + key);
   }
 
+  private enum RelationTypeType {
+    CORE,
+    MORPHOSEMANTIC
+  }
+
   //
   // Instance Interface
   //
@@ -378,11 +419,17 @@ public enum RelationType {
   private final int value;
   private final int flags;
   private final String toString;
+  private RelationTypeType relationTypeType = RelationTypeType.CORE;
   private RelationType symmetricType;
   // experimental fields
   ImmutableSet<RelationType> auxiliaryTypes;
   ImmutableSet<RelationType> subTypes;
   ImmutableSet<RelationType> superTypes;
+
+  RelationType(final MorphosemanticRelation morphosemanticRelation) {
+    this(morphosemanticRelation.name().toLowerCase(), "+", 20, N | V | LEXICAL);
+    this.relationTypeType = RelationTypeType.MORPHOSEMANTIC;
+  }
 
   RelationType(final String label, final String key, final int value, final int flags) {
     this(label, key, value, flags, null, null);
@@ -484,7 +531,8 @@ public enum RelationType {
 
 /**
  * Flags for tagging a relation type with the POS types it apples to.
- * Separate class to allow RelationType enum constructor to reference it.
+ * Separate class to allow RelationType enum constructor to reference it
+ * in compact bit masks.
  */
 class RelationTypeFlag {
   static final int N = 1;
@@ -493,8 +541,8 @@ class RelationTypeFlag {
   static final int ADV = 8;
   static final int SAT_ADJ = 16;
   /**
-   * Special case indicator for lexical relations (those connecting specific {@code WordSense}s)
-   * rather than the usual semantic relations which connect {@code Synset}s.
+   * Special case indicator for lexical relations (those connecting specific {@link WordSense}s)
+   * rather than the usual semantic relations which connect {@link Synset}s.
    */
   static final int LEXICAL = 32;
 } // end class RelationTypeFlag
