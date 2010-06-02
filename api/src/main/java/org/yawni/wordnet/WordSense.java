@@ -130,7 +130,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /**
-   * If {@code word} lemma and {@code POS} is compatible with this 
+   * If {@code word} lemma and {@code POS} are compatible with this
    * {@code WordSense}, return {@code this}, else return {@code null}.
    * Provied for API congruency between {@code WordSense} and {@code Synset}.
    */
@@ -145,7 +145,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /**
-   * Returns the natural-cased lemma representation of this {@code WordSense}.
+   * Returns the <em>natural-cased</em> lemma representation of this {@code WordSense}.
    * Its lemma is its orthographic representation, for example <tt>"dog"</tt>
    * or <tt>"U.S.A."</tt> or <tt>"George Washington"</tt>.  Contrast to the
    * canonical lemma provided by {@link Word#getLowercasedLemma()}.
