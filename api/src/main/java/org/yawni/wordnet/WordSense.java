@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
+import org.yawni.util.Utils;
 import static org.yawni.util.Utils.add;
 
 /**
@@ -107,8 +108,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     this.synset = synset;
     this.lemma = lemma;
     this.lexid = lexid;
-    assert flags < Byte.MAX_VALUE;
-    this.adjPositionFlags = (byte) flags;
+    this.adjPositionFlags = Utils.checkedCast(flags);
     this.senseNumber = -1;
     this.sensesTaggedFrequency = -1;
   }
