@@ -76,6 +76,21 @@ public enum POS {
     return VALUES[ordinal];
   }
 
+  // NOTE: ordinal+1 == wnCode
+  static POS fromOrdinalChar(final char ordinalChar) {
+    final int ordinal = ordinalChar - '0';
+    return VALUES[ordinal];
+  }
+
+  static {
+    // FIXME ad-hoc inline test
+    assert ALL == fromOrdinalChar('0');
+    assert NOUN == fromOrdinalChar('1');
+    assert VERB == fromOrdinalChar('2');
+    assert ADJ == fromOrdinalChar('3');
+    assert ADV == fromOrdinalChar('4');
+  }
+
   /**
    * A list of all {@code POS}s <b>except {@link POS#SAT_ADJ}</b> which doesn't
    * have its own data files.
