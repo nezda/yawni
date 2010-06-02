@@ -17,6 +17,7 @@
 package org.yawni.wordnet;
 
 import org.yawni.util.CharSequenceTokenizer;
+import org.yawni.util.Utils;
 
 /**
  * A {@code Relation} encodes a lexical <em>or</em> semantic relationship between WordNet entities.  A lexical
@@ -83,11 +84,11 @@ public abstract class Relation implements Comparable<Relation> {
 
   /** Factory method */
   static Relation makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
-    final byte relationTypeOrdinal = (byte) RelationType.parseKey(tokenizer.nextToken(), synset.getPOS()).ordinal();
+    final byte relationTypeOrdinal = Utils.checkedCast(RelationType.parseKey(tokenizer.nextToken(), synset.getPOS()).ordinal());
 
     final int targetOffset = tokenizer.nextInt();
 
-    final byte targetPOSOrdinal = (byte) POS.lookup(tokenizer.nextToken()).ordinal();
+    final byte targetPOSOrdinal = Utils.checkedCast(POS.lookup(tokenizer.nextToken()).ordinal());
     final int linkIndices = tokenizer.nextHexInt();
     assert linkIndices >> 16 == 0;
     final int sourceIndex = linkIndices >> 8; // select high byte
@@ -144,6 +145,12 @@ public abstract class Relation implements Comparable<Relation> {
     return targetOffset;
   }
 
+  // internal dev method
+  // 1-based index; see resolveTarget()
+  int getTargetIndex() {
+    return targetIndex;
+  }
+
   /**
    * @return target vertex of this directed relationship
    */
@@ -173,7 +180,8 @@ public abstract class Relation implements Comparable<Relation> {
   public boolean equals(final Object that) {
     return (that instanceof Relation)
       && ((Relation) that).source.equals(this.source)
-      && ((Relation) that).relationIndex == this.relationIndex;
+      && ((Relation) that).relationIndex == this.relationIndex
+      && ((Relation) that).relationTypeOrdinal == this.relationTypeOrdinal;
   }
 
   /** {@inheritDoc} */
@@ -203,13 +211,17 @@ public abstract class Relation implements Comparable<Relation> {
 
   /** {@inheritDoc} */
   public int compareTo(final Relation that) {
-    //FIXME shouldn't this ordering include RelationType ?
+    //TODO consider com.google.common.collect.Ordering
     // order by source Synset
     // then by 'index' field
+    // then by relationTypeOrdinal
     int result;
     result = this.getSource().getSynset().compareTo(that.getSource().getSynset());
     if (result == 0) {
       result = this.relationIndex - that.relationIndex;
+    }
+    if (result == 0) {
+      result = this.relationTypeOrdinal - that.relationTypeOrdinal;
     }
     return result;
   }
