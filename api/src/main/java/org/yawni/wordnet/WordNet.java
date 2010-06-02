@@ -161,7 +161,7 @@ public final class WordNet implements WordNetInterface {
     private final byte posOrdinal;
     POSOffsetDatabaseKey(final POS pos, final int offset) {
       this.offset = offset;
-      this.posOrdinal = (byte) pos.ordinal();
+      this.posOrdinal = Utils.checkedCast(pos.ordinal());
     }
     @Override
     public boolean equals(final Object object) {
@@ -189,7 +189,7 @@ public final class WordNet implements WordNetInterface {
     private final byte posOrdinal;
     StringPOSDatabaseKey(final CharSequence key, final POS pos) {
       this.key = key;
-      this.posOrdinal = (byte)pos.ordinal();
+      this.posOrdinal = Utils.checkedCast(pos.ordinal());
     }
     @Override
     public boolean equals(final Object object) {
@@ -233,7 +233,7 @@ public final class WordNet implements WordNetInterface {
       throw new IllegalArgumentException("no filename for pos "+pos);
     }
     //don't like the potential varargs cost
-    //checkArgument(toReturn != null, "no filename for pos %s", pos);
+    //checkArgument(toReturn != null, "no fileName for pos %s", pos);
     return toReturn;
   }
 
@@ -261,7 +261,7 @@ public final class WordNet implements WordNetInterface {
     }
   }
 
-  private static String getIndexFilename(final POS pos) {
+  private static String getIndexFileName(final POS pos) {
     final String toReturn = INDEX_FILE_NAMES.get(pos);
     if (toReturn == null) {
       throw new IllegalArgumentException("no filename for pos "+pos);
@@ -295,15 +295,16 @@ public final class WordNet implements WordNetInterface {
 
   @VisibleForTesting
   static String getMorphosemanticRelationsFilename() {
-    //return "morphosemantic-links.xls.tsv.sensekeys.bidi";
-    return "morphosemantic-links.xls.tsv.offsets.bidi";
+//    return "morphosemantic-links.xls.tsv.sensekeys.bidi";
+//    return "morphosemantic-links.xls.tsv.offsets.bidi";
+    return "morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi";
   }
 
   private static String getVerbSentencesIndexFilename() {
     return "sentidx.vrb";
   }
 
-  private static String getVerbSentencesFilename() {
+  private static String getVerbSentencesFileName() {
     return "sents.vrb";
   }
 
@@ -339,10 +340,10 @@ public final class WordNet implements WordNetInterface {
     } else {
       getIndexWordAtCacheMiss++;
       cacheDebug(indexWordCache);
-      final String filename = getIndexFilename(pos);
+      final String fileName = getIndexFileName(pos);
       final CharSequence line;
       try {
-        line = fileManager.readLineAt(offset, filename);
+        line = fileManager.readLineAt(offset, fileName);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -361,9 +362,9 @@ public final class WordNet implements WordNetInterface {
 
   String getSynsetLineAt(final POS pos, final int offset) {
     final String line;
-    final String filename = getDataFilename(pos);
+    final String fileName = getDataFilename(pos);
     try {
-      line = fileManager.readLineAt(offset, filename);
+      line = fileManager.readLineAt(offset, fileName);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -471,10 +472,10 @@ public final class WordNet implements WordNetInterface {
       if (maybeDefined(lemma, pos)) {
         lookupIndexWordCacheMiss++;
         cacheDebug(indexWordCache);
-        final String filename = getIndexFilename(pos);
+        final String fileName = getIndexFileName(pos);
         final int offset;
         try {
-          offset = fileManager.getIndexedLinePointer(lemma, filename);
+          offset = fileManager.getIndexedLinePointer(lemma, fileName);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -705,11 +706,11 @@ public final class WordNet implements WordNetInterface {
     assert someString != null;
     assert someString.length() > 0 : "someString: \""+someString+"\" "+pos;
     assert pos != null;
-    final String filename = getExceptionsFilename(pos);
+    final String fileName = getExceptionsFilename(pos);
     try {
-      final int offset = fileManager.getIndexedLinePointer(someString, filename);
+      final int offset = fileManager.getIndexedLinePointer(someString, fileName);
       if (offset >= 0) {
-        final String line = fileManager.readLineAt(offset, filename);
+        final String line = fileManager.readLineAt(offset, fileName);
         final LightImmutableList<String> toReturn = LightImmutableList.copyOf(new StringTokenizer(line, " "));
         assert toReturn.size() >= 2;
         exceptionsCache.put(cacheKey, toReturn);
@@ -771,20 +772,12 @@ public final class WordNet implements WordNetInterface {
   }
 
   // throws IllegalStateException if data file is not found
-  String lookupMorphoSemanticRelationLine(final CharSequence senseKey) {
-    final int offset;
-    final String line;
+  Iterable<CharSequence> lookupMorphoSemanticRelationLines(final CharSequence senseKey) {
     try {
-      offset = fileManager.getIndexedLinePointer(senseKey, getMorphosemanticRelationsFilename());
-      if (offset < 0) {
-        line = null;
-      } else {
-        line = fileManager.readLineAt(offset, getMorphosemanticRelationsFilename());
-      }
+      return fileManager.getMatchingLines(senseKey, getMorphosemanticRelationsFilename());
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
-    return line;
   }
 
   /** XXX DOCUMENT ME */
@@ -860,9 +853,9 @@ public final class WordNet implements WordNetInterface {
   String lookupVerbSentence(final String verbSentenceNumber) {
     String line = null;
     try {
-      final int offset = fileManager.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFilename());
+      final int offset = fileManager.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFileName());
       if (offset >= 0) {
-        line = fileManager.readLineAt(offset, getVerbSentencesFilename());
+        line = fileManager.readLineAt(offset, getVerbSentencesFileName());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -899,12 +892,12 @@ public final class WordNet implements WordNetInterface {
   private abstract class AbstractWordIterator extends AbstractIterator<Word> {
     private static final String TWO_SPACES = "  ";
     protected final POS pos;
-    protected final String filename;
+    protected final String fileName;
     protected int nextOffset = 0;
     
     protected AbstractWordIterator(final POS pos) {
       this.pos = pos;
-      this.filename = getIndexFilename(pos);
+      this.fileName = getIndexFileName(pos);
     }
 
     protected void skipLicenseLines() throws IOException {
@@ -917,12 +910,12 @@ public final class WordNet implements WordNetInterface {
         if (nextOffset < 0) {
           throw new NoSuchElementException();
         }
-        line = fileManager.readLineAt(nextOffset, filename);
+        line = fileManager.readLineAt(nextOffset, fileName);
         if (line == null) {
           break;
         }
         offset = nextOffset;
-        nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+        nextOffset = fileManager.getNextLinePointer(nextOffset, fileName);
       } while (line.startsWith(TWO_SPACES)); // first few lines start with TWO_SPACES
       assert nextOffset != -1;
       nextOffset = offset;
@@ -941,8 +934,8 @@ public final class WordNet implements WordNetInterface {
       try {
         skipLicenseLines();
         final int offset = nextOffset;
-        final String line = fileManager.readLineAt(nextOffset, filename);
-        nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+        final String line = fileManager.readLineAt(nextOffset, fileName);
+        nextOffset = fileManager.getNextLinePointer(nextOffset, fileName);
         if (line == null) {
           return endOfData();
         }
@@ -985,10 +978,10 @@ public final class WordNet implements WordNetInterface {
     protected Word computeNext() {
       try {
         skipLicenseLines();
-        final int offset = fileManager.getMatchingLinePointer(nextOffset, matcher, filename);
+        final int offset = fileManager.getMatchingLinePointer(nextOffset, matcher, fileName);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
-          nextOffset = fileManager.getNextLinePointer(offset, filename);
+          nextOffset = fileManager.getNextLinePointer(offset, fileName);
           return value;
         } else {
           return endOfData();
@@ -1022,21 +1015,21 @@ public final class WordNet implements WordNetInterface {
   private class SearchByPrefixIterator extends AbstractIterator<Word> {
     private final POS pos;
     private final CharSequence prefix;
-    private final String filename;
+    private final String fileName;
     private int nextOffset;
     SearchByPrefixIterator(final POS pos, final CharSequence prefix) {
       this.pos = pos;
       this.prefix = Morphy.searchNormalize(prefix.toString());
-      this.filename = getIndexFilename(pos);
+      this.fileName = getIndexFileName(pos);
     }
     @Override
     protected Word computeNext() {
       try {
-        final int offset = fileManager.getPrefixMatchLinePointer(nextOffset, prefix, filename);
+        final int offset = fileManager.getPrefixMatchLinePointer(nextOffset, prefix, fileName);
         if (offset >= 0) {
           final Word value = getIndexWordAt(pos, offset);
           // setup for next element
-          nextOffset = fileManager.getNextLinePointer(offset, filename);
+          nextOffset = fileManager.getNextLinePointer(offset, fileName);
           return value;
         } else {
           return endOfData();
@@ -1163,11 +1156,11 @@ public final class WordNet implements WordNetInterface {
    */
   private class POSSynsetsIterator extends AbstractIterator<Synset> {
     private final POS pos;
-    private final String filename;
+    private final String fileName;
     private int nextOffset;
     POSSynsetsIterator(final POS pos) {
       this.pos = pos;
-      this.filename = getDataFilename(pos);
+      this.fileName = getDataFilename(pos);
     }
     @Override
     protected Synset computeNext() {
@@ -1178,12 +1171,12 @@ public final class WordNet implements WordNetInterface {
           if (nextOffset < 0) {
             throw new NoSuchElementException();
           }
-          line = fileManager.readLineAt(nextOffset, filename);
+          line = fileManager.readLineAt(nextOffset, fileName);
           offset = nextOffset;
           if (line == null) {
             return endOfData();
           }
-          nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+          nextOffset = fileManager.getNextLinePointer(nextOffset, fileName);
         } while (line.startsWith("  ")); // first few lines start with "  "
         return getSynsetAt(pos, offset, line);
       } catch (IOException e) {
@@ -1305,20 +1298,20 @@ public final class WordNet implements WordNetInterface {
    */
   private class POSExceptionsIterator extends AbstractIterator<List<String>> {
     private final POS pos;
-    private final String filename;
+    private final String fileName;
     private int nextOffset;
     POSExceptionsIterator(final POS pos) {
       this.pos = pos;
-      this.filename = getExceptionsFilename(pos);
+      this.fileName = getExceptionsFilename(pos);
     }
     @Override
     protected List<String> computeNext() {
       try {
-        final String line = fileManager.readLineAt(nextOffset, filename);
+        final String line = fileManager.readLineAt(nextOffset, fileName);
         if (line == null) {
           return endOfData();
         }
-        nextOffset = fileManager.getNextLinePointer(nextOffset, filename);
+        nextOffset = fileManager.getNextLinePointer(nextOffset, fileName);
         final LightImmutableList<String> toReturn = LightImmutableList.of(line.split(" "));
         assert toReturn.size() >= 2;
         return toReturn;
