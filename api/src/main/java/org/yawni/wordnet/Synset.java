@@ -16,12 +16,17 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
+import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
+import org.yawni.util.Utils;
 import static org.yawni.util.Utils.add;
 import static org.yawni.wordnet.RelationType.HYPERNYM;
 import static org.yawni.wordnet.RelationType.HYPONYM;
@@ -73,9 +78,9 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     final int lexfilenumInt = tokenizer.nextInt();
     // there are currently only 45 lexfiles
     // http://wordnet.princeton.edu/man/lexnames.5WN
-    // disable assert to be lenient generated WordNets
+    // disable assert to be lenient for generated WordNets
     //assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
-    this.lexfilenum = (byte)lexfilenumInt;
+    this.lexfilenum = Utils.checkedCast(lexfilenumInt);
     CharSequence ss_type = tokenizer.nextToken();
     if ("s".contentEquals(ss_type)) {
       ss_type = "a";
@@ -84,7 +89,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     } else {
       this.isAdjectiveCluster = false;
     }
-    this.posOrdinal = (byte) POS.lookup(ss_type).ordinal();
+    this.posOrdinal = Utils.checkedCast(POS.lookup(ss_type).ordinal());
 
     final int wordCount = tokenizer.nextHexInt();
     final WordSense[] localWordSenses = new WordSense[wordCount];
@@ -116,11 +121,96 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     this.wordSenses = LightImmutableList.of(localWordSenses);
 
     final int relationCount = tokenizer.nextInt();
-    final Relation[] localRelations = new Relation[relationCount];
+    // allocate extra space in this temporary for additional Relations (e.g., morphosemantic)
+    final List<Relation> localRelations = new ArrayList<Relation>(2 * relationCount);
     for (int i = 0; i < relationCount; i++) {
-      localRelations[i] = Relation.makeRelation(this, i, tokenizer);
+      final Relation relation = Relation.makeRelation(this, i, tokenizer);
+      localRelations.add(relation);
+      if (relation.getType() != RelationType.DERIVATIONALLY_RELATED) {
+        continue;
+      }
+      final int srcPOSOrdinal = posOrdinal;
+      if (srcPOSOrdinal != POS.NOUN.ordinal() && srcPOSOrdinal != POS.VERB.ordinal()) {
+        continue;
+      }
+      final POS targetPOS = relation.getTargetPOS();
+      if (targetPOS != POS.NOUN && targetPOS != POS.VERB) {
+        continue;
+      }
+      // insert MorphosemanticRelation instances
+      final LexicalRelation lexRel = (LexicalRelation) relation;
+//      showLine(lexRel);
+      //TODO offsetKey can be created more efficiently with a custom method
+      final CharSequence srcOffsetKey;
+      if (srcPOSOrdinal == 1) {
+        srcOffsetKey = String.format("1%08d", offset);
+      } else {
+        assert srcPOSOrdinal == 2;
+        srcOffsetKey = String.format("2%08d", offset);
+      }
+      final Iterable<CharSequence> lexRelLines = wordNet.lookupMorphoSemanticRelationLines(srcOffsetKey);
+      //1331 of these
+//      if (Iterables.isEmpty(lexRelLines)) {
+//        System.err.println("eek! "+offsetKey);
+//        continue;
+//      }
+      // this is invariant for this relation
+      final int mySrcSynsetIdx = wordSenses.indexOf(lexRel.getSource());
+      final POS myTargetPOS = lexRel.getTargetPOS();
+      final int myTargetSynsetIdx = lexRel.getTargetIndex() - 1;
+      final int myTargetOffset = lexRel.getTargetOffset();
+      assert mySrcSynsetIdx >= 0;
+      boolean foundMatch = false;
+      RelationType mrtype = null;
+      for (final CharSequence lexRelLine : lexRelLines) {
+//          System.err.println("lexRelLine: "+lexRelLine);
+        final CharSequenceTokenizer lexTokenizer = new CharSequenceTokenizer(lexRelLine, " ");
+        // not really necessary, could just skipToken()
+        final String srcPOSOffset = lexTokenizer.nextToken();
+        assert srcPOSOffset.contentEquals(srcOffsetKey);
+        final int srcSynsetIdx = lexTokenizer.nextInt();
+        if (srcSynsetIdx != mySrcSynsetIdx) {
+//            System.err.println("fail 0 :: "+mySrcSynsetIdx+" "+srcSynsetIdx);
+          continue;
+        }
+        final String mtype = lexTokenizer.nextToken();
+        //TODO pull off POS part using some new CharSequenceTokenizer nextChar()/charAt()/seek functionality
+        final String targetPOSOffset = lexTokenizer.nextToken();
+        final int targetSynsetIdx = lexTokenizer.nextInt();
+        if (targetSynsetIdx != myTargetSynsetIdx) {
+//            System.err.println("fail 1 :: "+myTargetSynsetIdx+" "+targetSynsetIdx);
+          continue;
+        }
+        // POS mismtch is possible (rare)
+        if (targetPOS != myTargetPOS) {
+          continue;
+        }
+
+        final int targetOffset = CharSequences.parseInt(targetPOSOffset, 1, targetPOSOffset.length());
+        if (targetOffset != myTargetOffset) {
+//            System.err.println("fail 2 :: targetOffset "+myTargetOffset+" "+targetOffset);
+          continue;
+        }
+        // Yahoo! full match
+//          System.err.println("full match!");
+        foundMatch = true;
+        final MorphosemanticRelation morphorel = MorphosemanticRelation.fromValue(mtype);
+        mrtype = RelationType.valueOf(morphorel.name());
+        break;
+      }
+      if (mrtype != null) {
+//          System.err.println("full match! "+mrtype);
+        final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype);
+        localRelations.add(morphosemanticRelation);
+      }
+//        assert foundMatch;
+      if (! foundMatch) {
+        // 4895 instances
+//        showLine(lexRel);
+      }
     }
-    this.relations = LightImmutableList.of(localRelations);
+    
+    this.relations = LightImmutableList.copyOf(localRelations);
 
     if (posOrdinal == POS.VERB.ordinal()) {
       final int f_cnt = tokenizer.nextInt();
@@ -138,6 +228,18 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
         }
       }
     }
+  }
+
+  // debug method
+  private static void showLine(final LexicalRelation lexRel) {
+    final int srcPOS = lexRel.getSource().getPOS().ordinal();
+    final int srcOffset = lexRel.getSource().getSynset().getOffset();
+    final int srcSynsetIdx = lexRel.getSource().getSynset().getWordSenses().indexOf(lexRel.getSource());
+
+    final int targetPOS = lexRel.getTargetPOS().ordinal();
+    final int targetOffset = lexRel.getTargetOffset();
+    final int targetSynsetIdx = lexRel.getTargetIndex();
+    System.err.println("actual lexRel: "+srcPOS+""+srcOffset+" "+srcSynsetIdx+" "+"XXX"+" "+targetPOS+""+targetOffset+" "+targetSynsetIdx);
   }
 
   //
@@ -228,14 +330,43 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /**
+   * Offsets are used in some low-level applications as a means of referring to
+   * a specific {@code Synset}; Sometimes they need to be in 8-digit padded form, i.e.,
+   * {@code String.format("2%08d", synset.getOffset())}, so their lexicographic
+   * sort order will match their numeric sort order.
    * @return this {@code Synset}'s offset in the data files.
    */
   public int getOffset() {
     return offset;
   }
 
+  /** This is <strong>not</strong> {@link Word#getSense(int)} */
   WordSense getWordSense(final int index) {
     return wordSenses.get(index);
+  }
+
+  /** This is <strong>not</strong> {@link Word#getSense(int)} */
+  int getSynsetIndex(final WordSense wordSense) {
+    return wordSenses.indexOf(wordSense);
+  }
+
+  /**
+   * If {@code soughtSenseKey} is a member of this {@code Synset}, return the
+   * {@code WordSense} it implies, else return {@code null}.
+   */
+  WordSense getWordSense(final String soughtSenseKey) {
+    final Comparator<CharSequence> comparator = WordNetLexicalComparator.TO_LOWERCASE_INSTANCE;
+    for (final WordSense wordSense : wordSenses) {
+      final CharSequence senseKey = wordSense.getSenseKey();
+      // fail: doesn't ignore underscores! probably WordSense.getSenseKey() should've dealt with this
+//      if (soughtSenseKey.contentEquals(senseKey)) {
+//        return wordSense;
+//      }
+      if (comparator.compare(soughtSenseKey, senseKey) == 0) {
+        return wordSense;
+      }
+    }
+    return null;
   }
 
   //
