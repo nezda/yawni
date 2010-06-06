@@ -78,10 +78,4 @@ public interface RelationArgument extends Iterable<WordSense> {
    * its {@code WordSense}s.
    */
   public String getDescription();
-
-  /**
-   * Returns a long description of this argument.  This is its description,
-   * appended by, if it exists, a dash and its gloss.
-   */
-  public String getLongDescription();
 }
