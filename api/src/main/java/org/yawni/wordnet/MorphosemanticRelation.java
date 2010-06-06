@@ -32,7 +32,7 @@ enum MorphosemanticRelation {
   /** 
    * e.g., employ/employment (in essence an identity or equality relation)
    */
-  EVENT, // 8158 instances
+  EVENT("Event", "Event"), // 8158 instances
   /**
    * e.g., employ/employer, invent/inventor, produce/producer;
    * (nouns denote the Agents of the events referred to by the verbs);
@@ -40,59 +40,64 @@ enum MorphosemanticRelation {
    * 'inventor' is the Agent of the event denoted by 'invent',
    * 'producer' is the Agent of the event denoted by 'produce'
    */
-  AGENT,  // 3043 instances
+  AGENT("Agent", "Agent"),  // 3043 instances
   /**
    * aka Cause
    * e.g., liquify/liquid
    */
-  RESULT, // 1439 instances
+  RESULT("Result", "Result"), // 1439 instances
   /** 
    * e.g., dilate/dilator; sense-sensor
    */
-  BY_MEANS_OF("by-means-of"), // 1273 instances
+  BY_MEANS_OF("by-means-of", "By-means-of", "By-means-of"), // 1273 instances
   /**
    * aka Patient
    * e.g., employ/employee
    */
-  UNDERGOER, // 878 instances
+  UNDERGOER("Undergoer", "Undergoer"), // 878 instances
   /**
    * An Instrument does not act alone but implies an Agent who controls it, usually with intention;
    * e.g., poke/poker, shred/shredder
    */
-  INSTRUMENT, // 813 instances
+  INSTRUMENT("Instrument", "Instrument"), // 813 instances
   /**
    * aka Purpose/Function
    * e.g., harness/harness
    */
-  USES, // 740 instances
+  USES("Uses", "Uses"), // 740 instances
   /** e.g., transcend/transcendence */
-  STATE, // 528 instances
+  STATE("State", "State"), // 528 instances
   /** e.g., cool/cool */
-  PROPERTY, // 318 instances
+  PROPERTY("Property", "Property"), // 318 instances
   /** e.g., bath/bath */
-  LOCATION, // 288 instances
+  LOCATION("Location", "Location"), // 288 instances
   /**
    * aka Inanimate Agent/Cause
    * e.g., insulate/insulator
    */
-  MATERIAL, // 114 intances
+  MATERIAL("Location", "Location"), // 114 intances
   /** e.g., kayak/kayak; cruise/cruiser */
-  VEHICLE, // 87 instances
+  VEHICLE("Vehicle", "Vehicle"), // 87 instances
   /** e.g., abduct/abductor */
-  BODY_PART("body-part"), // 43 instances
+  BODY_PART("body-part", "Body part", "Body part"), // 43 instances
   /** e.g., tee/tee */
-  DESTINATION, // 17 instances
+  DESTINATION("Destination", "Destination"), // 17 instances
   ;
+
+  final String longNounLabel;
+  final String longVerbLabel;
   
-  private MorphosemanticRelation(final String shallowForm) {
-    this();
+  private MorphosemanticRelation(final String shallowForm, final String longNounLabel, final String longVerbLabel) {
+    this(longNounLabel, longVerbLabel);
     registerAlias(shallowForm.toLowerCase(), this);
     registerAlias(shallowForm.toUpperCase(), this);
   }
   
-  private MorphosemanticRelation() {
+  private MorphosemanticRelation(final String longNounLabel, final String longVerbLabel) {
     registerAlias(name(), this);
     registerAlias(name().toLowerCase(), this);
+    this.longNounLabel = longNounLabel;
+    this.longVerbLabel = longVerbLabel;
   }
 
   /** Customized form of {@link #valueOf(String)} */
