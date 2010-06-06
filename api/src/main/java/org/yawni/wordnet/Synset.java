@@ -369,16 +369,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return null;
   }
 
-  //
-  // Description
-  //
-
   /** {@inheritDoc} */
   public String getDescription() {
-    return getDescription(false);
-  }
-
-  public String getDescription(final boolean verbose) {
     final StringBuilder buffer = new StringBuilder();
     buffer.append('{');
     for (int i = 0, n = wordSenses.size(); i < n; i++) {
@@ -386,32 +378,10 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       if (i > 0) {
         buffer.append(", ");
       }
-      if (verbose) {
-        buffer.append(wordSense.getDescription());
-      } else {
-        buffer.append(wordSense.getLemma());
-//        buffer.append('#');
-//        buffer.append(wordSense.getSenseNumber());
-      }
+      buffer.append(wordSense.getLemma());
     }
     buffer.append('}');
     return buffer.toString();
-  }
-
-  /** {@inheritDoc} */
-  public String getLongDescription() {
-    return getLongDescription(false);
-  }
-
-  public String getLongDescription(final boolean verbose) {
-    final StringBuilder description = new StringBuilder(getDescription(verbose));
-    if (getGloss() != null) {
-      description.
-        append(" -- (").
-        append(getGloss()).
-        append(')');
-    }
-    return description.toString();
   }
 
   //
