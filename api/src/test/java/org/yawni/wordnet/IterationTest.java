@@ -407,7 +407,7 @@ public class IterationTest {
               }
               //String msg = i+" "+word+" taggedFreq: "+taggedFreq;
               //System.err.println(msg);
-              String longMsg = wordSense.getLongDescription();
+              String longMsg = wordSense.getDescription();
               //System.err.println(longMsg);
               if (pos == POS.VERB) {
                 for (final String frame : wordSense.getVerbFrames()) {
