@@ -62,9 +62,6 @@ public class SynsetTest {
       // exercise normal and long description with and without verbose
       //TODO assert something here, don't just exercise
       final String msg2 = count+" "+synset+"\n  "+synset.getDescription();
-      final String msg3 = count+" "+synset+"\n  "+synset.getDescription(true);
-      final String msg4 = count+" "+synset+"\n  "+synset.getLongDescription();
-      final String msg5 = count+" "+synset+"\n  "+synset.getLongDescription(true);
     }
     assertThat(count).isEqualTo(expectedCount);
     System.err.printf("tested %,d descriptions.\n", count);
