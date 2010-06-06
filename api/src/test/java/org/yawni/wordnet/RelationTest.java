@@ -81,7 +81,7 @@ public class RelationTest {
     // adj up#7 member of noun TOPIC computer#1
     final Word word = wordNet.lookupWord("up", POS.ADJ);
     System.err.println("word: "+word+" relationTypes: "+word.getRelationTypes());
-    System.err.println("  "+word.getSense(7).getLongDescription());
+    System.err.println("  "+word.getSense(7).getDescription());
     final RelationType[] relationTypes = new RelationType[] {
       //RelationType.DOMAIN,
       //RelationType.MEMBER_OF_TOPIC_DOMAIN,
@@ -102,7 +102,7 @@ public class RelationTest {
     // adj low-pitch#1 is attribute of "pitch"#1
     final Word word = wordNet.lookupWord("low-pitched", POS.ADJ);
     System.err.println("word: "+word+" relationTypes: "+word.getRelationTypes());
-    System.err.println("  "+word.getSense(1).getLongDescription());
+    System.err.println("  "+word.getSense(1).getDescription());
     final RelationType[] relationTypes = new RelationType[] {
       RelationType.ATTRIBUTE,
     };
@@ -140,7 +140,7 @@ public class RelationTest {
 //    final Word georgeBush = wordNet.lookupWord("George Bush", POS.NOUN);
     final Word georgeBush = wordNet.lookupWord("Odessa", POS.NOUN);
     System.err.println("word: "+georgeBush+" relationTypes: "+georgeBush.getRelationTypes());
-    System.err.println("  "+georgeBush.getSense(1).getLongDescription());
+    System.err.println("  "+georgeBush.getSense(1).getDescription());
     final RelationType[] relationTypes = new RelationType[] {
       //FIXME make HYPONYM a superset of INSTANCE_HYPONYM ?
       RelationType.HYPONYM,
