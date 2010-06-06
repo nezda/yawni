@@ -268,7 +268,21 @@ public enum RelationType {
     setSymmetric(PART_MERONYM, PART_HOLONYM);
     setSymmetric(SIMILAR_TO, SIMILAR_TO);
     setSymmetric(ATTRIBUTE, ATTRIBUTE);
-    setSymmetric(DERIVATIONALLY_RELATED, DERIVATIONALLY_RELATED); // FIXME: MorphosemanticRelation's don't seem to have this property
+    setSymmetric(DERIVATIONALLY_RELATED, DERIVATIONALLY_RELATED);
+    setSymmetric(EVENT, EVENT);
+    setSymmetric(AGENT, AGENT);
+    setSymmetric(RESULT, RESULT);
+    setSymmetric(BY_MEANS_OF, BY_MEANS_OF);
+    setSymmetric(UNDERGOER, UNDERGOER);
+    setSymmetric(INSTRUMENT, INSTRUMENT);
+    setSymmetric(USES, USES);
+    setSymmetric(STATE, STATE);
+    setSymmetric(PROPERTY, PROPERTY);
+    setSymmetric(LOCATION, LOCATION);
+    setSymmetric(MATERIAL, MATERIAL);
+    setSymmetric(VEHICLE, VEHICLE);
+    setSymmetric(BODY_PART, BODY_PART);
+    setSymmetric(DESTINATION, DESTINATION);
     setSymmetric(DOMAIN_OF_TOPIC, MEMBER_OF_TOPIC_DOMAIN);
     setSymmetric(DOMAIN_OF_REGION, MEMBER_OF_REGION_DOMAIN);
     setSymmetric(DOMAIN_OF_USAGE, MEMBER_OF_USAGE_DOMAIN);
@@ -427,8 +441,8 @@ public enum RelationType {
   ImmutableSet<RelationType> superTypes;
 
   RelationType(final MorphosemanticRelation morphosemanticRelation) {
-    this(morphosemanticRelation.name().toLowerCase(), "+", 20, N | V | LEXICAL
-      , morphosemanticRelation.longNounLabel, morphosemanticRelation.longVerbLabel);
+    this(morphosemanticRelation.name().toLowerCase(), "+", 20, N | V | LEXICAL,
+      morphosemanticRelation.longNounLabel, morphosemanticRelation.longVerbLabel);
     this.relationTypeType = RelationTypeType.MORPHOSEMANTIC;
   }
 
