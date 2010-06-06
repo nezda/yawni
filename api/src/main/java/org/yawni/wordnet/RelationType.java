@@ -62,6 +62,36 @@ public enum RelationType {
   /** aka "derivation", "nominalization" */
   DERIVATIONALLY_RELATED("derivationally related", "+", 20, N | V | LEXICAL, "Derivationally related forms"),
 
+  // {@link MorphosemanticRelation}s
+
+  EVENT(MorphosemanticRelation.EVENT),
+
+  AGENT(MorphosemanticRelation.AGENT),
+
+  RESULT(MorphosemanticRelation.RESULT),
+
+  BY_MEANS_OF(MorphosemanticRelation.BY_MEANS_OF),
+
+  UNDERGOER(MorphosemanticRelation.UNDERGOER),
+
+  INSTRUMENT(MorphosemanticRelation.INSTRUMENT),
+
+  USES(MorphosemanticRelation.USES),
+
+  STATE(MorphosemanticRelation.STATE),
+
+  PROPERTY(MorphosemanticRelation.PROPERTY),
+
+  LOCATION(MorphosemanticRelation.LOCATION),
+
+  MATERIAL(MorphosemanticRelation.MATERIAL),
+
+  VEHICLE(MorphosemanticRelation.VEHICLE),
+
+  BODY_PART(MorphosemanticRelation.BODY_PART),
+
+  DESTINATION(MorphosemanticRelation.DESTINATION),
+
   // Nouns and Adjectives
 
   ATTRIBUTE("attribute", "=", 18, N | ADJ, "Attribute (%s is a value of ...)"),
@@ -178,36 +208,6 @@ public enum RelationType {
    * @see RelationType#DOMAIN_OF_USAGE
    */
   DOMAIN("Domain", ";", 21, N | V | ADJ | ADV),
-
-  // {@link MorphosemanticRelation}s
-
-  EVENT(MorphosemanticRelation.EVENT),
-
-  AGENT(MorphosemanticRelation.AGENT),
-
-  RESULT(MorphosemanticRelation.RESULT),
-
-  BY_MEANS_OF(MorphosemanticRelation.BY_MEANS_OF),
-
-  UNDERGOER(MorphosemanticRelation.UNDERGOER),
-
-  INSTRUMENT(MorphosemanticRelation.INSTRUMENT),
-
-  USES(MorphosemanticRelation.USES),
-
-  STATE(MorphosemanticRelation.STATE),
-
-  PROPERTY(MorphosemanticRelation.PROPERTY),
-
-  LOCATION(MorphosemanticRelation.LOCATION),
-
-  MATERIAL(MorphosemanticRelation.MATERIAL),
-
-  VEHICLE(MorphosemanticRelation.VEHICLE),
-
-  BODY_PART(MorphosemanticRelation.BODY_PART),
-
-  DESTINATION(MorphosemanticRelation.DESTINATION)
   ;
 
   private static final int[] POS_MASK = {N, V, ADJ, ADV, SAT_ADJ, LEXICAL};
@@ -427,7 +427,8 @@ public enum RelationType {
   ImmutableSet<RelationType> superTypes;
 
   RelationType(final MorphosemanticRelation morphosemanticRelation) {
-    this(morphosemanticRelation.name().toLowerCase(), "+", 20, N | V | LEXICAL);
+    this(morphosemanticRelation.name().toLowerCase(), "+", 20, N | V | LEXICAL
+      , morphosemanticRelation.longNounLabel, morphosemanticRelation.longVerbLabel);
     this.relationTypeType = RelationTypeType.MORPHOSEMANTIC;
   }
 
