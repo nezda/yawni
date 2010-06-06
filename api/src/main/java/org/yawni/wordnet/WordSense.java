@@ -159,7 +159,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     return LightImmutableList.of(this).iterator();
   }
 
-  String adjFlagsToString() {
+  public String adjFlagsToString() {
     if (adjPositionFlags == 0) {
       return "NONE";
     }
@@ -578,32 +578,6 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       }
     }
     return description.toString();
-  }
-
-  /** {@inheritDoc} */
-  public String getLongDescription() {
-    final StringBuilder buffer = new StringBuilder();
-    //buffer.append(getSenseNumber());
-    //buffer.append(". ");
-    //final int sensesTaggedFrequency = getSensesTaggedFrequency();
-    //if (sensesTaggedFrequency != 0) {
-    //  buffer.append("(");
-    //  buffer.append(sensesTaggedFrequency);
-    //  buffer.append(") ");
-    //}
-    buffer.append(getLemma());
-    if (adjPositionFlags != 0) {
-      buffer.append('(');
-      buffer.append(adjFlagsToString());
-      buffer.append(')');
-    }
-    final String gloss = getSynset().getGloss();
-    if (gloss != null) {
-      buffer.append(" -- (");
-      buffer.append(gloss);
-      buffer.append(')');
-    }
-    return buffer.toString();
   }
 
   //
