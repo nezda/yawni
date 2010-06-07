@@ -257,6 +257,16 @@ public enum RelationType {
     b.symmetricType = a;
   }
 
+  static final EnumSet<RelationType> MORPHOSEMATIC_TYPES;
+  static {
+    MORPHOSEMATIC_TYPES = EnumSet.noneOf(RelationType.class);
+    for (final RelationType relType : values()) {
+      if (relType.getRelationTypeType() == RelationType.RelationTypeType.MORPHOSEMANTIC) {
+        MORPHOSEMATIC_TYPES.add(relType);
+      }
+    }
+  }
+
   // documented as 'reflect' at
   // http://wordnet.princeton.edu/man/wninput.5WN.html#sect3
   static {
@@ -269,20 +279,9 @@ public enum RelationType {
     setSymmetric(SIMILAR_TO, SIMILAR_TO);
     setSymmetric(ATTRIBUTE, ATTRIBUTE);
     setSymmetric(DERIVATIONALLY_RELATED, DERIVATIONALLY_RELATED);
-    setSymmetric(EVENT, EVENT);
-    setSymmetric(AGENT, AGENT);
-    setSymmetric(RESULT, RESULT);
-    setSymmetric(BY_MEANS_OF, BY_MEANS_OF);
-    setSymmetric(UNDERGOER, UNDERGOER);
-    setSymmetric(INSTRUMENT, INSTRUMENT);
-    setSymmetric(USES, USES);
-    setSymmetric(STATE, STATE);
-    setSymmetric(PROPERTY, PROPERTY);
-    setSymmetric(LOCATION, LOCATION);
-    setSymmetric(MATERIAL, MATERIAL);
-    setSymmetric(VEHICLE, VEHICLE);
-    setSymmetric(BODY_PART, BODY_PART);
-    setSymmetric(DESTINATION, DESTINATION);
+    for (final RelationType relType : MORPHOSEMATIC_TYPES) {
+      setSymmetric(relType, relType);
+    }
     setSymmetric(DOMAIN_OF_TOPIC, MEMBER_OF_TOPIC_DOMAIN);
     setSymmetric(DOMAIN_OF_REGION, MEMBER_OF_REGION_DOMAIN);
     setSymmetric(DOMAIN_OF_USAGE, MEMBER_OF_USAGE_DOMAIN);
@@ -393,7 +392,7 @@ public enum RelationType {
    */
   static RelationType parseKey(final CharSequence key, final POS pos) {
     for (final RelationType pType : VALUES) {
-      if (pType.relationTypeType == RelationTypeType.MORPHOSEMANTIC) {
+      if (pType.getRelationTypeType() == RelationTypeType.MORPHOSEMANTIC) {
         continue;
       }
       if (pType.key.contentEquals(key)) {
@@ -418,7 +417,7 @@ public enum RelationType {
     throw new NoSuchElementException("unknown link type " + key);
   }
 
-  private enum RelationTypeType {
+  public enum RelationTypeType {
     CORE,
     MORPHOSEMANTIC
   }
@@ -533,6 +532,10 @@ public enum RelationType {
    */
   public boolean isSymmetricTo(final RelationType type) {
     return symmetricType != null && symmetricType.equals(type);
+  }
+
+  public RelationTypeType getRelationTypeType() {
+    return relationTypeType;
   }
 
 //  public List<RelationType> getSuperTypes() {
