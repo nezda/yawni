@@ -52,6 +52,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.undo.*;
 import org.yawni.util.WordCaseUtils;
+import org.yawni.wordnet.GlossAndExampleUtils;
 //import java.util.prefs.*;
 
 /**
@@ -651,7 +652,7 @@ public class BrowserPanel extends JPanel {
    * Renders high-level description of all {@linkplain Word}s
    * for all {@linkplain POS} with forms compatible with
    * the current input string.  Includes a short per-{@code POS}
-   * summary, deivision between {@code POS} sections, and activating
+   * summary, division between {@code POS} sections, and activating
    * the appropriate {@code POS} relation menu buttons.
    */
   private synchronized void displayOverview() {
@@ -730,9 +731,9 @@ public class BrowserPanel extends JPanel {
     INTRO(" "), // space
     OVERVIEW("Overview of “%s”"),
     SEARCHING("Searching..."),
-    SEARCHING4("Searching...."),
-    SEARCHING5("Searching....."),
-    SEARCHING6("Searching......"),
+//    SEARCHING4("Searching...."),
+//    SEARCHING5("Searching....."),
+//    SEARCHING6("Searching......"),
     SYNONYMS("Synonyms search for %s \"%s\""),
     NO_MATCHES("No matches found."),
     RELATION("\"%s\" search for %s \"%s\""),
@@ -852,7 +853,7 @@ public class BrowserPanel extends JPanel {
         buffer.append(posFreeLexCat);
         buffer.append("&gt; ");
       }
-      buffer.append(sense.getLongDescription(verbose));
+      buffer.append(Renderer.getLongDescription(word, sense, verbose));
       if (verbose) {
         final List<RelationArgument> similarTos = sense.getRelationTargets(SIMILAR_TO);
         if (! similarTos.isEmpty()) {
@@ -862,7 +863,7 @@ public class BrowserPanel extends JPanel {
           for (final RelationArgument similarTo : similarTos) {
             buffer.append(listOpen());
             final Synset targetSynset = (Synset) similarTo;
-            buffer.append(targetSynset.getLongDescription(verbose));
+            buffer.append(Renderer.getLongDescription(word, targetSynset, verbose));
             buffer.append("</li>\n");
           }
           buffer.append("</ul>\n");
@@ -876,7 +877,7 @@ public class BrowserPanel extends JPanel {
           buffer.append("Also see: ");
           int seeAlsoNum = 0;
           for (final RelationArgument seeAlso : seeAlsos) {
-            buffer.append(seeAlso.getDescription());
+            buffer.append(Renderer.getDescription(seeAlso));
             for (final WordSense wordSense : seeAlso) {
               buffer.append('#');
               buffer.append(wordSense.getSenseNumber());
@@ -977,7 +978,7 @@ public class BrowserPanel extends JPanel {
     final RelationType inheritanceType,
     final RelationType attributeType) {
     updateStatusBar(Status.SEARCHING);
-    counter.set(0);
+//    counter.set(0);
     appendSenseChain(buffer, rootWordSense, sense, inheritanceType, attributeType, 0, null);
   }
 
@@ -988,7 +989,7 @@ public class BrowserPanel extends JPanel {
 //  XXX return "<li>* ";
   }
 
-  private static final AtomicInteger counter = new AtomicInteger();
+//  private static final AtomicInteger counter = new AtomicInteger();
 
   /**
    * Recursively adds information from {@code Relation}s to {@code buffer}.
@@ -1002,21 +1003,8 @@ public class BrowserPanel extends JPanel {
     final int tab,
     Link ancestors) {
 
-    // could go with spinner
-    // \|/-\|/-\|/
-    // TODO just go with standard indeterminate progress indicator
-    final int currCount = counter.incrementAndGet();
-    if (currCount == 10) {
-      updateStatusBar(Status.SEARCHING4);
-    } else if (currCount == 20) {
-      updateStatusBar(Status.SEARCHING5);
-    } else if (currCount == 30) {
-      updateStatusBar(Status.SEARCHING6);
-      counter.set(0);
-    }
-
     buffer.append(listOpen());
-    buffer.append(sense.getLongDescription());
+    buffer.append(Renderer.getLongDescription(sense));
     buffer.append("</li>\n");
 
     if (attributeType != null) {
@@ -1047,7 +1035,7 @@ public class BrowserPanel extends JPanel {
         } else {
           buffer.append("RELATION TARGET ");
         }
-        buffer.append(target.getSynset().getLongDescription());
+        buffer.append(Renderer.getLongDescription(target.getSynset()));
         buffer.append("</li>\n");
       }
 
@@ -1077,6 +1065,13 @@ public class BrowserPanel extends JPanel {
     MEMBER_OF_TOPIC_DOMAIN, MEMBER_OF_USAGE_DOMAIN, MEMBER_OF_REGION_DOMAIN,
     DOMAIN_OF_TOPIC, DOMAIN_OF_USAGE, DOMAIN_OF_REGION,
     ANTONYM);
+  static {
+    for (final RelationType relType : RelationType.values()) {
+      if (relType.getRelationTypeType() == RelationType.RelationTypeType.MORPHOSEMANTIC) {
+        NON_RECURSIVE_RELATION_TYPES.add(relType);
+      }
+    }
+  }
 
   private void displayVerbFrames(final Word word) {
     updateStatusBar(Status.VERB_FRAMES, word.getLowercasedLemma());
@@ -1120,4 +1115,147 @@ public class BrowserPanel extends JPanel {
       return false;
     }
   } // end class Link
+
+  private static class Renderer {
+//    public static String getDescription(final Synset synset) {
+//      return getDescription(synset, false);
+//    }
+
+    public static String getDescription(final Word word, final Synset synset, final boolean verbose) {
+      final StringBuilder buffer = new StringBuilder();
+//      buffer.append('{');
+      int i = -1;
+      for (final WordSense wordSense : synset) {
+        i++;
+        if (i > 0) {
+  //        buffer.append(", ");
+          buffer.append(" • ");
+        }
+        final boolean focalWord = word != null && null != wordSense.getWordSense(word);
+        if (focalWord) {
+          buffer.append("<span class=\"focalWord\">");
+        }
+        if (verbose) {
+          buffer.append(getDescription(wordSense));
+        } else {
+          buffer.append(wordSense.getLemma());
+  //        buffer.append('#');
+  //        buffer.append(wordSense.getSenseNumber());
+        }
+        if (focalWord) {
+          buffer.append("</span>");
+        }
+      }
+//      buffer.append('}');
+      return buffer.toString();
+    }
+
+    public static String getLongDescription(final Synset synset) {
+      return getLongDescription(null, synset, false);
+    }
+
+    public static String getLongDescription(final Word word, final Synset synset, final boolean verbose) {
+      final StringBuilder description = new StringBuilder(getDescription(word, synset, verbose));
+      description.append(renderGloss(synset));
+      return description.toString();
+    }
+
+    public static String renderGloss(final Synset synset) {
+      final StringBuilder description = new StringBuilder();
+      if (synset.getGloss() != null) {
+        description.append("<div class=\"gloss\">").
+          append("<div class=\"definitions\">").
+          append(GlossAndExampleUtils.getDefinitionsChunk(synset)).
+          append("</div>");
+        final String examplesChunk = GlossAndExampleUtils.getExamplesChunk(synset);
+        if (examplesChunk.length() != 0) {
+          description.append("<div class=\"examples\">").
+            append(examplesChunk).
+            append("</div>");
+        }
+        description.append("</div>");
+//          append(" -- (").
+//          append(synset.getGloss()).
+//          append(')');
+      }
+      return description.toString();
+    }
+
+    // WordSense Descriptions
+
+    public static String getDescription(final WordSense wordSense) {
+      if (wordSense.getPOS() != POS.ADJ && wordSense.getPOS() != POS.SAT_ADJ) {
+        return wordSense.getLemma();
+      }
+      final StringBuilder description = new StringBuilder(wordSense.getLemma());
+      if (wordSense.getAdjPosition() != WordSense.AdjPosition.NONE) {
+        description.append('(');
+        description.append(wordSense.adjFlagsToString());
+        description.append(')');
+      }
+      final List<RelationArgument> targets = wordSense.getRelationTargets(RelationType.ANTONYM);
+      if (! targets.isEmpty()) {
+        // adj 'acidic' has more than 1 antonym ('alkaline' and 'amphoteric')
+        for (final RelationArgument target : targets) {
+          description.append(" (vs. ");
+          final WordSense antonym = (WordSense)target;
+          description.append(antonym.getLemma());
+          description.append(')');
+        }
+      }
+      return description.toString();
+    }
+
+    private static String getLongDescription(final WordSense wordSense) {
+      final StringBuilder buffer = new StringBuilder();
+      //buffer.append(getSenseNumber());
+      //buffer.append(". ");
+      //final int sensesTaggedFrequency = getSensesTaggedFrequency();
+      //if (sensesTaggedFrequency != 0) {
+      //  buffer.append("(");
+      //  buffer.append(sensesTaggedFrequency);
+      //  buffer.append(") ");
+      //}
+      buffer.append(wordSense.getLemma());
+      if (wordSense.getAdjPosition() != WordSense.AdjPosition.NONE) {
+        buffer.append('(');
+        buffer.append(wordSense.adjFlagsToString());
+        buffer.append(')');
+      }
+      buffer.append(renderGloss(wordSense.getSynset()));
+//      final String gloss = wordSense.getSynset().getGloss();
+//      if (gloss != null) {
+//        buffer.append(" -- (");
+//        buffer.append(gloss);
+//        buffer.append(')');
+//      }
+      return buffer.toString();
+    }
+
+    public static String getDescription(final RelationArgument relationArgument) {
+      // simulate polymorphism / pattern matching
+      if (relationArgument instanceof Synset) {
+        final Synset synset = (Synset) relationArgument;
+        return getDescription(synset);
+      } else if (relationArgument instanceof WordSense) {
+        final WordSense wordSense = (WordSense) relationArgument;
+        return getDescription(wordSense);
+      } else {
+        throw new IllegalArgumentException("unsupported RelationArgument "+relationArgument);
+      }
+    }
+
+    public static String getLongDescription(final RelationArgument relationArgument) {
+      // simulate polymorphism / pattern matching
+      if (relationArgument instanceof Synset) {
+        final Synset synset = (Synset) relationArgument;
+        return getLongDescription(synset);
+      } else if (relationArgument instanceof WordSense) {
+        final WordSense wordSense = (WordSense) relationArgument;
+        return getLongDescription(wordSense);
+      } else {
+        throw new IllegalArgumentException("unsupported RelationArgument "+relationArgument);
+      }
+    }
+  } // end class Renderer
 }
