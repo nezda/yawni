@@ -161,6 +161,12 @@
         </plugins>
       </build>
     </profile>
+    <!-- 
+    odd behavior: even though this is also in parent/pom, if this is deleted, parts of shaded jar artifact will not
+    be signed renderering it useless:
+    mvn -Dmaven.test.skip=true -PuseLog4j,makeShadedJar,makeSignedJar clean package
+    jarsigner -verify -verbose target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar
+    -->
     <profile>
       <id>makeSignedJar</id>
       <activation>
