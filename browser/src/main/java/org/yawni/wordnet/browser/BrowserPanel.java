@@ -828,7 +828,8 @@ public class BrowserPanel extends JPanel {
     buffer.append("<ol>\n");
     for (final Synset sense : senses) {
       buffer.append("<li>");
-      final int coreRank = sense.getWordSense(word).getCoreRank();
+      final WordSense wordSense = sense.getWordSense(word);
+      final int coreRank = wordSense.getCoreRank();
       if (coreRank > 0) {
         buffer.append('[');
         buffer.append(coreRank);
@@ -837,7 +838,7 @@ public class BrowserPanel extends JPanel {
 //      buffer.append(' ');
 //      buffer.append(sense.getWordSense(word).getSenseKey());
 //      buffer.append(" ");
-      final int cnt = sense.getWordSense(word).getSensesTaggedFrequency();
+      final int cnt = wordSense.getSensesTaggedFrequency();
       if (cnt != 0) {
         buffer.append('(');
         buffer.append(cnt);
@@ -853,7 +854,7 @@ public class BrowserPanel extends JPanel {
         buffer.append(posFreeLexCat);
         buffer.append("&gt; ");
       }
-      buffer.append(Renderer.getLongDescription(word, sense, verbose));
+      buffer.append(Renderer.getLongDescription(wordSense, sense, verbose));
       if (verbose) {
         final List<RelationArgument> similarTos = sense.getRelationTargets(SIMILAR_TO);
         if (! similarTos.isEmpty()) {
@@ -863,7 +864,7 @@ public class BrowserPanel extends JPanel {
           for (final RelationArgument similarTo : similarTos) {
             buffer.append(listOpen());
             final Synset targetSynset = (Synset) similarTo;
-            buffer.append(Renderer.getLongDescription(word, targetSynset, verbose));
+            buffer.append(Renderer.getLongDescription(wordSense, targetSynset, verbose));
             buffer.append("</li>\n");
           }
           buffer.append("</ul>\n");
@@ -878,9 +879,9 @@ public class BrowserPanel extends JPanel {
           int seeAlsoNum = 0;
           for (final RelationArgument seeAlso : seeAlsos) {
             buffer.append(Renderer.getDescription(seeAlso));
-            for (final WordSense wordSense : seeAlso) {
+            for (final WordSense seeAlsoWordSense : seeAlso) {
               buffer.append('#');
-              buffer.append(wordSense.getSenseNumber());
+              buffer.append(seeAlsoWordSense.getSenseNumber());
             }
             if (seeAlsoNum == 0) {
               buffer.append("; ");
@@ -1004,7 +1005,7 @@ public class BrowserPanel extends JPanel {
     Link ancestors) {
 
     buffer.append(listOpen());
-    buffer.append(Renderer.getLongDescription(sense));
+    buffer.append(Renderer.getLongDescription(rootWordSense, sense));
     buffer.append("</li>\n");
 
     if (attributeType != null) {
@@ -1121,26 +1122,27 @@ public class BrowserPanel extends JPanel {
 //      return getDescription(synset, false);
 //    }
 
-    public static String getDescription(final Word word, final Synset synset, final boolean verbose) {
+    private static String getDescription(final WordSense wordSense, final Synset synset, final boolean verbose) {
+      // wordSense.getSynset().equals(synset) only sometimes
       final StringBuilder buffer = new StringBuilder();
 //      buffer.append('{');
       int i = -1;
-      for (final WordSense wordSense : synset) {
+      for (final WordSense siblingWordSense : synset) {
         i++;
         if (i > 0) {
   //        buffer.append(", ");
           buffer.append(" • ");
         }
-        final boolean focalWord = word != null && null != wordSense.getWordSense(word);
+        final boolean focalWord = siblingWordSense.equals(wordSense);
         if (focalWord) {
           buffer.append("<span class=\"focalWord\">");
         }
         if (verbose) {
-          buffer.append(getDescription(wordSense));
+          buffer.append(getDescription(siblingWordSense));
         } else {
-          buffer.append(wordSense.getLemma());
-  //        buffer.append('#');
-  //        buffer.append(wordSense.getSenseNumber());
+          buffer.append(siblingWordSense.getLemma());
+//          buffer.append('#');
+//          buffer.append(wordSense.getSenseNumber());
         }
         if (focalWord) {
           buffer.append("</span>");
@@ -1150,17 +1152,18 @@ public class BrowserPanel extends JPanel {
       return buffer.toString();
     }
 
-    public static String getLongDescription(final Synset synset) {
+    private static String getLongDescription(final Synset synset) {
       return getLongDescription(null, synset, false);
     }
 
-    public static String getLongDescription(final Word word, final Synset synset, final boolean verbose) {
-      final StringBuilder description = new StringBuilder(getDescription(word, synset, verbose));
+    public static String getLongDescription(final WordSense wordSense, final Synset synset, final boolean verbose) {
+      // wordSense.getSynset().equals(synset) only sometimes
+      final StringBuilder description = new StringBuilder(getDescription(wordSense, synset, verbose));
       description.append(renderGloss(synset));
       return description.toString();
     }
 
-    public static String renderGloss(final Synset synset) {
+    private static String renderGloss(final Synset synset) {
       final StringBuilder description = new StringBuilder();
       if (synset.getGloss() != null) {
         description.append("<div class=\"gloss\">").
@@ -1183,7 +1186,7 @@ public class BrowserPanel extends JPanel {
 
     // WordSense Descriptions
 
-    public static String getDescription(final WordSense wordSense) {
+    private static String getDescription(final WordSense wordSense) {
       if (wordSense.getPOS() != POS.ADJ && wordSense.getPOS() != POS.SAT_ADJ) {
         return wordSense.getLemma();
       }
@@ -1232,7 +1235,7 @@ public class BrowserPanel extends JPanel {
       return buffer.toString();
     }
 
-    public static String getDescription(final RelationArgument relationArgument) {
+    private static String getDescription(final RelationArgument relationArgument) {
       // simulate polymorphism / pattern matching
       if (relationArgument instanceof Synset) {
         final Synset synset = (Synset) relationArgument;
@@ -1245,17 +1248,21 @@ public class BrowserPanel extends JPanel {
       }
     }
 
-    public static String getLongDescription(final RelationArgument relationArgument) {
-      // simulate polymorphism / pattern matching
-      if (relationArgument instanceof Synset) {
-        final Synset synset = (Synset) relationArgument;
-        return getLongDescription(synset);
-      } else if (relationArgument instanceof WordSense) {
-        final WordSense wordSense = (WordSense) relationArgument;
-        return getLongDescription(wordSense);
-      } else {
-        throw new IllegalArgumentException("unsupported RelationArgument "+relationArgument);
-      }
+    public static String getLongDescription(final WordSense wordSense, final RelationArgument relationArgument) {
+      return getLongDescription(wordSense, relationArgument.getSynset(), false);
     }
+
+//    public static String getLongDescription(final RelationArgument relationArgument) {
+//      // simulate polymorphism / pattern matching
+//      if (relationArgument instanceof Synset) {
+//        final Synset synset = (Synset) relationArgument;
+//        return getLongDescription(synset);
+//      } else if (relationArgument instanceof WordSense) {
+//        final WordSense wordSense = (WordSense) relationArgument;
+//        return getLongDescription(wordSense);
+//      } else {
+//        throw new IllegalArgumentException("unsupported RelationArgument "+relationArgument);
+//      }
+//    }
   } // end class Renderer
 }
