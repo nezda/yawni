@@ -216,7 +216,8 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /** 
-   * Uses this {@code WordSense}'s lemma as key to find its {@code Word}.
+   * Uses this {@code WordSense}'s lemma as key to find its {@code Word}; not very efficient
+   * and probably not necessary.
    */
   // WordSense contains everything Word does - no need to expose this
   Word getWord() {
