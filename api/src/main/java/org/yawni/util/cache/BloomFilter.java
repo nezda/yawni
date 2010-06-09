@@ -244,7 +244,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    * @param words The array to lookup in.
    * @return      The flag's value.
    */
-  private boolean getAt(final int index, final long[] words) {
+  private static boolean getAt(final int index, final long[] words) {
 //    final int i = index / Long.SIZE;
 //    assert i == index >>> 6;
 //    final int bitIndex = index % Long.SIZE;
@@ -261,7 +261,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    * @param words The array to update.
    * @return      If updated.
    */
-  private boolean setAt(final int index, final long[] words) {
+  private static boolean setAt(final int index, final long[] words) {
 //    final int i = index / Long.SIZE;
 //    assert i == index >>> 6;
 //    final int bitIndex = index % Long.SIZE;
@@ -368,7 +368,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    * @param words The consistent view of the data.
    * @return      The number of one-bits in the two's complement binary representation.
    */
-  private int toBitCount(final long[] words) {
+  private static int toBitCount(final long[] words) {
     int population = 0;
     for (final long word : words) {
       population += bitCount(word);
@@ -382,7 +382,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    * @param words The consistent view of the data.
    * @return      A binary string representation.
    */
-  private String toBinaryArrayString(long[] words) {
+  private static String toBinaryArrayString(long[] words) {
     final StringBuilder buffer = new StringBuilder(words.length);
     final int maxWords = 1;
     for (int i = words.length - 1, wordNum = 0; i >= 0 && wordNum < maxWords; i--, wordNum++) {
