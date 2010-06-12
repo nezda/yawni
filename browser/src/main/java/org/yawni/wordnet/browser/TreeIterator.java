@@ -39,6 +39,7 @@ public class TreeIterator<T extends Object & Comparable<? super T>> implements I
     stackLeftDaughters(tree);
   }
 
+  // factory of Iterables consisting of TreeIterator's of the given Tree
   static <T extends Object & Comparable<? super T>>
   Iterable<T> of(final Tree<T> tree) {
     return new Iterable<T>() {
@@ -107,10 +108,11 @@ public class TreeIterator<T extends Object & Comparable<? super T>> implements I
     System.out.println("Tree.preOrder  = " + t.preOrder());
     System.out.println("Tree.postOrder = " + t.postOrder());
     System.out.println("Tree.inOrder   = " + t.inOrder());
-    System.out.println("TreeIterator   = ");
+    System.out.print("TreeIterator   = ");
     for (final Integer i : TreeIterator.of(t)) {
       System.out.print(i+" ");
     }
+    System.out.println();
   }
 } // end class TreeIterator
 
@@ -126,6 +128,7 @@ class TreeIterator2<T extends Object & Comparable<? super T>> extends AbstractIt
   }
 } // end class TreeIterator2
 
+// more often this would be called a Node
 class Tree<T extends Object & Comparable<? super T>> {
   final T mVal;
   Tree<T> mLeft;
@@ -183,14 +186,15 @@ class Tree<T extends Object & Comparable<? super T>> {
       throw new RuntimeException(ioe);
     }
   }
+  // recursive method
   public Appendable prettyPrint(Appendable output, String indent) throws IOException {
-    if (mLeft != null) {
-      mLeft.prettyPrint(output, indent + "  ");
+    if (mRight != null) {
+      mRight.prettyPrint(output, indent + "  ");
     }
     //output.append(indent + this + "\n");
     output.append(indent + this.mVal + "\n");
-    if (mRight != null) {
-      mRight.prettyPrint(output, indent + "  ");
+    if (mLeft != null) {
+      mLeft.prettyPrint(output, indent + "  ");
     }
     return output;
   }
