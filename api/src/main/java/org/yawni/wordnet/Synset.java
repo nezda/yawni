@@ -77,7 +77,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     this.offset = tokenizer.nextInt();
     final int lexfilenumInt = tokenizer.nextInt();
     // there are currently only 45 lexfiles
-    // http://wordnet.princeton.edu/man/lexnames.5WN
+    // http://wordnet.princeton.edu/man/lexnames.5WN.html
     // disable assert to be lenient for generated WordNets
     //assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
     this.lexfilenum = Utils.checkedCast(lexfilenumInt);
@@ -181,7 +181,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 //            System.err.println("fail 1 :: "+myTargetSynsetIdx+" "+targetSynsetIdx);
           continue;
         }
-        // POS mismtch is possible (rare)
+        // POS mismatch is possible (rare)
         if (targetPOS != myTargetPOS) {
           continue;
         }
