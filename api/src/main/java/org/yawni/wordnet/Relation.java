@@ -51,7 +51,8 @@ public abstract class Relation implements Comparable<Relation> {
   private final byte relationTypeOrdinal;
   /**
    * The index of this {@code Relation} within the array of {@code Relation}s in the source {@code Synset}.
-   * Used in {@code equals}.
+   * Only used in {@code equals}, {@code compare}, {@code hashCode}: differentiates distinct relations of
+   * the same type emanating from the same {@code Synset}.
    */
   private final int relationIndex;
   private final RelationArgument source;
@@ -73,11 +74,11 @@ public abstract class Relation implements Comparable<Relation> {
   /**
    * Copy constructor to create Relation with equal source and target, but different type
    */
-  Relation(final Relation that, final byte relationTypeOrdinal) {
+  Relation(final Relation that, final byte relationTypeOrdinal, final int relationIndex) {
     this(that.targetOffset,
          that.targetIndex,
          that.targetPOSOrdinal,
-         that.relationIndex,
+         relationIndex,
          that.source,
          relationTypeOrdinal);
   }
