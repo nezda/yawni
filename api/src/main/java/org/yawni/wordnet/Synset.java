@@ -124,7 +124,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     // allocate extra space in this temporary for additional Relations (e.g., morphosemantic)
     final List<Relation> localRelations = new ArrayList<Relation>(2 * relationCount);
     for (int i = 0; i < relationCount; i++) {
-      final Relation relation = Relation.makeRelation(this, i, tokenizer);
+      final Relation relation = Relation.makeRelation(this, localRelations.size(), tokenizer);
       localRelations.add(relation);
       if (relation.getType() != RelationType.DERIVATIONALLY_RELATED) {
         continue;
@@ -150,16 +150,17 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       }
       final Iterable<CharSequence> lexRelLines = wordNet.lookupMorphoSemanticRelationLines(srcOffsetKey);
       //1331 of these
-//      if (Iterables.isEmpty(lexRelLines)) {
-//        System.err.println("eek! "+offsetKey);
-//        continue;
-//      }
+      if (Iterables.isEmpty(lexRelLines)) {
+//        System.err.println("eek! "+srcOffsetKey+" "+getPOS()+" "+line);
+        continue;
+      }
       // this is invariant for this relation
       final int mySrcSynsetIdx = wordSenses.indexOf(lexRel.getSource());
+      assert mySrcSynsetIdx >= 0;
       final POS myTargetPOS = lexRel.getTargetPOS();
       final int myTargetSynsetIdx = lexRel.getTargetIndex() - 1;
+      assert myTargetSynsetIdx >= 0;
       final int myTargetOffset = lexRel.getTargetOffset();
-      assert mySrcSynsetIdx >= 0;
       boolean foundMatch = false;
       RelationType mrtype = null;
       for (final CharSequence lexRelLine : lexRelLines) {
@@ -196,13 +197,18 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
         foundMatch = true;
         final MorphosemanticRelation morphorel = MorphosemanticRelation.fromValue(mtype);
         mrtype = RelationType.valueOf(morphorel.name());
-        break;
-      }
-      if (mrtype != null) {
+//        break;
+        if (mrtype != null) {
 //          System.err.println("full match! "+mrtype);
-        final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype);
-        localRelations.add(morphosemanticRelation);
+          final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype, localRelations.size());
+          localRelations.add(morphosemanticRelation);
+        }
       }
+//      if (mrtype != null) {
+////          System.err.println("full match! "+mrtype);
+//        final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype, localRelations.size());
+//        localRelations.add(morphosemanticRelation);
+//      }
 //        assert foundMatch;
       if (! foundMatch) {
         // 4895 instances
@@ -211,6 +217,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     }
     
     this.relations = LightImmutableList.copyOf(localRelations);
+    //assert relations.equals(localRelations);
 
     if (posOrdinal == POS.VERB.ordinal()) {
       final int f_cnt = tokenizer.nextInt();
@@ -448,7 +455,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 
   /**
    * Returns <em>only</em> {@link SemanticRelation}s
-   * which have this synset as their source that have
+   * which have this Synset as their source that have
    * type {@code type}.
    *
    * @see Synset#getRelations()
