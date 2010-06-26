@@ -19,7 +19,6 @@ package org.yawni.wordnet;
 import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import static org.yawni.wordnet.RelationTypeFlag.*;
 
 /**
@@ -54,7 +53,7 @@ public enum RelationType {
   INSTANCE_HYPERNYM("instance hypernym", "@i", 38, N, "Instance Hypernyms (%s is an instance of ...)"),
   /**
    * "a word that is <em>more specific</em> than a given word"; aka "is a";
-   * analagous to "troponym" for verbs
+   * analogous to "troponym" for verbs
    */
   HYPONYM("hyponym", "~", 3, N | V, "Hyponyms (... is a kind of %s)", "Troponyms (... are particular ways to %s)"),
   /** aka "instances" / "has instance" */
