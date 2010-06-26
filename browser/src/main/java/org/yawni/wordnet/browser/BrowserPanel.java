@@ -1118,10 +1118,6 @@ public class BrowserPanel extends JPanel {
   } // end class Link
 
   private static class Renderer {
-//    public static String getDescription(final Synset synset) {
-//      return getDescription(synset, false);
-//    }
-
     private static String getDescription(final WordSense wordSense, final Synset synset, final boolean verbose) {
       // wordSense.getSynset().equals(synset) only sometimes
       final StringBuilder buffer = new StringBuilder();
@@ -1166,7 +1162,9 @@ public class BrowserPanel extends JPanel {
     private static String renderGloss(final Synset synset) {
       final StringBuilder description = new StringBuilder();
       if (synset.getGloss() != null) {
+//        description.append("<hr noshade>");
         description.append("<div class=\"gloss\">").
+//          append("<hr noshade>").
           append("<div class=\"definitions\">").
           append(GlossAndExampleUtils.getDefinitionsChunk(synset)).
           append("</div>");
@@ -1209,31 +1207,25 @@ public class BrowserPanel extends JPanel {
       return description.toString();
     }
 
-    private static String getLongDescription(final WordSense wordSense) {
-      final StringBuilder buffer = new StringBuilder();
-      //buffer.append(getSenseNumber());
-      //buffer.append(". ");
-      //final int sensesTaggedFrequency = getSensesTaggedFrequency();
-      //if (sensesTaggedFrequency != 0) {
-      //  buffer.append("(");
-      //  buffer.append(sensesTaggedFrequency);
-      //  buffer.append(") ");
-      //}
-      buffer.append(wordSense.getLemma());
-      if (wordSense.getAdjPosition() != WordSense.AdjPosition.NONE) {
-        buffer.append('(');
-        buffer.append(wordSense.adjFlagsToString());
-        buffer.append(')');
-      }
-      buffer.append(renderGloss(wordSense.getSynset()));
-//      final String gloss = wordSense.getSynset().getGloss();
-//      if (gloss != null) {
-//        buffer.append(" -- (");
-//        buffer.append(gloss);
+//    private static String getLongDescription(final WordSense wordSense) {
+//      final StringBuilder buffer = new StringBuilder();
+//      //buffer.append(getSenseNumber());
+//      //buffer.append(". ");
+//      //final int sensesTaggedFrequency = getSensesTaggedFrequency();
+//      //if (sensesTaggedFrequency != 0) {
+//      //  buffer.append("(");
+//      //  buffer.append(sensesTaggedFrequency);
+//      //  buffer.append(") ");
+//      //}
+//      buffer.append(wordSense.getLemma());
+//      if (wordSense.getAdjPosition() != WordSense.AdjPosition.NONE) {
+//        buffer.append('(');
+//        buffer.append(wordSense.adjFlagsToString());
 //        buffer.append(')');
 //      }
-      return buffer.toString();
-    }
+//      buffer.append(renderGloss(wordSense.getSynset()));
+//      return buffer.toString();
+//    }
 
     private static String getDescription(final RelationArgument relationArgument) {
       // simulate polymorphism / pattern matching
@@ -1251,18 +1243,5 @@ public class BrowserPanel extends JPanel {
     public static String getLongDescription(final WordSense wordSense, final RelationArgument relationArgument) {
       return getLongDescription(wordSense, relationArgument.getSynset(), false);
     }
-
-//    public static String getLongDescription(final RelationArgument relationArgument) {
-//      // simulate polymorphism / pattern matching
-//      if (relationArgument instanceof Synset) {
-//        final Synset synset = (Synset) relationArgument;
-//        return getLongDescription(synset);
-//      } else if (relationArgument instanceof WordSense) {
-//        final WordSense wordSense = (WordSense) relationArgument;
-//        return getLongDescription(wordSense);
-//      } else {
-//        throw new IllegalArgumentException("unsupported RelationArgument "+relationArgument);
-//      }
-//    }
   } // end class Renderer
 }
