@@ -23,8 +23,8 @@ import org.yawni.util.Utils;
  */
 public final class LexicalRelation extends Relation {
   LexicalRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int index, final RelationArgument source, final byte relationTypeOrdinal) {
-    super(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
+    final int srcRelationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
+    super(targetOffset, targetIndex, targetPOSOrdinal, srcRelationIndex, source, relationTypeOrdinal);
     assert super.getSource() instanceof WordSense;
     // can't call getTarget() - infinite recursion
   }
@@ -32,8 +32,8 @@ public final class LexicalRelation extends Relation {
   /**
    * Copy constructor to create Relation with equal source and target, but different type
    */
-  LexicalRelation(final LexicalRelation that, final RelationType relationType) {
-    super(that, Utils.checkedCast(relationType.ordinal()));
+  LexicalRelation(final LexicalRelation that, final RelationType relationType, final int relationIndex) {
+    super(that, Utils.checkedCast(relationType.ordinal()), relationIndex);
   }
 
   /** {@inheritDoc} */
