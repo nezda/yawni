@@ -182,6 +182,20 @@ public class RelationTest {
     //   hyponym ~                      numLexical:            0 numSemantic:       97,666
     //   instance hyponym ~i            numLexical:            0 numSemantic:        8,577
     //   derivationally related +       numLexical:       74,717 numSemantic:            0
+    //   event +                        numLexical:       15,562 numSemantic:            0
+    //   agent +                        numLexical:        5,902 numSemantic:            0
+    //   result +                       numLexical:        2,710 numSemantic:            0
+    //   by_means_of +                  numLexical:        2,407 numSemantic:            0
+    //   undergoer +                    numLexical:        1,686 numSemantic:            0
+    //   instrument +                   numLexical:        1,588 numSemantic:            0
+    //   uses +                         numLexical:        1,440 numSemantic:            0
+    //   state +                        numLexical:        1,012 numSemantic:            0
+    //   property +                     numLexical:          628 numSemantic:            0
+    //   location +                     numLexical:          532 numSemantic:            0
+    //   material +                     numLexical:          226 numSemantic:            0
+    //   vehicle +                      numLexical:          172 numSemantic:            0
+    //   body_part +                    numLexical:           86 numSemantic:            0
+    //   destination +                  numLexical:           34 numSemantic:            0
     //   attribute =                    numLexical:            0 numSemantic:        1,278
     // * also see ^                     numLexical:          580 numSemantic:        2,692
     //   entailment *                   numLexical:            0 numSemantic:          408
@@ -215,9 +229,9 @@ public class RelationTest {
   public void exhaustivelyTestVerbGroups() {
     System.err.println("exhaustivelyTestVerbGroups");
     int numLexical = 0, numSemantic = 0;
-    for (Relation group : wordNet.relations(RelationType.VERB_GROUP, POS.VERB)) {
-      if (group.isLexical()) {
-        System.err.println("  lexical VERB_GROUP: "+group);
+    for (final Relation vg : wordNet.relations(RelationType.VERB_GROUP, POS.VERB)) {
+      if (vg.isLexical()) {
+        System.err.println("  lexical VERB_GROUP: "+vg);
         numLexical++;
       } else {
         numSemantic++;
