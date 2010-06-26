@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.Iterables;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -70,7 +71,7 @@ public class MorphosemanticRelationTest {
     assertThat(MorphosemanticRelation.fromValue("by-means-of")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
   }
 
-  @Ignore
+//  @Ignore
   @Test
   public void testRawSearch() throws Exception {
     System.err.println("rawSearch");
@@ -80,21 +81,55 @@ public class MorphosemanticRelationTest {
     while ((line = lines.readLine()) != null) {
       final String[] parts = line.split(" ");
       assert parts.length == 5;
-      // have to shear off leading digit which is POS indicator
       assert parts[0].length() == 9;
       Integer.parseInt(parts[0]); // crash test
-//      final CharSequence offsetKey = parts[0].substring(1);
-      final CharSequence offsetKey = parts[0];
+      final CharSequence srcOffset = parts[0].substring(1);
+      final POS srcPOS = POS.fromOrdinal((byte)Integer.parseInt(parts[0].substring(0, 1)));
+      final CharSequence srcOffsetKey = parts[0];
+      assert parts[3].length() == 9;
+      Integer.parseInt(parts[3]); // crash test
+      final CharSequence targetOffset = parts[3].substring(1);
+      final POS targetPOS = POS.fromOrdinal((byte)Integer.parseInt(parts[3].substring(0, 1)));
+      final CharSequence targetOffsetKey = parts[3];
 //      String lexRelLine = wordNet.lookupMorphoSemanticRelationLine(offsetKey);
 //      assert lexRelLine != null : "line: "+line;
 //      // lines are not unique based on offset alone!
 //      assert line.equals(lexRelLine) : "\nline:       "+line+"\nlexRelLine: "+lexRelLine;
-      final ImmutableList<CharSequence> matches = ImmutableList.copyOf(wordNet.lookupMorphoSemanticRelationLines(offsetKey));
+      final ImmutableList<CharSequence> matches = ImmutableList.copyOf(wordNet.lookupMorphoSemanticRelationLines(srcOffsetKey));
       boolean found = false;
       for (final CharSequence lexRelLine : matches) {
         found |= CharSequences.equals(line, lexRelLine);
       }
       assert found : "could not find line: "+line+" found: \n"+Joiner.on("\n").join(matches);
+      // TODO
+      // - get the src synset
+      // - lookup its relations
+      final Iterable<Synset> src = wordNet.synsets("?POS="+srcPOS.name()+"&offset="+srcOffset);
+      assertEquals(line, 1, Iterables.size(src));
+      final Iterable<Synset> target = wordNet.synsets("?POS="+targetPOS.name()+"&offset="+targetOffset);
+      assertEquals(line, 1, Iterables.size(target));
+
+      final Synset srcSyn = Iterables.getOnlyElement(src);
+      final WordSense srcSense = srcSyn.getWordSense(Integer.parseInt(parts[1]));
+      final Synset targetSyn = Iterables.getOnlyElement(target);
+      final WordSense targetSense = targetSyn.getWordSense(Integer.parseInt(parts[4]));
+      //FIXME type is lame 2 step process
+      final MorphosemanticRelation morphorel = MorphosemanticRelation.fromValue(parts[2]);
+      final RelationType type = RelationType.valueOf(morphorel.name());
+      assertNotNull(type);
+      final List<RelationArgument> targets = srcSyn.getRelationTargets(type);
+      if (targets.isEmpty()) {
+        // 497 empty
+        final List<RelationArgument> morphDerivs = srcSyn.getRelationTargets(RelationType.DERIVATIONALLY_RELATED);
+        System.err.println("empty "+type+" "+srcSense+" :: "+targetSense+"  "+morphDerivs.size());
+        System.err.println("  "+Joiner.on("\n  ").join(srcSyn.getRelations()));
+        continue;
+      }
+      // this will never happen because these are LexicalRelations
+      assert ! targets.contains(targetSyn);
+//      if (! targets.contains(targetSyn)) {
+//        System.err.println("yow "+srcSyn);
+//      }
     }
     System.err.println("all good");
   }
