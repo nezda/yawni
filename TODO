@@ -434,6 +434,38 @@ everything
           #    - 'index' within Synset's list of relations
           #    - relationTypeOrdinal (parsed)
           #    - target POS
+          15476+5902+2594+2389+1570+1556+1254+938+614+522+218+166+86+32
+          33317 - would appear 673 missing
+
+          ? prev counts ?
+          8158+3043+1439+878+813+740+528+318+288+114+87+43+17=16466*2=32932 (-32932 + 33990 = 1058)
+          15562+5902+2710+2407+1686+1588+1440+1012+628+532+226+172+86+34 = -33985 + 33990 = 5
+            event: 15564 / 7782 / observed 1562 (-1)
+           +agent: 5902 / 2951 / observed 5902 
+            result: 2710 / 1355 / observed 2594 (-118)
+            by-means-of: 2407 / 1204 / observed 2389 (-19)
+            undergoer: 1686 / 843 / observed 1570 (-16)
+            instrument: 1588 / 794 / observed 1556 (-32)
+            
+            - 497 empty
+              ? have multiple entries for 2 different types in the Morphosemantic relations ?
+                - 668 different sense pairs have this property
+              empty uses + [WordSense 147187@[POS noun]:"encounter"#3] :: [WordSense 2023107@[POS verb]:"encounter"#1]  1
+                202023107 encounter%2:38:00:: event 100147187 encounter%1:04:01::
+                202023107 encounter%2:38:00:: uses  100147187 encounter%1:04:01::
+              empty uses + [WordSense 173761@[POS noun]:"instrument"#2] :: [WordSense 2340543@[POS verb]:"instrument"#1]  2
+                100173761 instrument%1:04:00:: by-means-of 202340543 instrument%2:40:00::
+                100173761 instrument%1:04:00:: uses        202340543 instrument%2:40:00::
+              empty result + [WordSense 289388@[POS noun]:"stagger"#1] :: [WordSense 1924882@[POS verb]:"stagger"#1]  4
+                100289388 stagger%1:04:00:: event  201924882 stagger%2:38:00::
+                100289388 stagger%1:04:00:: result 201924882 stagger%2:38:00::
+              empty result + [WordSense 289388@[POS noun]:"stagger"#1] :: [WordSense 1925170@[POS verb]:"stagger"#2]  4
+                100289388 stagger%1:04:00:: event  201925170 stagger%2:38:01::
+                100289388 stagger%1:04:00:: result 201925170 stagger%2:38:01::
+
+                100289388 stumble%1:04:00:: event 201901133 stumble%2:38:01::
+                100289388 lurch%1:04:00:: event 201924882 lurch%2:38:03::
+
         - alternate distillation is <arg1 sensekey> <relation> <arg2 sensekey>
           - more readable/verifable
           - how to expose MorphosemanticSemanticRelation ?
@@ -658,6 +690,9 @@ everything
     - ColorChooserButton
 
 - issues
+  - bug: gui: Linux with GTK L&F: GTK+Swing bug causes major focus problems with text fields
+    ? maybe only effects older Gnome versions ? (Centos' Gnome 2.16, but not Ubuntu's 2.30)
+  - bug: gui: 'release' → verb → Troponyms; first entry only shows word, not Synset
   x feature: core: Synset.getRelations() List<Relation> could be represented as Map<RelationType, List<Relation>>
     - pro: subsumes getRelations(RelationType)
     - cons: Map requires more memory than List ; Relation is already acting as Map.Entry ; Map has no order ; cannot customize (e.g., HYPERNYM implies INSTANCE HYPERNYM)
@@ -673,10 +708,10 @@ everything
       - could add Formattable to Word, WordSense, Synset, POS, Relation, RelationType, Lexname ; doesn't add much to toString()
     - java.util.logging.Formatter - uses LogRecord
     - made rough outline in org.yawni.wordnet.browser.Searcher
-  - feature: core: create commandline tool (a la wn) based on Command interface ; consider supporting batch mode or RAFCharStream to minimize init lag
+  - feature: core: create commandline tool (à la 'wn') based on Command interface ; consider supporting batch mode or RAFCharStream to minimize init lag
   - bug: core: record "Core" missing senseKeys (gvimdiff core active2.sorted)
   - feature: core: simple commandline utilizing synsets(query) / wordSenses(query) akin to 'wn' (e.g., -grep{n|v|a|r})
-  - feature: core: add RelationType support to synsets(query) / wordSenses(query) API a la 'wn' (e.g.,  -ants{n|v|a|r}, -hypo{n|v}, -hype{n|v})
+  - feature: core: add RelationType support to synsets(query) / wordSenses(query) API à la 'wn' (e.g.,  -ants{n|v|a|r}, -hypo{n|v}, -hype{n|v})
   - feature: core: document advantages of synsets(query) / wordSenses(query) API
     + binary compatible experimental API - doesn't effect those who don't use it
     + reduces API clutter making the overall API smaller & less daunting
@@ -775,71 +810,6 @@ everything
     How can we test behavior in the sandboxed, high security environment?
   + bug: core: gui: default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
   - bug: core: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
-
-To use Yawni, you must include its core api jar file in your classpath; this is easiest with a Maven dependency:
-
->>frame<<
-[@
-<dependency>
-  <groupId>org.yawni</groupId>
-  <artifactId>yawni-wordnet-api</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
-</dependency>
-@]
->><<
-
-Yawni also includes an optional jar file containing all the data from WordNet version 3.0 which simplifies deployment (e.g., client doesn't need to download WordNet, export environment variables, etc.); this Maven dependency is all you need:
-
->>frame<<
-[@
-<dependency>
-  <groupId>org.yawni</groupId>
-  <artifactId>yawni-wordnet-data</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
-</dependency>
-@]
->><<
-
-To integrate Yawni into your project, you'll need to choose the [[http://www.slf4j.org/|SLF4J]] logging implementation that is compatible with your project's logging: all this requires is adding a small jar file to your classpath, and you can automate this with a Maven dependency.  For example:
-
->>frame<<
-If your project doesn't use logging, add this to your @@pom.xml@@:
-
-[@
-<dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-nop</artifactId>
-  <version>1.5.11</version>
-</dependency>
-@]
->><<
-
->>frame<<
-If your project uses @@java.util.logging@@, add this to your @@pom.xml@@:
-
-[@
-<dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-jdk14</artifactId>
-  <version>1.5.11</version>
-</dependency>
-@]
->><<
-
->>frame<<
-If your project uses log4j, add this to your pom.xml:
-
-[@
-<dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-log4j12</artifactId>
-  <version>1.5.11</version>
-</dependency>
-@]
->><<
-
-A more detailed explanation can be found [[http://mina.apache.org/logging-configuration.html]] or in the [[http://www.slf4j.org/manual.html|SLF4J manual]].
-    
   - bug: core: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
     - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
       - these can easily get fairly large and capture 
@@ -1369,9 +1339,12 @@ x feature: howto for developing in NetBeans ?
       # org/yawni/wordnet/browser/log4j.properties
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher > filters
       # pipe into wc -c to verify correctness, without worrying about disk related issues (saves about 15% of time!) : expect 10905119
-      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -Xms128m -Xmx128m -Xbatch -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher | wc -c
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -XX:-PrintCompilation -Xms128m -Xmx128m -Xbatch -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher | wc -c
       # combine stdout & stderr
       time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -Xms128m -Xmx128m -Xbatch -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher 2>&1 | wc -c
+      
+      # hacking in options
+      time cat warAndPeace/wrnpc12.txt | tr -sc "[A-Z][a-z]" "\n" | java -Xms128m -Xmx128m -XX:+PrintCompilation -server -cp browser/target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar org.yawni.wordnet.browser.Searcher 2>&1 | wc -c
       * in hypernyms mode, wc -c = 81389992 ; 
         real	1m49.083s
         user	1m11.643s
@@ -1384,7 +1357,13 @@ x feature: howto for developing in NetBeans ?
         real	1m37.840s
         user	1m11.293s
         sys	  0m41.029s
+
+        # morphosemantic relations, Google Collections
+        real	1m49.194s
+        user	1m25.004s
+        sys	0m41.156s
         
+        3098905 B, 574659 words ~30 kB/s ~5.7 k words/s
 
     * lots of variables when doing performance testing
       - code
@@ -1476,6 +1455,26 @@ x feature: howto for developing in NetBeans ?
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
   - feature: core: ⊚ nice API to verb groups; add a field to WordSense (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html)
     - since this relation is sort of lexical, we can add specicialized impl and filter on source WordSense, but return source Synset; note the common thread is the Word, NOT the WordSense
+    - working on this: precomputing the transitive closure offline; 
+      - respire: 00002325 00001740 00002573
+      - twitch, jerk: 01891817 00009631
+      - details
+        - can exclude pairs (closure is pair) (978 of 1750)
+          cat o3 | awkt '{print $2}'| grep '^[0-9]\+ [0-9]\+$' | wc -l
+        - can omit explicit relations
+      ? seems to be 1750 instances
+        - rotate 'current' to front, sort | uniq → 1500 instances ?
+          dups include
+          00001740 00002325 00002573
+          00001740 00002325 00002573
+        - extras ? act only has 6 in UI, has 9 - following synsets which don't include focal word (e.g., act → play)
+          [Synset 10435@[POS verb]<verb.body>{act, behave, do}]   +00010435 +01721556 +01719302 01722077 01719921 01716619 01716882 +02744977 +00013615
+            ? 01719921 01716619 01716882 - these 
+             01719921 act#10, play#25, roleplay#1, playact#1
+             01716619 play#14
+             01716882 play#26
+        - intended usage of verb group appears to be for merging senses of a particular word, but transitive closure can cross word boundaries
+          - generalized form seems more useful - concept is essentially super-synsets (establishes equivalence, not hyper/hypo -nym because no more general/specific relationship)
   ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on class(es)? though could hide real bugs) 
   - bug: core: doc: document sort orders of Word, WordSense, Synset, and Relation
     - Word: 
