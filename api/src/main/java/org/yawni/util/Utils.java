@@ -66,6 +66,7 @@ public class Utils {
    * contents of {@code iterable}.
    * 
    * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/distance.html">distance</a>
+   * Same as {@link Iterables#size(java.lang.Iterable)}
    */
   public static long distance(final Iterable<?> iterable) {
     if (iterable instanceof Collection) {
@@ -85,6 +86,7 @@ public class Utils {
    * contents of {@code iterable}.
    *
    * <p> Modeled after C++ STL <a href="http://www.sgi.com/tech/stl/distance.html">distance</a>
+   * Same as {@link Iterators#size(java.util.Iterator)}
    */
   public static long distance(final Iterator<?> it) {
     long distance = 0;
