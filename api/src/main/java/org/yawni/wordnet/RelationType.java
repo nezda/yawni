@@ -106,7 +106,9 @@ public enum RelationType {
   /** aka "'cause to'" */
   CAUSE("cause", ">", 14, V, null, "%s causes ..."),
   /**
-   * Verb senses that are similar in meaning and have been manually grouped together.
+   * Verb senses that are <em>similar</em> in meaning and have been manually grouped together,
+   * like members of a Synset.  Relation is lexically motivated, but can cross Word boundaries.
+   * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
    * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html">
    *  wngroups.7WN</a>
