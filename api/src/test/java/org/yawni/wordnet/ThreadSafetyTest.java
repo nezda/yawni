@@ -47,7 +47,8 @@ public class ThreadSafetyTest {
         this.wordSensesVisited == that.wordSensesVisited &&
         this.relationsVisited == that.relationsVisited;
     }
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "[Antagonizer: " + id +
         " wordsVisited: " + wordsVisited +
         " wordSensesVisited: " + wordSensesVisited +
