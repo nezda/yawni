@@ -18,6 +18,7 @@ package org.yawni.wordnet;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+import static org.yawni.wordnet.GetIndex2.baseNDigitX;
 
 // main things to test for:
 // - produces all combinations
@@ -46,7 +47,7 @@ public class GetIndexTest {
     assertEquals(8, alternate("p_q_r_s"));
   }
   static int alternate(final String searchStr) {
-    final GetIndex alternator = new GetIndex(searchStr, POS.NOUN, null);
+    final GetIndex2 alternator = new GetIndex2(searchStr, POS.NOUN, null);
     for (final CharSequence alt : alternator) {
       System.err.println("alternation: " + alt);
     }
@@ -70,4 +71,20 @@ public class GetIndexTest {
 //
 ////    GetIndex.alternate("m_n_o_p");
 //  }
+
+  @Test
+  public void testBaseNDigitX() {
+    assertEquals(3, baseNDigitX(123, 10, 0));
+    assertEquals(2, baseNDigitX(123, 10, 1));
+    assertEquals(1, baseNDigitX(123, 10, 2));
+
+    assertEquals(1, baseNDigitX(5, 2, 0));
+    assertEquals(0, baseNDigitX(5, 2, 1));
+    assertEquals(1, baseNDigitX(5, 2, 2));
+
+    assertEquals(0, baseNDigitX(5, 2, 3));
+
+    assertEquals(8, baseNDigitX(0xf8, 16, 0));
+    assertEquals(15, baseNDigitX(0xf8, 16, 1));
+  }
 }
