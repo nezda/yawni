@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Memory-sensitive {@code Cache} backed by a ConcurrentHashMap based on
  * {@link java.lang.ref.SoftReference}s.
- * All methods are thread-safe by brute-force synchronization.
  */
 class ConcurrentSoftCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
