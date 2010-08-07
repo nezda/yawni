@@ -394,7 +394,7 @@ class Morphy {
         addTrueCaseLemmas(word, toReturn);
       } else if (origWordCount > 1) {
         log.trace("trying getindex logic on \"{}\" {}", searchstr, pos);
-        for (final CharSequence variant : new GetIndex(searchstr, pos, this)) {
+        for (final CharSequence variant : new GetIndex2(searchstr, pos, this)) {
           final String variantString = variant.toString();
           log.trace("trying variant:\"{}\"", variantString);
           word = is_defined(variantString, pos);
