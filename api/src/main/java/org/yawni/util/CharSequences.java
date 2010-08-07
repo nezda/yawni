@@ -16,9 +16,10 @@
  */
 package org.yawni.util;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * Utility methods for {@link CharSequence}s.
- * 
  * <p> Borrowed some code from Apache Harmony {@link java.util.StringTokenizer java.util.StringTokenizer}.
  */
 public class CharSequences {
@@ -122,6 +123,7 @@ public class CharSequences {
     return true;
   }
 
+  /** TODO replace with Google Guava {@code com.google.common.base.CharMatcher} */
   public static boolean containsUpper(final CharSequence string) {
     int len = string.length();
     while (len-- != 0) {
@@ -212,8 +214,8 @@ public class CharSequences {
   public static int parseInt(final CharSequence string, int offset,
       final int end, final int radix) {
     final int start = offset;
-    if (string == null || radix < Character.MIN_RADIX
-        || radix > Character.MAX_RADIX) {
+    if (string == null || radix < Character.MIN_RADIX ||
+        radix > Character.MAX_RADIX) {
       throw new NumberFormatException();
     }
     if (start >= end) {
@@ -281,8 +283,8 @@ public class CharSequences {
   public static long parseLong(final CharSequence string, int offset,
       final int end, final int radix) {
     final int start = offset;
-    if (string == null || radix < Character.MIN_RADIX
-        || radix > Character.MAX_RADIX) {
+    if (string == null || radix < Character.MIN_RADIX ||
+        radix > Character.MAX_RADIX) {
       throw new NumberFormatException();
     }
     if (start >= end) {
@@ -323,5 +325,38 @@ public class CharSequences {
   public static String substring(final CharSequence charSequence,
       final int offset, final int end) {
     return charSequence.subSequence(offset, end).toString();
+  }
+
+  /**
+   * @see String#indexOf(java.lang.String, int)
+   * TODO replace with Google Guava {@code com.google.common.base.CharMatcher}
+   */
+  public static int indexOf(final CharSequence str, final char c, final int fromIndex) {
+    if (str instanceof String) {
+      return ((String)str).indexOf(c, fromIndex);
+    } else {
+      for (int j = fromIndex, n = str.length(); j < n; j++) {
+        if (c == str.charAt(j)) {
+          return j;
+        }
+      }
+      return -1;
+    }
+  }
+
+  /**
+   * TODO replace with Google Guava {@code com.google.common.base.CharMatcher}
+   */
+  public static int indexIn(final CharSequence str, final int fromIndex, final char... chars) {
+    checkArgument(chars.length > 0);
+    for (int j = fromIndex, n = str.length(); j < n; j++) {
+      final char c = str.charAt(j);
+      for (final char q : chars) {
+        if (q == c) {
+          return j;
+        }
+      }
+    }
+    return -1;
   }
 }
