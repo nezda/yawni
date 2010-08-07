@@ -16,77 +16,82 @@
  */
 package org.yawni.wordnet;
 
+import org.yawni.util.CharSequences;
 import java.math.BigInteger;
 import java.util.Iterator;
-import java.util.List;
+import com.google.common.collect.UnmodifiableIterator;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * Function object port of {@code getindex()} search variants function
- * in {@code search.c}.
- * TODO implement {@code ListIterator<CharSequence>, ListIterator<Word>}
+ * Function object port of {@code getindex()} 'smart' search variants function
+ * in {@code search.c}: creates all combinations of spaces and dashes
+ * for a given string form, e.g.,
+ * input: "
+ *
+ * general outline:
+ * <ul>
+ *   <li> nextState encodes the current state of the buffer
+ *   <li> method next() transforms (i.e., mutates) to the next form
+ * </ul>
+ *
+ * TODO
+ * * alternations involving periods, e.g.,
+ *   "F.D." → "F. D.", and maybe "FD" → "F. D."
+ *   - add periods to all upper searchstr's
+ *   - ... see commented test cases in {@link MorphyTest}
  */
-// general plan
-// * offset is the step we're in in the set of transformations to undergo
-// * method next() mutates the outward appearance of this object to the next state
-class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSequence> {
-  private final String base;
+// * subclass AbstractList<CharSequence> would be slicker
+//   - just make new buffer per get(nextState) to ensure thread-safe
+// * for any practical numbers, BigInteger is overkill - could just use an int and some bit manipulation
+// * this class is NOT threadsafe - mutates internal buffer - synchronize ? go immutable
+class GetIndex extends UnmodifiableIterator<CharSequence> implements Iterable<CharSequence> {
+  private final String givenForm;
   private final POS pos;
   private final Morphy morphy;
+  private static final char[] TO_ALTERNATE = new char[]{ '_', '-' };
   private final BigInteger numAlternations;
   private final BigInteger initialState;
   private final StringBuilder buffer;
   private BigInteger nextState;
 
+  // could vary behavior based on POS, Morphy, but actually dont'
   GetIndex(final String searchStr, final POS pos, final Morphy morphy) {
-    this.base = searchStr;
+    this.givenForm = checkNotNull(searchStr);
     this.pos = pos == POS.SAT_ADJ ? POS.ADJ : pos;
     this.morphy = morphy;
+    // count candidates
     int numCandidates = 0;
-    BigInteger initialState = BigInteger.ZERO;
-    for (int i = next(searchStr, 0);
+    for (int i = findNextVictimIndex(searchStr, 0);
       i >= 0;
-      i = next(searchStr, i + 1)) {
+      i = findNextVictimIndex(searchStr, i + 1)) {
+      //TODO could set initialState according to the given values (e.g., '_' → 0, '-' → 1)
       if (searchStr.charAt(i) == '_') {
-        // initialState[numCandidates] = 0
       } else if (searchStr.charAt(i) == '-') {
-        // initialState = initialState.setBit(numCandidates);
       }  else {
         throw new IllegalStateException();
       }
-      ++numCandidates;
+      numCandidates++;
     }
-    this.initialState = initialState;
+    this.initialState = BigInteger.ZERO;
     this.nextState = initialState;
     // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
-    this.numAlternations = BigInteger.valueOf(1 << numCandidates);
+    this.numAlternations = BigInteger.valueOf(TO_ALTERNATE.length).pow(numCandidates);
     this.buffer = new StringBuilder(searchStr);
-//    getindex(searchStr, pos);
-  }
-
-  private void reset() {
-    nextState = initialState;
-    buffer.replace(0, base.length(), base);
-  }
-
-  public char charAt(int i) {
-    return buffer.charAt(i);
-  }
-
-  public int length() {
-    return base.length();
   }
 
   public int size() {
     return numAlternations.intValue();
   }
-
-  public CharSequence subSequence(final int s, final int e) {
-    return buffer.subSequence(s, e);
+  
+  private void reset() {
+    nextState = initialState;
+    buffer.replace(0, givenForm.length(), givenForm);
   }
 
   public Iterator<CharSequence> iterator() {
     reset();
-    return new GetIndex(base, pos, morphy);
+    return new GetIndex(givenForm, pos, morphy);
   }
 
   public boolean hasNext() {
@@ -99,30 +104,36 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     // - strip dashes
     // ~ handle single token as special case
     // - create alternations for "F.D." → "F. D.", and maybe "FD" → "F. D."
-    int candIdx = 0;
-    for (int i = next(base, 0);
-      i >= 0;
-      i = next(base, i + 1)) {
-      if (nextState.testBit(candIdx)) {
-        buffer.setCharAt(i, '-');
-      } else {
-        buffer.setCharAt(i, '_');
-      }
-      candIdx++;
-    }
+    set(givenForm, buffer, nextState);
     nextState = nextState.add(BigInteger.ONE);
-    return this;
+    return buffer;
   }
 
-  public void remove() {
-    throw new UnsupportedOperationException();
+  /**
+   * use bits of nextState to set candidate positions
+   * @return convenience return
+   */
+  private static CharSequence set(final String givenForm, final StringBuilder buffer, final BigInteger nextState) {
+    for (int stateIdx = 0, i = findNextVictimIndex(givenForm, 0);
+      i >= 0;
+      i = findNextVictimIndex(givenForm, i + 1)) {
+      // base2(nextState)[stateIdx] == 1
+//      if (nextState.testBit(stateIdx)) {
+//        buffer.setCharAt(i, '-');
+//      } else {
+//        buffer.setCharAt(i, '_');
+//      }
+      buffer.setCharAt(i, TO_ALTERNATE[baseNDigitX(nextState, TO_ALTERNATE.length, stateIdx)]);
+      stateIdx++;
+    }
+    return buffer;
   }
 
-  // Comparable<CharSequence>
-  //public int compareTo(final CharSequence that) {
-  //  throw new UnsupportedOperationException();
-  //}
-  
+  /** find next candidate hyphen/space index starting at i */
+  private static int findNextVictimIndex(final CharSequence str, final int fromIndex) {
+    return CharSequences.indexIn(str, fromIndex, TO_ALTERNATE);
+  }
+
   @Override
   public int hashCode() {
     throw new UnsupportedOperationException();
@@ -132,39 +143,33 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
   public boolean equals(Object that) {
     throw new UnsupportedOperationException();
   }
-
-  // note this is part of the CharSequence interface
-  @Override
-  public String toString() {
-    return buffer.toString();
+  
+  static int baseNDigitX(final int number, final int radix, final int x) {
+    return baseNDigitX(BigInteger.valueOf(number), radix, x);
   }
 
-  private static int next(final CharSequence str, final int i) {
-    final int s = indexOf(str, '_', i);
-    final int h = indexOf(str, '-', i);
-    if (s < 0) {
-      return h;
-    } else if (h < 0) {
-      return s;
-    } else {
-      return Math.min(s, h);
-    }
-  }
-
-  private static int indexOf(final CharSequence str, final char c, final int i) {
-    if (str instanceof String) {
-      return ((String)str).indexOf(c, i);
-    } else {
-      for (int j = i, n = str.length(); j < n; j++) {
-        if (c == str.charAt(j)) {
-          return j;
-        }
+  static int baseNDigitX(final BigInteger number, final int radix, final int x) {
+    checkArgument(radix > 0);
+    checkArgument(x >= 0);
+    final BigInteger bigRadix = BigInteger.valueOf(radix);
+    int idx = -1;
+    BigInteger num = number;
+    BigInteger[] divRem;
+    do {
+      divRem = num.divideAndRemainder(bigRadix);
+      num = divRem[0];
+      idx++;
+      if (divRem[0].equals(BigInteger.ZERO) && idx < x) {
+        //throw new IndexOutOfBoundsException(number+" has no digit "+x+" (not large enough)");
+        return 0;
       }
-      return -1;
-    }
+    } while (idx < x);
+    return divRem[1].intValue();
   }
 
   /**
+   * XXX unused original notes XXX
+   * 
    * 'Smart' search of WordNet index file.  Attempts to find word in index file
    * by trying different transformations including:
    * <ul>
@@ -174,26 +179,8 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
    *   <li> strip periods </li>
    * </ul>
    * ??? Typically this operates on the output(s) of <code>morphstr()</code>.
-   *
-   * <p>Port of {@code search.c}'s function {@code getindex()} function.
-   *
-   * TODO
-   * - add periods to all upper searchstr's
-   * - ...
-   * - see commented test cases in {@link MorphyTest}
    */
   private void getindex(String searchstr, final POS pos) {
-    // typical input:
-    // needs "-" → ""  { POS.NOUN, "fire-bomb",   "firebomb" }, // WN does this
-    // needs "-" → " " { POS.NOUN, "letter-bomb", "letter bomb" }, // WN does do this
-    // needs "" → " "  { POS.NOUN, "letterbomb", "letter bomb" }, // WN doesn't do this
-    // - requires prefix AND suffix match or forgiving match -- slippery slope "I ran" → "Iran"
-    // needs "" → "." AND "X.X." → "X. X." { "FD Roosevelt", "F.D. Roosevelt", "F. D. Roosevelt"} // WN doesn't do this
-
-    //FIXME this strategy fails for special 3+ word
-    // collocations like "wild-goose chase" and "internal-combustion engine"
-    // when the query has no dashes (common).
-    //
     // better strategy:
     // - try variants where each underscore (space) switched to
     //   a dash and each dash is switched to an underscore (space)
@@ -204,65 +191,14 @@ class GetIndex implements CharSequence, Iterable<CharSequence>, Iterator<CharSeq
     // - implement algorithm as a series of modifcations of a single StringBuilder:
     //   * make mod, issue search (morphy.is_defined()) and store result
 
-    //FIXME short circuit this if searchstr contains
-    //no underscores (spaces), dashes, or periods as this
-    //algorithm will do nothing
-    //FIXME FIXME not true for insertion-variants
-    final int firstUnderscore = searchstr.indexOf('_');
-    final int firstDash = searchstr.indexOf('-');
-    final int firstPeriod = searchstr.indexOf('.');
-    if (firstUnderscore < 0 && firstDash < 0 && firstPeriod < 0) {
-      return;
-    }
-
-    // vector of search strings
-    final int MAX_FORMS = 5;
-    final String[] strings = new String[MAX_FORMS];
-
-    searchstr = searchstr.toLowerCase();
-    for (int i = 0; i < MAX_FORMS; i++) {
-      strings[i] = searchstr;
-    }
-    // [0] is original string (lowercased)
-
-    // [1] is ALL underscores (spaces) to dashes
-    strings[1] = strings[1].replace('_', '-');
-    // [2] is ALL dashes to underscores (spaces)
-    strings[2] = strings[2].replace('-', '_');
-
     // remove ALL spaces AND hyphens from search string
     // [3] is no underscores (spaces) or dashes
     //FIXME this strategy is a little crazy
     // * only allow this if a version with dashes exists ?
-    strings[3] = strings[3].replace("_", "").replace("-", "");
+//    strings[3] = strings[3].replace("_", "").replace("-", "");
     // remove ALL periods
     // [4] is no periods
     //FIXME this strategy is a also little crazy ("u.s." → "us")
-    strings[4] = strings[4].replace(".", "");
-
-    int j = -1;
-    for (final String s : strings) {
-      System.err.println("s[" + (++j) + "]: " + s);
-    }
-
-    // Get offset of first entry.  Then eliminate duplicates
-    // and get offsets of unique strings.
-
-    List<Word> words = null;
-    Word word = morphy.is_defined(strings[0], pos);
-    if (word != null) {
-      words.add(word);
-    }
-
-    for (int i = 1; i < MAX_FORMS; i++) {
-      if (strings[i] == null || strings[0].equals(strings[i])) {
-        continue;
-      }
-      word = morphy.is_defined(strings[i], pos);
-      if (word != null) {
-        words.add(word);
-      }
-    }
-    // cannot return duplicate Word since each is tied a specific String
+//    strings[4] = strings[4].replace(".", "");
   }
 }
