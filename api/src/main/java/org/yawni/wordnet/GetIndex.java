@@ -39,10 +39,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  *   - add periods to all upper searchstr's
  *   - ... see commented test cases in {@link MorphyTest}
  */
-// * subclass AbstractList<CharSequence> would be slicker
-//   - just make new buffer per get(nextState) to ensure thread-safe
-// * for any practical numbers, BigInteger is overkill - could just use an int and some bit manipulation
-// * this class is NOT threadsafe - mutates internal buffer - synchronize ? go immutable
 class GetIndex extends AbstractList<CharSequence> {
   private final String givenForm;
   private static final char[] DEFAULT_TO_ALTERNATE = new char[]{ '_', '-' };
