@@ -45,33 +45,37 @@ import static com.google.common.base.Preconditions.checkArgument;
 // * this class is NOT threadsafe - mutates internal buffer - synchronize ? go immutable
 class GetIndex2 extends AbstractList<CharSequence> {
   private final String givenForm;
-  private static final char[] TO_ALTERNATE = new char[]{ '_', '-' };
+  private static final char[] DEFAULT_TO_ALTERNATE = new char[]{ '_', '-' };
+  private final char[] toAlternate;
   private final int numAlternations;
 
   // backwards compat hack
   // could vary behavior based on POS, Morphy, but actually dont'
   GetIndex2(final String searchStr, final POS pos, final Morphy morphy) {
-    this(searchStr);
+    this(searchStr, DEFAULT_TO_ALTERNATE);
   }
 
   // could vary behavior based on POS, Morphy, but actually dont'
-  GetIndex2(final String searchStr) {
+  GetIndex2(final String searchStr, final char[] toAlternate) {
     this.givenForm = checkNotNull(searchStr);
+    this.toAlternate = checkNotNull(toAlternate);
+    checkArgument(toAlternate.length > 0);
     // count candidates
     int numCandidates = 0;
-    for (int i = findNextVictimIndex(searchStr, 0);
+    for (int i = findNextVictimIndex(toAlternate, searchStr, 0);
       i >= 0;
-      i = findNextVictimIndex(searchStr, i + 1)) {
+      i = findNextVictimIndex(toAlternate, searchStr, i + 1)) {
       //TODO could set initialState according to the given values (e.g., '_' → 0, '-' → 1)
-      if (searchStr.charAt(i) == '_') {
-      } else if (searchStr.charAt(i) == '-') {
-      }  else {
-        throw new IllegalStateException();
-      }
+      //NOTE, commented logic below assumes toAlternate == DEFAULT_TO_ALTERNATE
+//      if (searchStr.charAt(i) == '_') {
+//      } else if (searchStr.charAt(i) == '-') {
+//      }  else {
+//        throw new IllegalStateException();
+//      }
       numCandidates++;
     }
     // - there will be 2^n total variants where -- 2 because |{'-','_'}| == 2
-    this.numAlternations = (int) Math.pow(TO_ALTERNATE.length, numCandidates);
+    this.numAlternations = (int) Math.pow(toAlternate.length, numCandidates);
   }
 
   public int size() {
@@ -84,26 +88,30 @@ class GetIndex2 extends AbstractList<CharSequence> {
     // - strip dashes
     // ~ handle single token as special case
     // - create alternations for "F.D." → "F. D.", and maybe "FD" → "F. D."
-    return set(givenForm, new StringBuilder(givenForm), nextState);
+    return set(givenForm, toAlternate, new StringBuilder(givenForm), nextState);
   }
 
   /**
    * use bits of nextState to set candidate positions
    * @return convenience return
    */
-  private static CharSequence set(final String givenForm, final StringBuilder buffer, final int nextState) {
-    for (int stateIdx = 0, i = findNextVictimIndex(givenForm, 0);
+  private static CharSequence set(
+    final String givenForm,
+    final char[] toAlternate,
+    final StringBuilder buffer,
+    final int nextState) {
+    for (int stateIdx = 0, i = findNextVictimIndex(toAlternate, givenForm, 0);
       i >= 0;
-      i = findNextVictimIndex(givenForm, i + 1)) {
-      buffer.setCharAt(i, TO_ALTERNATE[baseNDigitX(nextState, TO_ALTERNATE.length, stateIdx)]);
+      i = findNextVictimIndex(toAlternate, givenForm, i + 1)) {
+      buffer.setCharAt(i, toAlternate[baseNDigitX(nextState, toAlternate.length, stateIdx)]);
       stateIdx++;
     }
     return buffer;
   }
 
   /** find next candidate hyphen/space index starting at i */
-  private static int findNextVictimIndex(final CharSequence str, final int fromIndex) {
-    return CharSequences.indexIn(str, fromIndex, TO_ALTERNATE);
+  private static int findNextVictimIndex(final char [] toAlternate, final CharSequence str, final int fromIndex) {
+    return CharSequences.indexIn(str, fromIndex, toAlternate);
   }
 
   @Override
