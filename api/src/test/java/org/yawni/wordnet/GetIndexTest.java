@@ -40,22 +40,69 @@ public class GetIndexTest {
   @Test
   public void test3() {
     System.err.println("test3() "+morphy);
-    assertEquals(4, alternate("x_y_z"));
+    assertEquals(2*2, alternate("x_y_z"));
+    assertEquals(3*3, experimentalAlternate("x_y_z"));
   }
   @Test
   public void test4() {
-    assertEquals(8, alternate("p_q_r_s"));
+    assertEquals(2*2*2, alternate("p_q_r_s"));
   }
   static int alternate(final String searchStr) {
     final GetIndex2 alternator = new GetIndex2(searchStr, POS.NOUN, null);
+    final char[] defaultAlternate = new char[] { '_', '-'};
+    int i = -1;
     for (final CharSequence alt : alternator) {
-      System.err.println("alternation: " + alt);
+//      System.err.println("alternation: " + alt);
+      i++;
+      final String altMsg = String.format("alternation[%d:%s]: %s",
+        i, Integer.toString(i, defaultAlternate.length), alt);
+      System.err.println(altMsg);
     }
 //    for (final CharSequence alt : alternator) {
 //      System.err.println("alternation': " + alt);
 //    }
     return alternator.size();
   }
+
+  static int experimentalAlternate(final String searchStr) {
+    // note: get some weird behavior if we use backspace ('\b') as an alternate
+    //experimentalAlternation[0:0]: x_y_z
+    //experimentalAlternation[1:1]: x-y_z
+    //experimentalAlternation[2:2]: y_z
+    //experimentalAlternation[3:10]: x_y-z
+    //experimentalAlternation[4:11]: x-y-z
+    //experimentalAlternation[5:12]: y-z
+    //experimentalAlternation[6:20]: x_z
+    //experimentalAlternation[7:21]: x-z
+    //experimentalAlternation[8:22]: z
+
+    //experimentalAlternation[0:0]: x_y_z
+    //experimentalAlternation[1:1]: x-y_z
+    //experimentalAlternation[2:2]: x*y_z
+    //experimentalAlternation[3:10]: x_y-z
+    //experimentalAlternation[4:11]: x-y-z
+    //experimentalAlternation[5:12]: x*y-z
+    //experimentalAlternation[6:20]: x_y*z
+    //experimentalAlternation[7:21]: x-y*z
+    //experimentalAlternation[8:22]: x*y*z
+
+    final char[] toAlternate = new char[] { '_', '-', '*' };
+//    final char[] toAlternate = new char[] { '_', '-', '\b' };
+    final GetIndex2 alternator = new GetIndex2(searchStr, toAlternate);
+    int i = -1;
+    for (final CharSequence alt : alternator) {
+//      System.err.println("experimentalAlternation: " + alt);//+ " fixed: "+alt.toString().replaceAll("\\b", ""));
+      i++;
+      final String altMsg = String.format("experimentalAlternation[%d:%s]: %s",
+        i, Integer.toString(i, toAlternate.length), alt);
+      System.err.println(altMsg);
+    }
+//    for (final CharSequence alt : alternator) {
+//      System.err.println("alternation': " + alt);
+//    }
+    return alternator.size();
+  }
+
 //  @Test
 //  public void test5() {
 //    assertEquals(16, GetIndex.alternate("d_e_f_g_h"));
