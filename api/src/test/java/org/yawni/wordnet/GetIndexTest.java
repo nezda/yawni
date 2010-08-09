@@ -46,6 +46,7 @@ public class GetIndexTest {
   @Test
   public void test4() {
     assertEquals(2*2*2, alternate("p_q_r_s"));
+    assertEquals(3*3*3, experimentalAlternate("p_q_r_s"));
   }
   static int alternate(final String searchStr) {
     final GetIndex alternator = new GetIndex(searchStr, POS.NOUN, null);
@@ -93,8 +94,8 @@ public class GetIndexTest {
     for (final CharSequence alt : alternator) {
 //      System.err.println("experimentalAlternation: " + alt);//+ " fixed: "+alt.toString().replaceAll("\\b", ""));
       i++;
-      final String altMsg = String.format("experimentalAlternation[%d:%s]: %s",
-        i, Integer.toString(i, toAlternate.length), alt);
+      final String altMsg = String.format("experimentalAlternation[%d:%s]: %s :: %s",
+        i, Integer.toString(i, toAlternate.length), alt, alt.toString().replaceAll("\\*", ""));
       System.err.println(altMsg);
     }
 //    for (final CharSequence alt : alternator) {
