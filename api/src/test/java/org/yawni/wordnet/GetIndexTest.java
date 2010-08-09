@@ -18,7 +18,7 @@ package org.yawni.wordnet;
 
 import org.junit.*;
 import static org.junit.Assert.*;
-import static org.yawni.wordnet.GetIndex2.baseNDigitX;
+import static org.yawni.wordnet.GetIndex.baseNDigitX;
 
 // main things to test for:
 // - produces all combinations
@@ -48,7 +48,7 @@ public class GetIndexTest {
     assertEquals(2*2*2, alternate("p_q_r_s"));
   }
   static int alternate(final String searchStr) {
-    final GetIndex2 alternator = new GetIndex2(searchStr, POS.NOUN, null);
+    final GetIndex alternator = new GetIndex(searchStr, POS.NOUN, null);
     final char[] defaultAlternate = new char[] { '_', '-'};
     int i = -1;
     for (final CharSequence alt : alternator) {
@@ -88,7 +88,7 @@ public class GetIndexTest {
 
     final char[] toAlternate = new char[] { '_', '-', '*' };
 //    final char[] toAlternate = new char[] { '_', '-', '\b' };
-    final GetIndex2 alternator = new GetIndex2(searchStr, toAlternate);
+    final GetIndex alternator = new GetIndex(searchStr, toAlternate);
     int i = -1;
     for (final CharSequence alt : alternator) {
 //      System.err.println("experimentalAlternation: " + alt);//+ " fixed: "+alt.toString().replaceAll("\\b", ""));

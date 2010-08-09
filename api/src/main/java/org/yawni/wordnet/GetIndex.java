@@ -43,7 +43,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 //   - just make new buffer per get(nextState) to ensure thread-safe
 // * for any practical numbers, BigInteger is overkill - could just use an int and some bit manipulation
 // * this class is NOT threadsafe - mutates internal buffer - synchronize ? go immutable
-class GetIndex2 extends AbstractList<CharSequence> {
+class GetIndex extends AbstractList<CharSequence> {
   private final String givenForm;
   private static final char[] DEFAULT_TO_ALTERNATE = new char[]{ '_', '-' };
   private final char[] toAlternate;
@@ -51,12 +51,12 @@ class GetIndex2 extends AbstractList<CharSequence> {
 
   // backwards compat hack
   // could vary behavior based on POS, Morphy, but actually dont'
-  GetIndex2(final String searchStr, final POS pos, final Morphy morphy) {
+  GetIndex(final String searchStr, final POS pos, final Morphy morphy) {
     this(searchStr, DEFAULT_TO_ALTERNATE);
   }
 
   // could vary behavior based on POS, Morphy, but actually dont'
-  GetIndex2(final String searchStr, final char[] toAlternate) {
+  GetIndex(final String searchStr, final char[] toAlternate) {
     this.givenForm = checkNotNull(searchStr);
     this.toAlternate = checkNotNull(toAlternate);
     checkArgument(toAlternate.length > 0);
