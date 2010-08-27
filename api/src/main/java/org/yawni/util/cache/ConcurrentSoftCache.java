@@ -20,8 +20,8 @@ import com.google.common.collect.MapMaker;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Memory-sensitive {@code Cache} backed by a ConcurrentHashMap based on
- * {@link java.lang.ref.SoftReference}s.
+ * Memory-sensitive {@code Cache} backed by a {@link ConcurrentMap} with
+ * {@link java.lang.ref.SoftReference}-values.
  */
 class ConcurrentSoftCache<K, V> implements Cache<K, V> {
   private static final long serialVersionUID = 1L;
