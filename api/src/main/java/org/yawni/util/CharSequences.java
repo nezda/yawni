@@ -185,7 +185,7 @@ public class CharSequences {
    *
    * @param string a string representation of an int quantity.
    * @param radix the base to use for conversion.
-   * @return int the value represented by the argument
+   * @return the int value represented by the argument
    * @throws NumberFormatException
    *                if the argument could not be parsed as an int quantity.
    */
@@ -202,7 +202,7 @@ public class CharSequences {
    * @param string a string representation of an int quantity.
    * @param offset
    * @param end
-   * @return int the value represented by the argument
+   * @return the int value represented by the argument
    * @throws NumberFormatException
    *                if the argument could not be parsed as an int quantity.
    */
