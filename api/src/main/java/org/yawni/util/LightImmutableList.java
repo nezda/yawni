@@ -898,7 +898,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
   
   /**
    * Classic {@code ArrayList}-style implementation.  Implementation liberally copied
-   * from Google Collections LightImmutableList.RegularImmutableList
+   * from Google Collections ImmutableList.RegularImmutableList
    * @param <E>
    */
   private static final class RegularImmutableList<E> extends AbstractImmutableList<E> {
