@@ -28,10 +28,6 @@ import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
 import org.yawni.util.Utils;
 import static org.yawni.util.Utils.add;
-import static org.yawni.wordnet.RelationType.HYPERNYM;
-import static org.yawni.wordnet.RelationType.HYPONYM;
-import static org.yawni.wordnet.RelationType.INSTANCE_HYPERNYM;
-import static org.yawni.wordnet.RelationType.INSTANCE_HYPONYM;
 
 /**
  * A {@code Synset}, or <b>syn</b>onym <b>set</b>, represents a line of a WordNet <code>data.<em>pos</em></code> file (e.g., {@code data.noun}).
@@ -126,94 +122,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     for (int i = 0; i < relationCount; i++) {
       final Relation relation = Relation.makeRelation(this, localRelations.size(), tokenizer);
       localRelations.add(relation);
-      if (relation.getType() != RelationType.DERIVATIONALLY_RELATED) {
-        continue;
-      }
-      final int srcPOSOrdinal = posOrdinal;
-      if (srcPOSOrdinal != POS.NOUN.ordinal() && srcPOSOrdinal != POS.VERB.ordinal()) {
-        continue;
-      }
-      final POS targetPOS = relation.getTargetPOS();
-      if (targetPOS != POS.NOUN && targetPOS != POS.VERB) {
-        continue;
-      }
-      // insert MorphosemanticRelation instances
-      final LexicalRelation lexRel = (LexicalRelation) relation;
-//      showLine(lexRel);
-      //TODO offsetKey can be created more efficiently with a custom method
-      final CharSequence srcOffsetKey;
-      if (srcPOSOrdinal == 1) {
-        srcOffsetKey = String.format("1%08d", offset);
-      } else {
-        assert srcPOSOrdinal == 2;
-        srcOffsetKey = String.format("2%08d", offset);
-      }
-      final Iterable<CharSequence> lexRelLines = wordNet.lookupMorphoSemanticRelationLines(srcOffsetKey);
-      //1331 of these
-      if (Iterables.isEmpty(lexRelLines)) {
-//        System.err.println("eek! "+srcOffsetKey+" "+getPOS()+" "+line);
-        continue;
-      }
-      // this is invariant for this relation
-      final int mySrcSynsetIdx = wordSenses.indexOf(lexRel.getSource());
-      assert mySrcSynsetIdx >= 0;
-      final POS myTargetPOS = lexRel.getTargetPOS();
-      final int myTargetSynsetIdx = lexRel.getTargetIndex() - 1;
-      assert myTargetSynsetIdx >= 0;
-      final int myTargetOffset = lexRel.getTargetOffset();
-      boolean foundMatch = false;
-      RelationType mrtype = null;
-      for (final CharSequence lexRelLine : lexRelLines) {
-//          System.err.println("lexRelLine: "+lexRelLine);
-        final CharSequenceTokenizer lexTokenizer = new CharSequenceTokenizer(lexRelLine, " ");
-        // not really necessary, could just skipToken()
-        final String srcPOSOffset = lexTokenizer.nextToken();
-        assert srcPOSOffset.contentEquals(srcOffsetKey);
-        final int srcSynsetIdx = lexTokenizer.nextInt();
-        if (srcSynsetIdx != mySrcSynsetIdx) {
-//            System.err.println("fail 0 :: "+mySrcSynsetIdx+" "+srcSynsetIdx);
-          continue;
-        }
-        final String mtype = lexTokenizer.nextToken();
-        //TODO pull off POS part using some new CharSequenceTokenizer nextChar()/charAt()/seek functionality
-        final String targetPOSOffset = lexTokenizer.nextToken();
-        final int targetSynsetIdx = lexTokenizer.nextInt();
-        if (targetSynsetIdx != myTargetSynsetIdx) {
-//            System.err.println("fail 1 :: "+myTargetSynsetIdx+" "+targetSynsetIdx);
-          continue;
-        }
-        // POS mismatch is possible (rare)
-        if (targetPOS != myTargetPOS) {
-          continue;
-        }
-
-        final int targetOffset = CharSequences.parseInt(targetPOSOffset, 1, targetPOSOffset.length());
-        if (targetOffset != myTargetOffset) {
-//            System.err.println("fail 2 :: targetOffset "+myTargetOffset+" "+targetOffset);
-          continue;
-        }
-        // Yahoo! full match
-//          System.err.println("full match!");
-        foundMatch = true;
-        final MorphosemanticRelation morphorel = MorphosemanticRelation.fromValue(mtype);
-        mrtype = RelationType.valueOf(morphorel.name());
-//        break;
-        if (mrtype != null) {
-//          System.err.println("full match! "+mrtype);
-          final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype, localRelations.size());
-          localRelations.add(morphosemanticRelation);
-        }
-      }
-//      if (mrtype != null) {
-////          System.err.println("full match! "+mrtype);
-//        final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype, localRelations.size());
-//        localRelations.add(morphosemanticRelation);
-//      }
-//        assert foundMatch;
-      if (! foundMatch) {
-        // 4895 instances
-//        showLine(lexRel);
-      }
+      addVerbGroupTransitiveClosureRelations(relation, localRelations);
+      addExtraMorphosemanticRelations(relation, localRelations);
     }
     
     this.relations = LightImmutableList.copyOf(localRelations);
@@ -235,6 +145,154 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
         }
       }
     }
+  }
+
+  private boolean addVerbGroupTransitiveClosureRelations(final Relation relation, final List<Relation> localRelations) {
+    if (relation.getType() != RelationType.VERB_GROUP) {
+      return false;
+    }
+    assert posOrdinal == 2;
+    // insert additional VERB_GROUP relation instances
+    //TODO offsetKey can be created more efficiently with a custom method
+    final CharSequence srcOffsetKey = String.format("%08d", offset);
+    final Iterable<CharSequence> lexRelLines = wordNet.lookupVerbGroupLines(srcOffsetKey);
+    if (Iterables.isEmpty(lexRelLines)) {
+      return false;
+    }
+    final POS myTargetPOS = relation.getTargetPOS();
+    assert myTargetPOS == POS.VERB;
+    final int myTargetSynsetIdx = relation.getTargetIndex();
+    assert myTargetSynsetIdx == 0;
+    boolean foundMatch = false;
+    for (final CharSequence vgRelLine : lexRelLines) {
+      final CharSequenceTokenizer lexTokenizer = new CharSequenceTokenizer(vgRelLine, " ");
+      // not really necessary, could just skipToken()
+      final String srcOffset = lexTokenizer.nextToken();
+      assert srcOffset.contentEquals(srcOffsetKey);
+      while (lexTokenizer.hasMoreTokens()) {
+        final int targetOffset = lexTokenizer.nextInt();
+        final int targetIndex = 0; // targetIndex of Synset is 0; see Relation#getTarget()/Relation#resolveTarget
+        final SemanticRelation vgRelation = new SemanticRelation(
+          targetOffset, targetIndex, (byte)POS.VERB.ordinal(),
+          localRelations.size(),
+          this, (byte)RelationType.VERB_GROUP.ordinal()
+          );
+        // ensure not already in there
+        if (! contains(vgRelation, localRelations)) {
+          localRelations.add(vgRelation);
+          foundMatch = true;
+        } else {
+//          System.err.println("AVOIDING DUP "+vgRelation); // toString causes stack overflow
+//          System.err.println("AVOIDING DUP");
+        }
+      }
+    }
+    return foundMatch;
+  }
+
+  // because srcRelationIndex is generated, we can't use it in the comparison; ultimately,
+  // the srcRelationIndex will be unique and effects the equals() and compareTo() ordering,
+  // so we have to compare manually to prevent logical duplicates
+  private static boolean contains(final Relation needle, final List<Relation> localRelations) {
+    for (final Relation that : localRelations) {
+      if (that.getSource().equals(needle.getSource())
+        // DON'T USE SYNTHESIZED SOURCE RELATION INDEX && that.getSourceRelationIndex() == needle.getSourceRelationIndex()
+         && that.getType() == needle.getType()
+         && that.getTargetOffset() == needle.getTargetOffset()
+         && that.getTargetIndex() == needle.getTargetIndex()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean addExtraMorphosemanticRelations(final Relation relation, final List<Relation> localRelations) {
+    if (relation.getType() != RelationType.DERIVATIONALLY_RELATED) {
+      return false;
+    }
+    final int srcPOSOrdinal = posOrdinal;
+    if (srcPOSOrdinal != POS.NOUN.ordinal() && srcPOSOrdinal != POS.VERB.ordinal()) {
+      return false;
+    }
+    final POS targetPOS = relation.getTargetPOS();
+    if (targetPOS != POS.NOUN && targetPOS != POS.VERB) {
+      return false;
+    }
+    // insert MorphosemanticRelation instances
+    final LexicalRelation lexRel = (LexicalRelation) relation;
+//      showLine(lexRel);
+    //TODO offsetKey can be created more efficiently with a custom method
+    final CharSequence srcOffsetKey;
+    if (srcPOSOrdinal == 1) {
+      srcOffsetKey = String.format("1%08d", offset);
+    } else {
+      assert srcPOSOrdinal == 2;
+      srcOffsetKey = String.format("2%08d", offset);
+    }
+    final Iterable<CharSequence> lexRelLines = wordNet.lookupMorphoSemanticRelationLines(srcOffsetKey);
+    // 1331 of these
+    if (Iterables.isEmpty(lexRelLines)) {
+//        System.err.println("eek! "+srcOffsetKey+" "+getPOS()+" "+line);
+//        continue;
+      return false;
+    }
+    // this is invariant for this relation
+    final int mySrcSynsetIdx = wordSenses.indexOf(lexRel.getSource());
+    assert mySrcSynsetIdx >= 0;
+    final POS myTargetPOS = lexRel.getTargetPOS();
+    final int myTargetSynsetIdx = lexRel.getTargetIndex() - 1;
+    assert myTargetSynsetIdx >= 0;
+    final int myTargetOffset = lexRel.getTargetOffset();
+    boolean foundMatch = false;
+    RelationType mrtype = null;
+    for (final CharSequence lexRelLine : lexRelLines) {
+//          System.err.println("lexRelLine: "+lexRelLine);
+      final CharSequenceTokenizer lexTokenizer = new CharSequenceTokenizer(lexRelLine, " ");
+      // not really necessary, could just skipToken()
+      final String srcPOSOffset = lexTokenizer.nextToken();
+      assert srcPOSOffset.contentEquals(srcOffsetKey);
+      final int srcSynsetIdx = lexTokenizer.nextInt();
+      if (srcSynsetIdx != mySrcSynsetIdx) {
+//            System.err.println("fail 0 :: "+mySrcSynsetIdx+" "+srcSynsetIdx);
+          continue;
+      }
+      final String mtype = lexTokenizer.nextToken();
+      //TODO pull off POS part using some new CharSequenceTokenizer nextChar()/charAt()/seek functionality
+      final String targetPOSOffset = lexTokenizer.nextToken();
+      final int targetSynsetIdx = lexTokenizer.nextInt();
+      if (targetSynsetIdx != myTargetSynsetIdx) {
+//            System.err.println("fail 1 :: "+myTargetSynsetIdx+" "+targetSynsetIdx);
+          continue;
+      }
+      // POS mismatch is possible (rare)
+      if (targetPOS != myTargetPOS) {
+          continue;
+      }
+
+      final int targetOffset = CharSequences.parseInt(targetPOSOffset, 1, targetPOSOffset.length());
+      if (targetOffset != myTargetOffset) {
+//            System.err.println("fail 2 :: targetOffset "+myTargetOffset+" "+targetOffset);
+          continue;
+      }
+      // Yahoo! full match
+//          System.err.println("full match!");
+      foundMatch = true;
+      final MorphosemanticRelation morphorel = MorphosemanticRelation.fromValue(mtype);
+      mrtype = RelationType.valueOf(morphorel.name());
+//        break;
+    }
+  
+    if (mrtype != null) {
+//          System.err.println("full match! "+mrtype);
+      final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype, localRelations.size());
+      localRelations.add(morphosemanticRelation);
+    }
+    //        assert foundMatch;
+    if (! foundMatch) {
+      // 4895 instances
+//        showLine(lexRel);
+    }
+    return foundMatch;
   }
 
   // debug method
@@ -281,7 +339,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /**
-   * Returns the "gloss", or definition of this synset, and optionally some example sentences.
+   * Returns the "gloss", or definition of this Synset, and optionally some example sentences.
    */
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   public String getGloss() {
@@ -312,7 +370,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /**
-   * The senses whose common meaning this synset represents.
+   * The senses whose common meaning this Synset represents.
    */
   public List<WordSense> getWordSenses() {
     return wordSenses;
@@ -380,12 +438,16 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   public String getDescription() {
     final StringBuilder buffer = new StringBuilder();
     buffer.append('{');
+    //TODO use Joiner
     for (int i = 0, n = wordSenses.size(); i < n; i++) {
       final WordSense wordSense = wordSenses.get(i);
       if (i > 0) {
         buffer.append(", ");
       }
       buffer.append(wordSense.getLemma());
+//      buffer.append(wordSense);
+//      buffer.append('#');
+//      buffer.append(wordSense.getSenseNumber());
     }
     buffer.append('}');
     return buffer.toString();
