@@ -300,6 +300,10 @@ public final class WordNet implements WordNetInterface {
     return "morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi";
   }
 
+  private static String getVerbGroupRelationsFilename() {
+    return "verb_groups.non_pairs.offsets";
+  }
+
   private static String getVerbSentencesIndexFilename() {
     return "sentidx.vrb";
   }
@@ -775,6 +779,15 @@ public final class WordNet implements WordNetInterface {
   Iterable<CharSequence> lookupMorphoSemanticRelationLines(final CharSequence senseKey) {
     try {
       return fileManager.getMatchingLines(senseKey, getMorphosemanticRelationsFilename());
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  // throws IllegalStateException if data file is not found
+  Iterable<CharSequence> lookupVerbGroupLines(final CharSequence senseKey) {
+    try {
+      return fileManager.getMatchingLines(senseKey, getVerbGroupRelationsFilename());
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
