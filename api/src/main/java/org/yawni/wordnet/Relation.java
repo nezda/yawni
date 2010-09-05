@@ -54,7 +54,7 @@ public abstract class Relation implements Comparable<Relation> {
    * Only used in {@code equals}, {@code compare}, {@code hashCode}: differentiates distinct relations of
    * the same type emanating from the same {@code Synset}.
    */
-  private final int relationIndex;
+  private final int srcRelationIndex;
   private final RelationArgument source;
 
   //
@@ -62,11 +62,11 @@ public abstract class Relation implements Comparable<Relation> {
   //
 
   Relation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int relationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
+    final int srcRelationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
     this.targetOffset = targetOffset;
     this.targetIndex = targetIndex;
     this.targetPOSOrdinal = targetPOSOrdinal;
-    this.relationIndex = relationIndex;
+    this.srcRelationIndex = srcRelationIndex;
     this.source = source;
     this.relationTypeOrdinal = relationTypeOrdinal;
   }
@@ -181,14 +181,14 @@ public abstract class Relation implements Comparable<Relation> {
   public boolean equals(final Object that) {
     return (that instanceof Relation)
       && ((Relation) that).source.equals(this.source)
-      && ((Relation) that).relationIndex == this.relationIndex
+      && ((Relation) that).srcRelationIndex == this.srcRelationIndex
       && ((Relation) that).relationTypeOrdinal == this.relationTypeOrdinal;
   }
 
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    return source.hashCode() + relationIndex;
+    return source.hashCode() + srcRelationIndex;
   }
 
   /** {@inheritDoc} */
@@ -219,7 +219,7 @@ public abstract class Relation implements Comparable<Relation> {
     int result;
     result = this.getSource().getSynset().compareTo(that.getSource().getSynset());
     if (result == 0) {
-      result = this.relationIndex - that.relationIndex;
+      result = this.srcRelationIndex - that.srcRelationIndex;
     }
     if (result == 0) {
       result = this.relationTypeOrdinal - that.relationTypeOrdinal;
