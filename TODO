@@ -306,10 +306,10 @@ everything
     - color - get inspiration from wordnetweb
     - smart double quotes
     - smart single quotes for single quoted items: `foo' → ‘foo’; 's → ’s
-    - bullet between examples ; •
+    - bullet between examples ; • (using semicolon)
     x "space" bullet (\u00B7 MIDDLE DOT) between words of collocations ; wild-goose·chase ; attack·dog ; hard·cash
       - only occasionally see this used, and often only for phonetic separation
-    - italicize examples; gray text (use BluePrint CSS class alt)
+    + italicize examples; gray text (use BluePrint CSS class alt)
     - em dash where apropos
     - rounded corners:
       - this site uses rounded corners a lot: http://scala-tools.org/mvnsites/maven-scala-plugin/
@@ -328,9 +328,9 @@ everything
     + downward facing rounded corners on results
     + issues
       - sense-horizontal-separating bullets are too big (Christine)
-      + ajax active spinner in unusual place
+      + AJAX active spinner in unusual place
         - maybe closer to search box
-      + ajax active spinner has white background which looks weird on non-white background
+      + AJAX active spinner has white background which looks weird on non-white background
         x make it transparent - better to match background colors
         + http://www.ajaxload.info/
       + rounded corners should work in Safari too
@@ -343,7 +343,7 @@ everything
 
   - REST API can be totally stateless (see Lift example StatelessHtml.scala)
     - David Pollack's advice
-      - serialize the forms to JSON and then make an Ajax call on a stable URL
+      - serialize the forms to JSON and then make an AJAX call on a stable URL
       - new Req.json features will allow easier extraction of JSON from a REST call
         - this combined with disabling the Lift heartbeat should give you stateless support for JSON
     
@@ -359,13 +359,13 @@ everything
       http://www.w3schools.com/browsers/browsers_stats.asp
       ? what about Chrome & Opera ?
     + SLF4J impl collision
-    + ajax page seems to reset when page is left and then revisited 
+    + AJAX page seems to reset when page is left and then revisited 
       x searchField focus issue
       x main evidence is from appspot version of app
       x could local and appspot versions running in different tabs be interacting (via cache or otherwise ?)
       + intentional effect of Lift (Session) Garbage collection (heartbeat driven): can be disabled, but not a good idea
         LiftRules.enableLiftGC = false
-    + ajax active spinner not showing
+    + AJAX active spinner not showing
       x something missing in Boot ?
       + src/main/webapp/images/ajax-loader.gif was missing
       + still doesn't work: had to add default hidden div to default.html
@@ -377,7 +377,7 @@ everything
   - custom 404 page
     http://wiki.liftweb.net/index.php/Setting_up_a_custom_404_page
   - tests
-    - lift example uses several test libraries: 'specs', 'mockito', jwebunit-htmlunit
+    - Lift example uses several test libraries: 'specs', 'mockito', jwebunit-htmlunit
     - Selenium tests
     - load tests : JMeter
       - http://code.google.com/p/perfbench/source/browse/trunk/perfbench
@@ -434,38 +434,7 @@ everything
           #    - 'index' within Synset's list of relations
           #    - relationTypeOrdinal (parsed)
           #    - target POS
-          15476+5902+2594+2389+1570+1556+1254+938+614+522+218+166+86+32
-          33317 - would appear 673 missing
-
-          ? prev counts ?
-          8158+3043+1439+878+813+740+528+318+288+114+87+43+17=16466*2=32932 (-32932 + 33990 = 1058)
-          15562+5902+2710+2407+1686+1588+1440+1012+628+532+226+172+86+34 = -33985 + 33990 = 5
-            event: 15564 / 7782 / observed 1562 (-1)
-           +agent: 5902 / 2951 / observed 5902 
-            result: 2710 / 1355 / observed 2594 (-118)
-            by-means-of: 2407 / 1204 / observed 2389 (-19)
-            undergoer: 1686 / 843 / observed 1570 (-16)
-            instrument: 1588 / 794 / observed 1556 (-32)
-            
-            - 497 empty
-              ? have multiple entries for 2 different types in the Morphosemantic relations ?
-                - 668 different sense pairs have this property
-              empty uses + [WordSense 147187@[POS noun]:"encounter"#3] :: [WordSense 2023107@[POS verb]:"encounter"#1]  1
-                202023107 encounter%2:38:00:: event 100147187 encounter%1:04:01::
-                202023107 encounter%2:38:00:: uses  100147187 encounter%1:04:01::
-              empty uses + [WordSense 173761@[POS noun]:"instrument"#2] :: [WordSense 2340543@[POS verb]:"instrument"#1]  2
-                100173761 instrument%1:04:00:: by-means-of 202340543 instrument%2:40:00::
-                100173761 instrument%1:04:00:: uses        202340543 instrument%2:40:00::
-              empty result + [WordSense 289388@[POS noun]:"stagger"#1] :: [WordSense 1924882@[POS verb]:"stagger"#1]  4
-                100289388 stagger%1:04:00:: event  201924882 stagger%2:38:00::
-                100289388 stagger%1:04:00:: result 201924882 stagger%2:38:00::
-              empty result + [WordSense 289388@[POS noun]:"stagger"#1] :: [WordSense 1925170@[POS verb]:"stagger"#2]  4
-                100289388 stagger%1:04:00:: event  201925170 stagger%2:38:01::
-                100289388 stagger%1:04:00:: result 201925170 stagger%2:38:01::
-
-                100289388 stumble%1:04:00:: event 201901133 stumble%2:38:01::
-                100289388 lurch%1:04:00:: event 201924882 lurch%2:38:03::
-
+          15562+5902+2710+2407+1686+1588+1440+1012+628+532+226+172+86+34 = -33985 + 33990 = 5 -- no idea where these 5 went
         - alternate distillation is <arg1 sensekey> <relation> <arg2 sensekey>
           - more readable/verifable
           - how to expose MorphosemanticSemanticRelation ?
@@ -1453,7 +1422,7 @@ x feature: howto for developing in NetBeans ?
     * many initials already have their period-free form in the data files
   - feature: core: create lemmatizing Lucene analyzer
   ~ feature: core: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
-  - feature: core: ⊚ nice API to verb groups; add a field to WordSense (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html)
+  + feature: core: ⊚ nice API to verb groups; add a field to WordSense (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html)
     - since this relation is sort of lexical, we can add specicialized impl and filter on source WordSense, but return source Synset; note the common thread is the Word, NOT the WordSense
     - working on this: precomputing the transitive closure offline; 
       - respire: 00002325 00001740 00002573
@@ -1475,6 +1444,10 @@ x feature: howto for developing in NetBeans ?
              01716882 play#26
         - intended usage of verb group appears to be for merging senses of a particular word, but transitive closure can cross word boundaries
           - generalized form seems more useful - concept is essentially super-synsets (establishes equivalence, not hyper/hypo -nym because no more general/specific relationship)
+      - what form of transitive closure will be most useful ?
+        - all same POS (VERB)
+        - part of the closure is already represented -- just want to add the transitively implied parts
+        - seems synsetOffset → synsetOffset multi-mapping is sufficient
   ~ bug: squash some of the zillion Xlint warnings (@SuppressWarnings on class(es)? though could hide real bugs) 
   - bug: core: doc: document sort orders of Word, WordSense, Synset, and Relation
     - Word: 
