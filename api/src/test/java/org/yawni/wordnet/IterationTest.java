@@ -29,6 +29,7 @@ import static org.yawni.util.Utils.first;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.isEmpty;
 import org.yawni.util.MergedIterable;
+import org.yawni.util.Utils.UniqueMode;
 import org.yawni.wordnet.WordSense.AdjPosition;
 
 /**
@@ -332,7 +333,8 @@ public class IterationTest {
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" words isUnique");
-      assertTrue(pos+" words not unique?", Utils.isUnique(wordNet.words(pos), false));
+      assertTrue(pos+" words not unique?: Comparable", Utils.isUnique(wordNet.words(pos), false));
+      assertTrue(pos+" words not unique?: Equals", Utils.isUnique(wordNet.words(pos).iterator(), false, UniqueMode.EQUALS));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" synsets isSorted");
@@ -340,7 +342,8 @@ public class IterationTest {
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" synsets isUnique");
-      assertTrue(pos+" synsets not unique?", Utils.isUnique(wordNet.synsets(pos), false));
+      assertTrue(pos+" synsets not unique?: Comparable", Utils.isUnique(wordNet.synsets(pos), false));
+      assertTrue(pos+" synsets not unique?: Equals", Utils.isUnique(wordNet.synsets(pos).iterator(), false, UniqueMode.EQUALS));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" wordSenses isSorted");
@@ -348,7 +351,8 @@ public class IterationTest {
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" wordSenses isUnique");
-      assertTrue(pos+" wordSenses not unique?", Utils.isUnique(wordNet.wordSenses(pos), false));
+      assertTrue(pos+" wordSenses not unique?: Comparable", Utils.isUnique(wordNet.wordSenses(pos), false));
+      assertTrue(pos+" wordSenses not unique?: Equals", Utils.isUnique(wordNet.wordSenses(pos).iterator(), false, UniqueMode.EQUALS));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" relations isSorted");
@@ -356,7 +360,8 @@ public class IterationTest {
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" relations isUnique");
-      assertTrue(pos+" relations not unique?", Utils.isUnique(wordNet.relations(pos), false));
+      assertTrue(pos+" relations not unique?: Comparable", Utils.isUnique(wordNet.relations(pos), false));
+      assertTrue(pos+" relations not unique?: Equals", Utils.isUnique(wordNet.relations(pos).iterator(), false, UniqueMode.EQUALS));
     }
     //System.err.println("allPOSAllIterationsSortUniqueTests() passed");
   }
