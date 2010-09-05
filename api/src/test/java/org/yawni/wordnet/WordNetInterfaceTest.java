@@ -110,7 +110,8 @@ public class WordNetInterfaceTest {
   @Test
   public void coordinateTerms() {
     final Word synonyms = wordNet.lookupWord("synonyms", POS.NOUN);
-    assertThat(synonyms).isNull();
+//    assertThat(synonyms).isNull();
+    assertThat(synonyms == null).isTrue();
     final Word synonym = wordNet.lookupWord("synonym", POS.NOUN);
     final List<WordSense> senses = synonym.getWordSenses();
     assertThat(senses).hasSize(1);
