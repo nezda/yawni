@@ -345,11 +345,15 @@ public class RelationTest {
         // check if isLexical, relation source and target are WordSenses,
         // else both the source nor the target are Synsets
         if (relation.isLexical()) {
-          assertThat(relation.getSource()).isInstanceOf(WordSense.class);
-          assertThat(relation.getTarget()).isInstanceOf(WordSense.class);
+          assertThat(relation.getSource().getClass()).isEqualTo(WordSense.class);
+          assertThat(relation.getTarget().getClass()).isEqualTo(WordSense.class);
+//          assertThat(relation.getSource()).isInstanceOf(WordSense.class);
+//          assertThat(relation.getTarget()).isInstanceOf(WordSense.class);
         } else {
-          assertThat(relation.getSource()).isInstanceOf(Synset.class);
-          assertThat(relation.getTarget()).isInstanceOf(Synset.class);
+          assertThat(relation.getSource().getClass()).isEqualTo(Synset.class);
+          assertThat(relation.getTarget().getClass()).isEqualTo(Synset.class);
+//          assertThat(relation.getSource()).isInstanceOf(Synset.class);
+//          assertThat(relation.getTarget()).isInstanceOf(Synset.class);
         }
       }
     }
