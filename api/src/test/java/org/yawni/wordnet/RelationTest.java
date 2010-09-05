@@ -245,6 +245,30 @@ public class RelationTest {
   }
 
   @Test
+  public void testVerbGroup2() {
+    System.err.println("testVerbGroup2");
+    // verb turn#1 groups with turn#4 and turn#19
+    final Word turn = wordNet.lookupWord("turn", POS.VERB);
+    final WordSense turn1 = turn.getSense(1);
+    final WordSense turn4 = turn.getSense(4);
+    final WordSense turn19 = turn.getSense(19);
+    final List<Relation> turn1VGs = turn1.getSynset().getRelations(RelationType.VERB_GROUP);
+    System.err.println("turn1VGs: "+turn1VGs);
+    final List<RelationArgument> turn1VGTargets = turn1.getSynset().getRelationTargets(RelationType.VERB_GROUP);
+    assertThat(turn1VGTargets).hasSize(2);
+    assertThat(turn1VGTargets).contains(turn4.getSynset(), turn19.getSynset());
+
+    // verb make#7 groups with make#43 and make#44
+    final Word make = wordNet.lookupWord("make", POS.VERB);
+    final WordSense make7 = make.getSense(7);
+    final WordSense make43 = make.getSense(43);
+    final WordSense make44 = make.getSense(44);
+    final List<RelationArgument> make7VGs = make7.getSynset().getRelationTargets(RelationType.VERB_GROUP);
+    assertThat(make7VGs).contains(make43.getSynset(), make43.getSynset());
+  }
+
+  @Ignore// re-writing
+  @Test
   public void testVerbGroup() {
     System.err.println("testVerbGroup");
     // verb turn#1 groups with turn#4 and turn#19
