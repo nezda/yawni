@@ -5,8 +5,8 @@ import javax.ws.rs.core._
 
 @Path("/helloworld")
 class HelloWorldResource {
-  //@Produces(Array(MediaType.TEXT_PLAIN))
   @GET
+  //@Produces(Array(MediaType.TEXT_PLAIN))
   def sayHello() = {
     "Hello, world!";
   }

@@ -7,6 +7,8 @@ import java.lang.{String, Class}
 import javax.ws.rs.core.{MultivaluedMap, MediaType, Context}
 import javax.ws.rs.ext.{MessageBodyWriter, Provider, Providers}
 import java.lang.reflect.Type
+//import com.sun.jersey.spi.resource.Singleton
+//import com.google.inject.Provides
 
 import scala.xml.NodeSeq
 
@@ -17,6 +19,8 @@ import scala.xml.NodeSeq
  * copied from jersey contrib
  */
 @Provider
+//@Provides
+//@Singleton
 class NodeWriter extends MessageBodyWriter[NodeSeq] {
   //@Context protected var providers: Providers = null;
 
@@ -31,6 +35,6 @@ class NodeWriter extends MessageBodyWriter[NodeSeq] {
   override
   def writeTo(nodes: NodeSeq, aClass: Class[_], aType: Type, annotations: Array[Annotation], mediaType: MediaType, stringObjectMultivaluedMap: MultivaluedMap[String, Object], outputStream: OutputStream) : Unit = {
     var answer = nodes.toString();
-    outputStream.write(answer.getBytes());
+    outputStream.write(answer.getBytes("utf-8"));
   }
 }

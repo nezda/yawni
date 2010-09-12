@@ -14,7 +14,6 @@ import java.util.TreeSet // don't want List
 @Path("/autocomplete")
 class AutocompleteResource {
   def init() = {
-//    LiftRules.dispatch.prepend(Yawni.dispatch)
     // trigger preload
     val wn = WordNet.getInstance
     val query = "was";
