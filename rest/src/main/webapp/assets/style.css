@@ -1,0 +1,72 @@
+html { overflow-y: scroll; height: 100%; }
+body {
+  font-size: 100%;
+  height: 100%;
+  /* Yawni orange */
+  background: #F79910;
+}
+/* input.text { font-size: 100%; } */
+input { font-size: 100%; -moz-border-radius: 7px; }
+button { font-size: 100%; }
+.container { height: 100%; }
+.search_panel {
+  /* height: 100%; */
+}
+.input_bubble { padding: 14px; -moz-border-radius: 14px; -webkit-border-radius: 14px; border-radius: 14px; background: white; }
+.resultz {
+  padding: 14px;
+  background: white;
+  /* min-height: 100%; */
+  min-height:250px;
+  -moz-border-radius: 14px 14px 0px 0px ! important;
+  -webkit-border-top-left-radius: 14px;
+  -webkit-border-top-right-radius: 14px;
+}
+.recentQueries {
+  /* height: 300px; */
+}
+.pos { font-family: "Times New Roman", serif; }
+.focalWord { 
+  /* color: red; */
+  border-bottom: 2px dotted;
+  font-weight: bold;
+}
+.summaryWord { font-weight: bold; }
+#blackbird { z-index: 10000; }
+.synset {
+}
+.gloss {
+  background-color: #F9F9F9;
+  border: 1px solid #CCCCCC;
+  padding-left: 5px;
+  margin-top: 5px;
+}
+.definitions {
+}
+.examples {
+  font-style: italic;
+}
+.footer {
+  text-align: right;
+}
+
+.ac_loading {
+	background: white url('/assets/indicator.gif') right center no-repeat;
+}
+
+.ac_odd {
+	/* default is background-color: #eee; */
+  background-color: #F9F9F9;
+}
+
+.ac_over {
+	/* default is background-color: #0A246A; */
+	background-color: #F79910;
+	/* default is color: white; */
+	/* color: black; */
+}
+
+.ac_results {
+	/* default is border: 1px solid black; */
+	border: 1px solid #CCCCCC;
+}
