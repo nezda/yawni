@@ -21,20 +21,7 @@ class SearchResource {
   @Consumes(Array("application/json;charset=UTF-8"))
   //@Produces(Array("application/json", "text/javascript"))
   //@Produces(Array("application/json"))
-  //def handleJSON(searchRequest:String): String = {
-  //def handleJSON(searchRequest:SearchRequest): SearchRequest = {
   def handleJSON(searchRequest:SearchRequest): NodeSeq = {
-    //println("json: "+searchRequest)
-    //for {
-    //  json <- req.json // get the JSON
-    //  JObject(List(JField("command", JString(cmd)), JField("params", JString(params)))) <- json // extract the command
-    //} yield JavaScriptResponse(SetHtml("json_result", cmd match { // build the response
-    //      case "show" => Yawni.query(params)
-    //      //case "textile" =>  TextileParser.toHtml(params, Empty)
-    //      //case "count" => Text(params.length+" Characters")
-    //      case x => <b>Problem... didn't handle JSON message {x}</b>
-    //    }))
-    //searchRequest.toString
     Yawni.query(searchRequest.params)
   }
 }

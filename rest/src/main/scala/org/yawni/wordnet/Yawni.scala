@@ -12,6 +12,9 @@ import scala.xml._
 import scala.collection.JavaConversions._
 import java.util.TreeSet // don't want List
 
+/**
+ * Functions to search WordNet and render results as XML NodeSeqs
+ */
 object Yawni {
   def init() = {
     // trigger preload
