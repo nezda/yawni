@@ -38,12 +38,19 @@
         $.ajax({
           url : 'search', 
           data : $.toJSON({command : 'show', params : $('#searchBoxID').val()}), 
-          type : 'POST', dataType : 'script', contentType : 'text/json', timeout : 5000, cache : true,
+          type : 'POST', dataType : 'script', contentType : 'application/json', timeout : 5000, cache : true,
           beforeSend : function() {$('#ajax-loader').show();}, 
-          complete :   function() {
+          complete : function() {
             $('#ajax-loader').hide();
-            /* hide completions menu when a search is initiated */
+            // hide completions menu when a search is initiated
             $('.ac_results').hide();
+          },
+          success: function(data, textStatus, xmlHttpReq) {
+            // make sure completions are hidden
+            $('.ac_results').hide();
+            try {
+              $('#json_result').each(function(i) { this.innerHTML = data; });
+            } catch (e) {}
           }
           });
       }

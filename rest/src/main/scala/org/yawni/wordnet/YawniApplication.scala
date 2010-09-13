@@ -6,6 +6,7 @@ import com.google.common.collect.Sets._
 class YawniApplication extends Application {
   override
   def getClasses() = newHashSet(
+    classOf[SearchResource], 
     classOf[APIResource], 
     classOf[AutocompleteResource], 
     classOf[AboutResource],
