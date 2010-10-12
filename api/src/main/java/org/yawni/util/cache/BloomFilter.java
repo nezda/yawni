@@ -280,7 +280,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
   private int indexValue(int h, int idx) {
     //assert idx >= 0 && idx < hashes;
     // each of the k hash functions' values will be used % bits
-    return abs(hash(h + idx)) % bits;
+    return abs(hash(h + idx) % bits);
   }
 
   /**
