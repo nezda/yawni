@@ -1,3 +1,19 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.yawni.util;
 
 import com.google.common.base.Joiner;
@@ -32,7 +48,7 @@ import java.util.Map;
  *   }
  * }
  * }</pre>
- * @author Luke Nezda
+ * @author nezda
  */
 public class EnumAliases<E extends Enum<E>> {
   /**
@@ -69,21 +85,24 @@ public class EnumAliases<E extends Enum<E>> {
    * @param throwIfNull if true, throw {@link IllegalArgumentException} if given {@code alias} has not been registered,
    *        else return {@code null} for this case
    * @return the enum corresponding to {@code alias}
+   * @throws IllegalArgumentException
    */
   public E valueOf(final Object alias, final boolean throwIfNull) {
     final E toReturn = mapping.get(alias);
-    Preconditions.checkArgument(!throwIfNull || toReturn != null, "Unknown %s %s", enumName, alias);
+    Preconditions.checkArgument(!throwIfNull || toReturn != null, "Unknown %s alias %s", enumName, alias);
     return toReturn;
   }
 
   /**
    * @param e an enum instance
-   * @param aliases zero or more aliases for {@code e}
+   * @param aliases zero or more aliases for {@code e}; {@code null} is not a supported alias
    * @throws IllegalStateException if alias refers to more than 1 enum value
+   * @throws IllegalArgumentException if {@code aliases} includes {@code null}
    */
   public final void registerAlias(E e, Object... aliases) {
     Preconditions.checkNotNull(e);
     for (final Object alias : aliases) {
+      Preconditions.checkArgument(alias != null, "null alias not supported");
       final E prev = mapping.put(alias, e);
       Preconditions.checkState(prev == null || e == prev,
         "Collision! prev: %s curr: %s alias: %s", prev, e, alias);
