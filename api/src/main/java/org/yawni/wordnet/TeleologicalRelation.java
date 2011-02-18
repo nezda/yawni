@@ -16,9 +16,8 @@
  */
 package org.yawni.wordnet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.annotations.VisibleForTesting;
+import org.yawni.util.EnumAliases;
 
 /**
  * The teleological database contains, for approximately 350 artifacts (nouns), an encoding
@@ -45,32 +44,20 @@ enum TeleologicalRelation {
   ;
 
   private TeleologicalRelation() {
-    registerAlias(name(), this);
-    registerAlias(name().toLowerCase(), this);
+    //staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
   }
 
   /** Customized form of {@link #valueOf(String)} */
   public static TeleologicalRelation fromValue(final String name) {
-    final TeleologicalRelation toReturn = ALIASES.get(name);
-    if (toReturn == null) {
-      throw new IllegalArgumentException("unknown name");
-    }
-    return toReturn;
+    return staticThis.ALIASES.valueOf(name);
   }
 
-  // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
-  // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, TeleologicalRelation> ALIASES;
-  // accessor for testing only
-  static Map<String, TeleologicalRelation> getStringToRelMap() {
-    return Collections.unmodifiableMap(ALIASES);
+  @VisibleForTesting
+  static String aliases() {
+    return staticThis.ALIASES.toString();
   }
 
-  private static void registerAlias(final String form, final TeleologicalRelation rel) {
-    if (ALIASES == null) {
-      ALIASES = new HashMap<String, TeleologicalRelation>();
-    }
-    final TeleologicalRelation prev = ALIASES.put(form, rel);
-    assert null == prev : "prev: "+prev+" form: "+form+" rel: "+rel;
+  private static class staticThis {
+    static EnumAliases<TeleologicalRelation> ALIASES = EnumAliases.make(TeleologicalRelation.class);
   }
 }

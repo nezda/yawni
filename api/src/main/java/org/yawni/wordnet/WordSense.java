@@ -17,10 +17,10 @@
 package org.yawni.wordnet;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
+import org.yawni.util.EnumAliases;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
@@ -62,27 +62,17 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     ;
     final int flag;
     AdjPosition(final int flag) {
-      registerAlias(name(), this);
-      registerAlias(name().toLowerCase(), this);
+      staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
       this.flag = flag;
     }
     static boolean isActive(final AdjPosition adjPosFlag, final int flags) {
       return 0 != (adjPosFlag.flag & flags);
     }
-
     static AdjPosition fromValue(final String label) {
-      return ALIASES.get(label);
+      return staticThis.ALIASES.valueOf(label);
     }
-
-    // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
-    // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-    private static Map<String, AdjPosition> ALIASES;
-    private static void registerAlias(final String form, final AdjPosition rel) {
-      if (ALIASES == null) {
-        ALIASES = new HashMap<String, AdjPosition>();
-      }
-      final AdjPosition prev = ALIASES.put(form, rel);
-      assert prev == null;
+    private static class staticThis {
+      static EnumAliases<AdjPosition> ALIASES = EnumAliases.make(AdjPosition.class);
     }
   } // end enum AdjPosition
 
@@ -121,10 +111,12 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   // Accessors
   //
   
+  @Override
   public POS getPOS() {
     return synset.getPOS();
   }
 
+  @Override
   public Synset getSynset() {
     return synset;
   }
@@ -132,8 +124,9 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   /**
    * If {@code word} lemma and {@code POS} are compatible with this
    * {@code WordSense}, return {@code this}, else return {@code null}.
-   * Provied for API congruency between {@code WordSense} and {@code Synset}.
+   * Provided for API congruency between {@code WordSense} and {@code Synset}.
    */
+  @Override
   public WordSense getWordSense(final Word word) {
     // alternate (less efficient, less pedagogical) implementations:
     //   return word.equals(getWord());
@@ -155,6 +148,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /** {@inheritDoc} */
+  @Override
   public Iterator<WordSense> iterator() {
     return LightImmutableList.of(this).iterator();
   }
@@ -454,7 +448,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     final String sentenceNumbers = wn.lookupVerbSentencesNumbers(senseKey);
     List<String> frames = LightImmutableList.of();
     if (sentenceNumbers != null) {
-      frames = new ArrayList<String>();
+      frames = Lists.newArrayList();
       // fetch the illustrative sentences indicated in sentenceNumbers
       //TODO consider substibuting in lemma for "%s" in each
       //FIXME this logic is a bit too complex/duplicated!!
@@ -477,7 +471,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     if (verbFrameFlags != 0L) {
       final int numGenericFrames = Long.bitCount(verbFrameFlags);
       if (frames.isEmpty()) {
-        frames = new ArrayList<String>();
+        frames = Lists.newArrayList();
       } else {
         ((ArrayList<String>)frames).ensureCapacity(frames.size() + numGenericFrames);
       }

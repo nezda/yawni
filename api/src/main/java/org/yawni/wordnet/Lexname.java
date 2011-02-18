@@ -16,8 +16,7 @@
  */
 package org.yawni.wordnet;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.yawni.util.EnumAliases;
 import static org.yawni.wordnet.POS.*;
 
 /**
@@ -99,7 +98,7 @@ enum Lexname {
   VERB_COGNITION("31", "verb.cognition", VERB),
   /** {@link POS#VERB verbs} of telling, asking, ordering, singing */
   VERB_COMMUNICATION("32", "verb.communication", VERB),
-  /** {@link POS#VERB verbs} of ﬁghting, athletic activities */
+  /** {@link POS#VERB verbs} of fighting, athletic activities */
   VERB_COMPETITION("33", "verb.competition", VERB, "competition"),
   /** {@link POS#VERB verbs} of eating and drinking */
   VERB_CONSUMPTION("34", "verb.consumption", VERB, "consumption"),
@@ -123,7 +122,6 @@ enum Lexname {
   VERB_WEATHER("43", "verb.weather", VERB, "weather"),
   /** participial {@link POS#ADJ adjectives} */
   ADJ_PPL("44", "adj.ppl", ADJ, "ppl", "participle", "participial");
-
   private static final Lexname[] VALUES = values();
   private final String lexNumStr;
   private final String rawLabel;
@@ -131,21 +129,23 @@ enum Lexname {
   private final POS pos;
 
   Lexname(final String lexNumStr, final String rawLabel, final POS pos, final String... labels) {
-    registerAlias(name(), this);
-    registerAlias(name().toLowerCase(), this);
+    staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
     this.lexNumStr = lexNumStr;
     assert lexNumStr.indexOf(' ') < 0;
     this.rawLabel = rawLabel;
     assert rawLabel.indexOf(' ') < 0;
-    registerAlias(rawLabel, this);
-    registerAlias(rawLabel.toUpperCase(), this);
+    staticThis.ALIASES.registerAlias(this, rawLabel, rawLabel.toUpperCase());
     this.labels = labels;
     for (final String label : labels) {
       assert label.indexOf(' ') < 0;
-      registerAlias(label, this);
-      registerAlias(label.toUpperCase(), this);
+      staticThis.ALIASES.registerAlias(this, label, label.toUpperCase());
     }
     this.pos = pos;
+    // collisions:
+    // NOUN_BODY VERB_BODY
+    // NOUN_COGNITION VERB_COGNITION
+    // NOUN_COMMUNICATION VERB_COMMUNICATION
+    // NOUN_POSSESSION VERB_POSSESSION
   }
 
   @Override
@@ -158,7 +158,7 @@ enum Lexname {
   }
 
   static Lexname lookupLexname(final String label) {
-    return ALIASES.get(label);
+    return staticThis.ALIASES.valueOf(label);
   }
 
   static Lexname lookupLexname(final int lexnum) {
@@ -168,23 +168,8 @@ enum Lexname {
   static String lookupLexCategory(final int lexnum) {
     return lookupLexname(lexnum).rawLabel;
   }
-  
-  // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
-  // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, Lexname> ALIASES;
 
-  private static void registerAlias(final String form, final Lexname rel) {
-    if (ALIASES == null) {
-      ALIASES = new HashMap<String, Lexname>();
-    }
-    final Lexname prev = ALIASES.put(form, rel);
-    if (prev != null) {
-      // collisions:
-      // NOUN_BODY VERB_BODY
-      // NOUN_COGNITION VERB_COGNITION
-      // NOUN_COMMUNICATION VERB_COMMUNICATION
-      // NOUN_POSSESSION VERB_POSSESSION
-      System.err.println("  prev: "+prev+" form: "+form+" rel: "+rel);
-    }
+  private static class staticThis {
+    static EnumAliases<Lexname> ALIASES = EnumAliases.make(Lexname.class);
   }
 }

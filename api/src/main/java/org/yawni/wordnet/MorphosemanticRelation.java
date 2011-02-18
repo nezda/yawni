@@ -16,9 +16,8 @@
  */
 package org.yawni.wordnet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.annotations.VisibleForTesting;
+import org.yawni.util.EnumAliases;
 
 /**
  * Morpho-semantic relations between morphologically related nouns and verbs, parallel
@@ -89,38 +88,26 @@ enum MorphosemanticRelation {
   
   private MorphosemanticRelation(final String shallowForm, final String longNounLabel, final String longVerbLabel) {
     this(longNounLabel, longVerbLabel);
-    registerAlias(shallowForm.toLowerCase(), this);
-    registerAlias(shallowForm.toUpperCase(), this);
+    staticThis.ALIASES.registerAlias(this, shallowForm.toLowerCase(), shallowForm.toUpperCase());
   }
   
   private MorphosemanticRelation(final String longNounLabel, final String longVerbLabel) {
-    registerAlias(name(), this);
-    registerAlias(name().toLowerCase(), this);
+    staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
     this.longNounLabel = longNounLabel;
     this.longVerbLabel = longVerbLabel;
   }
 
   /** Customized form of {@link #valueOf(String)} */
   public static MorphosemanticRelation fromValue(final String name) {
-    final MorphosemanticRelation toReturn = ALIASES.get(name);
-    if (toReturn == null) {
-      throw new IllegalArgumentException("unknown name");
-    }
-    return toReturn;
+    return staticThis.ALIASES.valueOf(name);
   }
 
-  // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
-  // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, MorphosemanticRelation> ALIASES;
-  // accessor for testing only
-  static Map<String, MorphosemanticRelation> getStringToRelMap() {
-    return Collections.unmodifiableMap(ALIASES);
+  @VisibleForTesting
+  static String aliases() {
+    return staticThis.ALIASES.toString();
   }
   
-  private static void registerAlias(final String form, final MorphosemanticRelation rel) {
-    if (ALIASES == null) {
-      ALIASES = new HashMap<String, MorphosemanticRelation>();
-    }
-    ALIASES.put(form, rel);
+  private static class staticThis {
+    static EnumAliases<MorphosemanticRelation> ALIASES = EnumAliases.make(MorphosemanticRelation.class);
   }
 }

@@ -22,7 +22,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class TeleologicalRelationTest {
   @Test
   public void test() {
-    System.err.println("values: "+TeleologicalRelation.getStringToRelMap());
+//    System.err.println("values: "+TeleologicalRelation.getStringToRelMap());
+    System.err.println("enum values: "+TeleologicalRelation.aliases());
     assertThat(TeleologicalRelation.AGENT).isSameAs(TeleologicalRelation.valueOf("AGENT"));
     assertThat(TeleologicalRelation.fromValue("AGENT")).isSameAs(TeleologicalRelation.valueOf("AGENT"));
 

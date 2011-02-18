@@ -19,10 +19,10 @@ package org.yawni.wordnet;
 import com.google.common.base.Preconditions;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequences;
+import org.yawni.util.EnumAliases;
 import org.yawni.util.LightImmutableList;
 import org.yawni.util.Utils;
 
@@ -163,26 +163,17 @@ enum Command {
 
   private Command() {
     for (final String variant : variants()) {
-      registerAlias(variant, this);
+      staticThis.ALIASES.registerAlias(this, variant);
     }
   }
 
   /** Customized form of {@link #valueOf(String)} */
   static Command fromValue(final String name) {
-    final Command toReturn = ALIASES.get(name);
-    Preconditions.checkArgument(toReturn != null, "unknown command name: "+name);
-    return toReturn;
+    return staticThis.ALIASES.valueOf(name);
   }
 
-  // other (more concise) forms of initialization cause NPE; using lazy init in registerAlias
-  // more details http://www.velocityreviews.com/forums/t145807-an-enum-mystery-solved.html
-  private static Map<String, Command> ALIASES;
-  private static void registerAlias(final String form, final Command rel) {
-    if (ALIASES == null) {
-      ALIASES = new java.util.HashMap<String, Command>();
-    }
-    final Command prev = ALIASES.put(form, rel);
-    assert null == prev : "prev: "+prev+" form: "+form+" rel: "+rel;
+  private static class staticThis {
+    static EnumAliases<Command> ALIASES = EnumAliases.make(Command.class);
   }
 
   /**

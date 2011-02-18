@@ -63,7 +63,8 @@ public class MorphosemanticRelationTest {
 
   @Test
   public void testEnum() {
-    System.err.println("enum values: "+MorphosemanticRelation.getStringToRelMap());
+//    System.err.println("enum values: "+MorphosemanticRelation.getStringToRelMap());
+    System.err.println("enum values: "+MorphosemanticRelation.aliases());
     assertThat(MorphosemanticRelation.AGENT).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
     assertThat(MorphosemanticRelation.fromValue("AGENT")).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
     
