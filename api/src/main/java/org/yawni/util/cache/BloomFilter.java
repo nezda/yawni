@@ -68,6 +68,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
 
   private static class DefaultHasher implements Hasher {
     private static final long serialVersionUID = 3;
+    @Override
     public int hashCode(Object e) {
       return e.hashCode();
     }
