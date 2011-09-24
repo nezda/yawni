@@ -117,6 +117,5 @@ public class EnumAliases<E extends Enum<E>> {
     Joiner.on(", ").withKeyValueSeparator("=>").appendTo(buffer, mapping);
     buffer.append("]]");
     return mapping.toString();
-    //return mapping.toString();
   }
 }
