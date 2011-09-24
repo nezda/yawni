@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Objects;
 import java.util.ArrayList;
 import com.google.common.collect.Lists;
 import org.yawni.util.EnumAliases;
@@ -637,7 +638,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    return synset.hashCode() ^ lemma.hashCode();
+    return Objects.hashCode(synset, lemma);
   }
 
   /** {@inheritDoc} */
