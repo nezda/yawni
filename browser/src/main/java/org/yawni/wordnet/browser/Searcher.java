@@ -172,7 +172,7 @@ public class Searcher {
     }
     for (final Synset synset : word.getSynsets()) {
       // count hypernyms
-      System.err.println(lemma+" "+pos+" hypers: "+countHypernyms(wn, synset, new LinkedHashSet<RelationArgument>()));
+      System.err.println(lemma+" "+pos.name()+" hypers: "+countHypernyms(wn, synset, new LinkedHashSet<RelationArgument>()));
     }
   }
 
@@ -200,8 +200,8 @@ public class Searcher {
 
   private static int countHypernyms(final WordNetInterface wn, final RelationArgument child, LinkedHashSet<RelationArgument> path) {
 //    System.err.println("child: "+child);
-//    for (final RelationArgument parent : child.getRelationTargets(RelationType.HYPERNYM)) {
-    for (final RelationArgument parent : child.getRelationTargets(RelationType.HYPONYM)) {
+    for (final RelationArgument parent : child.getRelationTargets(RelationType.HYPERNYM)) {
+//    for (final RelationArgument parent : child.getRelationTargets(RelationType.HYPONYM)) {
       if (path.contains(parent)) {
         System.err.println("cycle: "+parent);
         continue;
@@ -218,7 +218,7 @@ public class Searcher {
     for (final POS pos : POS.CATS) {
       boolean posShown = false;
       for (final String lemma : wn.lookupBaseForms(word, pos)) {
-        if (posShown == false) {
+        if (! posShown) {
           output.append(pos.name());
           output.append(' ');
           posShown = true;
@@ -243,7 +243,7 @@ public class Searcher {
 
   public static void main(String[] args) throws Exception {
     final WordNetInterface wn = WordNet.getInstance();
-    final Appendable output = System.out;
+    final Appendable output = System.err;
     final Scanner scanner = new Scanner(System.in);
     while (scanner.hasNext()) {
       final String word = scanner.next();
