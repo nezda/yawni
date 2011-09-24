@@ -44,7 +44,7 @@ enum TeleologicalRelation {
   ;
 
   private TeleologicalRelation() {
-    //staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
+    staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
   }
 
   /** Customized form of {@link #valueOf(String)} */
