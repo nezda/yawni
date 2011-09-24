@@ -265,7 +265,31 @@ everything
     - then got burned by WNSEARCHDIR still referencing old version
 
 ~ feature: online: web interface written in Scala + Lift, executing Google App Engine (GAE)
-  + appid candidates ("yawni" not valid, "wordnet" not available)
+  - re-write in JAX-RS: simpler, more features
+    Scalate Jog: JAX-RS + Scala + Guice
+    /Users/nezda/Library/Application\ Support/TextMate/Bundles/Scalate.tmbundle
+    /Users/nezda/Library/Application\ Support/TextMate/Bundles/scala.tmtheme
+    /Users/nezda/code/scala/scalate-1.2/examples/scalate-sample
+    * problems with mvn scala:cc
+      - http://github.com/davidB/maven-scala-plugin/issues/issue/36
+      ℞ prescription take
+      ℹ information source
+      Å angstrom sign
+      ℉ degrees Fahrenheit
+      ℃ degrees Celsius
+      ℅ care of
+      ℇ euler constant
+      ℮ estimated symbol
+      ℯ script small e
+      ℰ script capital e
+      ⅇ double-struck italic small e 
+      № numero sign
+      ℀ account of
+      ℊ
+      ℗
+      ⅄
+      ๏•⦾⦿๏⸰⦁‣
+  + appid (AppID) candidates ("yawni" not valid, "wordnet" not available)
     + yawni-online
     x yawnionline
     x web-yawni
@@ -284,6 +308,8 @@ everything
     - update online version: 
       ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update online/target/yawni-wordnet-online-2.0.0-SNAPSHOT
       can tweak GAE "version" in WEB-INF/appengine-web.xml ; previous versions remain available and web accessisble! e.g., http://5.latest.yawni-online.appspot.com/rest.html
+
+      ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update rest/target/yawni-wordnet-rest-2.0.0-SNAPSHOT
   - online version features
     - autocomplete
       - show 'hint' text : conflicts with "default focus" behavior :/
