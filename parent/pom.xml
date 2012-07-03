@@ -24,6 +24,11 @@
   <name>Yawni Parent</name>
   <version>2.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <scm>
+    <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni/yawni</connection>
+    <developerConnection>scm:git:ssh://yawni.git.sourceforge.net/gitroot/yawni/yawni</developerConnection>
+    <url>http://yawni.git.sourceforge.net/git/gitweb.cgi?p=yawni/yawni;a=tree;f=yawni</url>
+  </scm>
   <description>Yawni is a pure Java standalone object-oriented interface to the WordNet
     database of lexical and semantic relationships.</description>
   <url>http://sourceforge.net/projects/yawni/</url>
@@ -61,8 +66,8 @@
   </developers>
   <licenses>
     <license>
-      <name>Apache License</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
