@@ -74,10 +74,12 @@ class GetIndex extends AbstractList<CharSequence> {
     this.numAlternations = (int) Math.pow(toAlternate.length, numCandidates);
   }
 
+	@Override
   public int size() {
     return numAlternations;
   }
-  
+
+	@Override
   public CharSequence get(int nextState) {
     // TODO
     // ? does any term in WordNet actually have n dashes (say n=2+) ?
@@ -119,7 +121,7 @@ class GetIndex extends AbstractList<CharSequence> {
   public boolean equals(Object that) {
     throw new UnsupportedOperationException();
   }
-  
+
   static int baseNDigitX(final int number, final int radix, final int x) {
     checkArgument(radix > 0);
     checkArgument(x >= 0);
@@ -141,7 +143,7 @@ class GetIndex extends AbstractList<CharSequence> {
 
   /**
    * XXX unused original notes XXX
-   * 
+   *
    * 'Smart' search of WordNet index file.  Attempts to find word in index file
    * by trying different transformations including:
    * <ul>

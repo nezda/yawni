@@ -321,6 +321,7 @@ public class RelationTest {
     FocalWordSynsetComparator(final Word focalWord) {
       this.focalWord = focalWord;
     }
+		@Override
     public int compare(RelationArgument s1, RelationArgument s2) {
       final WordSense ws1 = focalSense(s1.getSynset());
       final WordSense ws2 = focalSense(s2.getSynset());

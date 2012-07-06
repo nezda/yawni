@@ -95,7 +95,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       int flags = 0;
       // strip the syntactic marker, e.g., "(a)" || "(ip)" || ...
       final int lparenIdx;
-      if (lemma.charAt(lemma.length() - 1) == ')' && 
+      if (lemma.charAt(lemma.length() - 1) == ')' &&
         (lparenIdx = lemma.lastIndexOf('(')) > 0) {
         final int rparenIdx = lemma.length() - 1;
         assert ')' == lemma.charAt(rparenIdx);
@@ -125,7 +125,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       addVerbGroupTransitiveClosureRelations(relation, localRelations);
       addExtraMorphosemanticRelations(relation, localRelations);
     }
-    
+
     this.relations = LightImmutableList.copyOf(localRelations);
     //assert relations.equals(localRelations);
 
@@ -281,7 +281,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       mrtype = RelationType.valueOf(morphorel.name());
 //        break;
     }
-  
+
     if (mrtype != null) {
 //          System.err.println("full match! "+mrtype);
       final LexicalRelation morphosemanticRelation = new LexicalRelation(lexRel, mrtype, localRelations.size());
@@ -310,7 +310,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   //
   // Accessors
   //
-  
+
+	@Override
   public POS getPOS() {
     return POS.fromOrdinal(posOrdinal);
   }
@@ -380,6 +381,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
    * If {@code word} is a member of this {@code Synset}, return the
    * {@code WordSense} it implies, else return {@code null}.
    */
+	@Override
   public WordSense getWordSense(final Word word) {
     for (final WordSense wordSense : wordSenses) {
       if (wordSense.getLemma().equalsIgnoreCase(word.getLowercasedLemma())) {
@@ -390,6 +392,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /** {@inheritDoc} */
+	@Override
   public Iterator<WordSense> iterator() {
     return wordSenses.iterator();
   }
@@ -435,6 +438,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /** {@inheritDoc} */
+	@Override
   public String getDescription() {
     final StringBuilder buffer = new StringBuilder();
     buffer.append('{');
@@ -464,14 +468,16 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
    * its {@code WordSense}s.  As a result, this method returns both {@link SemanticRelation}s
    * for which it is the source <em>and</em> {@link LexicalRelation}s for which one of its
    * senses is the source.
-   * 
+   *
    * @see Synset#getSemanticRelations(RelationType)
    */
+	@Override
   public List<Relation> getRelations() {
     return relations;
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<Relation> getRelations(final RelationType soughtType) {
     // regardless of includeAuxiliaryTypes
     // - type == MERONYM should auxiliary type variants
@@ -538,11 +544,13 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<RelationArgument> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<RelationArgument> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
@@ -556,6 +564,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /** {@inheritDoc} */
+	@Override
   public Synset getSynset() {
     return this;
   }
@@ -598,6 +607,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /** {@inheritDoc} */
+	@Override
   public int compareTo(final Synset that) {
     int result;
     result = this.getPOS().compareTo(that.getPOS());

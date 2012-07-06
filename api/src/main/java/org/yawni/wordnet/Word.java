@@ -63,7 +63,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
 
   private Set<RelationType> relationTypes;
   private final byte posOrdinal;
-  
+
   //
   // Constructor
   //
@@ -128,7 +128,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   //
   // Accessors
   //
-  
+
   public POS getPOS() {
     return POS.fromOrdinal(posOrdinal);
   }
@@ -156,7 +156,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
    * Returns this {@code Word}'s <em>lowercased</em> lemma.  Its 'lemma' is its orthographic
    * representation, for example "<tt>dog</tt>" or "<tt>get up</tt>"
    * or "<tt>u.s.a.</tt>".
-   * 
+   *
    * <p> Note that different senses of this word may have different lemmas - this
    * is the canonical one (e.g., "cd" for "Cd", "CD", "cd").
    */
@@ -191,6 +191,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /** {@inheritDoc} */
+	@Override
   public Iterator<WordSense> iterator() {
     return getWordSenses().iterator();
   }
@@ -305,6 +306,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /** {@inheritDoc} */
+	@Override
   public int compareTo(final Word that) {
     // if these ' ' → '_' replaces aren't done resulting sort will not match
     // index files.

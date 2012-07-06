@@ -36,7 +36,7 @@ public abstract class Relation implements Comparable<Relation> {
    * These target* fields are used to avoid paging in the target before it is
    * required, and to prevent keeping a large portion of the database resident
    * once the target has been queried.  The first time they are used, they act as
-   * an external key; subsequent uses, in conjunction with 
+   * an external key; subsequent uses, in conjunction with
    * {@link WordNet}'s caching mechanism, can be thought of as a
    * {@link java.lang.ref.WeakReference}.
    */
@@ -140,7 +140,7 @@ public abstract class Relation implements Comparable<Relation> {
   POS getTargetPOS() {
     return POS.fromOrdinal(targetPOSOrdinal);
   }
-  
+
   // internal dev method
   int getTargetOffset() {
     return targetOffset;
@@ -211,6 +211,7 @@ public abstract class Relation implements Comparable<Relation> {
   }
 
   /** {@inheritDoc} */
+	@Override
   public int compareTo(final Relation that) {
     //TODO consider com.google.common.collect.Ordering
     // order by source Synset

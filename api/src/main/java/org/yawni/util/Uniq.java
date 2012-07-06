@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 /**
  * Derive a new {@code Iterable} by removing adjacent duplicates
  * of the provided <em>sortable</em> {@code Iterable}>s.
- * 
+ *
  * <p> Much like the STL version below:<br>
  * {@code std::unique_copy(c.begin(), c.end(),
  *   std::ostream_iterator<c::type>(std::cout, " "));}
@@ -45,6 +45,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
   }
 
   /** {@inheritDoc} */
+	@Override
   public Iterator<T> iterator() {
     return new UniqIterator<T>(base);
   }
@@ -79,6 +80,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
       }
     }
     /** {@inheritDoc} */
+		@Override
     public T next() {
       if (top == SENTINEL) {
         throw new NoSuchElementException();
@@ -104,6 +106,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
     }
     /** {@inheritDoc} */
     // user's don't have to explicitly call this although that's a bit crazy
+		@Override
     public boolean hasNext() {
       return top != SENTINEL;
     }

@@ -16,7 +16,6 @@
  */
 package org.yawni.util;
 
-import org.yawni.util.WordCaseUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.yawni.wordnet.WordNetInterface;
@@ -49,7 +48,7 @@ public class WordCaseUtilsTest {
     System.err.println("dominant case: "+WordCaseUtils.getDominantCasedLemma(word));
     assertThat(WordCaseUtils.getUniqueLemmaCaseVariants(word)).containsExactly("Roma");
     assertThat(WordCaseUtils.getDominantCasedLemma(word)).isEqualTo("Roma");
-    
+
     lemma = "rom";
     word = getWord(lemma, POS.NOUN);
     System.err.println("case variants: "+WordCaseUtils.getUniqueLemmaCaseVariants(word));

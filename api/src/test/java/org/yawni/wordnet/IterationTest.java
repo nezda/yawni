@@ -28,6 +28,7 @@ import org.yawni.util.Utils;
 import static org.yawni.util.Utils.first;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Iterables.size;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils.UniqueMode;
 import org.yawni.wordnet.WordSense.AdjPosition;
@@ -38,7 +39,7 @@ import org.yawni.wordnet.WordSense.AdjPosition;
 public class IterationTest {
   private WordNetInterface wordNet;
   private Random rand;
-  
+
   @Before
   public void init() {
     wordNet = WordNet.getInstance();
@@ -104,7 +105,7 @@ public class IterationTest {
   public void lexnames() {
     logTest("lexnames");
     for (final Lexname lexname : Lexname.values()) {
-      final long cnt = Utils.size(wordNet.synsets("?lexname=" + lexname.name()));
+      final long cnt = size(wordNet.synsets("?lexname=" + lexname.name()));
 //      System.err.printf("  %30s %d\n", lexname, cnt);
     }
   }
@@ -114,12 +115,12 @@ public class IterationTest {
   public void adjPositions() {
     logTest("adjPositions");
     for (final AdjPosition adjPosition : AdjPosition.values()) {
-      final long cnt = Utils.size(wordNet.wordSenses("?adj_position=" + adjPosition.name()));
+      final long cnt = size(wordNet.wordSenses("?adj_position=" + adjPosition.name()));
 //      System.err.printf("  %30s %d\n", adjPosition, cnt);
     }
   }
 
-  /** 
+  /**
    * test searching iterators
    * - searchByPrefix()
    * - searchBySubstring()
@@ -281,7 +282,7 @@ public class IterationTest {
   @Test
   public void wordIterationBoundary() {
     logTest("wordIterationBoundary");
-    // check if iteration returns first AND last item (boundary cases) 
+    // check if iteration returns first AND last item (boundary cases)
     // - look at data files manually ($WNHOME/dict/index.<pos>)
     // TODO check this for all POS
     final Iterable<Word> nounIndexWords = wordNet.words(POS.NOUN);
@@ -318,7 +319,7 @@ public class IterationTest {
       if (pos == POS.ALL) {
         continue;
       }
-      final long num = Utils.distance(wordNet.words(pos));
+      final long num = size(wordNet.words(pos));
       //System.err.printf("%s num: %,d\n", pos, num);
     }
   }

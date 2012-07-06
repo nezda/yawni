@@ -18,6 +18,7 @@ package org.yawni.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
 import java.nio.CharBuffer;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,7 +48,7 @@ public class CharSequenceTokenizerTest {
   public void testCountTokens() {
     int tokenCount;
     String string;
-    
+
     tokenCount = 0;
     string = "";
     assertThat(countTokens(string)).isEqualTo(tokenCount);
@@ -81,7 +82,7 @@ public class CharSequenceTokenizerTest {
 
   private static int altCountTokens(String string) {
     // use default delimiters
-    return (int) Utils.distance(new CharSequenceTokenizer(string));
+    return Iterators.size(new CharSequenceTokenizer(string));
   }
 
   @Test
@@ -114,7 +115,7 @@ public class CharSequenceTokenizerTest {
   public void testBasics() {
     String string;
     StringTokenizer tokenizer;
-    
+
     string = "?name=value";
     tokenizer = new StringTokenizer(string, 1, "=");
     assertThat(tokenizer.next()).isEqualTo("name");
@@ -157,7 +158,7 @@ public class CharSequenceTokenizerTest {
     final String c = Joiner.on(delim).join(items);
     CharSequenceTokenizer tok = new CharSequenceTokenizer(c, delim);
     assertThat(ImmutableList.copyOf(tok)).isEqualTo(items);
-    
+
     tok = new CharSequenceTokenizer(c, delim);
     assertThat(tok.hasPrevious()).isFalse();
     assertThat(tok.next()).isEqualTo("A");

@@ -99,7 +99,7 @@ final class FileManager implements FileManagerInterface {
 //    this(getWNSearchDir());
   }
 
-  /** 
+  /**
    * Construct a {@code FileManager} backed by a set of files contained in
    * {@code searchDirectory}.
    */
@@ -132,7 +132,7 @@ final class FileManager implements FileManagerInterface {
   }
 
   /**
-   * Searches an environment variable and then a Java System Property 
+   * Searches an environment variable and then a Java System Property
    * named {@code propname} and if its value refers to a readable file,
    * returns that path, otherwise returns {@code null}.
    */
@@ -185,9 +185,12 @@ final class FileManager implements FileManagerInterface {
     abstract void seek(final int position) throws IOException;
     abstract int position() throws IOException;
     // IOExceptions laundered as RuntimeExceptions
+		@Override
     public abstract char charAt(int position);
     // IOExceptions laundered as RuntimeExceptions
+		@Override
     public abstract int length();
+		@Override
     public CharSequence subSequence(int s, int e) {
       final boolean doBuffer = true;
       resetBuffer(doBuffer);
@@ -408,7 +411,7 @@ final class FileManager implements FileManagerInterface {
       return crnl ? position - 2 : position - 1;
     }
   } // end class NIOCharStream
-  
+
   /**
    * Fast {@code CharStream} created from InputStream (e.g., can be read from jar file)
    * backed by a byte[].  This {@code CharStream} is slowest to boot
@@ -416,9 +419,9 @@ final class FileManager implements FileManagerInterface {
    */
   private static class InputStreamCharStream extends NIOCharStream {
     /**
-     * @param fileName interpretted as classpath relative path
+     * @param fileName interpreted as classpath relative path
      * @param input
-     * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
+     * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly
      * 1 buffer thus maximizing efficiency.
      */
     InputStreamCharStream(final String fileName, final InputStream input, final int len) throws IOException {
@@ -432,7 +435,7 @@ final class FileManager implements FileManagerInterface {
 //    }
     /**
      * @param input
-     * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly 
+     * @param len the number of bytes in this input stream.  Allows stream to be drained into exactly
      * 1 buffer thus maximizing efficiency.
      * @param fileName
      */
@@ -482,7 +485,7 @@ final class FileManager implements FileManagerInterface {
         if (file.exists() && file.canRead()) {
           // TODO make this config selectable ? unfortunately, other than init time,
           // performance of RAFCharStream is horrible
-          
+
           //slow CharStream
           //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
           //fast CharStream stream
@@ -490,7 +493,7 @@ final class FileManager implements FileManagerInterface {
           log.trace("FileCharStream");
         }
       }
-      
+
       final long duration = System.nanoTime() - start;
       final long total = streamInitTime += duration;
       log.debug(String.format("total: %,dns curr: %,dns", total, duration));
@@ -500,7 +503,7 @@ final class FileManager implements FileManagerInterface {
 //      }
       fileNameCache.put(fileName, stream);
     }
-    
+
     return stream;
   }
 
@@ -553,6 +556,7 @@ final class FileManager implements FileManagerInterface {
   /**
    * {@inheritDoc}
    */
+	@Override
   public String readLineNumber(final int linenum, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     if (stream == null) {
@@ -567,6 +571,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Core search routine.  Only called from within synchronized blocks.
    */
+	@Override
   public String readLineAt(final int offset, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     requireStream(stream, fileName);
@@ -587,6 +592,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Core search routine.  Only called from within synchronized blocks.
    */
+	@Override
   public int getNextLinePointer(final int offset, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     requireStream(stream, fileName);
@@ -606,11 +612,12 @@ final class FileManager implements FileManagerInterface {
   //
 
   private static final String TWO_SPACES = "  ";
-  
+
   /**
    * {@inheritDoc}
    */
   // used by substring search iterator
+	@Override
   public int getMatchingLinePointer(int offset, final Matcher matcher, final String fileName) throws IOException {
     if (matcher.pattern().pattern().length() == 0) {
       // shunt behavior where empty string matches everything
@@ -642,6 +649,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    */
   // used by prefix search iterator
+	@Override
   public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
     if (prefix.length() == 0) {
       return -1;
@@ -730,6 +738,7 @@ final class FileManager implements FileManagerInterface {
   /**
    * {@inheritDoc}
    */
+	@Override
   public int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException {
     return getIndexedLinePointer(target, 0, fileName, true);
   }
@@ -737,6 +746,7 @@ final class FileManager implements FileManagerInterface {
   /**
    * {@inheritDoc}
    */
+	@Override
   public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean fileNameWnRelative) throws IOException {
     // This binary search method provides output usable by prefix search
     // changing this operation from linear time to logarithmic time.
@@ -872,6 +882,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Note this is a covariant implementation of {@link java.util.Comparator Comparator<CharSequence>}
    */
+	@Override
   public WordNetLexicalComparator comparator() {
     // caseless searches rely on this
     return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE;

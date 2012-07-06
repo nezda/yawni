@@ -17,12 +17,13 @@
 package org.yawni.wordnet;
 
 import com.google.common.collect.Iterables;
-import static org.yawni.util.Utils.*;
 import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Iterables.size;
 import static org.fest.assertions.Assertions.assertThat;
 import java.util.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.yawni.util.Utils;
 
 public class WordNetInterfaceTest {
   private static WordNetInterface wordNet;
@@ -31,7 +32,7 @@ public class WordNetInterfaceTest {
     wordNet = WordNet.getInstance();
   }
 
-  /** 
+  /**
    * test POS.ALL support
    * + List<String> lookupBaseForms(POS pos, String someString)
    * - List<Synset> lookupSynsets(POS pos, String someString)
@@ -77,9 +78,9 @@ public class WordNetInterfaceTest {
   }
 
   /**
-   * Expects exception because POS.ALL does not make sense for method 
+   * Expects exception because POS.ALL does not make sense for method
    * lookupWord(POS, lemma) which returns at most 1 result.
-   * TODO subclass IllegalArgumentException (a RuntimeException) 
+   * TODO subclass IllegalArgumentException (a RuntimeException)
    * indicating this.
    */
   @Test(expected=IllegalArgumentException.class)
@@ -160,14 +161,14 @@ public class WordNetInterfaceTest {
 //    System.err.println("query: "+query);
     result = wordNet.synsets(query);
     assertThat(size(result)).isEqualTo(1);
-    assertThat(first(result).getOffset()).isEqualTo(offset);
+    assertThat(Utils.first(result).getOffset()).isEqualTo(offset);
 
     // simple happens-to-be-less-than-8-digit offset query with (mandatory) POS
     query = "?POS=n&offset=" + offset;
 //    System.err.println("query: "+query);
     result = wordNet.synsets(query);
     assertThat(size(result)).isEqualTo(1);
-    assertThat(first(result).getOffset()).isEqualTo(offset);
+    assertThat(Utils.first(result).getOffset()).isEqualTo(offset);
 
     // simple hapens-to-be-less-than-8-digit offset query, forgot POS
     query = "?offset=" + offset;
@@ -179,7 +180,7 @@ public class WordNetInterfaceTest {
       caughtExpectedException = true;
     }
     assertThat(caughtExpectedException).isTrue();
-    
+
     // command repetition not supported
     query = "?POS=n&offset=04073208&offset=05847753";
 //    System.err.println("query: "+query);

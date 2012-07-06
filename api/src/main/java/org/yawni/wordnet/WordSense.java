@@ -111,7 +111,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   //
   // Accessors
   //
-  
+
   @Override
   public POS getPOS() {
     return synset.getPOS();
@@ -192,7 +192,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     if (senseNumber < 1) {
       // Ordering of Word's Synsets (combo(Word, Synset)=WordSense)
       // is defined by sense tagged frequency (but this is implicit).
-      // Get Word and scan this WordSense's Synsets and 
+      // Get Word and scan this WordSense's Synsets and
       // find the one with this Synset.
       final Word word = getWord();
       int localSenseNumber = 0;
@@ -210,7 +210,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     return senseNumber;
   }
 
-  /** 
+  /**
    * Uses this {@code WordSense}'s lemma as key to find its {@code Word}; not very efficient
    * and probably not necessary.
    */
@@ -266,8 +266,8 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       //     lexid,
       //     searchWord.toLowerCase(),
       //     headSense);
-      final int keyLength = getLemma().length() + 1 /* POS code length */ + 
-        2 /* lex_filenum length */ + 2 /* lexid length */ + 
+      final int keyLength = getLemma().length() + 1 /* POS code length */ +
+        2 /* lex_filenum length */ + 2 /* lexid length */ +
         searchWord.length() + 2 /* headSense lexid length */ + 5 /* delimiters */;
       senseKey = new StringBuilder(keyLength);
       for (int i = 0, n = getLemma().length(); i != n; i++) {
@@ -304,7 +304,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       //     lex_filenum,
       //     lexid
       //     );
-      final int keyLength = getLemma().length() + 1 /* POS code length */ + 
+      final int keyLength = getLemma().length() + 1 /* POS code length */ +
         2 /* lex_filenum length */ + 2 /* lexid length */ + 5 /* delimiters */;
       senseKey = new StringBuilder(keyLength);
       for (int i = 0, n = getLemma().length(); i != n; i++) {
@@ -344,7 +344,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       final CharSequence senseKey = getSenseKey();
       final WordNet wn = synset.wordNet;
       final String line = wn.lookupCntlistDotRevLine(senseKey);
-      int count = 0;
+      int count;
       if (line != null) {
         // cntlist.rev line format:
         // <sense_key>  <sense_number>  tag_cnt
@@ -400,7 +400,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     throw new IllegalStateException("invalid flags "+adjPositionFlags);
   }
 
-  /** 
+  /**
    * Unique number that when combined with lemma, uniquely identifies a sense within a lexicographer file.
    * @see Synset#getLexCategory()
    */
@@ -504,12 +504,12 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
    * A ranking of the top 5,000 "core" WordSenses derived from word frequencies in the <a href="http://www.natcorp.ox.ac.uk">
    *   British National Corpus</a>; WordSenses were selected by salience.
    * This data was created as part of Evocation project at Princeton;
-   * This method provides access to a simple distillation of 
+   * This method provides access to a simple distillation of
    * <a href="http://wordnet.cs.princeton.edu/downloads/5K.clean.txt">
    * http://wordnet.cs.princeton.edu/downloads/5K.clean.txt</a>
    * @return 1-based rank, -1 if sense is unranked, or 0 to indicate required
    * data file missing
-   * 
+   *
    * @see <a href="http://wordnet.cs.princeton.edu/downloads.html">
    *   http://wordnet.cs.princeton.edu/downloads.html</a>
    */
@@ -523,7 +523,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       } catch (IllegalStateException ise) {
         return 0;
       }
-      int rank = 0;
+      int rank;
       if (line != null) {
         // core-wordnet.ranked line format:
         // <sense_key> <? bracketed lemma, comma separated evocations ?> <1-based rank>
@@ -553,6 +553,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /** {@inheritDoc} */
+	@Override
   public String getDescription() {
     if (getPOS() != POS.ADJ && getPOS() != POS.SAT_ADJ) {
       return lemma;
@@ -579,7 +580,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   //
   // Relations
   //
-  
+
   private List<Relation> restrictRelations(final RelationType type) {
     final List<Relation> relations = synset.getRelations();
     List<Relation> list = null;
@@ -602,21 +603,25 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<Relation> getRelations() {
     return restrictRelations(null);
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<Relation> getRelations(final RelationType type) {
     return restrictRelations(type);
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<RelationArgument> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<RelationArgument> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
@@ -656,6 +661,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /** {@inheritDoc} */
+	@Override
   public int compareTo(final WordSense that) {
     int result;
     result = WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(this.getLemma(), that.getLemma());

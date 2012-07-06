@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 public class BloomFilterTest {
   private static final Hasher<CharSequence> CHARSEQUENCE_HASHER = new Hasher<CharSequence>() {
+		@Override
     public int hashCode(Object o) {
       if (! (o instanceof String) &&
           o instanceof CharSequence) {
@@ -75,11 +76,11 @@ public class BloomFilterTest {
       }
     }
     final double fpRatio = falsePositives / (double)n;
-    System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n", 
+    System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n",
       n, falsePositives, fpRatio);
     //assert fpRatio <
   }
-  
+
   @Test
   public void testRandomNumericStrings() {
     final int size = 100000;

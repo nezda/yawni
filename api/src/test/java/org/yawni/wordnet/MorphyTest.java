@@ -23,7 +23,7 @@ import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/** 
+/**
  * By far most complex features involve multi-words, esp those containing
  * prepositions and "-".
  *
@@ -36,12 +36,12 @@ import static org.fest.assertions.Assertions.assertThat;
  *   - other relations including derivationally related
  *   - add speed tests
  *     - task-based: count unique WordSense's in all DBs
- *     - get stems of every lemma in all DBs ("wounds" → "wound" → "wind") 
+ *     - get stems of every lemma in all DBs ("wounds" → "wound" → "wind")
  *     - compare speed with various CharStream impls (add some package private methods)
  *   - sense numbers
  *   - gloss
  *   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
- * 
+ *
  * TODO add tests with prepositions
  * TODO consider proper Parameterized tests
  */
@@ -51,7 +51,7 @@ public class MorphyTest {
   public void init() {
     wn = WordNet.getInstance();
   }
-  
+
   @Test
   public void testMorphyUtils() {
     assertEquals(1, Morphy.countWords("dog", ' '));
@@ -68,7 +68,7 @@ public class MorphyTest {
     assertEquals(3, Morphy.countWords("a-b-c", '-'));
     assertEquals(3, Morphy.countWords("a-b-c-", '-'));
     assertEquals(3, Morphy.countWords("-a-b-c", '-'));
-    
+
     // odd empty string is considered 1 word (not 0)
     assertEquals(0, Morphy.countWords("", ' '));
     assertEquals(0, Morphy.countWords(" ", ' '));
@@ -89,7 +89,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "villas", "Villa", "villa" }, // exposed true case bug
       { POS.NOUN.name(), "Villa", "Villa", "villa" }, // exposed true case bug
       { POS.NOUN.name(), "br", "Br", "BR" }, // exposed true case bug
-      { POS.NOUN.name(), "heiresses", "heiress" }, 
+      { POS.NOUN.name(), "heiresses", "heiress" },
         //WN missing derivationally relation to neuter form "heir" - intentional?
       { POS.NOUN.name(), "heiress", "heiress" },
       { POS.NOUN.name(), "George W. \t\tBush", "George W. Bush" }, // WN doesn't get this (extra internal space) (WN online does - probably better input string preprocessing)
@@ -106,8 +106,8 @@ public class MorphyTest {
       { POS.NOUN.name(), "letter bombs", "letter bomb" },
       // { POS.NOUN.name(), "fire-bomb", "firebomb" }, // needs "-" → ""
       { POS.NOUN.name(), "letter-bomb", "letter bomb" }, // needs "-" → " "
-      // harder one: 
-      // - needs to either not require getIndexedLinePointer() to operate on words OR 
+      // harder one:
+      // - needs to either not require getIndexedLinePointer() to operate on words OR
       //   + return the nearest hit (maybe negated to indicate no normal match)
       // - could be really fast with a suffix index (reverse words)
       // { POS.NOUN.name(), "letterbomb", "letter bomb" }, // needs "" → " " ; WN doesn't get this
@@ -322,13 +322,13 @@ public class MorphyTest {
     for (final POS pos : POS.CATS) {
       for (final Word word : wn.words(pos)) {
         final String lemma = word.getLowercasedLemma();
-        if (lemma.indexOf("-") > 0 && lemma.indexOf(" ") > 0) {
+        if (lemma.indexOf('-') > 0 && lemma.indexOf(' ') > 0) {
           spaceAndDash++;
         //System.err.println("lemma: "+lemma+" spaceAndDash: "+spaceAndDash);
         }
       }
     }
-    
+
     int dash = 0;
     int space = 0;
     int dashNoDash = 0;

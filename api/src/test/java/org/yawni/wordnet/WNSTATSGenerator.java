@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils;
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.size;
 
 /**
  * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">wnstats</a>.
@@ -29,26 +30,26 @@ public class WNSTATSGenerator {
   public static void main(String[] args) {
     final WordNetInterface wordNet = WordNet.getInstance();
     System.out.println("Number of words, synsets, and senses");
-    
+
     //POS     Unique    Synsets     Total
     //        Strings               Word-Sense Pairs
     long totalWordCount, totalSynsetCount, totalWordSenseCount;
     totalWordCount = totalSynsetCount = totalWordSenseCount = 0;
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
-      final long wordCount = Utils.distance(wordNet.words(pos));
+      final long wordCount = size(wordNet.words(pos));
       totalWordCount += wordCount;
-      final long synsetCount = Utils.distance(wordNet.synsets(pos));
+      final long synsetCount = size(wordNet.synsets(pos));
       totalSynsetCount += synsetCount;
-      final long wordSenseCount = Utils.distance(wordNet.wordSenses(pos));
+      final long wordSenseCount = size(wordNet.wordSenses(pos));
       totalWordSenseCount += wordSenseCount;
       final String row = String.format("%-10s%20d%20d%20d\n",
         posLabel, wordCount, synsetCount, wordSenseCount);
       System.out.print(row);
     }
-    Preconditions.checkState(totalWordCount == Utils.distance(wordNet.words(POS.ALL)));
-    Preconditions.checkState(totalSynsetCount == Utils.distance(wordNet.synsets(POS.ALL)));
-    Preconditions.checkState(totalWordSenseCount == Utils.distance(wordNet.wordSenses(POS.ALL)));
+    Preconditions.checkState(totalWordCount == size(wordNet.words(POS.ALL)));
+    Preconditions.checkState(totalSynsetCount == size(wordNet.synsets(POS.ALL)));
+    Preconditions.checkState(totalWordSenseCount == size(wordNet.wordSenses(POS.ALL)));
 
     final String sumary = String.format("%-10s%20d%20d%20d\n",
         "Totals", totalWordCount, totalSynsetCount, totalWordSenseCount);
@@ -78,8 +79,8 @@ public class WNSTATSGenerator {
     //          Including Monosemous Words      Excluding Monosemous Words
     for (final POS pos : POS.CATS) {
       final String posLabel = Utils.capitalize(pos.getLabel());
-      final long numWords = Utils.distance(wordNet.words(pos));
-      final long numWordSenses = Utils.distance(wordNet.wordSenses(pos));
+      final long numWords = size(wordNet.words(pos));
+      final long numWordSenses = size(wordNet.wordSenses(pos));
       final long polysemousWordCount = polysemousWordCount(pos, wordNet);
       final long numPolysemousWordSenses = polysemousWordSensesCount(pos, wordNet);
       final double averagePolysemy = ((double)numWordSenses) / numWords;
@@ -98,7 +99,7 @@ public class WNSTATSGenerator {
     // the algorithm below arriving at the right figure (147278 for WordNet 3.0).
     final boolean validateSort = false;
     final long totalUniqueWordStrings =
-      Utils.distance(
+      size(
         Utils.uniq(
          MergedIterable.merge(validateSort,
           transform(wordNet.words(POS.NOUN), new WordToLowercasedLemma()),

@@ -28,7 +28,7 @@ import org.yawni.util.cache.Hasher;
  */
 public final class WordNetLexicalComparator implements Comparator<CharSequence>, Hasher<CharSequence> {
   private static final long serialVersionUID = -3350149399258640927L;
-  
+
   /**
    * {@code WordNetLexicalComparator} for use with {@code Word} lemmas which are all already lowercased.
    */
@@ -48,6 +48,7 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence>,
   /**
    * {@inheritDoc}
    */
+	@Override
   public int compare(final CharSequence s1, final CharSequence s2) {
     final int s1Len = s1.length();
     final int s2Len = s2.length();
@@ -77,6 +78,7 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence>,
   /**
    * {@inheritDoc}
    */
+	@Override
   public int hashCode(final Object obj) {
     if (!(obj instanceof CharSequence)) {
       return obj.hashCode();

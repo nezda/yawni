@@ -120,7 +120,7 @@ enum Command {
   /**
    * unsupported;
    * if synsets(), return implied Synset, if wordSenses(), return implied WordSense
-   * 
+   *
    * not a sensekey, but a simple, often used notation:
    *  {@code <lemma>"#"<pos_letter><senseNumber>}
    *  {@code ambition#n2}
@@ -194,13 +194,13 @@ enum Command {
     // parse out <name>"="<value> pairs separated by "&"
     int eidx;
     do {
-      eidx = query.indexOf("=", idx);
+      eidx = query.indexOf('=', idx);
       if (eidx == -1) {
         throw new IllegalArgumentException("query missing name value delimiter '='");
       }
       final String name = query.substring(idx, eidx);
       idx = eidx + 1;
-      eidx = query.indexOf("&", idx);
+      eidx = query.indexOf('&', idx);
       if (eidx == -1) {
         eidx = len;
       }

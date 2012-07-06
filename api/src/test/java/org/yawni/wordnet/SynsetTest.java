@@ -18,7 +18,7 @@ package org.yawni.wordnet;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.yawni.util.Utils.contains;
+import static com.google.common.collect.Iterables.contains;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SynsetTest {

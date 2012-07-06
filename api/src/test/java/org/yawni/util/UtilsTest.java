@@ -16,11 +16,15 @@
  */
 package org.yawni.util;
 
+import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
+import static com.google.common.collect.Iterables.isEmpty;
+import static com.google.common.collect.Iterables.elementsEqual;
+import com.google.common.collect.Iterators;
 import static org.junit.Assert.*;
 
 public class UtilsTest {
@@ -29,15 +33,15 @@ public class UtilsTest {
     Integer i1;
     Integer i2;
     i1 = i2 = null;
-    assertTrue(Utils.equals(i1, i2));
+    assertTrue(Objects.equal(i1, i2));
     i1 = 1;
-    assertFalse(Utils.equals(i1, i2));
+    assertFalse(Objects.equal(i1, i2));
     i1 = null;
     i2 = 2;
-    assertFalse(Utils.equals(i1, i2));
+    assertFalse(Objects.equal(i1, i2));
     i1 = 1;
     i2 = new Integer(1);
-    assertTrue(Utils.equals(i1, i2));
+    assertTrue(Objects.equal(i1, i2));
   }
 
   @Test
@@ -67,7 +71,7 @@ public class UtilsTest {
     assertFalse(Utils.isSorted(ints2));
     assertFalse(Utils.isSorted(ints2.iterator()));
   }
-  
+
   @Test
   public void testStartsWith() {
     assertTrue(CharSequences.startsWith("'hood", "'ho"));
@@ -78,17 +82,17 @@ public class UtilsTest {
   public void testUniq() {
     final List<Integer> empty = Collections.emptyList();
     assertTrue(Utils.isUnique(Utils.uniq(empty)));
-    assertTrue(Utils.isEmpty(Utils.uniq(empty)));
+    assertTrue(isEmpty(Utils.uniq(empty)));
     final List<Integer> ints1 = Arrays.asList(1, 2, 3);
     final List<Integer> ints1Dups = Arrays.asList(1, 2, 2, 3);
     assertTrue(Utils.isSorted(ints1));
     assertTrue(Utils.isSorted(ints1Dups));
     assertTrue(Utils.isSorted(ints1.iterator()));
     assertFalse(Utils.isUnique(ints1Dups));
-    assertFalse(Utils.isEmpty(ints1Dups));
+    assertFalse(isEmpty(ints1Dups));
     assertTrue(Utils.isUnique(Utils.uniq(ints1Dups)));
     final Iterable<Integer> uniqd = Utils.uniq(ints1Dups);
-    assertFalse(Utils.isEmpty(Utils.uniq(ints1Dups)));
+    assertFalse(isEmpty(Utils.uniq(ints1Dups)));
   }
 
   @Test
@@ -96,14 +100,14 @@ public class UtilsTest {
     final Iterable<Integer> EMPTY = Collections.emptyList();
     final Iterable<Integer> ONE_TWO_THREE = Arrays.asList(1, 2, 3);
     final Iterable<Integer> ONE_TWO_THREE_THREE = Arrays.asList(1, 2, 3, 3);
-    
-    assertTrue(Utils.equals(ONE_TWO_THREE, ONE_TWO_THREE));
-    assertTrue(Utils.equals(ONE_TWO_THREE.iterator(), ONE_TWO_THREE.iterator()));
-    assertTrue(Utils.equals(EMPTY.iterator(), EMPTY.iterator()));
-    assertTrue(Utils.equals(EMPTY, EMPTY));
-    assertTrue(Utils.equals(new ArrayList<String>(), new ArrayList<String>()));
-    assertFalse(Utils.equals(ONE_TWO_THREE.iterator(), EMPTY.iterator()));
-    assertFalse(Utils.equals(ONE_TWO_THREE, ONE_TWO_THREE_THREE));
-    assertFalse(Utils.equals(ONE_TWO_THREE.iterator(), ONE_TWO_THREE_THREE.iterator()));
+
+    assertTrue(elementsEqual(ONE_TWO_THREE, ONE_TWO_THREE));
+    assertTrue(Iterators.elementsEqual(ONE_TWO_THREE.iterator(), ONE_TWO_THREE.iterator()));
+    assertTrue(Iterators.elementsEqual(EMPTY.iterator(), EMPTY.iterator()));
+    assertTrue(elementsEqual(EMPTY, EMPTY));
+    assertTrue(elementsEqual(new ArrayList<String>(), new ArrayList<String>()));
+    assertFalse(Iterators.elementsEqual(ONE_TWO_THREE.iterator(), EMPTY.iterator()));
+    assertFalse(elementsEqual(ONE_TWO_THREE, ONE_TWO_THREE_THREE));
+    assertFalse(Iterators.elementsEqual(ONE_TWO_THREE.iterator(), ONE_TWO_THREE_THREE.iterator()));
   }
 }

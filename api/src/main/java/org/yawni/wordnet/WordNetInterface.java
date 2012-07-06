@@ -19,7 +19,7 @@ package org.yawni.wordnet;
 import java.util.List;
 
 /**
- * A represenation the WordNet computational lexicon.
+ * A representation the WordNet computational lexicon.
  *
  * @see <a href="http://wordnet.princeton.edu/">http://wordnet.princeton.edu/</a>
  * @see WordNet
