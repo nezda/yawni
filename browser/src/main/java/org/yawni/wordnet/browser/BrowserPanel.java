@@ -522,8 +522,9 @@ public class BrowserPanel extends JPanel {
       return "[RelationTypeAction "+relationType+" "+pos+"]";
     }
 
+		@Override
     public void actionPerformed(final ActionEvent evt) {
-      final SwingWorker worker = new SwingWorker<Void, Void>() {
+      final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
         @Override
         public Void doInBackground() {
           final String inputString = BrowserPanel.this.searchField.getText().trim();
@@ -557,7 +558,7 @@ public class BrowserPanel extends JPanel {
       worker.execute();
     }
   } // end class RelationTypeAction
-  
+
   /**
    * Displays information related to a given {@linkplain POS} + {@linkplain RelationType}
    */
@@ -792,7 +793,7 @@ public class BrowserPanel extends JPanel {
   /**
    * Core search routine; renders all information about {@code Word} into {@code buffer}
    * as HTML.
-   * 
+   *
    * <h3>TODO</h3>
    * Factor out this logic into a "results" data structure like findtheinfo_ds() does
    * to separate logic from presentation.

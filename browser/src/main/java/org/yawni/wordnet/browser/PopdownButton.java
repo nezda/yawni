@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Creates a labeled CommandButton with an associated JPopupMenu.  The menu can
  * be dynamically populated and changed.
- * 
+ *
  * <p> Key features:
  * <ul>
  *   <li> popup width is as wide as the contents, button width is only wide enough to accomodate label and
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
 public class PopdownButton extends JButton {
   private static final Logger log = LoggerFactory.getLogger(PopdownButton.class.getName());
-  
+
   private final JPopupMenu popupMenu;
   private boolean shouldHandlePopupWillBecomeInvisible = true;
 
@@ -80,7 +80,7 @@ public class PopdownButton extends JButton {
 
     this.setVerticalTextPosition(AbstractButton.CENTER);
     this.setHorizontalTextPosition(AbstractButton.LEADING);
-    
+
     // http://developer.apple.com/technotes/tn2007/tn2196.html#BUTTONS
     this.putClientProperty("JButton.buttonType", "textured");
     this.putClientProperty("JComponent.sizeVariant", "regular");
@@ -90,7 +90,7 @@ public class PopdownButton extends JButton {
     this.popupMenu = new JPopupMenu();
     // should popupMenu be a focus cycle root?
     //this.popupMenu.
-    
+
     this.setComponentPopupMenu(popupMenu);
 
     popupMenu.setLightWeightPopupEnabled(false);
@@ -256,12 +256,14 @@ public class PopdownButton extends JButton {
         log.debug("  SELECTED null");
       }
     }
+		@Override
     public void menuKeyPressed(final MenuKeyEvent evt) {
     }
+		@Override
     public void menuKeyReleased(final MenuKeyEvent evt) {
     }
     private void printClasses(Object o) {
-      Class clazz = o.getClass();
+      Class<?> clazz = o.getClass();
       do {
         log.debug("clazz: {}", clazz);
         clazz = clazz.getSuperclass();
