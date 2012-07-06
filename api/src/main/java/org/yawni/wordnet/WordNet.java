@@ -21,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
-import static com.google.common.base.Preconditions.*;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
@@ -51,7 +50,7 @@ import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
 import org.yawni.wordnet.WordSense.AdjPosition;
 
-/** 
+/**
  * An implementation of {@code WordNetInterface} that retrieves objects from the text files in the WordNet distribution
  * directory (typically <tt><em>$WNHOME</em>/dict/</tt>), or from a properly organized jar file containing it;
  * typical users will use {@link WordNet#getInstance()} to get the canonical instance of this
@@ -62,7 +61,7 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  * calls to {@link #lookupWord(CharSequence, POS)} with the same parameters would return the same value
  * ({@code ==} as well as {@code equals}), as would traversal of two {@link Relation}s
  * that shared the same target.  Under memory pressure, it is possible for
- * two different ({@code !=}, but still {@code equals}) objects to represent the same entity, 
+ * two different ({@code !=}, but still {@code equals}) objects to represent the same entity,
  * if their retrieval is separated by other database operations.
  *
  * @see WordNetInterface
@@ -198,7 +197,7 @@ public final class WordNet implements WordNetInterface {
       //assert object instanceof StringPOSDatabaseKey : object;
       if (object instanceof StringPOSDatabaseKey) {
         final StringPOSDatabaseKey that = (StringPOSDatabaseKey)object;
-        return that.posOrdinal == this.posOrdinal && Utils.equals(that.key, this.key);
+        return that.posOrdinal == this.posOrdinal && CharSequences.equals(that.key, this.key);
       }
       return false;
     }
@@ -408,7 +407,7 @@ public final class WordNet implements WordNetInterface {
   static {
     INDEX_DATA_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
     EXCEPTIONS_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
-    
+
     for (final POS pos : POS.CATS) {
       // assume WN dict/ is in the classpath
       final String indexDataResourceName = "dict/" + pos.name() + ".bloom";
@@ -463,6 +462,7 @@ public final class WordNet implements WordNetInterface {
   private static final Object NULL_INDEX_WORD = new Object();
 
   /** {@inheritDoc} */
+	@Override
   public Word lookupWord(final CharSequence lemma, final POS pos) {
     checkValidPOS(pos);
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
@@ -501,6 +501,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     if (pos == POS.ALL) {
       return LightImmutableList.copyOf(uniq(merge(
@@ -514,6 +515,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<Synset> lookupSynsets(final String someString, final POS pos) {
     if (pos == POS.ALL) {
       return LightImmutableList.copyOf(uniq(merge(
@@ -560,6 +562,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   /** {@inheritDoc} */
+	@Override
   public List<WordSense> lookupWordSenses(final String someString, final POS pos) {
     if (pos == POS.ALL) {
       return LightImmutableList.copyOf(uniq(merge(
@@ -607,6 +610,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Synset> synsets(final String query) {
     final EnumMap<Command, String> cmdToValue = Command.getCmdToValue(query);
     if (cmdToValue.containsKey(Command.OFFSET)) {
@@ -652,6 +656,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<WordSense> wordSenses(final String query) {
     final EnumMap<Command, String> cmdToValue = Command.getCmdToValue(query);
     if (cmdToValue.size() == 1) {
@@ -691,7 +696,7 @@ public final class WordNet implements WordNetInterface {
   /**
    * <em>looks up</em> word in the appropriate <em>exc</em>eptions file for the given {@code pos}.
    * The exception list files, <tt>pos</tt>.<em>exc</em> , are used to help the morphological
-   * processor find base forms from irregular inflections.  
+   * processor find base forms from irregular inflections.
    * <strong>NOTE: The first entry is the exceptional word itself (e.g., for "geese", it's "geese")</strong>.
    * Port of {@code morph.c exc_lookup()}
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
@@ -738,7 +743,7 @@ public final class WordNet implements WordNetInterface {
    * WordNet), doesn't include entries for items with zero counts, doesn't
    * include synset offset, and formats adjective sense keys correctly (including
    * {@link WordSense.AdjPosition} information).
-   * 
+   *
    * @see Word#getTaggedSenseCount()
    */
   String lookupCntlistDotRevLine(final CharSequence senseKey) {
@@ -907,7 +912,7 @@ public final class WordNet implements WordNetInterface {
     protected final POS pos;
     protected final String fileName;
     protected int nextOffset = 0;
-    
+
     protected AbstractWordIterator(final POS pos) {
       this.pos = pos;
       this.fileName = getIndexFileName(pos);
@@ -917,7 +922,7 @@ public final class WordNet implements WordNetInterface {
       if (nextOffset != 0) {
         return;
       }
-      String line = null;
+      String line;
       int offset = -1;
       do {
         if (nextOffset < 0) {
@@ -934,7 +939,7 @@ public final class WordNet implements WordNetInterface {
       nextOffset = offset;
     }
   } // end class AbstractWordIterator
-  
+
   /**
    * @see WordNetInterface#words
    */
@@ -960,6 +965,7 @@ public final class WordNet implements WordNetInterface {
   } // end class WordIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Word> words(final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -969,6 +975,7 @@ public final class WordNet implements WordNetInterface {
         words(POS.ADV));
     } else {
       return new Iterable<Word>() {
+				@Override
         public Iterator<Word> iterator() {
           return new WordIterator(pos);
         }
@@ -1006,6 +1013,7 @@ public final class WordNet implements WordNetInterface {
   } // end class SearchBySubstringIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1015,6 +1023,7 @@ public final class WordNet implements WordNetInterface {
           searchBySubstring(substring, POS.ADV));
     } else {
       return new Iterable<Word>() {
+				@Override
         public Iterator<Word> iterator() {
           return new SearchBySubstringIterator(pos, substring);
         }
@@ -1054,6 +1063,7 @@ public final class WordNet implements WordNetInterface {
   } // end class SearchByPrefixIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1063,6 +1073,7 @@ public final class WordNet implements WordNetInterface {
         searchByPrefix(prefix, POS.ADV));
     } else {
       return new Iterable<Word>() {
+				@Override
         public Iterator<Word> iterator() {
           return new SearchByPrefixIterator(pos, prefix);
         }
@@ -1094,6 +1105,7 @@ public final class WordNet implements WordNetInterface {
   } // end class SearchGlossBySubstringIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1103,6 +1115,7 @@ public final class WordNet implements WordNetInterface {
         searchGlossBySubstring(substring, POS.ADV));
     } else {
       return new Iterable<Synset> () {
+				@Override
         public Iterator<Synset> iterator() {
           return new SearchGlossBySubstringIterator(pos, substring);
         }
@@ -1112,6 +1125,7 @@ public final class WordNet implements WordNetInterface {
 
   Iterable<Synset> synsets(final Lexname lexname) {
     return new Iterable<Synset>() {
+			@Override
       public Iterator<Synset> iterator() {
         return new LexnameIterator(lexname);
       }
@@ -1139,6 +1153,7 @@ public final class WordNet implements WordNetInterface {
 
   Iterable<WordSense> wordSenses(final AdjPosition adjPosition) {
     return new Iterable<WordSense>() {
+			@Override
       public Iterator<WordSense> iterator() {
         return new AdjPositionIterator(adjPosition);
       }
@@ -1199,6 +1214,7 @@ public final class WordNet implements WordNetInterface {
   } // end class POSSynsetsIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Synset> synsets(final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1208,6 +1224,7 @@ public final class WordNet implements WordNetInterface {
         synsets(POS.ADV));
     } else {
       return new Iterable<Synset> () {
+				@Override
         public Iterator<Synset> iterator() {
           return new POSSynsetsIterator(pos);
         }
@@ -1236,6 +1253,7 @@ public final class WordNet implements WordNetInterface {
   } // end class POSWordSensesIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<WordSense> wordSenses(final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1245,6 +1263,7 @@ public final class WordNet implements WordNetInterface {
         wordSenses(POS.ADV));
     } else {
       return new Iterable<WordSense> () {
+				@Override
         public Iterator<WordSense> iterator() {
           return new POSWordSensesIterator(pos);
         }
@@ -1285,11 +1304,13 @@ public final class WordNet implements WordNetInterface {
   } // end class SynsetToRelations
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Relation> relations(final POS pos) {
     return relations(null, pos);
   }
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<Relation> relations(final RelationType relationType, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1299,6 +1320,7 @@ public final class WordNet implements WordNetInterface {
         relations(relationType, POS.ADV));
     } else {
       return new Iterable<Relation> () {
+				@Override
         public Iterator<Relation> iterator() {
           return new POSRelationsIterator(pos, relationType);
         }
@@ -1335,6 +1357,7 @@ public final class WordNet implements WordNetInterface {
   } // end class POSExceptionsIterator
 
   /** {@inheritDoc} */
+	@Override
   public Iterable<List<String>> exceptions(final POS pos) {
     if (pos == POS.ALL) {
       return concat(
@@ -1344,6 +1367,7 @@ public final class WordNet implements WordNetInterface {
         exceptions(POS.ADV));
     } else {
       return new Iterable<List<String>> () {
+				@Override
         public Iterator<List<String>> iterator() {
           return new POSExceptionsIterator(pos);
         }
