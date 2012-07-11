@@ -19,6 +19,7 @@ package org.yawni.wordnet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class WordTest {
   private static WordNetInterface wordNet;
@@ -26,6 +27,11 @@ public class WordTest {
   public static void init() {
     wordNet = WordNet.getInstance();
   }
+
+	@Test
+	public void test0() {
+		assertThat(wordNet.lookupWord("running-away", POS.VERB)).isNotNull();
+	}
 
   @Test
   public void countCollocations() {
