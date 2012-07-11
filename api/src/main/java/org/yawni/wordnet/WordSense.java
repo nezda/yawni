@@ -139,10 +139,9 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   }
 
   /**
-   * Returns the <em>natural-cased</em> lemma representation of this {@code WordSense}.
-   * Its lemma is its orthographic representation, for example <tt>"dog"</tt>
-   * or <tt>"U.S.A."</tt> or <tt>"George Washington"</tt>.  Contrast to the
-   * canonical lemma provided by {@link Word#getLowercasedLemma()}.
+   * Returns the <em>natural-cased</em> lemma representation of this {@code WordSense} (aka "true cased"). Its
+	 * lemma is its orthographic representation, for example <tt>"dog"</tt> or <tt>"U.S.A."</tt> or <tt>"George
+	 * Washington"</tt>. Contrast to the canonical lemma provided by {@link Word#getLowercasedLemma()}.
    */
   public String getLemma() {
     return lemma;
