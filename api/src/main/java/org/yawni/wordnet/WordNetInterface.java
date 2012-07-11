@@ -52,7 +52,7 @@ public interface WordNetInterface {
    * "values" returns {"value", "values"} which are distinct familiar nouns).  Other times, due to
    * incompleteness and inconsistencies in the WordNet data files, none of the strings returned by this
    * method will correspond to a {@code Word} (e.g., "yourselves" returns {"yourself", "yourselves"}, but this
-   * is not in WordNet, presumably because it is a pronon).
+   * is not in WordNet, presumably because it is a pronoun).
    * @param someString Some string (need <em>not</em> be a base form).
    * @param pos The part-of-speech.
    * @return an immutable list of the baseform(s) of {@code someString}
