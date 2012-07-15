@@ -295,7 +295,7 @@ class Morphy {
       while (--wordCount != 0) {
         final int end_idx1 = str.indexOf('_', st_idx);
         final int end_idx2 = str.indexOf('-', st_idx);
-        int end_idx = -1;
+        int end_idx;
         String append;
         if (end_idx1 > 0 && end_idx2 > 0) {
           // LN remainder contains dashes and underscores
@@ -400,7 +400,6 @@ class Morphy {
           word = is_defined(variantString, pos);
           if (word != null) {
             log.debug("variant hit!:\"{}\"", variantString);
-            searchstr = variantString;
             addTrueCaseLemmas(word, toReturn);
             break;
           }
@@ -420,7 +419,7 @@ class Morphy {
     if (svprep > 0) {
       // if verb has preposition, no more morphs
       //assert ! toReturn.isEmpty(); // we should already have added 1 thing right ?
-      svprep = 0;
+      //svprep = 0;
     } else if (svcnt == 1) {
       //assert ! toReturn.isEmpty(); // we should already have added 1 thing right ?
       tmp = dictionary.getExceptions(str, pos);
@@ -428,7 +427,7 @@ class Morphy {
         toReturn.add(underScoreToSpace(tmp.get(i)));
       }
     } else {
-      svcnt = 1; // LN pushes us back to above case (for subsequent calls) all this is destined for death anyway
+      //svcnt = 1; // LN pushes us back to above case (for subsequent calls) all this is destined for death anyway
       assert str != null;
       tmp = dictionary.getExceptions(str, pos);
       if (! tmp.isEmpty() && ! tmp.get(1).equals(str)) {
@@ -600,7 +599,7 @@ class Morphy {
     // Assume that the verb is the first word in the phrase.  Strip it
     // off, check for validity, then try various morphs with the
     // rest of the phrase tacked on, trying to find a match.
-    
+
     LightImmutableList<String> lastwd = LightImmutableList.of();
     String end = null;
     final int rest = s.indexOf('_');
