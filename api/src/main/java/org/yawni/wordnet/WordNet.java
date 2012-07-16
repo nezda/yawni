@@ -18,9 +18,12 @@ package org.yawni.wordnet;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.ImmutableMap;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
+import com.google.common.collect.Maps;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
@@ -215,16 +218,13 @@ public final class WordNet implements WordNetInterface {
   //
   // File name computation
   //
-  private static final Map<POS, String> POS_TO_FILENAME_ROOT;
-  static {
-    POS_TO_FILENAME_ROOT = new EnumMap<POS, String>(POS.class) {{
-      put(POS.NOUN, "noun");
-      put(POS.VERB, "verb");
-      put(POS.ADJ, "adj");
-      put(POS.SAT_ADJ, "adj");
-      put(POS.ADV, "adv");
-    }};
-  }
+  private static final Map<POS, String> POS_TO_FILENAME_ROOT = Maps.newEnumMap(ImmutableMap.of(
+      POS.NOUN, "noun",
+      POS.VERB, "verb",
+      POS.ADJ, "adj",
+      POS.SAT_ADJ, "adj",
+      POS.ADV, "adv"
+    ));
 
   private static String getDatabaseSuffixName(final POS pos) {
     final String toReturn = POS_TO_FILENAME_ROOT.get(pos);
@@ -238,7 +238,7 @@ public final class WordNet implements WordNetInterface {
 
   private static final Map<POS, String> DATA_FILE_NAMES;
   static {
-    DATA_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+    DATA_FILE_NAMES = Maps.newEnumMap(POS.class);
     for (final POS pos : POS.CATS) {
       DATA_FILE_NAMES.put(pos, "data." + getDatabaseSuffixName(pos));
     }
@@ -254,7 +254,7 @@ public final class WordNet implements WordNetInterface {
 
   private static final Map<POS, String> INDEX_FILE_NAMES;
   static {
-    INDEX_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+    INDEX_FILE_NAMES = Maps.newEnumMap(POS.class);
     for (final POS pos : POS.CATS) {
       INDEX_FILE_NAMES.put(pos, "index." + getDatabaseSuffixName(pos));
     }
@@ -270,7 +270,7 @@ public final class WordNet implements WordNetInterface {
 
   private static final Map<POS, String> EXCEPTION_FILE_NAMES;
   static {
-    EXCEPTION_FILE_NAMES = new EnumMap<POS, String>(POS.class);
+    EXCEPTION_FILE_NAMES = Maps.newEnumMap(POS.class);
     for (final POS pos : POS.CATS) {
       EXCEPTION_FILE_NAMES.put(pos, getDatabaseSuffixName(pos) + ".exc");
     }
@@ -351,7 +351,7 @@ public final class WordNet implements WordNetInterface {
         throw new RuntimeException(e);
       }
       if (line == null) {
-        throw new RuntimeException("line null for offset "+offset+" "+pos);
+        throw new IllegalStateException("line null for offset "+offset+" "+pos);
       }
       word = new Word(line, offset, this);
       indexWordCache.put(cacheKey, word);
@@ -405,8 +405,8 @@ public final class WordNet implements WordNetInterface {
   private static final Map<POS, BloomFilter<CharSequence>> INDEX_DATA_FILTERS;
   private static final Map<POS, BloomFilter<CharSequence>> EXCEPTIONS_FILTERS;
   static {
-    INDEX_DATA_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
-    EXCEPTIONS_FILTERS = new EnumMap<POS, BloomFilter<CharSequence>>(POS.class);
+    INDEX_DATA_FILTERS = Maps.newEnumMap(POS.class);
+    EXCEPTIONS_FILTERS = Maps.newEnumMap(POS.class);
 
     for (final POS pos : POS.CATS) {
       // assume WN dict/ is in the classpath
@@ -464,7 +464,7 @@ public final class WordNet implements WordNetInterface {
   /** {@inheritDoc} */
 	@Override
   public Word lookupWord(final CharSequence lemma, final POS pos) {
-    checkValidPOS(pos);
+    checkValidPOS(pos, "by lookupWord(lemma, pos)");
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
     Object indexWord = indexWordCache.get(cacheKey);
     if (indexWord != null && indexWord != NULL_INDEX_WORD) {
@@ -529,7 +529,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   private List<Synset> doLookupSynsets(final String someString, final POS pos) {
-    checkValidPOS(pos);
+    checkValidPOS(pos, "by doLookupSynsets()");
     final LightImmutableList<String> morphs = morphy.morphstr(someString, pos);
     if (morphs.isEmpty()) {
       return LightImmutableList.of();
@@ -577,7 +577,7 @@ public final class WordNet implements WordNetInterface {
 
   // FIXME refactor! this is copy paste from doLookupSynsets ; however, code is really short
   private List<WordSense> doLookupWordSenses(final String someString, final POS pos) {
-    checkValidPOS(pos);
+    checkValidPOS(pos, "by doLookupWordSenses()");
     final LightImmutableList<String> morphs = morphy.morphstr(someString, pos);
     if (morphs.isEmpty()) {
       return LightImmutableList.of();
@@ -703,7 +703,7 @@ public final class WordNet implements WordNetInterface {
    *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    */
   LightImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
-    checkValidPOS(pos);
+    checkValidPOS(pos, "by getExceptions()");
     if (! maybeException(someString, pos)) {
       return LightImmutableList.of();
     }
@@ -897,10 +897,8 @@ public final class WordNet implements WordNetInterface {
     return line;
   }
 
-  private static void checkValidPOS(final POS pos) {
-    if (POS.ALL == pos) {
-      throw new IllegalArgumentException("POS.ALL is not supported");
-    }
+  private static void checkValidPOS(final POS pos, String msg) {
+    Preconditions.checkArgument(POS.ALL != pos, "POS.ALL is not supported by %s", msg);
   }
 
   //
