@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.annotations.Beta;
 import java.util.List;
 
 /**
@@ -166,6 +167,7 @@ public interface WordNetInterface {
    * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
+	@Beta
   public Iterable<Synset> synsets(final String query);
 
   /**
@@ -175,5 +177,6 @@ public interface WordNetInterface {
    * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
+	@Beta
   public Iterable<WordSense> wordSenses(final String query);
 }
