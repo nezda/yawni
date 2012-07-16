@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.ImmutableList;
 import java.util.NoSuchElementException;
 
 /**
@@ -95,7 +96,7 @@ public enum POS {
    * A list of all {@code POS}s <b>except {@link POS#SAT_ADJ}</b> which doesn't
    * have its own data files.
    */
-  public static final POS[] CATS = { NOUN, VERB, ADJ, ADV };
+  public static final ImmutableList<POS> CATS = ImmutableList.of(NOUN, VERB, ADJ, ADV);
 
   //
   // Instance implementation
