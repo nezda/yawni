@@ -27,20 +27,6 @@ import java.util.List;
  */
 public interface WordNetInterface {
   /**
-   * Look up a {@code Word} in the database by its <strong>lemma</strong>.  The search is
-   * case-independent and phrases are separated by spaces (e.g., "look up", not
-   * "look_up"), but otherwise {@code lemma}  must match the form in the
-   * database <em>exactly</em>.  Similar to C function {@code index_lookup}.
-   * Note that {@link POS#ALL} doesn't make sense here because the result
-   * would no longer be unique (i.e., a scalar, single {@code Word}).
-   * @param lemma The canonical orthographic representation of the word.
-   * @param pos The part-of-speech.
-   * @return An {@code Word} representing the word, or
-   * {@code null} if no such entry exists.
-   */
-  public Word lookupWord(final CharSequence lemma, final POS pos);
-
-  /**
    * Returns all <strong>properly cased</strong> (aka "true cased") base forms (aka "lemmas", "stems"),
    * followed by any exceptional forms, of {@code someString} in {@code pos} (e.g., "mice" returns {"mouse", "mice"}).
    * Utilizes an implementation of the {@code morphstr()} and {@code getindex()} algorithms.
@@ -64,23 +50,38 @@ public interface WordNetInterface {
    */
   public List<String> lookupBaseForms(final String someString, final POS pos);
 
+	/**
+   * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)},
+	 * {@link #lookupWord(CharSequence, POS)} and {@link Word#getWordSenses()}.
+   * @param someString Some string (need <em>not</em> be a base form).
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
+	 * * @return an immutable list of the {@code WordSense}(s) of {@code someString} in {@code pos}
+   * @see #lookupSynsets
+   */
+  public List<WordSense> lookupWordSenses(final String someString, final POS pos);
+
   /**
-   * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)}, {@link #lookupWord(CharSequence, POS)}
-   * and {@link Word#getSynsets}.
+   * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)},
+	 * {@link #lookupWord(CharSequence, POS)} and {@link Word#getSynsets}.
    * @param someString Some string (need <em>not</em> be a base form).
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return an immutable list of the {@code Synset}(s) of {@code someString} in {@code pos}
    */
   public List<Synset> lookupSynsets(final String someString, final POS pos);
 
-  /**
-   * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)}, {@link #lookupWord(CharSequence, POS)}
-   * and {@link Word#getWordSenses()}.
-   * @param someString Some string (need <em>not</em> be a base form).
-   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
-   * @see #lookupSynsets
+	/**
+   * Look up a {@code Word} in the database by its <strong>lemma</strong> (aka baseform).  The search is
+   * case-independent and phrases are separated by spaces (e.g., "look up", not
+   * "look_up"), but otherwise {@code lemma} must match the form in the
+   * database <em>exactly</em>.  Similar to C function {@code index_lookup}.
+   * Note that {@link POS#ALL} doesn't make sense here because the result
+   * would no longer be unique (i.e., a scalar, single {@code Word}).
+   * @param lemma The canonical orthographic representation of the word.
+   * @param pos The part-of-speech.
+   * @return An {@code Word} representing the word, or
+   * {@code null} if no such entry exists.
    */
-  public List<WordSense> lookupWordSenses(final String someString, final POS pos);
+  public Word lookupWord(final CharSequence lemma, final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Word}s in the database ordered by
@@ -91,8 +92,8 @@ public interface WordNetInterface {
   public Iterable<Word> words(final POS pos);
 
   /**
-   * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em> contain {@code substring}
-   * as a <strong>substring</strong>.
+   * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em>
+	 * contain {@code substring} as a <strong>substring</strong>.
    * @param substring The substring to search for.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
