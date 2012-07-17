@@ -55,7 +55,7 @@ public interface WordNetInterface {
    * method will correspond to a {@code Word} (e.g., "yourselves" returns {"yourself", "yourselves"}, but this
    * is not in WordNet, presumably because it is a pronoun).
    * @param someString Some string (need <em>not</em> be a base form).
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return an immutable list of the baseform(s) of {@code someString}
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html</a>
@@ -68,7 +68,7 @@ public interface WordNetInterface {
    * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)}, {@link #lookupWord(CharSequence, POS)}
    * and {@link Word#getSynsets}.
    * @param someString Some string (need <em>not</em> be a base form).
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return an immutable list of the {@code Synset}(s) of {@code someString} in {@code pos}
    */
   public List<Synset> lookupSynsets(final String someString, final POS pos);
@@ -77,7 +77,7 @@ public interface WordNetInterface {
    * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)}, {@link #lookupWord(CharSequence, POS)}
    * and {@link Word#getWordSenses()}.
    * @param someString Some string (need <em>not</em> be a base form).
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @see #lookupSynsets
    */
   public List<WordSense> lookupWordSenses(final String someString, final POS pos);
@@ -85,7 +85,7 @@ public interface WordNetInterface {
   /**
    * Returns an iterator of <strong>all</strong> the {@code Word}s in the database ordered by
    * {@link WordNetLexicalComparator}.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
    */
   public Iterable<Word> words(final POS pos);
@@ -94,7 +94,7 @@ public interface WordNetInterface {
    * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em> contain {@code substring}
    * as a <strong>substring</strong>.
    * @param substring The substring to search for.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
    * @throws java.util.regex.PatternSyntaxException
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html">
@@ -106,7 +106,7 @@ public interface WordNetInterface {
    * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em>
    * <strong>begin with</strong> {@code prefix} (case insensitive).
    * @param prefix The prefix to search for.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
    */
   public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
@@ -114,7 +114,7 @@ public interface WordNetInterface {
   /**
    * Returns an iterator of all the {@code Synset}s whose gloss <strong>contains</strong> {@code substring} (case sensitive).
    * @param substring The substring to search for.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Synset}s.
    * @throws java.util.regex.PatternSyntaxException
    */
@@ -122,21 +122,21 @@ public interface WordNetInterface {
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Synset}s in the database.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Synset}s.
    */
   public Iterable<Synset> synsets(final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code WordSense}s in the database.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code WordSense}s.
    */
   public Iterable<WordSense> wordSenses(final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Relation}s in the database.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Relation}s.
    */
   public Iterable<Relation> relations(final POS pos);
@@ -145,19 +145,20 @@ public interface WordNetInterface {
    * Returns an iterator of <strong>all</strong> the {@code Relation}s in the database of
    * type {@code RelationType}.
    * @param relationType The {@code RelationType}. {@code null} implies <strong>all</strong> {@code RelationType}s.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Relation}s of type {@code RelationType}.
    */
   public Iterable<Relation> relations(final RelationType relationType, final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the exceptions for the given part-of-speech.
-   * @param pos The part-of-speech.
+   * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of the exceptional strings.
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
    * @yawni.experimental
    */
+	@Beta
   public Iterable<List<String>> exceptions(final POS pos);
 
   /**
