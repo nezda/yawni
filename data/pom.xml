@@ -27,7 +27,6 @@
   </parent>
   <artifactId>yawni-wordnet-data</artifactId>
   <name>Yawni WordNet Data</name>
-  <!-- <version>2.0.0-SNAPSHOT</version> -->
   <description>
     Jar file containing the Princeton WordNet 3.0 data files, and derivative files to support efficient,
     exhausitve access to this information.
