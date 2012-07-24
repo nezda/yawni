@@ -27,7 +27,11 @@ import org.yawni.util.EnumAliases;
  * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
  *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
-// TODO integrate into API
+// TODO integrate into API:
+// * add RelationType.RelationTypeType.TELEOLOGICAL
+// * needs to be factored into every search and spliced in with "normal" relations like MORPHOSEMATIC is (these
+//   were easy to piggyback on with existing DERIVATIONALLY_RELATED (Synset#addExtraMorphosemanticRelations))
+// * consider just building the 1,052 instances at load time
 enum TeleologicalRelation {
   ACTION, // 448 instances
   THEME, // 214 instances
