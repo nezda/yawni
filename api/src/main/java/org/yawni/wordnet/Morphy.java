@@ -21,6 +21,7 @@ import org.yawni.util.cache.Cache;
 //import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ class Morphy {
   /**
    * Performs several normalizations of a query string to maximize usability/predictability:
    * <ul>
-   *   <li> Lowecase all letters </li>
+   *   <li> Lowercase all letters </li>
    *   <li> Removes left / right edge whitespace / underscores </li>
    *   <li> Conflate runs of ' ''s (spaces) to single ' ' (space); likewise for '-''s (dashes) </li>
    *   <li> Change ' ''s (spaces) to '_' (underscores) to allow searches to pass </li>
@@ -137,8 +138,8 @@ class Morphy {
     }
     // lowercase and flatten all runs of white space to a single '_'
     //TODO consider compiling this regex
-    //return origstr.toLowerCase().replaceAll("\\s+", "_");
-    String toReturn = MULTI_WHITESPACE.matcher(origstr.toLowerCase()).replaceAll("_");
+    //return origstr.toLowerCase(Locale.ROOT).replaceAll("\\s+", "_");
+    String toReturn = MULTI_WHITESPACE.matcher(origstr.toLowerCase(Locale.ROOT)).replaceAll("_");
     //TODO if contains any non-ASCII chars, Normalize, pulling apart combined characters and
     // then remove these non-ASCII chars
     //final String normalized = java.text.Normalizer.normalize(origstr, Form.NFD);
