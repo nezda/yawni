@@ -338,8 +338,8 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       // zero allocation vs. AbstractCollection impl
       return contains(e) ? 0 : -1;
     }
-    /* @Override */
     @SuppressWarnings("fallthrough")
+		@Override
     public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // valid indices = {0,1}
       switch (fromIndex) {
@@ -751,6 +751,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     Restleton(E[] all) {
       this.items = copyIntoArray(all);
     }
+		@Override
     public final int size() {
       return items.length;
     }
@@ -780,6 +781,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       return other;
     }
     @SuppressWarnings("unchecked")
+		@Override
     public E get(int index) {
       try {
         return (E) items[index];
@@ -806,6 +808,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
 //      }
 //      return -1;
 //    }
+		@Override
     public LightImmutableList<E> subList(int fromIndex, int toIndex) {
       // - using 2 ints (b, end) and parent reference (Object(8)+4+4+parent(4) = 24 on 32-bit arch
       //   - could optimize with b=0 and end=size() variants :)
@@ -844,7 +847,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       public int end() {
         return end;
       }
-      /* @Override */
+      @Override
       public int size() {
         return end - begin;
       }
@@ -869,7 +872,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
         System.out.println("begin: "+begin+" end: "+end()+" size: "+size()+" index: "+index);
         return Restleton.this.get(index);
       }
-      /* @Override */
+      @Override
       public LightImmutableList<E> subList(int fromIndex, int toIndex) {
 //        if (fromIndex < 0) {
 //          throw new IndexOutOfBoundsException();
@@ -914,6 +917,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     private RegularImmutableList(Object[] array) {
       this(array, 0, array.length);
     }
+		@Override
     public int size() {
       return size;
     }
@@ -935,6 +939,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     }
     // The fake cast to E is safe because the creation methods only allow E's
     @SuppressWarnings("unchecked")
+		@Override
     public E get(int index) {
       if (index < 0 || index >= size) {
         throw new IndexOutOfBoundsException(
@@ -959,6 +964,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
    * {@inheritDoc}
    * Makes covariant subList type inference work.
    */
+	@Override
   public abstract LightImmutableList<E> subList(int fromIndex, int toIndex);
 
   static abstract class AbstractImmutableList<E> extends LightImmutableList<E> {
@@ -978,6 +984,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     public boolean isEmpty() {
       return false;
     }
+		@Override
     public int indexOf(Object target) {
       for (int i = begin(), n = end(); i < n; i++) {
         // TODO redundant null check
@@ -987,6 +994,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       }
       return -1;
     }
+		@Override
     public int lastIndexOf(Object target) {
       for (int i = end() - 1; i >= begin(); i--) {
         // TODO redundant null check
@@ -1038,12 +1046,14 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     /**
      * @throws UnsupportedOperationException
      */
+		@Override
     public final boolean addAll(Collection<? extends E> c) {
       throw new UnsupportedOperationException();
     }
     /**
      * @throws UnsupportedOperationException
      */
+		@Override
     public final boolean removeAll(Collection<?> c) {
       throw new UnsupportedOperationException();
     }
