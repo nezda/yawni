@@ -1,15 +1,4 @@
-- WordNet supersenses (WNSS) (Ciaramita and Altun, 2006)
-  Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger
-  http://sourceforge.net/projects/supersensetag/
-  - Java port "underway" by Jordi Atserias | Yahoo! Research (sourceforge user: batalla)
-    - https://supersensetag.svn.sourceforge.net/svnroot/supersensetag/branches/SSTjava/
-
-- Apache Jackrabbit includes Sandbox SynonymProvider using org.apache.lucene.index.memory.SynonymMap
-  jackrabbit/sandbox/wordnet-synonyms/src/main/java/org/apache/jackrabbit/core/query/wordnet/WordNetSynonyms.java
-
-Examples apps
-- Using the 'Alignment API' with Wordnet
-  http://alignapi.gforge.inria.fr/alignwn.html
+Huge list of notes and TODOs (complete, partially complete, and incomplete)
 
 Bugs and Features
   Conventions / Legend:
@@ -24,6 +13,16 @@ Bugs and Features
     - next targets: 
       grep ⊚ TODO | tail -n+2 | less -iSEX
 
+Releasing a version
+mvn -DpushChanges=false release:prepare
+  * key to getting this working was bumping maven-release-plugin to 2.3.2 (was getting 2.0 as could be verified with mvn help:effective-pom)
+  - updates poms from snapshot to a solid version
+  - commits
+  - updates poms to next snapshot version
+  - commits
+
+    https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
+
 Yawni Subprojects
 + api
 + data
@@ -33,6 +32,17 @@ Yawni Subprojects
   - build standalone (aka dist jar)
     mvn -Dmaven.test.skip=true -PuseYawniData,useLog4j,makeShadedJar clean package
     mvn -Dmaven.test.skip=true -PuseYawniData,useLog4j,makeSignedJar,makeShadedJar clean package (9.6 MB target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar)
+
+Apps of WordNet
+- WordNet supersenses (WNSS) (Ciaramita and Altun, 2006)
+  Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger
+  http://sourceforge.net/projects/supersensetag/
+  - Java port "underway" by Jordi Atserias | Yahoo! Research (sourceforge user: batalla)
+    - https://supersensetag.svn.sourceforge.net/svnroot/supersensetag/branches/SSTjava/
+- Apache Jackrabbit includes Sandbox SynonymProvider using org.apache.lucene.index.memory.SynonymMap
+  jackrabbit/sandbox/wordnet-synonyms/src/main/java/org/apache/jackrabbit/core/query/wordnet/WordNetSynonyms.java
+- Using the 'Alignment API' with Wordnet
+  http://alignapi.gforge.inria.fr/alignwn.html
 
 Bob Carpenter's Stemming Examples (http://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
   * odious: odious ? probably means "odium" or could mean it has no further stem ?
@@ -250,12 +260,11 @@ everything
     http://lucene.apache.org/java/2_9_0/api/core/org/apache/lucene/analysis/package-summary.html
     org.apache.lucene.analysis
 
-- review Scott Violet's fabric and Password app for more best practices
 - JIDE has some awesome (feel) open source components; auto-complete, IntelliHints, Searchable (aka FindAsYouType), and SearchableBar (like Firefox), JideSplitButton: PopdownButton with menu; license looks tricky
 
-  - WordNet online for inspiration
-  - http://www.yawni.org/wiki/Main/GettingStarted
-    - code inspiration from http://aboisvert.github.com/stopwatch/
+- WordNet online for inspiration
+- http://www.yawni.org/wiki/Main/GettingStarted
+  - code inspiration from http://aboisvert.github.com/stopwatch/
 
 + bug: api: issues with checking out and building yawni
   + data sub-project currently needs my jar signature
@@ -573,8 +582,22 @@ everything
   + (browser) screenshot
   - examples / getting started
     - strawman WSD system leveraging sense tagged frequencies, "Core" WordNet, Morphosemantic links, lexCats
+    - Scala + Yawni = WordNet REPL!
+      // rlwrap scala -Xnojline
+      alias wnrepl='scala -cp /Users/nezda/.m2/repository/org/yawni/yawni-wordnet-api/2.0.0-SNAPSHOT/yawni-wordnet-api-2.0.0-SNAPSHOT.jar:/Users/nezda/.m2/repository/org/yawni/yawni-wordnet-data/2.0.0-SNAPSHOT/yawni-wordnet-data-2.0.0-SNAPSHOT.jar:/Users/nezda/.m2/repository/com/google/guava/guava/12.0.1/guava-12.0.1.jar:/Users/nezda/.m2/repository/org/slf4j/slf4j-api/1.6.4/slf4j-api-1.6.4.jar:/Users/nezda/.m2/repository/org/slf4j/slf4j-nop/1.6.4/slf4j-nop-1.6.4.jar'
+      // http://stackoverflow.com/questions/9516567/settings-maxprintstring-for-scala-2-9-repl
+      :power
+      vals.isettings.maxPrintString = 1000000
+      import org.yawni.wordnet._
+      import scala.collection.JavaConversions._
+      val wn = WordNet.getInstance
+      // Ctrl+A begin-of-line
+      // Ctrl+E end-of-line
+      (1 to 5) map(_.toString) map(wn.lookupWordSenses(_, POS.NOUN) map(x => (x, x.getSynset.getLexCategory)) mkString(":")) mkString("\n")
     - list the atomic elements in WordNet
     - list numbers in WordNet
+      - has Roman numerals too!
+      ? weird that only 1-30 are nouns (with lexCat <quantity>) while of 31-100, only 40,50,60,78,80,90,100 are nouns, rest adjectives
     - normalize integers (adjectives: 1st →  first, ..., 49th, 50th, 60th,..., 100th, ...,  ? 115th, ..., 130th, ...)
       - digits, textual, Roman numerals (* lowercase)
       * limited fraction synonyms ("one-half" = "half", "one-fourth" = "one quarter" = "twenty-five percent")
@@ -1285,7 +1308,7 @@ x feature: howto for developing in NetBeans ?
     jnlp on OS X acts crazy (basically hangs and has to be Force Quit-killed)
 + feature: update .jnlp file using pom.xml properties
 
-- Core
+- API
   ~ feature: api: meta-relations (e.g., Hypo/InstanceHypo)
     ? can a node have hyponyms AND instance hyponyms (or hypernyms AND instance hypernyms) ?
       - write test to look
@@ -1551,7 +1574,7 @@ x feature: howto for developing in NetBeans ?
     + make verb frame info accessible
     + make adjective positions an enum and make accessible by an EnumSet (only 7 possible combos?)
 
-- GUI
+- Browser (aka GUI)
   < feature: gui: GTK LAF -- too many bugs to list: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6417110
     + solution: for Windows and Mac, use native LAF, for Linux use CrossPlatform LAF
     - Linux doesn't use anti-aliased fonts
@@ -1857,10 +1880,10 @@ Performance
   - eliminates backing char[] storage reqs of longer lived Strings
 < feature: api: consider converting Synset's char[] gloss to a UTF-8 encoded byte[] to chop the memory requirements in half for these large strings.
   - 16,557,481 letters (about 32 MB as char so would be about 16 MB as byte)
-- bug: api: use WeakReference's/ WeakReference[] (really I think SoftReference's/SoftReference[])
++ bug: api: use WeakReference's/ WeakReference[] (really I think SoftReference's/SoftReference[])
+  + use Google Guava's MapMaker
   * Steele's original code referred to this (was not yet in JDK); see 
   - needs to decide exactly where this might make sense - oddly, this memory saving device could actually cost more than it saves
-  - look to Google Collections MapMaker for guidance
 
     Yonik's SimpleStringInterner for lockless pooling
       or maybe ConcurrentLinkedQueue
@@ -1936,7 +1959,7 @@ General Project Quality
   - if we don't compress the jar, loading the data takes 139ms
   - if we compress the jar, loading the data takes 480ms
 
-- massive efficiency overhaul
+- massive memory efficiency improvement
   - store files as large char arrays and maintain offsets to newlines
     - load takes longer ?
     - maybe using CharSequences backed by CharBuffer is just as good as arrays ?
