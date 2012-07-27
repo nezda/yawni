@@ -8,7 +8,7 @@ probably the single most used NLP resource ; many companies have it as their
 cornerstone.  It embodies one of the most fundamental of all NLP problems:
 "word sense disambiguation".  The Yawni code library can be used to add lexical
 and semantic knowledge, primarily derived from WordNet, to your applications.  
-Yawni is currently written in the Java programming language.  
+Yawni is written in the Java programming language.  
 
 The Yawni website is currently at:
   http://www.yawni.org/
@@ -31,7 +31,16 @@ Quick Start
 Basic steps:
   0) Install JDK 1.6 (or greater), Apache Maven 2.0.9 (or greater)
   1) Specify the following Apache Maven dependencies in your project
-     XXX
+    <dependency>
+      <groupId>org.yawni</groupId>
+      <artifactId>yawni-wordnet-api</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yawni</groupId>
+      <artifactId>yawni-wordnet-data</artifactId>
+      <version>2.0.0</version>
+    </dependency>
   2) Start using the Yawni API!: all required resources are loaded on demand
      from the classpath (i.e., jars) made accessible via a singleton:
      
@@ -72,16 +81,17 @@ Why Yawni ?
   - extensive unit tests provide peace of mind (and great examples!)
 - includes refined GUI browser featuring
   - user friendly, snappy
-  - incremental find
-  - comprehensive keyboard support
+  - incremental find (Ctrl+Shift+F / ⇧ ⌘ F)
+  - comprehensive keyboard support (arrows, tab, etc.)
+  - multi-window support (Ctrl+N / ⌘ N)
   - cross-platform including zero-install Java Web Start version
 - commercial-friendly Apache license
 
 Changes in 2.x versions
 
 - Extreme speed improvements: literally faster than the C version (benchmark source included)
-  - Bloom filter used to avoid fruitless lookups (no loss in accuracy!)
-  - re-implemented LRUCache in terms of java.util.LinkedHashMap (simpler; much more efficient)
+  - Bloom filters used to avoid fruitless lookups (no loss in accuracy!)
+  - re-implemented LRUCache using Google Guava's MapMaker
   - FileManager.CharStream and FileManager.NIOCharStream utilize in-memory and java.nio for maximum speed
 - Major reduction in memory requirements
   - use of primitives where possible (hidden by API)
@@ -91,19 +101,23 @@ Changes in 2.x versions
   - incremental find
   - no limits on search (Never see "Search too large.  Narrow search and try again..." again!)
 - Support for WordNet 3.0 data files (and all older formats)
-- Supports reading data files from JAR file
+- Support for numerous optional and extended WordNet resources
+  - 'sense tagged frequencies' (WordSense#getSensesTaggedFrequency())
+  - 'lexicographer category' (Synset#getLexCategory())
+  - 14 new 'morphosemantic' relations (RelationType.RelationTypeType.MORPHOSEMANTIC)
+  - 'evocation' empirical ranks (WordSense#getCoreRank())
+- Supports reading ALL data files from JAR file
 - Many bug fixes
   - fixed broken RelationTypes
   - fixed Verb example sentences and generic frames (and made them directly accessible)
   - fixed iteration bugs and memory leaks
   - fixed various thread safety bugs
-- Updated to leverage Java 1.5
+- Updated to leverage Java 1.6
   - generics
   - use of Enum, EnumSet, and EnumMap where apropos
-  - re-implemented LRUCache in terms of LinkedHashMap (much more efficient)
   - uses maximally configurable slf4j logging system
   - added LookaheadIterator (analogous to old LookaheadEnumeration)
-    - changed to even better AbstractIterator
+    - changed to even better Google Guava AbstractIterator
 - Growing suite of unit tests
 - Automated all build infrastructure using Apache Maven
 - New / changed API methods
@@ -129,4 +143,3 @@ Changes in 2.x versions
   - currently, no major classes are Serializable
   - removed RMI client / server capabilities - deemed overkill 
   - removed applet - didn't justify its maintenance burden
-
