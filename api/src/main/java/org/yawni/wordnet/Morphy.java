@@ -21,6 +21,7 @@ import org.yawni.util.cache.Cache;
 //import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import org.yawni.util.cache.Caches;
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.Utils;
 import org.yawni.wordnet.WordNet.DatabaseKey;
+import org.yawni.wordnet.WordNet.StringPOSDatabaseKey;
 
 /**
  * Java port of {@code morph.c}'s {@code morphstr} - WordNet's search
@@ -108,7 +110,7 @@ class Morphy {
   /**
    * Performs several normalizations of a query string to maximize usability/predictability:
    * <ul>
-   *   <li> Lowecase all letters </li>
+   *   <li> Lowercase all letters </li>
    *   <li> Removes left / right edge whitespace / underscores </li>
    *   <li> Conflate runs of ' ''s (spaces) to single ' ' (space); likewise for '-''s (dashes) </li>
    *   <li> Change ' ''s (spaces) to '_' (underscores) to allow searches to pass </li>
@@ -137,8 +139,8 @@ class Morphy {
     }
     // lowercase and flatten all runs of white space to a single '_'
     //TODO consider compiling this regex
-    //return origstr.toLowerCase().replaceAll("\\s+", "_");
-    String toReturn = MULTI_WHITESPACE.matcher(origstr.toLowerCase()).replaceAll("_");
+    //return origstr.toLowerCase(Locale.ROOT).replaceAll("\\s+", "_");
+    String toReturn = MULTI_WHITESPACE.matcher(origstr.toLowerCase(Locale.ROOT)).replaceAll("_");
     //TODO if contains any non-ASCII chars, Normalize, pulling apart combined characters and
     // then remove these non-ASCII chars
     //final String normalized = java.text.Normalizer.normalize(origstr, Form.NFD);
@@ -204,7 +206,7 @@ class Morphy {
     }
 
     //TODO cache would have more coverage if searchNormalize()'d variant were used
-    final WordNet.DatabaseKey cacheKey = new WordNet.StringPOSDatabaseKey(origstr, pos);
+    final WordNet.DatabaseKey cacheKey = new StringPOSDatabaseKey(origstr, pos);
     final LightImmutableList<String> cached = morphyCache.get(cacheKey);
     if (cached != null) {
       //FIXME doesn't cache null (i.e., combinations not in WordNet)

@@ -119,4 +119,15 @@ public class WordSenseTest {
         sense.getLexid()
         );
   }
+
+	// torture test for "soft" caches - SoftReferences don't seem to have time to clear under such aggressive load
+	@Test
+  public void testLargeNumberOfSearches() {
+		for (int i = 0; i <= 1000000; i++) {
+			final String query = String.valueOf(i);
+			for (WordSense wordSense : wordNet.lookupWordSenses(query, POS.ALL)) {
+				System.err.println(wordSense);
+			}
+		}
+	}
 }
