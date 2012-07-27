@@ -16,7 +16,7 @@
  */
 package org.yawni.util.cache;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -30,10 +30,14 @@ class ConcurrentSoftCache<K, V> implements Cache<K, V> {
 
   @SuppressWarnings("unchecked")
   public ConcurrentSoftCache(final int initialCapacity) {
-    this.backingMap = new MapMaker()
-        .initialCapacity(initialCapacity)
-        .softValues()
-        .makeMap();
+		backingMap = CacheBuilder
+							.newBuilder()
+							//.initialCapacity(initialCapacity)
+							// use "initialCapacity" as a maximumSize because softValues don't seem to be cleared quick enough under load
+							.maximumSize(initialCapacity)
+							.softValues()
+							.<K, V>build()
+							.asMap();
   }
 
   @Override
