@@ -205,7 +205,7 @@ class Morphy {
     }
 
     //TODO cache would have more coverage if searchNormalize()'d variant were used
-    final WordNet.DatabaseKey cacheKey = new WordNet.StringPOSDatabaseKey(origstr, pos);
+    final WordNet.DatabaseKey cacheKey = new StringPOSDatabaseKey(origstr, pos);
     final LightImmutableList<String> cached = morphyCache.get(cacheKey);
     if (cached != null) {
       //FIXME doesn't cache null (i.e., combinations not in WordNet)
