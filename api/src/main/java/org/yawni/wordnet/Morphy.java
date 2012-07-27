@@ -30,6 +30,7 @@ import org.yawni.util.cache.Caches;
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.Utils;
 import org.yawni.wordnet.WordNet.DatabaseKey;
+import org.yawni.wordnet.WordNet.StringPOSDatabaseKey;
 
 /**
  * Java port of {@code morph.c}'s {@code morphstr} - WordNet's search
