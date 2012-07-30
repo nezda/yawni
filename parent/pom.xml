@@ -383,7 +383,7 @@
           -->
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <argLine>
-            -Xmx256m
+            -Xmx128m -XX:+HeapDumpOnOutOfMemoryError
           </argLine>
         </configuration>
       </plugin>
