@@ -593,7 +593,10 @@ everything
       val wn = WordNet.getInstance
       // Ctrl+A begin-of-line
       // Ctrl+E end-of-line
-      (1 to 5) map(_.toString) map(wn.lookupWordSenses(_, POS.NOUN) map(x => (x, x.getSynset.getLexCategory)) mkString(":")) mkString("\n")
+      (1 to 1000000) map(_.toString) map(wn.lookupWordSenses(_, POS.NOUN) map(x => (x, x.getSynset.getLexCategory)) mkString(":")) mkString("\n")
+      // parallelize :)
+      val x = (1 to 1000000).par map(_.toString) map(wn.lookupWordSenses(_, POS.ALL)) filter(!_.isEmpty)
+      x map(_ map(a => (a, a.getSynset.getLexCategory)) mkString(":")) mkString("\n")
     - list the atomic elements in WordNet
     - list numbers in WordNet
       - has Roman numerals too!
