@@ -595,8 +595,15 @@ everything
       // Ctrl+E end-of-line
       (1 to 1000000) map(_.toString) map(wn.lookupWordSenses(_, POS.NOUN) map(x => (x, x.getSynset.getLexCategory)) mkString(":")) mkString("\n")
       // parallelize :)
-      val x = (1 to 1000000).par map(_.toString) map(wn.lookupWordSenses(_, POS.ALL)) filter(!_.isEmpty)
+      val numberMatches = (1 to 1000000).par map(_.toString) map(wn.lookupWordSenses(_, POS.ALL)) filter(!_.isEmpty)
       x map(_ map(a => (a, a.getSynset.getLexCategory)) mkString(":")) mkString("\n")
+      def timeit(f: => Unit) = { val s = System.nanoTime; f; "%,.4f s" format ((System.nanoTime - s) / 1e9) }
+      timeit({ val x = (1 to 1000000).par map(_.toString) map(wn.lookupWordSenses(_, POS.ALL)) filter(!_.isEmpty) })
+      val singleCharMatches = (1.toChar to 65535.toChar). map(_.toString) map(wn.lookupWordSenses(_, POS.ALL)) filter(!_.isEmpty)
+
+      def twoLetterWords(s:Int = 0, e:Int = 127) = (s.toChar to e.toChar).combinations(2).map(_.mkString("")).flatMap(a => List(a, a.reverse))
+      twoLetterWords() map(w => ("\"%s\"" format w, wn.lookupWordSenses(w, POS.ALL))) filter{ case (_, senses) => !senses.isEmpty} mkString("\n")
+
     - list the atomic elements in WordNet
     - list numbers in WordNet
       - has Roman numerals too!
