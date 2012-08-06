@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
 import org.yawni.util.CharSequences;
 
 import org.slf4j.Logger;
@@ -407,7 +409,7 @@ final class FileManager implements FileManagerInterface {
             }
         }
       }
-      // return exclusive end chopping line break delimitter(s)
+      // return exclusive end chopping line break delimiter(s)
       return crnl ? position - 2 : position - 1;
     }
   } // end class NIOCharStream
@@ -444,15 +446,8 @@ final class FileManager implements FileManagerInterface {
         throw new RuntimeException("unknown length not currently supported");
       }
       final byte[] buffer = new byte[len];
-      int totalBytesRead = 0;
-      int bytesRead;
-      while ((bytesRead = input.read(buffer, totalBytesRead, len - totalBytesRead)) > 0) {
-        totalBytesRead += bytesRead;
-      }
-      // could resize buffer
-      if (len != totalBytesRead) {
-        throw new RuntimeException("Read error. Only read "+totalBytesRead+" of "+len+" for "+fileName);
-      }
+			ByteStreams.readFully(input, buffer);
+			Closeables.closeQuietly(input);
       return ByteBuffer.wrap(buffer);
     }
   } // end class InputStreamCharStream
@@ -611,8 +606,6 @@ final class FileManager implements FileManagerInterface {
   // Low-level Searching
   //
 
-  private static final String TWO_SPACES = "  ";
-
   /**
    * {@inheritDoc}
    */
@@ -766,8 +759,7 @@ final class FileManager implements FileManagerInterface {
     synchronized (stream) {
       int stop = stream.length();
       while (true) {
-        //FIXME fix possible overflow issue; fix with >>>
-        final int midpoint = (start + stop) / 2;
+        final int midpoint = (start + stop) >>> 1;
         stream.seek(midpoint);
         stream.skipLine();
         final int offset = stream.position();
