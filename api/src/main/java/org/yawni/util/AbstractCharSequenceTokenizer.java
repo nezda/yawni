@@ -16,13 +16,14 @@
  */
 package org.yawni.util;
 
+import com.google.common.base.CharMatcher;
 import java.util.NoSuchElementException;
 
 import static org.yawni.util.CharSequences.*;
 
 /**
  * {@code AbstractCharSequenceTokenizer}s are used to break a string apart into tokens based on sequence of 1 or more of
- * of n delimitter {@code char}s.
+ * of n delimiter {@code char}s.
  * Lighter than a {@link java.util.Scanner}, more features than {@link java.util.StringTokenizer java.util.StringTokenizer}, with full
  * support for {@link CharSequence}s.
  *
@@ -30,6 +31,7 @@ import static org.yawni.util.CharSequences.*;
  */
 public abstract class AbstractCharSequenceTokenizer {
   protected static final String DEFAULT_DELIMITERS = " \t\n\r\f";
+	protected static final CharMatcher DEFAULT_DELIMITERS_CHARMATCHER = CharMatcher.anyOf(DEFAULT_DELIMITERS);
   protected final CharSequence string;
   protected String delimiters;
   private int position;
@@ -74,7 +76,7 @@ public abstract class AbstractCharSequenceTokenizer {
 
   /**
    * Returns the number of unprocessed tokens remaining in the string.
-   * @return number of tokens that can be retreived before an exception will result
+   * @return number of tokens that can be retrieved before an exception will result
    */
   public final int countTokens() {
     return countTokens(string, position, string.length(), delimiters);
@@ -84,18 +86,22 @@ public abstract class AbstractCharSequenceTokenizer {
    * Returns the number of tokens in {@code string} separated by
    * the default delimiters.
    * @param string the string to be tokenized
-   * @return number of tokens that can be retreived before an exception will result
+   * @return number of tokens that can be retrieved before an exception will result
    */
   public final static int countTokens(final CharSequence string) {
     return countTokens(string, 0, string.length(), DEFAULT_DELIMITERS);
   }
+
+	public static int countTokens(final CharSequence string, CharMatcher delimiter) {
+		return delimiter.countIn(string) + 1;
+	}
 
   /**
    * Returns the number of tokens in {@code string} separated by
    * {@code delimiters}.
    * @param string the string to be tokenized
    * @param delimiters the delimiters to use
-   * @return number of tokens that can be retreived before an exception will result
+   * @return number of tokens that can be retrieved before an exception will result
    */
   public final static int countTokens(final CharSequence string, final String delimiters) {
     return countTokens(string, 0, string.length(), delimiters);
@@ -108,7 +114,7 @@ public abstract class AbstractCharSequenceTokenizer {
    * @param position position in string
    * @param length length after position
    * @param delimiters the delimiters to use
-   * @return number of tokens that can be retreived before an exception will result
+   * @return number of tokens that can be retrieved before an exception will result
    */
   public final static int countTokens(
     final CharSequence string,
