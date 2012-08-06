@@ -177,7 +177,7 @@ public class CharSequenceTokenizerTest {
   }
 
   // many more boundary cases could be tested
-  // - edge delimitter content (esp. trailing)
-  // - pure delimitter input
+  // - edge delimiter content (esp. trailing)
+  // - pure delimiter input
   // - attempting to use tokenizer again after it has thrown a NSEE
 }
