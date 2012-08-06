@@ -17,12 +17,12 @@
 
 package org.yawni.wordnet;
 
+import com.google.common.base.CharMatcher;
 import org.yawni.util.cache.Cache;
 //import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.LightImmutableList;
@@ -105,8 +105,6 @@ class Morphy {
     this.morphyCache = Caches.withCapacity(morphyCacheCapacity);
   }
 
-  private static final Pattern MULTI_WHITESPACE = Pattern.compile("\\s+");
-
   /**
    * Performs several normalizations of a query string to maximize usability/predictability:
    * <ul>
@@ -129,18 +127,14 @@ class Morphy {
       if ("-".equals(origstr)) {
         return origstr;
       }
-      if (isOnlySpaces(origstr)) {
+      if (SPACE.matchesAllOf(origstr)) {
         return "_";
       }
-      // strip edge underscores (e.g., "_slovaks_" → "slovaks")
-      //TODO consider compiling this regex
-      origstr = origstr.replaceAll("^[_ -]+", "");
-      origstr = origstr.replaceAll("[_ -]+$", "");
+			origstr = DASH_OR_UNDERSCORE.trimFrom(origstr);
     }
+		// strip edge underscores (e.g., "_slovaks_" → "slovaks")
     // lowercase and flatten all runs of white space to a single '_'
-    //TODO consider compiling this regex
-    //return origstr.toLowerCase(Locale.ROOT).replaceAll("\\s+", "_");
-    String toReturn = MULTI_WHITESPACE.matcher(origstr.toLowerCase(Locale.ROOT)).replaceAll("_");
+		String toReturn = WN_WHITESPACE.trimAndCollapseFrom(origstr.toLowerCase(Locale.ROOT), '_');
     //TODO if contains any non-ASCII chars, Normalize, pulling apart combined characters and
     // then remove these non-ASCII chars
     //final String normalized = java.text.Normalizer.normalize(origstr, Form.NFD);
@@ -148,31 +142,11 @@ class Morphy {
     return toReturn;
   }
 
-  //TODO move to Utils
-  private static List<Character> asCharacterList(String s) {
-    final char[] chars = s.toCharArray();
-    final List<Character> charList = new ArrayList<Character>(chars.length);
-    for (final char c : chars) {
-      charList.add(c);
-    }
-    return charList;
-  }
-
-  //TODO move to Utils
-  private static boolean isOnlySpaces(final CharSequence origstr) {
-    final int n = origstr.length();
-    for (int i = n - 1; i >= 0; i--) {
-      if (origstr.charAt(i) != ' ') {
-        return false;
-      }
-    }
-    return n > 0;
-  }
+	private static final CharMatcher DASH_OR_UNDERSCORE = CharMatcher.anyOf("_-");
+	private static final CharMatcher WN_WHITESPACE = CharMatcher.WHITESPACE.or(CharMatcher.BREAKING_WHITESPACE).or(CharMatcher.is('_'));
+	private static final CharMatcher SPACE = CharMatcher.is(' ');
 
   static String underScoreToSpace(final String s) {
-    if (s == null) {
-      return s;
-    }
     return s.replace('_', ' ');
   }
 
