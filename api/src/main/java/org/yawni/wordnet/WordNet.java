@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
@@ -383,8 +384,7 @@ public final class WordNet implements WordNetInterface {
     } else {
       getSynsetAtCacheMiss++;
       cacheDebug(synsetCache);
-      line = getSynsetLineAt(pos, offset);
-      synset = new Synset(line, this);
+      synset = new Synset(getSynsetLineAt(pos, offset), this);
       synsetCache.put(cacheKey, synset);
     }
     return synset;
@@ -437,6 +437,7 @@ public final class WordNet implements WordNetInterface {
       final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(input));
       @SuppressWarnings("unchecked")
       final BloomFilter<CharSequence> filter = (BloomFilter<CharSequence>) ois.readObject();
+			Closeables.closeQuietly(ois);
       return filter;
     } catch (Exception e) {
       log.info("caught {}", e);
