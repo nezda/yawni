@@ -228,6 +228,11 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.5.1</version>
         </plugin>
@@ -258,21 +263,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>buildnumber-maven-plugin</artifactId>
-           <!-- 
-           <version>1.0-beta-4</version> 
-           [INFO] [buildnumber:create {execution: default}]
-           [INFO] Storing buildNumber: 2010-01-11 17:56:32 at timestamp: 1263254192246
-           [INFO] 
-           [ERROR] FATAL ERROR
-             [INFO] 
-             [INFO] The scm url cannot be null.
-             [INFO] 
-             [INFO] Trace
-             java.lang.NullPointerException: The scm url cannot be null.
-                     at org.apache.maven.scm.manager.AbstractScmManager.makeScmRepository(AbstractScmManager.java:181)
-                     ....
-           -->
-           <version>1.1</version>
+          <version>1.1</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -435,10 +426,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
         <configuration>
-          <format>{0,date,yyyy-MM-dd HH:mm:ss}</format>
-          <items>
-            <item>timestamp</item>
-          </items>
+          <timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
         </configuration>
@@ -450,6 +438,21 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <Implementation-Build-Timestamp>${timestamp}</Implementation-Build-Timestamp>
+              <Implementation-Build-Rev>${buildNumber}</Implementation-Build-Rev>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -588,7 +591,8 @@
                   <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
                 </manifest>
                 <manifestEntries>
-                  <svnversion>${buildNumber}</svnversion>
+                  <Implementation-Build-Timestamp>${timestamp}</Implementation-Build-Timestamp>
+                  <Implementation-Build-Rev>${buildNumber}</Implementation-Build-Rev>
                 </manifestEntries>
               </archive>
               <alias>Luke Nezda</alias>
