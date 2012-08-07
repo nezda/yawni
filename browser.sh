@@ -48,3 +48,6 @@ $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.ya
 
 # much easier to use Maven tool to build classpath: mvn dependency:build-classpath
 #java -cp $HOME/.m2/repository/org/slf4j/slf4j-api/1.5.10/slf4j-api-1.5.10.jar:$HOME/.m2/repository/org/slf4j/slf4j-nop/1.5.10/slf4j-nop-1.5.10.jar:target/classes/:target/test-classes/ org.yawni.util.cache.BloomFilters
+
+# or just use the maven-exec-plugin:
+# mvn exec:java -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
