@@ -16,12 +16,15 @@
  */
 package org.yawni.wordnet.browser;
 
+import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-/** 
+/**
  * Reads a properties file (target/classes/) containing the
  * output of the buildnumber-maven-plugin.
  */
@@ -32,6 +35,7 @@ final class Application {
   private final String artifactId;
   private final String applicationVersion;
   private final String buildNumber;
+	private final SimpleDateFormat buildDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private final Date buildDate;
 
   Application() {
@@ -51,17 +55,19 @@ final class Application {
       this.applicationVersion = (String) props.get("application.version");
       this.buildNumber = (String) props.get("application.buildNumber");
       final String buildDateString = (String) props.get("application.buildDate");
-      this.buildDate = new Date(Long.valueOf(buildDateString));
+      this.buildDate = buildDateFormat.parse(buildDateString);
       //System.err.println("getPackage(): "+getPackagePath());
       //System.err.println("props: "+props);
       //System.err.println(this);
+		} catch (ParseException pe) {
+			throw Throwables.propagate(pe);
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
   }
 
   private static Application instance;
-  
+
   static Application getInstance() {
     if (instance == null) {
       instance = new Application();

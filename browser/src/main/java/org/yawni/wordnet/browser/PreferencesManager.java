@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet.browser;
 
+import com.google.common.base.Throwables;
 import java.io.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -78,9 +79,9 @@ class PreferencesManager implements AWTEventListener {
       Preferences.importPreferences(is);
       is.close();
     } catch (InvalidPreferencesFormatException ipfe) {
-      throw new RuntimeException(ipfe);
+      throw Throwables.propagate(ipfe);
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
   }
 
@@ -128,7 +129,7 @@ class PreferencesManager implements AWTEventListener {
      */
     public abstract void set();
   } // end enum LookAndFeel
-  
+
   static void setLookAndFeel() {
     // set manually
     //LookAndFeel.GTK.set();
@@ -152,7 +153,7 @@ class PreferencesManager implements AWTEventListener {
     // os="Linux"
     // os="Mac OS X"
     // os="Windows"
-  
+
     //TODO loadDefaults();
     final String defaultLnFName = "SYSTEM";
     //final String defaultLnFName = "CROSS_PLATFORM";
@@ -180,7 +181,7 @@ class PreferencesManager implements AWTEventListener {
     //  }
     //  reader.close();
     //} catch(IOException ioe) {
-    //  throw new RuntimeException(ioe);
+    //  throw Throwables.propagate(ioe);
     //}
   }
 
@@ -206,7 +207,7 @@ class PreferencesManager implements AWTEventListener {
   // - text (e.g., "Wrap lines")
   // - setting/value (Don't show, Show with searches, Show with searches and overview)
   // - accessors
-  // - tie in to 
+  // - tie in to
 
   /** {@inheritDoc} */
   public void eventDispatched(final AWTEvent evt) {

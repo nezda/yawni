@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet.browser;
 
+import com.google.common.base.Throwables;
 import org.yawni.util.Utils;
 import org.yawni.wordnet.WordNetInterface;
 import org.yawni.wordnet.WordNet;
@@ -551,7 +552,7 @@ public class BrowserPanel extends JPanel {
             get();
           } catch (InterruptedException ignore) {
           } catch (java.util.concurrent.ExecutionException ee) {
-            throw new RuntimeException(ee);
+            throw Throwables.propagate(ee);
           }
         }
       };
@@ -638,7 +639,7 @@ public class BrowserPanel extends JPanel {
           get();
         } catch (InterruptedException ignore) {
         } catch (java.util.concurrent.ExecutionException ee) {
-          throw new RuntimeException(ee);
+          throw Throwables.propagate(ee);
         }
       }
     };

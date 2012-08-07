@@ -36,7 +36,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>appassembler-maven-plugin</artifactId>
-        <!-- <version>1.0</version> -->
+        <version>1.2.2</version>
         <configuration>
           <!-- 
           mvn package appassembler:assemble 
@@ -194,7 +194,8 @@
                   <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
                 </manifest>
                 <manifestEntries>
-                  <svnversion>${buildNumber}</svnversion>
+                  <Implementation-Build-Timestamp>${timestamp}</Implementation-Build-Timestamp>
+                  <Implementation-Build-Rev>${buildNumber}</Implementation-Build-Rev>
                 </manifestEntries>
               </archive>
               <alias>Luke Nezda</alias>
