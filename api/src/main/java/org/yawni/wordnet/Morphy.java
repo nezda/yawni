@@ -38,7 +38,7 @@ import org.yawni.wordnet.WordNet.StringPOSDatabaseKey;
  * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
  */
 class Morphy {
-  private static final Logger log = LoggerFactory.getLogger(Morphy.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Morphy.class);
 
   private static final String SUFX[] = {
     // Noun suffixes

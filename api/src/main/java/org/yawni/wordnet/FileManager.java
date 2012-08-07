@@ -52,7 +52,7 @@ import org.yawni.util.LightImmutableList;
  * position.
  */
 final class FileManager implements FileManagerInterface {
-  private static final Logger log = LoggerFactory.getLogger(FileManager.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(FileManager.class);
 
 //  private String searchDirectory;
   private final Map<String, CharStream> fileNameCache = new HashMap<String, CharStream>();

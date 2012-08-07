@@ -42,7 +42,7 @@ import org.yawni.util.Utils;
  * @see Relation
  */
 public final class Word implements Comparable<Word>, Iterable<WordSense> {
-  private static final Logger log = LoggerFactory.getLogger(Word.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Word.class);
 
   private final WordNet wordNet;
   /** offset in <code>index.<em>pos</em></code> file; {@code Index.idxoffset} in {@code wn.h} */

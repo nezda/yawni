@@ -130,7 +130,7 @@ enum Command {
   PREFIX,
   /** unsupported; */
   SUBSTRING,
-  /** unsupported; key for useul commandline interface */
+  /** unsupported; key for useful commandline interface */
   RELATION,
   /** unsupported; */
   GLOSS_GREP,
@@ -143,7 +143,7 @@ enum Command {
   RANDOM
   ;
 
-  private static final Logger log = LoggerFactory.getLogger(Command.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Command.class);
 
   private List<String> variants() {
     return LightImmutableList.of(name().toLowerCase(), name());

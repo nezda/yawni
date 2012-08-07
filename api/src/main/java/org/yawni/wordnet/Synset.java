@@ -43,7 +43,7 @@ import static org.yawni.util.Utils.add;
  * @see Relation
  */
 public final class Synset implements RelationArgument, Comparable<Synset>, Iterable<WordSense> {
-  private static final Logger log = LoggerFactory.getLogger(Synset.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(Synset.class);
   //
   // Instance implementation
   //

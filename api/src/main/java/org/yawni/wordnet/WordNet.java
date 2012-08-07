@@ -72,7 +72,7 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  * @see Cache
  */
 public final class WordNet implements WordNetInterface {
-  private static final Logger log = LoggerFactory.getLogger(WordNet.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(WordNet.class);
 
   private final FileManagerInterface fileManager;
   final Morphy morphy;
