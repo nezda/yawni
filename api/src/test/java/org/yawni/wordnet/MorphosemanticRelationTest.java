@@ -67,7 +67,7 @@ public class MorphosemanticRelationTest {
     System.err.println("enum values: "+MorphosemanticRelation.aliases());
     assertThat(MorphosemanticRelation.AGENT).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
     assertThat(MorphosemanticRelation.fromValue("AGENT")).isSameAs(MorphosemanticRelation.valueOf("AGENT"));
-    
+
     assertThat(MorphosemanticRelation.fromValue("BY_MEANS_OF")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
     assertThat(MorphosemanticRelation.fromValue("by-means-of")).isSameAs(MorphosemanticRelation.BY_MEANS_OF);
   }
@@ -122,8 +122,8 @@ public class MorphosemanticRelationTest {
       if (targets.isEmpty()) {
         // 497 empty
         final List<RelationArgument> morphDerivs = srcSyn.getRelationTargets(RelationType.DERIVATIONALLY_RELATED);
-        System.err.println("empty "+type+" "+srcSense+" :: "+targetSense+"  "+morphDerivs.size());
-        System.err.println("  "+Joiner.on("\n  ").join(srcSyn.getRelations()));
+        //System.err.println("empty "+type+" "+srcSense+" :: "+targetSense+"  "+morphDerivs.size());
+        //System.err.println("  "+Joiner.on("\n  ").join(srcSyn.getRelations()));
         continue;
       }
       // this will never happen because these are LexicalRelations
@@ -175,7 +175,7 @@ public class MorphosemanticRelationTest {
       assertThat(srcWordSense).isNotNull();
       final int srcSynsetIdx = srcSynset.getSynsetIndex(srcWordSense);
       assertThat(srcSynsetIdx).isGreaterThanOrEqualTo(0);
-      
+
       final WordSense targetWordSense = targetSynset.getWordSense(targetSenseKey);
       assert targetWordSense != null : "targetSenseKey: "+targetSenseKey+ " existing senseKeys: \n"+
         Joiner.on("\n").join(senseKeysOf(targetSynset));
