@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Stopwatch;
 import org.junit.*;
 import static org.junit.Assert.*;
 import static org.yawni.wordnet.HasLemma.*;
@@ -465,38 +466,50 @@ public class IterationTest {
   //@Ignore
   @Test
   public void words() {
+		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("words");
     for (final Word word : wordNet.words(POS.ALL)) {
       final String s = word.toString();
       //System.err.println(s);
     }
+		stopwatch.stop();
+		System.err.println("  "+stopwatch);
   }
   //@Ignore
   @Test
   public void synsets() {
+		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("synsets");
     for (final Synset synset : wordNet.synsets(POS.ALL)) {
       String s = synset.toString();
       //System.err.println(s);
     }
+		stopwatch.stop();
+		System.err.println("  "+stopwatch);
   }
   //@Ignore
   @Test
   public void wordSenses() {
+		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("wordSenses");
     for (final WordSense wordSense : wordNet.wordSenses(POS.ALL)) {
       final String s = wordSense.toString();
       //System.err.println(s);
     }
+		stopwatch.stop();
+		System.err.println("  "+stopwatch);
   }
   //@Ignore
   @Test
   public void relations() {
+		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("relations");
     for (final Relation relation : wordNet.relations(POS.ALL)) {
       final String s = relation.toString();
       //System.err.println(s);
     }
+		stopwatch.stop();
+		System.err.println("  "+stopwatch);
   }
 
   /**
@@ -504,6 +517,7 @@ public class IterationTest {
    */
   @Test
   public void lookupSynsets() {
+		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("lookupSynsets");
     for (final Word word : wordNet.words(POS.ALL)) {
       final String str = word.getLowercasedLemma();
@@ -515,6 +529,8 @@ public class IterationTest {
         }
       }
     }
+		stopwatch.stop();
+		System.err.println("  "+stopwatch);
   }
 
   void logTest(final String methodName) {
