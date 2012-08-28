@@ -69,7 +69,7 @@ interface FileManagerInterface {
    * inserted into the file: the index of the first element greater than the
    * target, or the row count, if all elements in the file are less than the
    * specified target. Note that this guarantees that the return value will be
-   * {@code >= 0} if and only if the target is found.  This is analagous to
+   * {@code >= 0} if and only if the target is found.  This is analogous to
    * {@link java.util.Arrays#binarySearch java.util.Arrays.binarySearch()}.
    * @throws IOException
    * @see #comparator()
