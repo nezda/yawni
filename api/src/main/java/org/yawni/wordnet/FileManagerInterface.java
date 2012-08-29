@@ -19,6 +19,7 @@ package org.yawni.wordnet;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.regex.Matcher;
+import org.yawni.wordnet.FileManager.CharStream;
 
 /**
  * {@code FileManagerInterface} defines the interface between {@link WordNet} and the data file system.
@@ -86,8 +87,20 @@ interface FileManagerInterface {
    */
   public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean filenNameWnRelative) throws IOException;
 
+	/**
+	 * Variant of {@link #getIndexedLinePointer(java.lang.CharSequence, int, java.lang.String, boolean) that gracefully
+	 * returns no matches if stream is null allowing aggressive error checks to be done by the caller.
+	 * @param target
+	 * @param start
+	 * @param stream
+	 * @return
+	 * @throws IOException
+	 */
+	public int getIndexedLinePointer(final CharSequence target, int start, final CharStream stream) throws IOException;
+
   /**
-   * Efficient query method for sorted input which may have duplicates that returns ALL matches.
+   * Efficient query method for sorted input which may have duplicates that returns ALL matches.  If {@code fileName}
+	 * does not refer to an existing file, returns no results, a graceful form of failure for optional resources.
    * @param target prefix word sought
    * @param fileName
    * @throws IOException

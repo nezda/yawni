@@ -539,7 +539,7 @@ final class FileManager implements FileManagerInterface {
   private void requireStream(final CharStream stream, final String fileName) {
     if (stream == null) {
       throw new IllegalStateException("Yawni can't open '"+fileName+
-        "'. Yawni needs either the yawni-data jar in the classpath, or correctly defined " +
+        "'. Yawni needs either a yawni-wordnet-data* jar in the classpath, or correctly defined " +
         " $WNSEARCHDIR or $WNHOME environment variable or system property referencing the WordNet data.");
     }
   }
@@ -736,11 +736,21 @@ final class FileManager implements FileManagerInterface {
     return getIndexedLinePointer(target, 0, fileName, true);
   }
 
+	@Override
+	public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean fileNameWnRelative) throws IOException {
+		if (log.isTraceEnabled()) {
+      log.trace("target: "+target+" fileName: "+fileName);
+    }
+    final CharStream stream = getFileStream(fileName, fileNameWnRelative);
+    requireStream(stream, fileName);
+		return getIndexedLinePointer(target, start, stream);
+	}
+
   /**
    * {@inheritDoc}
    */
 	@Override
-  public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean fileNameWnRelative) throws IOException {
+  public int getIndexedLinePointer(final CharSequence target, int start, CharStream stream) throws IOException {
     // This binary search method provides output usable by prefix search
     // changing this operation from linear time to logarithmic time.
     //
@@ -751,11 +761,9 @@ final class FileManager implements FileManagerInterface {
     if (target.length() == 0) {
       return -1;
     }
-    if (log.isTraceEnabled()) {
-      log.trace("target: "+target+" fileName: "+fileName);
-    }
-    final CharStream stream = getFileStream(fileName, fileNameWnRelative);
-    requireStream(stream, fileName);
+		if (stream == null) {
+			return -1;
+		}
     synchronized (stream) {
       int stop = stream.length();
       while (true) {
@@ -824,14 +832,18 @@ final class FileManager implements FileManagerInterface {
     if (target.length() == 0) {
       return LightImmutableList.of();
     }
+		final boolean fileNameWnRelative = false;
+		final CharStream stream = getFileStream(fileName, fileNameWnRelative);
+		if (stream == null) {
+			return LightImmutableList.of();
+		}
     // construct q s.t. it precisely preceeds target in sorted order, and leverage
     // feature of binary search returning (-insertion_point - 1) for non-matches
     final char last = target.charAt(target.length() - 1);
     final char prev = (char)(last - 1);
     String q = target.toString().substring(0, target.length() - 1) + prev;
 //    System.err.println("target: "+target+" q: "+q);
-    final boolean fileNameWnRelative = false;
-    final int i = getIndexedLinePointer(q, 0, fileName, fileNameWnRelative);
+    final int i = getIndexedLinePointer(q, 0, stream);
     // we're using modified target, so if it gets a hit (i >= 0),
     // we need to skip line(s) until actual match of original query hits
     int idx;
