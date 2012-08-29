@@ -33,6 +33,39 @@
     database of lexical and semantic relationships.
   </description>
   <packaging>jar</packaging>
+  <profiles>
+    <profile>
+      <id>defaultsForTests</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-nop</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.yawni</groupId>
+          <artifactId>yawni-wordnet-data30</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <!-- see definition and discussion of this profile in the parent pom (activation MUST be repeated) -->
+    <!-- 
+    profile <activation> must be repeated in parent and child to work
+    http://jira.codehaus.org/browse/MNG-5127?focusedCommentId=272497&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-272497
+    -->
+    <profile>
+      <id>useWNHOMEDataForTest</id>
+      <activation>
+        <property>
+          <name>useWNHOMEDataForTest</name>
+        </property>
+      </activation>
+    </profile>
+  </profiles>
   <!-- <scm> -->
     <!--
     <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</connection>
@@ -69,6 +102,8 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
+    <!-- these test dependencies are defined in profile defaultsForTests to allow variations on testing (e.g., without data project) -->
+    <!--
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-nop</artifactId>
@@ -79,6 +114,7 @@
       <artifactId>yawni-wordnet-data</artifactId>
       <scope>test</scope>
     </dependency>
+    -->
   </dependencies>
   <!--
   not working yet - requires dot (graphviz); can be specified with:
