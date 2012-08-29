@@ -95,7 +95,7 @@
     </dependency>
     <dependency>
       <groupId>org.yawni</groupId>
-      <artifactId>yawni-wordnet-data</artifactId>
+      <artifactId>yawni-wordnet-data30</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -216,7 +216,7 @@
       <dependencies>
         <dependency>
           <groupId>org.yawni</groupId>
-          <artifactId>yawni-wordnet-data</artifactId>
+          <artifactId>yawni-wordnet-data30</artifactId>
         </dependency>
       </dependencies>
     </profile>
