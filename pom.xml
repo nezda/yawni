@@ -30,7 +30,9 @@
   <packaging>pom</packaging>
   <modules>
     <module>parent</module>
-    <module>data</module>
+    <module>data30</module>
+    <module>data21</module>
+    <module>data20</module>
     <module>api</module>
     <module>browser</module>
   </modules>
