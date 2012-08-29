@@ -201,6 +201,13 @@ public interface WordNetInterface {
 			}
 		}
 
+		/** Customized form of {@link #valueOf(String)} */
+		static WordNetVersion fromValue(final String name) {
+			final boolean throwIfNull = false;
+			final WordNetVersion toReturn = staticThis.ALIASES.valueOf(name, throwIfNull);
+			return (toReturn == null) ? UNKNOWN : toReturn;
+		}
+
 		private static class staticThis {
 			static EnumAliases<WordNetVersion> ALIASES = EnumAliases.make(WordNetVersion.class);
 		}
