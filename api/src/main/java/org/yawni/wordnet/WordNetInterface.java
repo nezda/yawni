@@ -18,6 +18,7 @@ package org.yawni.wordnet;
 
 import com.google.common.annotations.Beta;
 import java.util.List;
+import org.yawni.util.EnumAliases;
 
 /**
  * A representation the WordNet computational lexicon.
@@ -181,4 +182,27 @@ public interface WordNetInterface {
    */
 	@Beta
   public Iterable<WordSense> wordSenses(final String query);
+
+	/**
+	 * Some applications are written in terms of specific synsets from specific versions of WordNet.
+	 */
+	enum WordNetVersion {
+		UNKNOWN,
+		WN30("3.0", "3.", "3"),
+		WN21("2.1"),
+		WN20("2.0", "2.", "2"),
+		WN16("1.6");
+
+		WordNetVersion(final String... aliases) {
+			staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
+			for (final String alias : aliases) {
+				assert alias.indexOf(' ') < 0;
+				staticThis.ALIASES.registerAlias(this, alias, alias.toUpperCase());
+			}
+		}
+
+		private static class staticThis {
+			static EnumAliases<WordNetVersion> ALIASES = EnumAliases.make(WordNetVersion.class);
+		}
+	}
 }
