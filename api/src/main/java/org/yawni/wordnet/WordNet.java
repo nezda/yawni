@@ -285,6 +285,31 @@ public final class WordNet implements WordNetInterface {
     return toReturn;
   }
 
+	enum PlainTextResource {
+		CNTLIST_DOT_REV("cntlist.rev", true, true),
+		CORE_RANK("core-wordnet.ranked", false, false),
+		// alt filenames:
+		// "morphosemantic-links.xls.tsv.sensekeys.bidi"
+		// "morphosemantic-links.xls.tsv.offsets.bidi"
+		MORPHOSEMANTIC_RELATIONS("morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi", false, false),
+		VERB_GROUP_RELATIONS("verb_groups.non_pairs.offsets", false, false),
+		VERB_SENTENCES_INDEX("sentidx.vrb", true, true),
+		VERB_SENTENCES("sentidx.vrb", true, true),
+		GENERIC_VERB_FRAMES("frames.vrb", true, true);
+
+		private final String filename;
+		private final boolean required;
+		private final boolean fileNameWnRelative;
+		// on 1st access, resolve Future<CharStream>
+		// memoized Supplier<CharStream>
+
+		PlainTextResource(final String filename, final boolean required, final boolean fileNameWnRelative) {
+			this.filename = filename;
+			this.required = required;
+			this.fileNameWnRelative = fileNameWnRelative;
+		}
+	}
+
   private static String getCntlistDotRevFilename() {
     return "cntlist.rev";
   }
