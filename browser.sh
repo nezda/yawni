@@ -46,8 +46,5 @@ JVM_ARGS+=(-Dapple.awt.brushMetalLook="true")
 # expand all array elements of JVM_ARGS Bash array
 $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
 
-# much easier to use Maven tool to build classpath: mvn dependency:build-classpath
-#java -cp $HOME/.m2/repository/org/slf4j/slf4j-api/1.5.10/slf4j-api-1.5.10.jar:$HOME/.m2/repository/org/slf4j/slf4j-nop/1.5.10/slf4j-nop-1.5.10.jar:target/classes/:target/test-classes/ org.yawni.util.cache.BloomFilters
-
-# or just use the maven-exec-plugin:
-# mvn exec:java -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
+# use the maven-exec-plugin (from api module):
+# mvn -P useWNHOMEDataForTest -DWNHOME=/Users/nezda/code/c/wordnets/WordNet-2.0 exec:java -Dexec.mainClass="org.yawni.util.cache.BloomFilters" -Dexec.classpathScope="test"
