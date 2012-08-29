@@ -31,8 +31,8 @@ import org.yawni.wordnet.WordNetLexicalComparator;
 
 /**
  * Utility class to generate and serialize {@link BloomFilter}s representing the
- * content of a given WordNet version; these filters are typically packaged in the 
- * {@code yawni-data} jar artifact.
+ * content of a given WordNet version; these filters are typically packaged in the
+ * {@code yawni-wordnet-data*} jar artifact.
  */
 class BloomFilters {
   public static void main(String[] args) throws Exception {
@@ -93,7 +93,7 @@ class BloomFilters {
     }
   }
 
-  private static void serialize(final BloomFilter filter, final String fname) throws Exception {
+  private static void serialize(final BloomFilter<CharSequence> filter, final String fname) throws Exception {
       final ObjectOutputStream oos =
         new ObjectOutputStream(
           new BufferedOutputStream(
