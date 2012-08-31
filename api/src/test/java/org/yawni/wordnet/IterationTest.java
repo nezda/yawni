@@ -32,6 +32,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.size;
 import org.yawni.util.MergedIterable;
 import org.yawni.util.Utils.UniqueMode;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 import org.yawni.wordnet.WordSense.AdjPosition;
 
 /**
@@ -40,12 +41,14 @@ import org.yawni.wordnet.WordSense.AdjPosition;
 public class IterationTest {
   private WordNetInterface wordNet;
   private Random rand;
+	private WordNetVersion VERSION;
 
   @Before
   public void init() {
     wordNet = WordNet.getInstance();
     // keep the test deterministic
     rand = new Random(0);
+		VERSION = WordNetVersion.detect();
   }
 
   /**
@@ -76,7 +79,11 @@ public class IterationTest {
         }
       }
     }
-    assertEquals(1382, numWithZeroWords);
+
+		switch (VERSION) {
+			case WN30: assertEquals(1382, numWithZeroWords); break;
+			case WN20: assertEquals(253, numWithZeroWords); break;
+		}
     System.err.printf("  %20s %d\n", "numWithZeroWords:", numWithZeroWords);
   }
 
@@ -300,7 +307,10 @@ public class IterationTest {
       last = word;
     }
     //System.err.println("last: "+last);
-    assertEquals(4786625, last.getOffset());
+		switch (VERSION) {
+			case WN30: assertEquals(4786625, last.getOffset()); break;
+			case WN20: assertEquals(4751460, last.getOffset()); break;
+		}
     assertThat("zyrian", isLemmaOf(last));
 
     assertEquals(first, first(nounIndexWords));
@@ -441,7 +451,9 @@ public class IterationTest {
           numCore, numNounCore, numVerbCore, numAdjCore);
 //        assertEquals(4997, numCore);
         // apparently 36 of the sensekeys in this data are invalid with respect to WordNet 3.0
-        assertEquals(4961, numCore);
+				if (VERSION == WordNetVersion.WN30) {
+					assertEquals(4961, numCore);
+				}
         printMemoryUsage();
         System.err.println("iterationIndexWordsVisited: " + iterationIndexWordsVisited+
             " iteration_total_p_cnt: " + iteration_total_p_cnt+

@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.yawni.util.CharSequences;
 import static org.junit.Assert.*;
 import static org.fest.assertions.Assertions.assertThat;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class MorphosemanticRelationTest {
   private WordNet wordNet;
@@ -75,6 +76,10 @@ public class MorphosemanticRelationTest {
 //  @Ignore
   @Test
   public void testRawSearch() throws Exception {
+		if (WordNetVersion.detect() != WordNetVersion.WN30) {
+			return;
+		}
+
     System.err.println("rawSearch");
     final String path = "/dict/" + WordNet.getMorphosemanticRelationsFilename();
     final BufferedReader lines = new BufferedReader(new InputStreamReader(getClass().getResource(path).openStream()));

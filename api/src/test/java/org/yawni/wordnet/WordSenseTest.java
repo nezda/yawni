@@ -126,7 +126,8 @@ public class WordSenseTest {
 		for (int i = 0; i <= 1000000; i++) {
 			final String query = String.valueOf(i);
 			for (WordSense wordSense : wordNet.lookupWordSenses(query, POS.ALL)) {
-				System.err.println(wordSense);
+//				System.err.println(wordSense);
+				assertThat(wordSense.toString()).isNull();
 			}
 		}
 	}

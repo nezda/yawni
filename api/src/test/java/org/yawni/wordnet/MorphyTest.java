@@ -31,8 +31,8 @@ import static org.fest.assertions.Assertions.assertThat;
  *   - Morphy
  *     - make sure caching strategies are not harming correctness (uses DatabaseKey(pos, someString))
  *   - specific synsets
- *     - using offets will require changes as WN is improved
- *     - could use lemmma, pos, and (sense number OR gloss)
+ *     - using offsets will require changes as WN is improved
+ *     - could use lemma, pos, and (sense number OR gloss)
  *   - other relations including derivationally related
  *   - add speed tests
  *     - task-based: count unique WordSense's in all DBs

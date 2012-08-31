@@ -39,8 +39,8 @@ public class WordNetInterfaceTest {
 
 	@Test
 	public void testWordNetVersion() {
-		WordNetVersion version = WordNetVersion.detect();
-		System.err.println("version: "+version);
+		final WordNetVersion version = WordNetVersion.detect();
+		System.err.println("WordNetVersion: "+version);
 	}
 
   /**

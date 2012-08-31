@@ -16,10 +16,12 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static com.google.common.collect.Iterables.contains;
 import static org.fest.assertions.Assertions.assertThat;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class SynsetTest {
   private static WordNetInterface wordNet;
@@ -52,7 +54,8 @@ public class SynsetTest {
   public void testDescriptions() {
     System.err.println("testDescriptions");
     int count = 0;
-    final int expectedCount = 117659;
+		final ImmutableMap<WordNetVersion, Integer> numSynsets = ImmutableMap.of(WordNetVersion.WN30, 117659, WordNetVersion.WN20, 117597);
+    final Integer expectedCount = numSynsets.get(WordNetVersion.detect());
     for (final Synset synset : wordNet.synsets(POS.ALL)) {
       count++;
       //if(++count > 10) break;
@@ -63,7 +66,9 @@ public class SynsetTest {
       //TODO assert something here, don't just exercise
       final String msg2 = count+" "+synset+"\n  "+synset.getDescription();
     }
-    assertThat(count).isEqualTo(expectedCount);
+		if (expectedCount != null) {
+			assertThat(count).isEqualTo(expectedCount);
+		}
     System.err.printf("tested %,d descriptions.\n", count);
   }
 }
