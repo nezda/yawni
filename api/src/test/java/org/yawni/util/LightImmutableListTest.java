@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 public class LightImmutableListTest {
   @Test
   public void nothington() {
-    System.out.println("nothington()");
+//    System.out.println("nothington()");
     Integer[] elements = new Integer[]{};
     List<Integer> expResult = Collections.<Integer>emptyList();
     LightImmutableList<Integer> result = LightImmutableList.of();
@@ -40,7 +40,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void singleton() {
-    System.out.println("singleton()");
+//    System.out.println("singleton()");
     Integer[] elements = new Integer[]{ 0 };
     Integer e0 = elements[0];
     List<Integer> expResult = Collections.singletonList(e0);
@@ -54,7 +54,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void doubleton() {
-    System.out.println("doubleton()");
+//    System.out.println("doubleton()");
     Integer[] elements = new Integer[]{ 0, 1 };
     Integer e0 = elements[0];
     Integer e1 = elements[1];
@@ -74,7 +74,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void tripleton() {
-    System.out.println("tripleton()");
+//    System.out.println("tripleton()");
     Integer[] elements = new Integer[]{ 0, 1, 2 };
     Integer e0 = elements[0];
     Integer e1 = elements[1];
@@ -90,7 +90,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void quadrupleton() {
-    System.out.println("quadrupleton()");
+//    System.out.println("quadrupleton()");
     Integer[] elements = new Integer[]{ 0, 1, 2, 3 };
     Integer e0 = elements[0];
     Integer e1 = elements[1];
@@ -107,7 +107,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void quintupleton() {
-    System.out.println("quintupleton()");
+//    System.out.println("quintupleton()");
     Integer[] elements = new Integer[]{ 0, 1, 2, 3, 4 };
     Integer e0 = elements[0];
     Integer e1 = elements[1];
@@ -125,7 +125,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void restleton() {
-    System.out.println("restleton()");
+//    System.out.println("restleton()");
     Integer[] elements = new Integer[]{ 0, 1, 2, 3, 4, 5 };
     Integer e0 = elements[0];
     Integer e1 = elements[1];
@@ -144,7 +144,7 @@ public class LightImmutableListTest {
   }
   @Test
   public void iterable() {
-    System.out.println("iterable()");
+//    System.out.println("iterable()");
     Integer[] elements = new Integer[]{ 0, 1, 2, 3, 4};
     Integer e0 = elements[0];
     Integer e1 = elements[1];
@@ -154,13 +154,16 @@ public class LightImmutableListTest {
     List<Integer> expResult = Collections.unmodifiableList(Arrays.asList(e0, e1, e2, e3, e4));
     LightImmutableList<Integer> result = LightImmutableList.copyOf(expResult);
     // compile test for covariant subList
-    LightImmutableList<Integer> immutableSubList = result.subList(0, 1);
     assertTrue(result instanceof LightImmutableList.Quintupleton);
+		assertTrue(result.subList(0, 1) instanceof LightImmutableList.Singleton);
+		assertTrue(result.subList(1, 2) instanceof LightImmutableList.Singleton);
+		assertTrue(result.subList(0, 2) instanceof LightImmutableList.Doubleton);
+		assertTrue(result.subList(0, 4) instanceof LightImmutableList.Quadrupleton);
     listTest(expResult, result);
   }
   @Test
   public void commonOverloads() {
-    System.out.println("commonOverloads()");
+//    System.out.println("commonOverloads()");
     List<List<Integer>> elements = new ArrayList<List<Integer>>();
     elements.add(Arrays.asList(0));
     elements.add(Arrays.asList(1));
@@ -184,9 +187,11 @@ public class LightImmutableListTest {
     assertTrue(result instanceof LightImmutableList.Quintupleton);
     listTest(expResult, result);
   }
-  private <E> void listTest(List<E> expResult, List<E> result) {
+
+	private <E> void listTest(List<E> expResult, List<E> result) {
     listTest(expResult, result, true);
   }
+
   private <E> void listTest(List<E> expResult, List<E> result, boolean recurse) {
     assertEquals(expResult, result);
     assertEquals(expResult.size(), result.size());
@@ -201,7 +206,7 @@ public class LightImmutableListTest {
     assertTrue(Arrays.equals(expResult.toArray(ref), result.toArray(ref)));
     assertTrue(expResult.containsAll(result));
     assertTrue(result.containsAll(expResult));
-    for (E e : expResult) {
+    for (final E e : expResult) {
       assertTrue(result.contains(e));
     }
     // TODO test toArray
@@ -211,7 +216,7 @@ public class LightImmutableListTest {
       for (int i=0; i <= expResult.size(); i++) {
         listTest(expResult.subList(0, i), result.subList(0, i), false);
       }
-      
+
       // {0, size()}, {1, size()}, {2,size()}, ..., {size(), size()}
       for (int i = 0; i <= expResult.size(); i++) {
         //System.out.println("result class: "+result.getClass().getSimpleName()+
