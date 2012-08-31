@@ -507,16 +507,16 @@ final class FileManager implements FileManagerInterface {
   }
 
   /**
-   * Interpret {@code resourcename} as a classpath-relative URL.
-   * @param resourcename
-   * @return CharStream corresponding to resourcename
+   * Interpret {@code resourceName} as a classpath-relative URL.
+   * @param resourceName
+   * @return CharStream corresponding to {@code resourceName}
    */
-  private synchronized CharStream getURLStream(String resourcename) throws IOException {
-    resourcename = "dict/" + resourcename;
+  private synchronized CharStream getURLStream(String resourceName) throws IOException {
+    resourceName = "dict/" + resourceName;
     // assume WN dict/ is in the classpath
-    final URL url = getClass().getClassLoader().getResource(resourcename);
+    final URL url = getClass().getClassLoader().getResource(resourceName);
     if (url == null) {
-      log.debug("resourcename: {} not found in classpath", resourcename);
+      log.debug("resourceName: {} not found in classpath", resourceName);
       return null;
     }
     final URLConnection conn = url.openConnection();
@@ -533,7 +533,7 @@ final class FileManager implements FileManagerInterface {
     }
     final InputStream input = conn.getInputStream();
     // fast CharStream created from InputStream (e.g., could be read from jar file)
-    return new InputStreamCharStream(resourcename, input, len);
+    return new InputStreamCharStream(resourceName, input, len);
   }
 
   private void requireStream(final CharStream stream, final String fileName) {
