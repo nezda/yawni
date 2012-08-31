@@ -272,7 +272,7 @@ public class Utils {
   /**
    * @return the first item from {@code iterable} if it is not empty, or {@code null}
    */
-	@Deprecated // use com.google.common.collect.Iterables#getFirst
+//	@Deprecated // use com.google.common.collect.Iterables#getFirst
   public static <T> T first(final Iterable<T> iterable) {
 		return Iterables.getFirst(iterable, null);
   }
