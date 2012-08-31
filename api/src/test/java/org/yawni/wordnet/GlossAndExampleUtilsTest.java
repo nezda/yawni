@@ -36,7 +36,7 @@ public class GlossAndExampleUtilsTest {
 
   @Test
   public void synsets() {
-    System.err.println("synsets");
+//    System.err.println("synsets");
     for (final Synset synset : dictionary.synsets(POS.ALL)) {
       //System.err.println(s);
       final String definitions = getDefinitionsChunk(synset);
@@ -45,12 +45,12 @@ public class GlossAndExampleUtilsTest {
       final String examples = getExamplesChunk(synset);
 //      System.err.println("exs: "+examples);
     }
-    System.err.println("success!");
+//    System.err.println("success!");
   }
 
   @Test
   public void glossChunkParsing() {
-    System.err.println("glossChunkParsing");
+//    System.err.println("glossChunkParsing");
     final WordSense release = dictionary.lookupWord("release", POS.NOUN).getSense(3);
     final String sentenceGloss = "a process that liberates or discharges something; \"there was a sudden release of oxygen\"; \"the release of iodine from the thyroid gland\"";
     assertThat(sentenceGloss).isEqualTo(release.getSynset().getGloss());
@@ -85,7 +85,7 @@ public class GlossAndExampleUtilsTest {
 
   @Test
   public void glossParsing1() {
-    System.err.println("glossParsing");
+//    System.err.println("glossParsing");
     final WordSense release = dictionary.lookupWord("release", POS.NOUN).getSense(3);
     final String sentenceGloss = "a process that liberates or discharges something; \"there was a sudden release of oxygen\"; \"the release of iodine from the thyroid gland\"";
     assertThat(sentenceGloss).isEqualTo(release.getSynset().getGloss());
@@ -100,7 +100,7 @@ public class GlossAndExampleUtilsTest {
     assertThat(sentenceGloss).matches(glossParts.pattern());
     assertThat(getDefinitions(release.getSynset())).contains(definition1);
     final List<String> examples = getExamples(release.getSynset());
-    System.err.println("examples: "+Joiner.on('\n').join(examples));
+//    System.err.println("examples: "+Joiner.on('\n').join(examples));
     assertThat(examples).contains(example1, example2);
   }
 

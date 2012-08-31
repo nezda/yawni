@@ -34,12 +34,12 @@ public class GetIndexTest {
   }
   @Test
   public void test2() {
-    System.err.println("test2() "+morphy);
+//    System.err.println("test2() "+morphy);
     assertEquals(2, alternate("a_b"));
   }
   @Test
   public void test3() {
-    System.err.println("test3() "+morphy);
+//    System.err.println("test3() "+morphy);
     assertEquals(2*2, alternate("x_y_z"));
     assertEquals(3*3, experimentalAlternate("x_y_z"));
   }
@@ -57,7 +57,7 @@ public class GetIndexTest {
       i++;
       final String altMsg = String.format("alternation[%d:%s]: %s",
         i, Integer.toString(i, defaultAlternate.length), alt);
-      System.err.println(altMsg);
+//      System.err.println(altMsg);
     }
 //    for (final CharSequence alt : alternator) {
 //      System.err.println("alternation': " + alt);
@@ -96,7 +96,7 @@ public class GetIndexTest {
       i++;
       final String altMsg = String.format("experimentalAlternation[%d:%s]: %s :: %s",
         i, Integer.toString(i, toAlternate.length), alt, alt.toString().replaceAll("\\*", ""));
-      System.err.println(altMsg);
+//      System.err.println(altMsg);
     }
 //    for (final CharSequence alt : alternator) {
 //      System.err.println("alternation': " + alt);
