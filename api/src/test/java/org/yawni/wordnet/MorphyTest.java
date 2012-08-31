@@ -134,6 +134,9 @@ public class MorphyTest {
       { POS.NOUN.name(), "_-", null },
       { POS.NOUN.name(), " -", null },
       { POS.NOUN.name(), "- ", null },
+			// from http://mail-archives.apache.org/mod_mbox/opennlp-users/201208.mbox/%3C70649AB6-40E1-47FA-9B40-E18691627F36%40yahoo.com%3E
+			// yawni tokenizes this on underscores
+			{ POS.NOUN.name(), "found_r_n_rnhttpsttlc_blablacompost_show_post_full_view_dw_w_b_ar_dxxcfazbay_ppid_rnrn", null },
       { POS.NOUN.name(), "armful", "armful" },
       { POS.NOUN.name(), "attorneys general", "attorney general", "Attorney General" },
       { POS.NOUN.name(), "axes", "axis", "ax", "axes", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
