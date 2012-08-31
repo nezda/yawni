@@ -34,6 +34,8 @@ import org.yawni.wordnet.WordNetLexicalComparator;
  * content of a given WordNet version; these filters are typically packaged in the
  * {@code yawni-wordnet-data*} jar artifact.
  */
+// easy command to run this for a particular $WNHOME
+// mvn -P useWNHOMEDataForTest -DWNHOME=/Users/nezda/code/c/wordnets/WordNet-2.0 exec:java -Dexec.mainClass="org.yawni.util.cache.BloomFilters" -Dexec.classpathScope="test"
 class BloomFilters {
   public static void main(String[] args) throws Exception {
     final double fpProb = 0.001;
