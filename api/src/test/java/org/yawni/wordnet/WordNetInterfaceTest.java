@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.size;
@@ -24,13 +25,23 @@ import java.util.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yawni.util.Utils;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class WordNetInterfaceTest {
   private static WordNetInterface wordNet;
+	private static WordNetVersion VERSION;
+
   @BeforeClass
   public static void init() {
     wordNet = WordNet.getInstance();
+		VERSION = WordNetVersion.detect();
   }
+
+	@Test
+	public void testWordNetVersion() {
+		WordNetVersion version = WordNetVersion.detect();
+		System.err.println("version: "+version);
+	}
 
   /**
    * test POS.ALL support
@@ -49,32 +60,41 @@ public class WordNetInterfaceTest {
     List<String> results;
     query = "tank";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("tank");
+//    System.err.println("query: "+query+" results: "+results);
     query = "geese";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("goose", "geese");
     query = "mouse";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("mouse");
     // queries with more than 1 baseform
     query = "mice";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("mouse", "mice");
     query = "wings";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("wing", "wings");
     query = "years";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("year", "years");
     query = "businessmen";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("businessman", "businessmen");
     query = "men";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("man", "men");
     query = "was";
     results = wordNet.lookupBaseForms(query, POS.ALL);
-    System.err.println("query: "+query+" results: "+results);
+//    System.err.println("query: "+query+" results: "+results);
+		assertThat(results).containsExactly("WA", "be", "was");
   }
 
   /**
@@ -127,7 +147,7 @@ public class WordNetInterfaceTest {
     // this is a confusing example :)
     // "antonym", "hyponym", "hypernym" will all be among the coordinate terms of "synonym"
 
-    // comprehensive loops version
+    // comprehensive loops VERSION
     // for Word from string
     //   for WordSense / Synset : word
     //     for parent : wordSense.getRelationTargets(RelationType.HYPERNYM)
@@ -155,6 +175,7 @@ public class WordNetInterfaceTest {
     // NOTE: leading zero integer literal is octal! (base 8), e.g., 04073208 != 4073208
     // in fact, 04073208 is not a valid octal number because 8 is not a valid octimal (?) digit
     assertThat(010).isEqualTo(8);
+
     offset = 4073208;
     //query = "?POS=n&offset=04073208";
     query = String.format("?POS=n&offset=%08d", offset);
@@ -175,7 +196,7 @@ public class WordNetInterfaceTest {
 //    System.err.println("query: "+query);
     caughtExpectedException = false;
     try {
-      result = wordNet.synsets(query);
+      wordNet.synsets(query);
     } catch (IllegalArgumentException e) {
       caughtExpectedException = true;
     }
@@ -186,7 +207,7 @@ public class WordNetInterfaceTest {
 //    System.err.println("query: "+query);
     caughtExpectedException = false;
     try {
-      result = wordNet.synsets(query);
+      wordNet.synsets(query);
     } catch (IllegalArgumentException e) {
       caughtExpectedException = true;
     }
@@ -197,7 +218,7 @@ public class WordNetInterfaceTest {
 //    System.err.println("query: "+query);
     caughtExpectedException = false;
     try {
-      result = wordNet.synsets(query);
+      wordNet.synsets(query);
     } catch (IllegalArgumentException e) {
       caughtExpectedException = true;
     }
@@ -220,7 +241,7 @@ public class WordNetInterfaceTest {
 //    System.err.println("query: "+query);
     caughtExpectedException = false;
     try {
-      result = wordNet.synsets(query);
+      wordNet.synsets(query);
     } catch (IllegalArgumentException e) {
       caughtExpectedException = true;
     }
@@ -318,20 +339,24 @@ public class WordNetInterfaceTest {
 //    System.err.println("query: "+query+" \n  "+Joiner.on("\n  ").join(result));
     assertThat(size(result)).isEqualTo(6);
 
-    offset = 4073208;
-    query = String.format("?POS=n&offset=%08d", offset);
-//    System.err.println("query: "+query);
-    result = wordNet.wordSenses(query);
-    assertThat(isEmpty(result)).isFalse();
-    for (final WordSense wordSense : result) {
-      assertThat(wordSense.getSynset().getOffset()).isEqualTo(offset);
-    }
+		if (VERSION == WordNetVersion.WN30) {
+			offset = 4073208;
+			query = String.format("?POS=n&offset=%08d", offset);
+//	    System.err.println("query: "+query);
+			result = wordNet.wordSenses(query);
+			assertThat(isEmpty(result)).isFalse();
+			for (final WordSense wordSense : result) {
+				assertThat(wordSense.getSynset().getOffset()).isEqualTo(offset);
+			}
+		}
   }
 
   @Test
   public void coreRankTest() {
-    assertThat(wordNet.lookupWord("time", POS.NOUN).getSense(7).getCoreRank()).isEqualTo(1);
-    assertThat(wordNet.lookupWord("time", POS.NOUN).getSense(1).getCoreRank()).isEqualTo(-1);
+		if (VERSION == WordNetVersion.WN30) {
+			assertThat(wordNet.lookupWord("time", POS.NOUN).getSense(7).getCoreRank()).isEqualTo(1);
+			assertThat(wordNet.lookupWord("time", POS.NOUN).getSense(1).getCoreRank()).isEqualTo(-1);
+		}
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
