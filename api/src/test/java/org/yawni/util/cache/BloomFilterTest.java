@@ -78,7 +78,7 @@ public class BloomFilterTest {
       }
     }
     final double fpRatio = falsePositives / (double)n;
-    System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n",
+    System.err.printf("n: %,d falsePositives: %,d n / falsePositives: %.4f\n",
       n, falsePositives, fpRatio);
     //assert fpRatio <
   }
@@ -129,7 +129,7 @@ public class BloomFilterTest {
       }
     }
     final double fpRatio = falsePositives / (double)n;
-    System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n",
+    System.err.printf("n: %,d falsePositives: %,d n / falsePositives: %.4f\n",
       n, falsePositives, fpRatio);
     //assert fpRatio <
   }
@@ -142,7 +142,8 @@ public class BloomFilterTest {
     final double desiredFpFatio = ONE_PERCENT;
     final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio, CHARSEQUENCE_HASHER);
 
-    System.err.println("filter: "+filter);
+//    System.err.println("filter: "+filter);
+		assertThat(filter.toString()).isNotNull();
 
     assertFalse("\"3\" is in this empty filter? "+filter, filter.contains(String.valueOf(3)));
 
@@ -176,7 +177,7 @@ public class BloomFilterTest {
       }
     }
     final double fpRatio = falsePositives / (double)n;
-    System.err.printf("n: %,d falsePositives: %,d n/falsePositives: %.4f\n",
+    System.err.printf("n: %,d falsePositives: %,d n / falsePositives: %.4f\n",
       n, falsePositives, fpRatio);
     //assert fpRatio <
   }
