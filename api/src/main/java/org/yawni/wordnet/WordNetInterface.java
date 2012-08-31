@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableList;
+import java.net.URL;
 import java.util.List;
 import org.yawni.util.EnumAliases;
 
@@ -193,6 +195,8 @@ public interface WordNetInterface {
 		WN20("2.0", "2.", "2"),
 		WN16("1.6");
 
+		private static final WordNetVersion[] VALUES = values();
+
 		WordNetVersion(final String... aliases) {
 			staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
 			for (final String alias : aliases) {
@@ -201,12 +205,38 @@ public interface WordNetInterface {
 			}
 		}
 
-		/** Customized form of {@link #valueOf(String)} */
-		static WordNetVersion fromValue(final String name) {
-			final boolean throwIfNull = false;
-			final WordNetVersion toReturn = staticThis.ALIASES.valueOf(name, throwIfNull);
-			return (toReturn == null) ? UNKNOWN : toReturn;
+		static WordNetVersion detect() {
+			return detect(WordNetVersion.class.getClassLoader());
 		}
+
+		// if more than 1 item, indicates configuration error
+		// if empty list returned, indicates WordNetVersion.UNKNOWN
+		static WordNetVersion detect(ClassLoader classLoader) {
+			final ImmutableList.Builder<WordNetVersion> toReturn = ImmutableList.builder();
+			for (final WordNetVersion wnv : VALUES) {
+				// check classpath for yawni-wordnet-data* markers, e.g., org/yawni/wordnet/data/WN30
+				final String resourceName = "org/yawni/wordnet/data/"+wnv.name();
+				final URL url = classLoader.getResource(resourceName);
+				if (url != null) {
+					toReturn.add(wnv);
+				}
+			}
+			ImmutableList<WordNetVersion> versions = toReturn.build();
+			if (versions.isEmpty()) {
+				return UNKNOWN;
+			} else if (versions.size() == 1) {
+				return versions.get(0);
+			} else {
+				throw new IllegalStateException("Invalid configuration: multiple yawni-wordnet-data* jars detected: "+versions);
+			}
+		}
+
+		/** Customized form of {@link #valueOf(String)} */
+//		static WordNetVersion fromValue(final String name) {
+//			final boolean throwIfNull = false;
+//			final WordNetVersion toReturn = staticThis.ALIASES.valueOf(name, throwIfNull);
+//			return (toReturn == null) ? UNKNOWN : toReturn;
+//		}
 
 		private static class staticThis {
 			static EnumAliases<WordNetVersion> ALIASES = EnumAliases.make(WordNetVersion.class);
