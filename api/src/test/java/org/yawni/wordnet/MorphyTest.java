@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 /**
  * By far most complex features involve multi-words, esp those containing
@@ -40,16 +41,20 @@ import static org.fest.assertions.Assertions.assertThat;
  *     - compare speed with various CharStream impls (add some package private methods)
  *   - sense numbers
  *   - gloss
- *   - compare to parsed output of 'wn' binary (optional - @Ignore and/or boolean flag)
+ *   - compare to parsed output of 'WN' binary (optional - @Ignore and/or boolean flag)
  *
  * TODO add tests with prepositions
  * TODO consider proper Parameterized tests
  */
 public class MorphyTest {
-  private WordNetInterface wn;
-  @Before
-  public void init() {
-    wn = WordNet.getInstance();
+  private static WordNetInterface WN;
+	private static WordNetVersion VERSION;
+
+  @BeforeClass
+  public static void init() {
+    WN = WordNet.getInstance();
+		VERSION = WordNetVersion.detect();
+		System.err.println("WordNetVersion: "+VERSION);
   }
 
   @Test
@@ -81,7 +86,7 @@ public class MorphyTest {
 
   @Test
   public void coreTest() {
-    String[][] unstemmedStemmedCases = new String[][] {
+    final String[][] unstemmedStemmedCasesAllVersions = new String[][] {
       // { POS, <unstemmed>, <stemmed> }
       { POS.NOUN.name(), "dogs", "dog" },
       { POS.NOUN.name(), "geese", "goose", "geese" },
@@ -117,7 +122,6 @@ public class MorphyTest {
       { POS.NOUN.name(), "are a", null }, // WN gets this as "area" (WN online doesn't do this)
       { POS.NOUN.name(), " Americans", "American" }, // WN doesn't get this
       { POS.NOUN.name(), "_slovaks_", "Slovak" }, // WN doesn't get this
-      { POS.NOUN.name(), "superheroes", "superhero", "superheroes" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
       { POS.NOUN.name(), "businessmen", "businessman", "businessmen" },
       { POS.NOUN.name(), "_", null },
       { POS.NOUN.name(), "\n", null },
@@ -154,7 +158,6 @@ public class MorphyTest {
       { POS.NOUN.name(), "values", "value", "values" },
       { POS.NOUN.name(), "value", "value" }, // note asymmetry: "value" → {"value"}, "values" → {"value", "values"}
       { POS.NOUN.name(), "wounded", "wounded" },
-      { POS.NOUN.name(), "yourselves", "yourself", "yourselves" }, // no Word for this pronoun
       { POS.NOUN.name(), "wounding", "wounding" },
       { POS.NOUN.name(), "'s Gravenhage", "'s Gravenhage" },
       { POS.NOUN.name(), "parts of speech", "part of speech" },
@@ -164,8 +167,6 @@ public class MorphyTest {
       { POS.NOUN.name(), "rom", "ROM"}, // only "read-only memory"
       { POS.ADJ.name(), "KO'd", "KO'd" },
       { POS.VERB.name(), "KO'd", "ko", "ko'd" }, // no Word for the verb form of this ∴ no true case support
-      { POS.VERB.name(), "booby-trapped", "booby-trap", "booby-trapped" }, // no Word for the verb form of this
-      { POS.VERB.name(), "bird-dogged", "bird-dog", "bird-dogged" }, // no Word for this exceptional verb
       { POS.VERB.name(), "wounded", "wound" },
       { POS.VERB.name(), "wound", "wind", "wound" },
       { POS.ADJ.name(), "wounded", "wounded" },
@@ -177,83 +178,100 @@ public class MorphyTest {
       { POS.VERB.name(), "accounting for", "account for" },
       { POS.VERB.name(), "was", "be", "was" }, // 2 "stems", 1 baseform
       { POS.VERB.name(), "founded", "found" },
-      { POS.VERB.name(), "founder", "founder" }, // note asymmetries: "founder" → {"founder"}, "founded" → {"found"}, "found" → {"find", "found"}
       { POS.VERB.name(), "found", "find", "found"},
       { POS.VERB.name(), "names of", null},
       { POS.VERB.name(), "names of association football", null},
-      { POS.ADJ.name(), "founder", "founder" },
       { POS.NOUN.name(), "was", "WA" }, // weird- de-pluralizing Washington state abbr
       { POS.VERB.name(), "cannonball along", "cannonball along" },
       //{ POS.VERB.name(), "cannonballing along", "cannonball along" }, // WN doesn't get this
       //{ POS.VERB.name(), "finesses", "finesse" }, //not in WordNet 3.0 as a Verb
       { POS.VERB.name(), "accesses", "access" },
       { POS.VERB.name(), "went", "go", "went" },
-      { POS.VERB.name(), "bloging" /* spelled wrong */, "blog" },
-      //{ POS.VERB.name(), "blogging" /* spelled _correctly_, not in exceptions file */, "blog" },
       { POS.VERB.name(), "shook hands", "shake hands", "shook hands" },
       { POS.VERB.name(), "Americanize", "Americanize" }, // capitalized verb - grep "v [0-9]+ [A-Z]" data.verb
       { POS.VERB.name(), "saw", "see", "saw" },
       { POS.VERB.name(), "let the cats out of the bag", "let the cat out of the bag" },
-      { POS.ADJ.name(), "onliner" /* no idea */, "online" },
-      // should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
       { POS.ADJ.name(), "redder" /* no idea */, "red" },
       { POS.ADJ.name(), "Middle Eastern", "Middle Eastern" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
       { POS.ADJ.name(), "Latin-American", "Latin-American" }, // capitalized adj - grep "a [0-9]+ [A-Z]" data.adj
       { POS.ADJ.name(), "low-pitched", "low-pitched" },
       //{ POS.ADJ.name(), "low-pitch", "low-pitched" }, // WN doesn't get this
     };
-    for (final String[] testElements : unstemmedStemmedCases) {
-      final POS pos = POS.valueOf(testElements[0]);
-      final String unstemmed = testElements[1];
-      final String stemmed = testElements[2];
-      final List<String> goldStems = new ArrayList<String>();
-      for (int i = 2; i < testElements.length; ++i) {
-        goldStems.add(testElements[i]);
-      }
-      assertTrue("goldStems: "+goldStems, areUnique(goldStems));
-      final List<String> baseForms = stem(unstemmed, pos);
-      String msg = "unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms;
-      assertTrue(msg, baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
-      //System.err.println(msg);
-      assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
-      //TODO on failure, could try other POS
-      if (baseForms.size() >= 2 && ! goldStems.equals(baseForms)) {
-        //TODO tighten up this test - don't allow any extra unspecified variants
-        // note this considers case variants distinct
-        System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
-      }
-      assertTrue(areUnique(baseForms));
+    for (final String[] testElements : unstemmedStemmedCasesAllVersions) {
+			individualTest(testElements);
+		}
 
-      final List<String> upperBaseForms = stem(unstemmed.toUpperCase(), pos);
-      msg = "UPPER unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+upperBaseForms;
-      assertTrue(msg, upperBaseForms.contains(stemmed) || (stemmed == null && upperBaseForms.isEmpty()));
-    }
+
+		if (VERSION == WordNetVersion.WN30) {
+			final String[][] unstemmedStemmedCasesWN30 = new String[][] {
+				// { POS, <unstemmed>, <stemmed> }
+				{ POS.VERB.name(), "bird-dogged", "bird-dog", "bird-dogged" }, // no Word for this exceptional verb
+				{ POS.VERB.name(), "booby-trapped", "booby-trap", "booby-trapped" }, // no Word for the verb form of this
+				{ POS.VERB.name(), "bloging" /* spelled wrong */, "blog" }, // WN21 has this too
+				//{ POS.VERB.name(), "blogging" /* spelled _correctly_, not in exceptions file */, "blog" },
+				{ POS.VERB.name(), "founder", "founder" }, // note asymmetries: "founder" → {"founder"}, "founded" → {"found"}, "found" → {"find", "found"}
+				{ POS.ADJ.name(), "onliner" /* no idea */, "online" },
+				// should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
+				{ POS.NOUN.name(), "superheroes", "superhero", "superheroes" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
+				{ POS.NOUN.name(), "yourselves", "yourself", "yourselves" }, // no Word for this pronoun
+			};
+			for (final String[] testElements : unstemmedStemmedCasesWN30) {
+				individualTest(testElements);
+			}
+		}
   }
+
+	private void individualTest(String[] testElements) {
+		final POS pos = POS.valueOf(testElements[0]);
+		final String unstemmed = testElements[1];
+		final String stemmed = testElements[2];
+		final List<String> goldStems = new ArrayList<String>();
+		for (int i = 2; i < testElements.length; ++i) {
+			goldStems.add(testElements[i]);
+		}
+		assertTrue("goldStems: "+goldStems, areUnique(goldStems));
+		final List<String> baseForms = stem(unstemmed, pos);
+		String msg = "unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms;
+		assertTrue(msg, baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
+		//System.err.println(msg);
+		assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
+		//TODO on failure, could try other POS
+		if (baseForms.size() >= 2 && ! goldStems.equals(baseForms)) {
+			//TODO tighten up this test - don't allow any extra unspecified variants
+			// note this considers case variants distinct
+			System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
+		}
+		assertTrue(areUnique(baseForms));
+
+		final List<String> upperBaseForms = stem(unstemmed.toUpperCase(), pos);
+		msg = "UPPER unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+upperBaseForms;
+		assertTrue(msg, upperBaseForms.contains(stemmed) || (stemmed == null && upperBaseForms.isEmpty()));
+	}
 
   @Test
   public void testLookupWord() {
     String lemma;
     lemma = "";
-    assertNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "dog";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "DOG";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "ad blitz";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "ad_blitz";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "AD BLITZ";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "wild-goose chase";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
     lemma = "wild-goose_chase";
-    assertNotNull("lemma: "+lemma, wn.lookupWord(lemma, POS.NOUN));
+    assertNotNull("lemma: "+lemma, WN.lookupWord(lemma, POS.NOUN));
   }
 
   @Test
   public void testGetExceptions() {
-    final WordNet wordNet = (WordNet) wn;
+    final WordNet wordNet = (WordNet) MorphyTest.WN;
     String lemma;
     lemma = "";
     assertThat(wordNet.getExceptions(lemma, POS.NOUN)).isEmpty();
@@ -270,17 +288,17 @@ public class MorphyTest {
   // could add explicit checks for this in API methods but that's pretty tedious
   @Test(expected=NullPointerException.class)
   public void testNullLookupWord() {
-    assertNull(wn.lookupWord(null, POS.NOUN));
+    assertNull(WN.lookupWord(null, POS.NOUN));
   }
 
   @Test
   public void testWordSense() {
-    assertEquals(42, wn.lookupWord("dog", POS.NOUN).getSense(1).getSensesTaggedFrequency());
-    assertEquals(2, wn.lookupWord("dog", POS.VERB).getSense(1).getSensesTaggedFrequency());
-    assertEquals(3, wn.lookupWord("cardinal", POS.ADJ).getSense(1).getSensesTaggedFrequency());
-    assertEquals(0, wn.lookupWord("cardinal", POS.ADJ).getSense(2).getSensesTaggedFrequency());
-    assertEquals(9, wn.lookupWord("concrete", POS.ADJ).getSense(1).getSensesTaggedFrequency());
-    assertEquals(1, wn.lookupWord("dogmatic", POS.ADJ).getSense(1).getSensesTaggedFrequency());
+    assertEquals(42, WN.lookupWord("dog", POS.NOUN).getSense(1).getSensesTaggedFrequency());
+    assertEquals(2, WN.lookupWord("dog", POS.VERB).getSense(1).getSensesTaggedFrequency());
+    assertEquals(3, WN.lookupWord("cardinal", POS.ADJ).getSense(1).getSensesTaggedFrequency());
+    assertEquals(0, WN.lookupWord("cardinal", POS.ADJ).getSense(2).getSensesTaggedFrequency());
+    assertEquals(9, WN.lookupWord("concrete", POS.ADJ).getSense(1).getSensesTaggedFrequency());
+    assertEquals(1, WN.lookupWord("dogmatic", POS.ADJ).getSense(1).getSensesTaggedFrequency());
   }
 
   @Test
@@ -288,7 +306,7 @@ public class MorphyTest {
     int issues = 0;
     int nonCaseIssues = 0;
     for (final POS pos : POS.CATS) {
-      for (final Word word : wn.words(pos)) {
+      for (final Word word : WN.words(pos)) {
         for (final WordSense wordSense : word.getWordSenses()) {
           final String lemma = wordSense.getLemma();
           final List<String> restems = stem(lemma, pos);
@@ -323,7 +341,7 @@ public class MorphyTest {
   public void findCollocationAmbiguity() {
     int spaceAndDash = 0;
     for (final POS pos : POS.CATS) {
-      for (final Word word : wn.words(pos)) {
+      for (final Word word : WN.words(pos)) {
         final String lemma = word.getLowercasedLemma();
         if (lemma.indexOf('-') > 0 && lemma.indexOf(' ') > 0) {
           spaceAndDash++;
@@ -338,17 +356,17 @@ public class MorphyTest {
     int dashSpace = 0;
     int dashNotSpace = 0;
     for (final POS pos : POS.CATS) {
-      for (final Word word : wn.words(pos)) {
+      for (final Word word : WN.words(pos)) {
         final String lemma = word.getLowercasedLemma();
         if (lemma.indexOf('-') > 0) {
           dash++;
           final String noDash = lemma.replace("-", "");
-          if (null != wn.lookupWord(noDash, pos)) {
+          if (null != WN.lookupWord(noDash, pos)) {
             dashNoDash++;
             //System.err.println("lemma: "+lemma+" dashNoDash "+dashNoDash);
           }
           final String dashToSpace = lemma.replace('-', ' ');
-          if (null != wn.lookupWord(dashToSpace, pos)) {
+          if (null != WN.lookupWord(dashToSpace, pos)) {
             dashSpace++;
             //System.err.println("lemma: "+lemma+" dashSpace "+dashSpace);
           } else {
@@ -414,7 +432,7 @@ public class MorphyTest {
   //}
 
   private List<String> stem(final String someString, final POS pos) {
-    return wn.lookupBaseForms(someString, pos);
+    return WN.lookupBaseForms(someString, pos);
   }
 
   // note this relies on equals() and hashCode()

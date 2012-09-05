@@ -39,16 +39,20 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  * Goal: verify various iteration methods of dictionary behave as expected.
  */
 public class IterationTest {
-  private WordNetInterface wordNet;
-  private Random rand;
-	private WordNetVersion VERSION;
+  private static WordNetInterface WN;
+	private static WordNetVersion VERSION;
+	private Random rand;
+
+	@BeforeClass
+  public static void init() {
+    WN = WordNet.getInstance();
+		VERSION = WordNetVersion.detect();
+  }
 
   @Before
-  public void init() {
-    wordNet = WordNet.getInstance();
+  public void initTest() {
     // keep the test deterministic
     rand = new Random(0);
-		VERSION = WordNetVersion.detect();
   }
 
   /**
@@ -64,10 +68,10 @@ public class IterationTest {
     logTest("validateExceptions");
     int numWithZeroWords = 0;
     for (final POS pos : POS.CATS) {
-      for (final List<String> exceptions : wordNet.exceptions(pos)) {
+      for (final List<String> exceptions : WN.exceptions(pos)) {
         boolean foundWord = false;
         for (final String exception : exceptions) {
-          final Word word = wordNet.lookupWord(exception, pos);
+          final Word word = WN.lookupWord(exception, pos);
           if (word != null) {
             foundWord = true;
             break;
@@ -82,7 +86,8 @@ public class IterationTest {
 
 		switch (VERSION) {
 			case WN30: assertEquals(1382, numWithZeroWords); break;
-			case WN20: assertEquals(253, numWithZeroWords); break;
+			case WN21: assertEquals(253, numWithZeroWords); break;
+			case WN20: assertEquals(1420, numWithZeroWords); break;
 		}
     System.err.printf("  %20s %d\n", "numWithZeroWords:", numWithZeroWords);
   }
@@ -93,7 +98,7 @@ public class IterationTest {
     logTest("searchMultiHypernyms");
     int numWithMultiParents = 0;
     int numWithInstanceHypernymParents = 0;
-    for (final Synset synset : wordNet.synsets(POS.ALL)) {
+    for (final Synset synset : WN.synsets(POS.ALL)) {
       final List<Relation> parents = synset.getRelations(RelationType.HYPERNYM);
       numWithMultiParents += parents.size() > 1 ? 1 : 0;
       if (parents.size() > 1) {
@@ -113,7 +118,7 @@ public class IterationTest {
   public void lexnames() {
     logTest("lexnames");
     for (final Lexname lexname : Lexname.values()) {
-      final long cnt = size(wordNet.synsets("?lexname=" + lexname.name()));
+      final long cnt = size(WN.synsets("?lexname=" + lexname.name()));
 //      System.err.printf("  %30s %d\n", lexname, cnt);
     }
   }
@@ -123,7 +128,7 @@ public class IterationTest {
   public void adjPositions() {
     logTest("adjPositions");
     for (final AdjPosition adjPosition : AdjPosition.values()) {
-      final long cnt = size(wordNet.wordSenses("?adj_position=" + adjPosition.name()));
+      final long cnt = size(WN.wordSenses("?adj_position=" + adjPosition.name()));
 //      System.err.printf("  %30s %d\n", adjPosition, cnt);
     }
   }
@@ -146,89 +151,89 @@ public class IterationTest {
     // + search before first word (non-existant)
     // + iterate over words, iterate over prefixes
     //   + assert containsLemma(Iterable<Word> matches)
-    final Iterable<Word> firstWord = wordNet.searchByPrefix("'hood", POS.NOUN);
+    final Iterable<Word> firstWord = WN.searchByPrefix("'hood", POS.NOUN);
     final Word first = first(firstWord);
     assertThat("'hood", isLemmaOf(first));
-    final Iterable<Word> firstWordPrefix = wordNet.searchByPrefix("'hoo", POS.NOUN);
+    final Iterable<Word> firstWordPrefix = WN.searchByPrefix("'hoo", POS.NOUN);
     final Word firstPrefix = first(firstWordPrefix);
     assertThat("'hood", isLemmaOf(firstPrefix));
-    final Iterable<Word> preFirstWord = wordNet.searchByPrefix("''", POS.NOUN);
+    final Iterable<Word> preFirstWord = WN.searchByPrefix("''", POS.NOUN);
     assertTrue(isEmpty(preFirstWord));
 
-    final Iterable<Word> lastWord = wordNet.searchByPrefix("zyrian", POS.NOUN);
+    final Iterable<Word> lastWord = WN.searchByPrefix("zyrian", POS.NOUN);
     final Word last = first(lastWord);
     assertThat("zyrian", isLemmaOf(last));
-    final Iterable<Word> lastWordPrefix = wordNet.searchByPrefix("zyria", POS.NOUN);
+    final Iterable<Word> lastWordPrefix = WN.searchByPrefix("zyria", POS.NOUN);
     final Word lastPrefix = first(lastWordPrefix);
     assertThat("zyrian", isLemmaOf(lastPrefix));
-    final Iterable<Word> postLastWordPrefix = wordNet.searchByPrefix("zz", POS.NOUN);
+    final Iterable<Word> postLastWordPrefix = WN.searchByPrefix("zz", POS.NOUN);
     assertTrue(isEmpty(postLastWordPrefix));
 
     for (final POS pos : POS.CATS) {
-      final Iterable<Word> leadingDashPrefix = wordNet.searchByPrefix("-", pos);
+      final Iterable<Word> leadingDashPrefix = WN.searchByPrefix("-", pos);
       assertTrue(isEmpty(leadingDashPrefix));
-      final Iterable<String> leadingDashPrefixLemma = transform(wordNet.searchByPrefix("-", pos), new WordToLowercasedLemma());
+      final Iterable<String> leadingDashPrefixLemma = transform(WN.searchByPrefix("-", pos), new WordToLowercasedLemma());
       assertTrue(isEmpty(leadingDashPrefixLemma));
-      final Iterable<Word> leadingSpacePrefix = wordNet.searchByPrefix(" ", pos);
+      final Iterable<Word> leadingSpacePrefix = WN.searchByPrefix(" ", pos);
       assertTrue(isEmpty(leadingSpacePrefix));
-      final Iterable<Word> emptyPrefix = wordNet.searchByPrefix("", pos);
+      final Iterable<Word> emptyPrefix = WN.searchByPrefix("", pos);
       assertTrue(isEmpty(emptyPrefix));
     }
 
     // TODO use POS.ALL ?
     final Iterable<Word> anyEmptyPrefix = MergedIterable.merge(true,
-        wordNet.searchByPrefix("-", POS.NOUN),
-        wordNet.searchByPrefix("-", POS.VERB),
-        wordNet.searchByPrefix("-", POS.ADJ),
-        wordNet.searchByPrefix("-", POS.ADV));
+        WN.searchByPrefix("-", POS.NOUN),
+        WN.searchByPrefix("-", POS.VERB),
+        WN.searchByPrefix("-", POS.ADJ),
+        WN.searchByPrefix("-", POS.ADV));
     assertTrue(isEmpty(anyEmptyPrefix));
 
     // TODO use POS.ALL ?
     final Iterable<Word> anyNonExistantPrefix = MergedIterable.merge(true,
-        wordNet.searchByPrefix("lllllll", POS.NOUN),
-        wordNet.searchByPrefix("lllllll", POS.VERB),
-        wordNet.searchByPrefix("lllllll", POS.ADJ),
-        wordNet.searchByPrefix("lllllll", POS.ADV));
+        WN.searchByPrefix("lllllll", POS.NOUN),
+        WN.searchByPrefix("lllllll", POS.VERB),
+        WN.searchByPrefix("lllllll", POS.ADJ),
+        WN.searchByPrefix("lllllll", POS.ADV));
     assertTrue(isEmpty(anyNonExistantPrefix));
 
     // TODO use POS.ALL ?
     final Iterable<Word> anyLeadingDashPrefix = MergedIterable.merge(true,
-        wordNet.searchByPrefix("", POS.NOUN),
-        wordNet.searchByPrefix("", POS.VERB),
-        wordNet.searchByPrefix("", POS.ADJ),
-        wordNet.searchByPrefix("", POS.ADV));
+        WN.searchByPrefix("", POS.NOUN),
+        WN.searchByPrefix("", POS.VERB),
+        WN.searchByPrefix("", POS.ADJ),
+        WN.searchByPrefix("", POS.ADV));
     assertTrue(isEmpty(anyLeadingDashPrefix));
 
     final Iterable<String> runs = Utils.uniq(
         transform(MergedIterable.merge(true,
-            wordNet.searchByPrefix("run", POS.NOUN),
-            wordNet.searchByPrefix("run", POS.VERB)),
+            WN.searchByPrefix("run", POS.NOUN),
+            WN.searchByPrefix("run", POS.VERB)),
             new WordToLowercasedLemma()));
     assertTrue(Utils.isUnique(runs, true));
 
-    final Iterable<Word> spaceWords = wordNet.searchBySubstring(" ", POS.NOUN);
+    final Iterable<Word> spaceWords = WN.searchBySubstring(" ", POS.NOUN);
     assertFalse(isEmpty(spaceWords));
 
-    final Iterable<Word> emptyString = wordNet.searchBySubstring("", POS.NOUN);
+    final Iterable<Word> emptyString = WN.searchBySubstring("", POS.NOUN);
     assertTrue(isEmpty(emptyString));
 
     // TODO use POS.ALL ?
     final Iterable<Word> anyNonExistantSubstring = MergedIterable.merge(true,
-        wordNet.searchBySubstring("lllllll", POS.NOUN),
-        wordNet.searchBySubstring("lllllll", POS.VERB),
-        wordNet.searchBySubstring("lllllll", POS.ADJ),
-        wordNet.searchBySubstring("lllllll", POS.ADV));
+        WN.searchBySubstring("lllllll", POS.NOUN),
+        WN.searchBySubstring("lllllll", POS.VERB),
+        WN.searchBySubstring("lllllll", POS.ADJ),
+        WN.searchBySubstring("lllllll", POS.ADV));
     assertTrue(isEmpty(anyNonExistantSubstring));
 
     // expose problem where not skipping initial lines
-    final Iterable<Word> everything = wordNet.searchBySubstring(".*", POS.ALL);
+    final Iterable<Word> everything = WN.searchBySubstring(".*", POS.ALL);
     assertFalse(isEmpty(everything));
   }
 
   @Test (expected=PatternSyntaxException.class)
   public void invalidRegexPatterns() {
     logTest("invalidRegexPatterns");
-    final Iterable<Word> openCharClass = wordNet.searchBySubstring("[", POS.ALL);
+    final Iterable<Word> openCharClass = WN.searchBySubstring("[", POS.ALL);
     // note, exception is not triggered until we inspect the result
     assertTrue(isEmpty(openCharClass));
     // should never get here
@@ -245,14 +250,14 @@ public class IterationTest {
     logTest("prefixSearch");
     int numPrefixTests = 0;
     final POS pos = POS.NOUN;
-    for (final Word word : wordNet.words(pos)) {
+    for (final Word word : WN.words(pos)) {
       if (rand.nextFloat() < prefixDitchProportion) {
         continue;
       }
       final String lemma = word.getLowercasedLemma();
       for (int i = 1, n = lemma.length(); i < n; i++) {
         final String prefix = lemma.substring(0, i);
-        final Iterable<Word> matches = wordNet.searchByPrefix(prefix, pos);
+        final Iterable<Word> matches = WN.searchByPrefix(prefix, pos);
         numPrefixTests++;
         assertTrue(containsLemma(matches, lemma));
       }
@@ -269,7 +274,7 @@ public class IterationTest {
     logTest("substringSearch");
     int numSubstringTests = 0;
     final POS pos = POS.NOUN;
-    for (final Word word : wordNet.words(pos)) {
+    for (final Word word : WN.words(pos)) {
       if (rand.nextFloat() < substringDitchProportion) {
         continue;
       }
@@ -277,7 +282,7 @@ public class IterationTest {
       for (int i = 1, n = lemma.length(); i < n; i++) {
         //FIXME since substring, should test infixes too (will slow down test)
         final String prefix = lemma.substring(0, i);
-        final Iterable<Word> matches = wordNet.searchBySubstring(prefix, pos);
+        final Iterable<Word> matches = WN.searchBySubstring(prefix, pos);
         numSubstringTests++;
         assertTrue("lemma: "+lemma+" prefix: "+prefix, containsLemma(matches, lemma));
         //System.err.println("numSubstringTests: "+numSubstringTests);
@@ -293,7 +298,7 @@ public class IterationTest {
     // check if iteration returns first AND last item (boundary cases)
     // - look at data files manually ($WNHOME/dict/index.<pos>)
     // TODO check this for all POS
-    final Iterable<Word> nounIndexWords = wordNet.words(POS.NOUN);
+    final Iterable<Word> nounIndexWords = WN.words(POS.NOUN);
     final Word first = first(nounIndexWords);
     //System.err.println("first: "+first);
     // to get these offsets with gvim, open the data file, put the cursor on
@@ -309,7 +314,8 @@ public class IterationTest {
     //System.err.println("last: "+last);
 		switch (VERSION) {
 			case WN30: assertEquals(4786625, last.getOffset()); break;
-			case WN20: assertEquals(4751460, last.getOffset()); break;
+			case WN21: assertEquals(4751460, last.getOffset()); break;
+			case WN20: assertEquals(4637479, last.getOffset()); break;
 		}
     assertThat("zyrian", isLemmaOf(last));
 
@@ -330,7 +336,7 @@ public class IterationTest {
       if (pos == POS.ALL) {
         continue;
       }
-      final long num = size(wordNet.words(pos));
+      final long num = size(WN.words(pos));
       //System.err.printf("%s num: %,d\n", pos, num);
     }
   }
@@ -341,39 +347,39 @@ public class IterationTest {
     logTest("sortUnique");
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" words isSorted");
-      assertTrue(pos+" words not sorted?", Utils.isSorted(wordNet.words(pos)));
+      assertTrue(pos+" words not sorted?", Utils.isSorted(WN.words(pos)));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" words isUnique");
-      assertTrue(pos+" words not unique?: Comparable", Utils.isUnique(wordNet.words(pos), false));
-      assertTrue(pos+" words not unique?: Equals", Utils.isUnique(wordNet.words(pos).iterator(), false, UniqueMode.EQUALS));
+      assertTrue(pos+" words not unique?: Comparable", Utils.isUnique(WN.words(pos), false));
+      assertTrue(pos+" words not unique?: Equals", Utils.isUnique(WN.words(pos).iterator(), false, UniqueMode.EQUALS));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" synsets isSorted");
-      assertTrue(pos+" synsets not sorted?", Utils.isSorted(wordNet.synsets(pos)));
+      assertTrue(pos+" synsets not sorted?", Utils.isSorted(WN.synsets(pos)));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" synsets isUnique");
-      assertTrue(pos+" synsets not unique?: Comparable", Utils.isUnique(wordNet.synsets(pos), false));
-      assertTrue(pos+" synsets not unique?: Equals", Utils.isUnique(wordNet.synsets(pos).iterator(), false, UniqueMode.EQUALS));
+      assertTrue(pos+" synsets not unique?: Comparable", Utils.isUnique(WN.synsets(pos), false));
+      assertTrue(pos+" synsets not unique?: Equals", Utils.isUnique(WN.synsets(pos).iterator(), false, UniqueMode.EQUALS));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" wordSenses isSorted");
-      assertTrue(pos+" wordSenses not sorted?", Utils.isSorted(wordNet.wordSenses(pos)));
+      assertTrue(pos+" wordSenses not sorted?", Utils.isSorted(WN.wordSenses(pos)));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" wordSenses isUnique");
-      assertTrue(pos+" wordSenses not unique?: Comparable", Utils.isUnique(wordNet.wordSenses(pos), false));
-      assertTrue(pos+" wordSenses not unique?: Equals", Utils.isUnique(wordNet.wordSenses(pos).iterator(), false, UniqueMode.EQUALS));
+      assertTrue(pos+" wordSenses not unique?: Comparable", Utils.isUnique(WN.wordSenses(pos), false));
+      assertTrue(pos+" wordSenses not unique?: Equals", Utils.isUnique(WN.wordSenses(pos).iterator(), false, UniqueMode.EQUALS));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" relations isSorted");
-      assertTrue(pos+" relations not sorted?", Utils.isSorted(wordNet.relations(pos)));
+      assertTrue(pos+" relations not sorted?", Utils.isSorted(WN.relations(pos)));
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" relations isUnique");
-      assertTrue(pos+" relations not unique?: Comparable", Utils.isUnique(wordNet.relations(pos), false));
-      assertTrue(pos+" relations not unique?: Equals", Utils.isUnique(wordNet.relations(pos).iterator(), false, UniqueMode.EQUALS));
+      assertTrue(pos+" relations not unique?: Comparable", Utils.isUnique(WN.relations(pos), false));
+      assertTrue(pos+" relations not unique?: Equals", Utils.isUnique(WN.relations(pos).iterator(), false, UniqueMode.EQUALS));
     }
     //System.err.println("allPOSAllIterationsSortUniqueTests() passed");
   }
@@ -397,7 +403,7 @@ public class IterationTest {
         int numVerbCore = 0;
         int numAdjCore = 0;
         for (final POS pos : POS.CATS) {
-          for (final Word word : wordNet.words(pos)) {
+          for (final Word word : WN.words(pos)) {
             for (final Synset synset : word.getSynsets()) {
               iterationGlossLetters += synset.getGloss().length();
             }
@@ -480,7 +486,7 @@ public class IterationTest {
   public void words() {
 		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("words");
-    for (final Word word : wordNet.words(POS.ALL)) {
+    for (final Word word : WN.words(POS.ALL)) {
       final String s = word.toString();
       //System.err.println(s);
     }
@@ -492,7 +498,7 @@ public class IterationTest {
   public void synsets() {
 		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("synsets");
-    for (final Synset synset : wordNet.synsets(POS.ALL)) {
+    for (final Synset synset : WN.synsets(POS.ALL)) {
       String s = synset.toString();
       //System.err.println(s);
     }
@@ -504,7 +510,7 @@ public class IterationTest {
   public void wordSenses() {
 		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("wordSenses");
-    for (final WordSense wordSense : wordNet.wordSenses(POS.ALL)) {
+    for (final WordSense wordSense : WN.wordSenses(POS.ALL)) {
       final String s = wordSense.toString();
       //System.err.println(s);
     }
@@ -516,7 +522,7 @@ public class IterationTest {
   public void relations() {
 		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("relations");
-    for (final Relation relation : wordNet.relations(POS.ALL)) {
+    for (final Relation relation : WN.relations(POS.ALL)) {
       final String s = relation.toString();
       //System.err.println(s);
     }
@@ -531,11 +537,11 @@ public class IterationTest {
   public void lookupSynsets() {
 		final Stopwatch stopwatch = new Stopwatch().start();
     logTest("lookupSynsets");
-    for (final Word word : wordNet.words(POS.ALL)) {
+    for (final Word word : WN.words(POS.ALL)) {
       final String str = word.getLowercasedLemma();
       // exhaustive -- all POS
       for (final POS pos : POS.CATS) {
-        final List<Synset> syns = wordNet.lookupSynsets(str, pos);
+        final List<Synset> syns = WN.lookupSynsets(str, pos);
         if (pos == word.getPOS()) {
           assertTrue("loopback failure", ! syns.isEmpty());
         }

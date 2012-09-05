@@ -24,20 +24,20 @@ import static org.fest.assertions.Assertions.assertThat;
 import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class SynsetTest {
-  private static WordNetInterface wordNet;
+  private static WordNetInterface WN;
   @BeforeClass
   public static void init() {
-    wordNet = WordNet.getInstance();
+    WN = WordNet.getInstance();
   }
 
   @Test
   public void testSomeGlosses() {
     System.err.println("testSomeGlosses");
-    final WordSense sentence = wordNet.lookupWord("sentence", POS.NOUN).getSense(1);
+    final WordSense sentence = WN.lookupWord("sentence", POS.NOUN).getSense(1);
     final String sentenceGloss = "a string of words satisfying the grammatical rules of a language; \"he always spoke in grammatical sentences\"";
     assertThat(sentenceGloss).isEqualTo(sentence.getSynset().getGloss());
 
-    final WordSense lexeme = wordNet.lookupWord("lexeme", POS.NOUN).getSense(1);
+    final WordSense lexeme = WN.lookupWord("lexeme", POS.NOUN).getSense(1);
     final String lexemeGloss = "a minimal unit (as a word or stem) in the lexicon of a language; `go' and `went' and `gone' and `going' are all members of the English lexeme `go'";
     assertThat(lexemeGloss).isEqualTo(lexeme.getSynset().getGloss());
   }
@@ -45,18 +45,18 @@ public class SynsetTest {
   @Test
   public void testGlossSearch() {
     System.err.println("testGlossSearch");
-    final WordSense sentence = wordNet.lookupWord("sentence", POS.NOUN).getSense(1);
+    final WordSense sentence = WN.lookupWord("sentence", POS.NOUN).getSense(1);
     //System.err.println("hits: "+Joiner.on("\n  ").join(dictionary.searchGlossBySubstring("\\bgrammatical\\b", POS.ALL)));
-    assertThat(contains(wordNet.searchGlossBySubstring("\\bgrammatical\\b", POS.ALL), sentence.getSynset())).isTrue();
+    assertThat(contains(WN.searchGlossBySubstring("\\bgrammatical\\b", POS.ALL), sentence.getSynset())).isTrue();
   }
 
   @Test
   public void testDescriptions() {
     System.err.println("testDescriptions");
     int count = 0;
-		final ImmutableMap<WordNetVersion, Integer> numSynsets = ImmutableMap.of(WordNetVersion.WN30, 117659, WordNetVersion.WN20, 117597);
+		final ImmutableMap<WordNetVersion, Integer> numSynsets = ImmutableMap.of(WordNetVersion.WN30, 117659, WordNetVersion.WN21, 117597);
     final Integer expectedCount = numSynsets.get(WordNetVersion.detect());
-    for (final Synset synset : wordNet.synsets(POS.ALL)) {
+    for (final Synset synset : WN.synsets(POS.ALL)) {
       count++;
       //if(++count > 10) break;
       // exercise toString() and getGloss()

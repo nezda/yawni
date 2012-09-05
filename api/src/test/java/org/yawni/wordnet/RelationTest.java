@@ -27,32 +27,36 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class RelationTest {
-  private static WordNetInterface wordNet;
+  private static WordNetInterface WN;
+	private static WordNetVersion VERSION;
+
   @BeforeClass
   public static void init() {
-    wordNet = WordNet.getInstance();
+    WN = WordNet.getInstance();
+		VERSION = WordNetVersion.detect();
   }
 
   @Test
   public void testAntonym() {
     System.err.println("testAntonym");
     // adj up#1 has ANTONYM adj down#1
-    final Word upWord = wordNet.lookupWord("up", POS.ADJ);
+    final Word upWord = WN.lookupWord("up", POS.ADJ);
     assertThat(upWord.getRelationTypes()).contains(RelationType.ANTONYM);
     final WordSense up1 = upWord.getSense(1);
-    final Word downWord = wordNet.lookupWord("down", POS.ADJ);
+    final Word downWord = WN.lookupWord("down", POS.ADJ);
     final WordSense down1 = downWord.getSense(1);
     assertThat(up1.getRelationTargets(RelationType.ANTONYM)).contains(down1);
     assertThat(down1.getRelationTargets(RelationType.ANTONYM)).contains(up1);
 
     // adj beutifulu#1 has ANTONYM adj ugly#1
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1226746&group_id=33824&atid=409470
-    final Word beautifulWord = wordNet.lookupWord("beautiful", POS.ADJ);
+    final Word beautifulWord = WN.lookupWord("beautiful", POS.ADJ);
     assertThat(beautifulWord.getRelationTypes()).contains(RelationType.ANTONYM);
     final WordSense beautiful1 = beautifulWord.getSense(1);
-    final Word uglyWord = wordNet.lookupWord("ugly", POS.ADJ);
+    final Word uglyWord = WN.lookupWord("ugly", POS.ADJ);
     final WordSense ugly1 = uglyWord.getSense(1);
     assertThat(beautiful1.getRelationTargets(RelationType.ANTONYM)).contains(ugly1);
     assertThat(ugly1.getRelationTargets(RelationType.ANTONYM)).contains(beautiful1);
@@ -65,10 +69,10 @@ public class RelationTest {
   public void testPertainym() {
     System.err.println("testPertainym");
     // adj presidential#1 has PERTAINYM noun president#3
-    final Word presidentialWord = wordNet.lookupWord("presidential", POS.ADJ);
+    final Word presidentialWord = WN.lookupWord("presidential", POS.ADJ);
     assertThat(presidentialWord.getRelationTypes()).contains(RelationType.PERTAINYM);
     final WordSense presidential1 = presidentialWord.getSense(1);
-    final Word presidentWord = wordNet.lookupWord("president", POS.NOUN);
+    final Word presidentWord = WN.lookupWord("president", POS.NOUN);
     final WordSense president3 = presidentWord.getSense(3);
     assertThat(presidential1.getRelationTargets(RelationType.PERTAINYM)).contains(president3);
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1372493&group_id=33824&atid=409470
@@ -79,7 +83,7 @@ public class RelationTest {
   public void testDomainTypes() {
     System.err.println("testDomainTypes");
     // adj up#7 member of noun TOPIC computer#1
-    final Word word = wordNet.lookupWord("up", POS.ADJ);
+    final Word word = WN.lookupWord("up", POS.ADJ);
     System.err.println("word: "+word+" relationTypes: "+word.getRelationTypes());
     System.err.println("  "+word.getSense(7).getDescription());
     final RelationType[] relationTypes = new RelationType[] {
@@ -100,7 +104,7 @@ public class RelationTest {
   public void testAttributeType() {
     System.err.println("testAttributeType");
     // adj low-pitch#1 is attribute of "pitch"#1
-    final Word word = wordNet.lookupWord("low-pitched", POS.ADJ);
+    final Word word = WN.lookupWord("low-pitched", POS.ADJ);
     System.err.println("word: "+word+" relationTypes: "+word.getRelationTypes());
     System.err.println("  "+word.getSense(1).getDescription());
     final RelationType[] relationTypes = new RelationType[] {
@@ -125,11 +129,11 @@ public class RelationTest {
     // and 1 specific verb frame
     // 1. They won't %s the story
     // https://sourceforge.net/tracker/index.php?func=detail&aid=1749797&group_id=33824&atid=409471
-    final Word complete = wordNet.lookupWord("complete", POS.VERB);
+    final Word complete = WN.lookupWord("complete", POS.VERB);
     final WordSense complete1 = complete.getSense(1);
     //TODO compare with wnb and what its actually supposed to do
     assertThat(complete1.getVerbFrames()).hasSize(5);
-    final Word finish = wordNet.lookupWord("finish", POS.VERB);
+    final Word finish = WN.lookupWord("finish", POS.VERB);
     final WordSense finish1 = finish.getSense(1);
   }
 
@@ -137,8 +141,8 @@ public class RelationTest {
   public void testInstances() {
     System.err.println("testInstances");
     // noun "George Bush"#1 has
-//    final Word georgeBush = wordNet.lookupWord("George Bush", POS.NOUN);
-    final Word georgeBush = wordNet.lookupWord("Odessa", POS.NOUN);
+//    final Word georgeBush = WN.lookupWord("George Bush", POS.NOUN);
+    final Word georgeBush = WN.lookupWord("Odessa", POS.NOUN);
     System.err.println("word: "+georgeBush+" relationTypes: "+georgeBush.getRelationTypes());
     System.err.println("  "+georgeBush.getSense(1).getDescription());
     final RelationType[] relationTypes = new RelationType[] {
@@ -167,7 +171,7 @@ public class RelationTest {
     System.err.println("exhaustivelyTestRelations");
     for (final RelationType relType : RelationType.values()) {
       int numLexical = 0, numSemantic = 0;
-      for (final Relation rel : wordNet.relations(relType, POS.ALL)) {
+      for (final Relation rel : WN.relations(relType, POS.ALL)) {
         if (rel.isLexical()) {
           numLexical++;
         } else {
@@ -229,7 +233,7 @@ public class RelationTest {
   public void exhaustivelyTestVerbGroups() {
     System.err.println("exhaustivelyTestVerbGroups");
     int numLexical = 0, numSemantic = 0;
-    for (final Relation vg : wordNet.relations(RelationType.VERB_GROUP, POS.VERB)) {
+    for (final Relation vg : WN.relations(RelationType.VERB_GROUP, POS.VERB)) {
       if (vg.isLexical()) {
         System.err.println("  lexical VERB_GROUP: "+vg);
         numLexical++;
@@ -248,23 +252,31 @@ public class RelationTest {
   public void testVerbGroup2() {
     System.err.println("testVerbGroup2");
     // verb turn#1 groups with turn#4 and turn#19
-    final Word turn = wordNet.lookupWord("turn", POS.VERB);
+    final Word turn = WN.lookupWord("turn", POS.VERB);
     final WordSense turn1 = turn.getSense(1);
     final WordSense turn4 = turn.getSense(4);
     final WordSense turn19 = turn.getSense(19);
     final List<Relation> turn1VGs = turn1.getSynset().getRelations(RelationType.VERB_GROUP);
     System.err.println("turn1VGs: "+turn1VGs);
     final List<RelationArgument> turn1VGTargets = turn1.getSynset().getRelationTargets(RelationType.VERB_GROUP);
-    assertThat(turn1VGTargets).hasSize(2);
-    assertThat(turn1VGTargets).contains(turn4.getSynset(), turn19.getSynset());
+		switch (VERSION) {
+			case WN30:
+				assertThat(turn1VGTargets).hasSize(2);
+				assertThat(turn1VGTargets).contains(turn4.getSynset(), turn19.getSynset());
+			break;
+		}
 
     // verb make#7 groups with make#43 and make#44
-    final Word make = wordNet.lookupWord("make", POS.VERB);
+    final Word make = WN.lookupWord("make", POS.VERB);
     final WordSense make7 = make.getSense(7);
     final WordSense make43 = make.getSense(43);
     final WordSense make44 = make.getSense(44);
     final List<RelationArgument> make7VGs = make7.getSynset().getRelationTargets(RelationType.VERB_GROUP);
-    assertThat(make7VGs).contains(make43.getSynset(), make43.getSynset());
+		switch (VERSION) {
+			case WN30:
+				assertThat(make7VGs).contains(make43.getSynset(), make43.getSynset());
+				break;
+		}
   }
 
   @Ignore// re-writing
@@ -272,7 +284,7 @@ public class RelationTest {
   public void testVerbGroup() {
     System.err.println("testVerbGroup");
     // verb turn#1 groups with turn#4 and turn#19
-    final Word word = wordNet.lookupWord("turn", POS.VERB);
+    final Word word = WN.lookupWord("turn", POS.VERB);
 
     for (final WordSense sense : word) {
       final List<RelationArgument> g = new ArrayList<RelationArgument>();
@@ -359,7 +371,7 @@ public class RelationTest {
       }
     }
     final Set<RelationType> foundLexicalRelations = EnumSet.noneOf(RelationType.class);
-    for (final Synset synset : wordNet.synsets(POS.ALL)) {
+    for (final Synset synset : WN.synsets(POS.ALL)) {
       for (final Relation relation : synset.getRelations()) {
         if (relation.isLexical()) {
           foundLexicalRelations.add(relation.getType());
@@ -396,7 +408,7 @@ public class RelationTest {
   @Test
   public void testSemanticRelations() {
     System.err.println("testSemanticRelations");
-    for (final Synset synset : wordNet.synsets(POS.ALL)) {
+    for (final Synset synset : WN.synsets(POS.ALL)) {
       for (final SemanticRelation relation : synset.getSemanticRelations(null)) {
         assertThat(relation.isSemantic()).isTrue();
         assertThat(relation.getType().isSemantic()).isTrue(); // msg: "! isSemantic(): "+relation
