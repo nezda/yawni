@@ -16,7 +16,9 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import org.yawni.util.CharSequences;
@@ -55,7 +57,7 @@ final class FileManager implements FileManagerInterface {
   private static final Logger log = LoggerFactory.getLogger(FileManager.class);
 
 //  private String searchDirectory;
-  private final Map<String, CharStream> fileNameCache = new HashMap<String, CharStream>();
+  private final Map<String, Optional<CharStream>> fileNameCache = Maps.newConcurrentMap();
 
   static class NextLineOffsetCache {
     private String fileName;
@@ -461,12 +463,12 @@ final class FileManager implements FileManagerInterface {
    * @return CharStream representing {@code fileName} or null if no such file exists.
    */
   private synchronized CharStream getFileStream(final String fileName, final boolean fileNameIsWnRelative) throws IOException {
-    CharStream stream = fileNameCache.get(fileName);
+    Optional<CharStream> stream = fileNameCache.get(fileName);
     if (stream == null) {
       final long start = System.nanoTime();
 
-      stream = getURLStream(fileName);
-      if (stream != null) {
+      stream = Optional.fromNullable(getURLStream(fileName));
+      if (stream.isPresent()) {
         log.trace("URLCharStream: {}", stream);
       } else {
         final String pathname =
@@ -484,7 +486,7 @@ final class FileManager implements FileManagerInterface {
           //slow CharStream
           //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
           //fast CharStream stream
-          stream = new NIOCharStream(pathname, new RandomAccessFile(file, "r"));
+          stream = Optional.<CharStream>of(new NIOCharStream(pathname, new RandomAccessFile(file, "r")));
           log.trace("FileCharStream");
         }
       }
@@ -499,7 +501,7 @@ final class FileManager implements FileManagerInterface {
       fileNameCache.put(fileName, stream);
     }
 
-    return stream;
+    return stream.orNull();
   }
 
   synchronized CharStream getFileStream(final String fileName) throws IOException {
