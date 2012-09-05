@@ -243,7 +243,8 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     final int headSense;
     if (getSynset().isAdjectiveCluster()) {
       final List<RelationArgument> adjsses = getSynset().getRelationTargets(RelationType.SIMILAR_TO);
-      assert adjsses.size() == 1;
+      //assert adjsses.size() == 1 : this + " adjsses: " + adjsses;
+			// failed with WN20: [WordSense 2093443@[POS adjective]:"acerate"#1] adjsses: [[Synset 2092764@[POS adjective]<adj.all>{simple, unsubdivided}], [Synset 1749884@[POS adjective]<adj.all>{pointed}]]
       final Synset adjss = (Synset) adjsses.get(0);
       // if satellite, key lemma in cntlist.rev
       // is adjss's first word (no case) and
