@@ -212,7 +212,7 @@ public final class WordNet implements WordNetInterface {
     }
     @Override
     public String toString() {
-      return "[StringPOSDatabaseKey key: "+key+" "+POS.fromOrdinal(posOrdinal)+"]";
+      return "[StringPOSDatabaseKey key: \""+key+"\" "+POS.fromOrdinal(posOrdinal)+"]";
     }
   } // end class StringPOSDatabaseKey
 
@@ -739,7 +739,8 @@ public final class WordNet implements WordNetInterface {
       return cached;
     }
     assert someString != null;
-    assert someString.length() > 0 : "someString: \""+someString+"\" "+pos;
+		// empty string is valid input
+		//assert someString.length() > 0 : "someString: \""+someString+"\" "+pos+" cacheKey: "+cacheKey;
     assert pos != null;
     final String fileName = getExceptionsFilename(pos);
     try {
