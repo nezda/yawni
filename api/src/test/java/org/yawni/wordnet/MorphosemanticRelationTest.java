@@ -81,7 +81,7 @@ public class MorphosemanticRelationTest {
 		}
 
     System.err.println("rawSearch");
-    final String path = "/dict/" + WordNet.getMorphosemanticRelationsFilename();
+    final String path = "/dict/" + WordNet.PlainTextResource.MORPHOSEMANTIC_RELATIONS.getFileName();
     final BufferedReader lines = new BufferedReader(new InputStreamReader(getClass().getResource(path).openStream()));
     String line;
     while ((line = lines.readLine()) != null) {
@@ -145,7 +145,7 @@ public class MorphosemanticRelationTest {
   @Test
   public void translateSenseKeys() throws Exception {
     System.err.println("translateSenseKeys");
-    final String path = "/dict/" + WordNet.getMorphosemanticRelationsFilename();
+    final String path = "/dict/" + WordNet.PlainTextResource.MORPHOSEMANTIC_RELATIONS.getFileName();
     final BufferedReader lines = new BufferedReader(new InputStreamReader(getClass().getResource(path).openStream()));
     String line;
     while ((line = lines.readLine()) != null) {

@@ -19,6 +19,7 @@ package org.yawni.wordnet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableMap;
 import static com.google.common.collect.Iterables.transform;
@@ -49,6 +50,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.yawni.util.EnumAliases;
 import org.yawni.util.StringTokenizer;
 import org.yawni.util.cache.BloomFilter;
 import org.yawni.util.cache.Caches;
@@ -294,52 +296,30 @@ public final class WordNet implements WordNetInterface {
 		MORPHOSEMANTIC_RELATIONS("morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi", false, false),
 		VERB_GROUP_RELATIONS("verb_groups.non_pairs.offsets", false, false),
 		VERB_SENTENCES_INDEX("sentidx.vrb", true, true),
-		VERB_SENTENCES("sentidx.vrb", true, true),
+		VERB_SENTENCES("sents.vrb", true, true),
 		GENERIC_VERB_FRAMES("frames.vrb", true, true);
 
-		private final String filename;
+		private final String fileName;
 		private final boolean required;
 		private final boolean fileNameWnRelative;
 		// on 1st access, resolve Future<CharStream>
 		// memoized Supplier<CharStream>
 
-		PlainTextResource(final String filename, final boolean required, final boolean fileNameWnRelative) {
-			this.filename = filename;
+		PlainTextResource(final String fileName, final boolean required, final boolean fileNameWnRelative) {
+			this.fileName = fileName;
 			this.required = required;
 			this.fileNameWnRelative = fileNameWnRelative;
+			// detect & prevent accidental duplicates
+			staticThis.ALIASES.registerAlias(this, fileName);
 		}
-	}
 
-  private static String getCntlistDotRevFilename() {
-    return "cntlist.rev";
-  }
-
-  private static String getCoreRankFilename() {
-    return "core-wordnet.ranked";
-  }
-
-  @VisibleForTesting
-  static String getMorphosemanticRelationsFilename() {
-//    return "morphosemantic-links.xls.tsv.sensekeys.bidi";
-//    return "morphosemantic-links.xls.tsv.offsets.bidi";
-    return "morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi";
-  }
-
-  private static String getVerbGroupRelationsFilename() {
-    return "verb_groups.non_pairs.offsets";
-  }
-
-  private static String getVerbSentencesIndexFilename() {
-    return "sentidx.vrb";
-  }
-
-  private static String getVerbSentencesFileName() {
-    return "sents.vrb";
-  }
-
-  private static String getGenericVerbFramesFilename() {
-    return "frames.vrb";
-  }
+		public String getFileName() {
+			return fileName;
+		}
+		private static class staticThis {
+			static EnumAliases<PlainTextResource> ALIASES = EnumAliases.make(PlainTextResource.class);
+		}
+	} // end enum PlainTextResource
 
   //
   // Entity retrieval
@@ -373,8 +353,8 @@ public final class WordNet implements WordNetInterface {
       final CharSequence line;
       try {
         line = fileManager.readLineAt(offset, fileName);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioe) {
+        throw Throwables.propagate(ioe);
       }
       if (line == null) {
         throw new IllegalStateException("line null for offset "+offset+" "+pos);
@@ -390,14 +370,12 @@ public final class WordNet implements WordNetInterface {
   static int weirdGetSynsetAtCacheMiss = 0;
 
   String getSynsetLineAt(final POS pos, final int offset) {
-    final String line;
     final String fileName = getDataFilename(pos);
     try {
-      line = fileManager.readLineAt(offset, fileName);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      return fileManager.readLineAt(offset, fileName);
+    } catch (IOException ioe) {
+      throw Throwables.propagate(ioe);
     }
-    return line;
   }
 
   Synset getSynsetAt(final POS pos, final int offset, String line) {
@@ -506,8 +484,8 @@ public final class WordNet implements WordNetInterface {
         final int offset;
         try {
           offset = fileManager.getIndexedLinePointer(lemma, fileName);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+        } catch (IOException ioe) {
+          throw Throwables.propagate(ioe);
         }
         if (offset >= 0) {
           indexWord = getIndexWordAt(pos, offset);
@@ -754,8 +732,8 @@ public final class WordNet implements WordNetInterface {
       } else {
         exceptionsCache.put(cacheKey, LightImmutableList.<String>of());
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    } catch (IOException ioe) {
+      throw Throwables.propagate(ioe);
     }
     return LightImmutableList.of();
   }
@@ -775,62 +753,59 @@ public final class WordNet implements WordNetInterface {
    */
   String lookupCntlistDotRevLine(final CharSequence senseKey) {
     //TODO add caching
-    final int offset;
-    final String line;
     try {
-      offset = fileManager.getIndexedLinePointer(senseKey, getCntlistDotRevFilename());
+			final int offset = fileManager.getIndexedLinePointer(senseKey, PlainTextResource.CNTLIST_DOT_REV.getFileName());
+			final String line;
       if (offset < 0) {
         line = null;
       } else {
-        line = fileManager.readLineAt(offset, getCntlistDotRevFilename());
+        line = fileManager.readLineAt(offset, PlainTextResource.CNTLIST_DOT_REV.getFileName());
       }
+			return line;
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
-    return line;
   }
 
   // throws IllegalStateException if data file is not found
   String lookupCoreRankLine(final CharSequence senseKey) {
-    final int offset;
-    final String line;
     try {
-      offset = fileManager.getIndexedLinePointer(senseKey, getCoreRankFilename());
+			final int offset = fileManager.getIndexedLinePointer(senseKey, PlainTextResource.CORE_RANK.getFileName());
+			final String line;
       if (offset < 0) {
         line = null;
       } else {
-        line = fileManager.readLineAt(offset, getCoreRankFilename());
+        line = fileManager.readLineAt(offset, PlainTextResource.CORE_RANK.getFileName());
       }
+			return line;
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
-    return line;
   }
 
   // throws IllegalStateException if data file is not found
   Iterable<CharSequence> lookupMorphoSemanticRelationLines(final CharSequence senseKey) {
     try {
-      return fileManager.getMatchingLines(senseKey, getMorphosemanticRelationsFilename());
+      return fileManager.getMatchingLines(senseKey, PlainTextResource.MORPHOSEMANTIC_RELATIONS.getFileName());
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
   }
 
   // throws IllegalStateException if data file is not found
   Iterable<CharSequence> lookupVerbGroupLines(final CharSequence senseKey) {
     try {
-      return fileManager.getMatchingLines(senseKey, getVerbGroupRelationsFilename());
+      return fileManager.getMatchingLines(senseKey, PlainTextResource.VERB_GROUP_RELATIONS.getFileName());
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
   }
 
   /** XXX DOCUMENT ME */
   String lookupGenericFrame(final int framenum) {
     assert framenum >= 1;
-    String line = null;
     try {
-      line = fileManager.readLineNumber(framenum - 1, getGenericVerbFramesFilename());
+			String line = fileManager.readLineNumber(framenum - 1, PlainTextResource.GENERIC_VERB_FRAMES.getFileName());
       assert line != null : "framenum: "+framenum;
       // parse line. format example:
       //<number>
@@ -847,10 +822,10 @@ public final class WordNet implements WordNetInterface {
       assert line.charAt(idx + 1) != ' ';
       idx++;
       line = line.substring(idx);
+			return line;
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+			throw Throwables.propagate(ioe);
     }
-    return line;
   }
 
   /**
@@ -858,11 +833,11 @@ public final class WordNet implements WordNetInterface {
    *         (e.g., "15,16")
    */
   String lookupVerbSentencesNumbers(final CharSequence verbSenseKey) {
-    String line = null;
     try {
-      final int offset = fileManager.getIndexedLinePointer(verbSenseKey, getVerbSentencesIndexFilename());
+			String line = null;
+      final int offset = fileManager.getIndexedLinePointer(verbSenseKey, PlainTextResource.VERB_SENTENCES_INDEX.getFileName());
       if (offset >= 0) {
-        line = fileManager.readLineAt(offset, getVerbSentencesIndexFilename());
+        line = fileManager.readLineAt(offset, PlainTextResource.VERB_SENTENCES_INDEX.getFileName());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -886,10 +861,10 @@ public final class WordNet implements WordNetInterface {
           line = null;
         }
       }
+			return line;
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
-    return line;
   }
 
   /**
@@ -898,9 +873,9 @@ public final class WordNet implements WordNetInterface {
   String lookupVerbSentence(final String verbSentenceNumber) {
     String line = null;
     try {
-      final int offset = fileManager.getIndexedLinePointer(verbSentenceNumber, getVerbSentencesFileName());
+      final int offset = fileManager.getIndexedLinePointer(verbSentenceNumber, PlainTextResource.VERB_SENTENCES.getFileName());
       if (offset >= 0) {
-        line = fileManager.readLineAt(offset, getVerbSentencesFileName());
+        line = fileManager.readLineAt(offset, PlainTextResource.VERB_SENTENCES.getFileName());
         assert line != null;
         // parse line. format example:
         //<number>
@@ -918,10 +893,10 @@ public final class WordNet implements WordNetInterface {
         line = line.substring(idx);
         assert line.indexOf("%s") >= 0;
       }
+			return line;
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw Throwables.propagate(ioe);
     }
-    return line;
   }
 
   private static void checkValidPOS(final POS pos, String msg) {
@@ -983,8 +958,8 @@ public final class WordNet implements WordNetInterface {
           return endOfData();
         }
         return new Word(line, offset, WordNet.this);
-      } catch (final IOException e) {
-        throw new RuntimeException(e);
+      } catch (final IOException ioe) {
+        throw Throwables.propagate(ioe);
       }
     }
   } // end class WordIterator
@@ -1031,8 +1006,8 @@ public final class WordNet implements WordNetInterface {
         } else {
           return endOfData();
         }
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioe) {
+        throw Throwables.propagate(ioe);
       }
     }
   } // end class SearchBySubstringIterator
@@ -1081,8 +1056,8 @@ public final class WordNet implements WordNetInterface {
         } else {
           return endOfData();
         }
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioe) {
+        throw Throwables.propagate(ioe);
       }
     }
   } // end class SearchByPrefixIterator
@@ -1232,8 +1207,8 @@ public final class WordNet implements WordNetInterface {
           nextOffset = fileManager.getNextLinePointer(nextOffset, fileName);
         } while (line.startsWith("  ")); // first few lines start with "  "
         return getSynsetAt(pos, offset, line);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioe) {
+        throw Throwables.propagate(ioe);
       }
     }
   } // end class POSSynsetsIterator
@@ -1375,8 +1350,8 @@ public final class WordNet implements WordNetInterface {
         final LightImmutableList<String> toReturn = LightImmutableList.of(line.split(" "));
         assert toReturn.size() >= 2;
         return toReturn;
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioe) {
+        throw Throwables.propagate(ioe);
       }
     }
   } // end class POSExceptionsIterator
