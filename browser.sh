@@ -44,7 +44,9 @@ JVM_ARGS+=(-Dapple.awt.brushMetalLook="true")
 #JVM_ARGS+=(-Dfile.encoding=US-ASCII)
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
-$java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
+#XXX incomplete CLASSPATH! $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
+# !! command below must be run from browser sub-project !!
+mvn -P useLog4j exec:java -Dlog4j.debug -Dlog4j.configuration=org/yawni/wordnet/log4j.properties -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
 
 # use the maven-exec-plugin (from api module):
 # mvn -P useWNHOMEDataForTest -DWNHOME=/Users/nezda/code/c/wordnets/WordNet-2.0 exec:java -Dexec.mainClass="org.yawni.util.cache.BloomFilters" -Dexec.classpathScope="test"
