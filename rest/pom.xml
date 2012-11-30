@@ -5,6 +5,7 @@
     <groupId>org.yawni</groupId>
     <artifactId>yawni</artifactId>
     <version>2.0.0-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <artifactId>yawni-wordnet-rest</artifactId>
   <name>Yawni Online REST</name>
@@ -13,6 +14,7 @@
     <scala.version>2.8.0</scala.version>
     <maven-scala-plugin.version>2.14.1</maven-scala-plugin.version>
   </properties>
+  <!--
   <repositories>
     <repository>
       <id>scala-tools.releases</id>
@@ -51,6 +53,7 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
+  -->
   <dependencies>
     <dependency>
       <groupId>org.yawni</groupId>
@@ -58,7 +61,7 @@
     </dependency>
     <dependency>
       <groupId>org.yawni</groupId>
-      <artifactId>yawni-wordnet-data</artifactId>
+      <artifactId>yawni-wordnet-data30</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
