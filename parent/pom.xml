@@ -31,7 +31,7 @@
   </scm>
   <description>Yawni is a pure Java standalone object-oriented interface to the WordNet
     database of lexical and semantic relationships.</description>
-  <url>http://sourceforge.net/projects/yawni/</url>
+  <url>http://www.yawni.org</url>
   <inceptionYear>2001</inceptionYear>
   <developers>
     <developer>
