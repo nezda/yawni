@@ -32,6 +32,9 @@
     exhausitve access to this information.
   </description>
   <packaging>jar</packaging>
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
   <build>
     <resources>
       <resource>

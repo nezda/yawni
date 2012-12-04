@@ -28,6 +28,9 @@
   <artifactId>yawni</artifactId>
   <name>Yawni</name>
   <packaging>pom</packaging>
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
   <modules>
     <module>data30</module>
     <module>data21</module>

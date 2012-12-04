@@ -14,7 +14,7 @@ Bugs and Features
       grep ⊚ TODO | tail -n+2 | less -iSEX
 
 Releasing a version
-# mvn release:perform -Darguments=-Dgpg.passphrase=PASSPHRASE
+# mvn release:perform -DreleaseProfiles=src,javadoc -Darguments=-Dgpg.passphrase=PASSPHRASE
 mvn -DpushChanges=false release:prepare
   * key to getting this working was bumping maven-release-plugin to 2.3.2 (was getting 2.0 as could be verified with mvn help:effective-pom)
   - updates poms from snapshot to a solid version
