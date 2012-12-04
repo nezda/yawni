@@ -37,7 +37,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import static org.fest.assertions.Assertions.assertThat;
 
-//@Ignore
+@Ignore
 public class BrowserFESTTest {
   private FrameFixture window;
   private Browser browser;
