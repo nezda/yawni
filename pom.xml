@@ -26,6 +26,11 @@
   <artifactId>yawni</artifactId>
   <name>Yawni</name>
   <packaging>pom</packaging>
+  <scm>
+    <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni/yawni</connection>
+    <developerConnection>scm:git:ssh://yawni.git.sourceforge.net/gitroot/yawni/yawni</developerConnection>
+    <url>http://yawni.git.sourceforge.net/git/gitweb.cgi?p=yawni/yawni;a=tree;f=yawni</url>
+  </scm>
   <prerequisites>
     <maven>3.0</maven>
   </prerequisites>
