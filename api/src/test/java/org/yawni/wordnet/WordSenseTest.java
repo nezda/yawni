@@ -16,6 +16,7 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Joiner;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.BeforeClass;
@@ -67,6 +68,17 @@ public class WordSenseTest {
     // this will fail because the WordSense palatine's Synset's HYPERNYM targets are Synsets, NOT WordSenses
 //    assertThat(palatine.getSynset().getRelationTargets(RelationType.HYPERNYM)).contains(roman2);
     assertThat(palatine.getSynset().getRelationTargets(RelationType.HYPERNYM)).contains(roman2.getSynset());
+
+		// inter-connections among invent derivs depends on where you start
+		final WordSense invent = WN.lookupWord("invent", POS.VERB).getSense(1);
+		final WordSense inventor = WN.lookupWord("inventor", POS.NOUN).getSense(1);
+		assertThat(invent.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(inventor);
+		assertThat(inventor.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(invent);
+
+		final WordSense invention = WN.lookupWord("invention", POS.NOUN).getSense(1);
+		System.err.println("invent derivs:\n" + Joiner.on("\n").join(invent.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
+		System.err.println("invention derivs:\n" + Joiner.on("\n").join(invention.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
+		System.err.println("inventor derivs:\n" + Joiner.on("\n").join(inventor.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
   }
 
   @Test
