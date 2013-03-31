@@ -11,7 +11,7 @@
   <name>Yawni Online REST</name>
   <packaging>war</packaging>
   <prerequisites>
-    <maven>3.0</maven>
+    <maven>3.0.3</maven>
   </prerequisites>
   <properties>
     <scala.version>2.8.0</scala.version>

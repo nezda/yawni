@@ -33,7 +33,7 @@
   </description>
   <packaging>jar</packaging>
   <prerequisites>
-    <maven>3.0</maven>
+    <maven>3.0.3</maven>
   </prerequisites>
   <build>
     <resources>
