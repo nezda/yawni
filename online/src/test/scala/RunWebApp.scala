@@ -11,8 +11,8 @@ object RunWebApp extends App {
   val context = new WebAppContext()
   context.setServer(server)
   context.setContextPath("/")
-  //FIXME hardcoded war file name
-  context.setWar("target/yawni-wordnet-online-2.0.0-SNAPSHOT.war")
+  //FIXME hardcoded path
+  context.setWar("target/yawni-wordnet-online-2.0.0-SNAPSHOT")
 
   server.setHandler(context)
 
