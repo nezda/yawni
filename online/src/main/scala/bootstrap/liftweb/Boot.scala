@@ -32,11 +32,11 @@ import scala.language.postfixOps
  * to modify Lift's environment
  */
 class Boot {
-  def boot {
+  def boot() {
     // where to search for snippet (functions)
     LiftRules.addToPackages("org.yawni.wordnet")
 
-    LiftRules.htmlProperties.default.set((r: Req) => new Html5Properties(r.userAgent))
+    LiftRules.htmlProperties.default.set((r: Req) => Html5Properties(r.userAgent))
 
     Yawni.init()
 
