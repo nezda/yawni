@@ -485,7 +485,7 @@ final class FileManager implements FileManagerInterface {
           //slow CharStream
           //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
           //fast CharStream stream
-          stream = Optional.<CharStream>of(new NIOCharStream(pathname, new RandomAccessFile(file, "r")));
+          stream = Optional.of(new NIOCharStream(pathname, new RandomAccessFile(file, "r")));
           log.trace("FileCharStream");
         }
       }

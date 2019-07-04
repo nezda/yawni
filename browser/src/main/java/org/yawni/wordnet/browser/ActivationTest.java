@@ -17,11 +17,7 @@ import javax.swing.border.*;
 public class ActivationTest extends JFrame {
   // Static =================================================================
   public static void main(String[] args) throws Exception {
-    EventQueue.invokeLater(new Runnable() {
-      public void run() {
-        new ActivationTest().setVisible(true);
-      }
-    });
+    EventQueue.invokeLater(() -> new ActivationTest().setVisible(true));
   }
   // Fields =================================================================
   private JButton dialogButton;
@@ -39,11 +35,9 @@ public class ActivationTest extends JFrame {
     helpButton.putClientProperty("JButton.buttonType", "help");
 
     // Display the active state of the window in a JLabel
-    stateLabel.addPropertyChangeListener(new PropertyChangeListener() {
-      public void propertyChange(PropertyChangeEvent evt) {
-        if ("Frame.active".equals(evt.getPropertyName())) {
-          stateLabel.setText((Boolean) evt.getNewValue() ? "Active" : "Inactive");
-        }
+    stateLabel.addPropertyChangeListener(evt -> {
+      if ("Frame.active".equals(evt.getPropertyName())) {
+        stateLabel.setText((Boolean) evt.getNewValue() ? "Active" : "Inactive");
       }
     });
 
@@ -71,19 +65,17 @@ public class ActivationTest extends JFrame {
     getContentPane().add(helpButton, new GridBagConstraints());
 
     dialogButton.setText("Show JDialog");
-    dialogButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent evt) {
-        if (evt.getSource() == dialogButton) {
-          //JOptionPane.showConfirmDialog(ActivationTest.this, "foo");
-          final JDialog dialog = new JDialog(ActivationTest.this);
-          dialog.getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
-          ((JComponent) dialog.getContentPane()).setBorder(new EmptyBorder(20, 20, 20, 20));
-          dialog.add(new JLabel("Sidekick Dialog"));
-          dialog.pack();
-          dialog.setVisible(true);
-          dialog.setLocationRelativeTo(ActivationTest.this);
-          dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        }
+    dialogButton.addActionListener(evt -> {
+      if (evt.getSource() == dialogButton) {
+        //JOptionPane.showConfirmDialog(ActivationTest.this, "foo");
+        final JDialog dialog = new JDialog(ActivationTest.this);
+        dialog.getRootPane().putClientProperty("apple.awt.brushMetalLook", true);
+        ((JComponent) dialog.getContentPane()).setBorder(new EmptyBorder(20, 20, 20, 20));
+        dialog.add(new JLabel("Sidekick Dialog"));
+        dialog.pack();
+        dialog.setVisible(true);
+        dialog.setLocationRelativeTo(ActivationTest.this);
+        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
       }
     });
     gridBagConstraints = new GridBagConstraints();

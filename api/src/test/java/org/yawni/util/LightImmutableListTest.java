@@ -29,7 +29,7 @@ public class LightImmutableListTest {
   public void nothington() {
 //    System.out.println("nothington()");
     Integer[] elements = new Integer[]{};
-    List<Integer> expResult = Collections.<Integer>emptyList();
+    List<Integer> expResult = Collections.emptyList();
     LightImmutableList<Integer> result = LightImmutableList.of();
     assertTrue(result instanceof LightImmutableList.Nothington);
     listTest(expResult, result);
@@ -59,8 +59,8 @@ public class LightImmutableListTest {
     Integer e0 = elements[0];
     Integer e1 = elements[1];
     List<Integer> expResult1 = Arrays.asList(e0, e1);
-    List<Integer> expResult2 = new ArrayList<Integer>(Arrays.asList(e0, e1));
-    List<Integer> expResult3 = new LinkedList<Integer>(Arrays.asList(e0, e1));
+    List<Integer> expResult2 = new ArrayList<>(Arrays.asList(e0, e1));
+    List<Integer> expResult3 = new LinkedList<>(Arrays.asList(e0, e1));
     LightImmutableList<Integer> result = LightImmutableList.of(e0, e1);
     assertTrue(result instanceof LightImmutableList.Singleton); // implementation detail
     assertTrue(result instanceof LightImmutableList.Doubleton);
@@ -164,7 +164,7 @@ public class LightImmutableListTest {
   @Test
   public void commonOverloads() {
 //    System.out.println("commonOverloads()");
-    List<List<Integer>> elements = new ArrayList<List<Integer>>();
+    List<List<Integer>> elements = new ArrayList<>();
     elements.add(Arrays.asList(0));
     elements.add(Arrays.asList(1));
     elements.add(Arrays.asList(2));

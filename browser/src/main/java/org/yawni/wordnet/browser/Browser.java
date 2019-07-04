@@ -330,11 +330,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     };
     this.helpMenu.add(new JMenuItem(aboutAction));
     this.mainMenuBar.add(helpMenu);
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        setJMenuBar(mainMenuBar);
-      }
-    });
+    SwingUtilities.invokeLater(() -> setJMenuBar(mainMenuBar));
 
     final WindowAdapter closer = new WindowAdapter() {
       @Override
@@ -401,7 +397,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     return APP_ICON;
   }
 
-  private static final Vector<Browser> BROWSERS = new Vector<Browser>();
+  private static final Vector<Browser> BROWSERS = new Vector<>();
 
   private static synchronized void newWindow() {
     final Browser browser = new Browser(BROWSERS.size());
@@ -605,12 +601,10 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     //} else {
     //  wn = WordNet.getInstance();
     //}
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        newWindow();
-        final long guiLoadDone = System.currentTimeMillis();
-        System.err.println("guiLoadTime: "+(guiLoadDone - start)+"ms");
-      }
+    SwingUtilities.invokeLater(() -> {
+      newWindow();
+      final long guiLoadDone = System.currentTimeMillis();
+      System.err.println("guiLoadTime: "+(guiLoadDone - start)+"ms");
     });
   }
 }

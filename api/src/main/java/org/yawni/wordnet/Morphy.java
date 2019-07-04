@@ -203,7 +203,7 @@ class Morphy {
 
     boolean phase1Done = false;
     //TODO no need to allocate this if we don't use it
-    final List<String> toReturn = new ArrayList<String>();
+    final List<String> toReturn = new ArrayList<>();
 
     // First try exception list
     LightImmutableList<String> tmp = dictionary.getExceptions(str, pos);
@@ -448,7 +448,7 @@ class Morphy {
     if (items.isEmpty()) {
       items = LightImmutableList.of(item);
     } else if (! items.contains(item)) {
-      final List<T> appended = new ArrayList<T>(items);
+      final List<T> appended = new ArrayList<>(items);
       appended.add(item);
       items = LightImmutableList.copyOf(appended);
     }

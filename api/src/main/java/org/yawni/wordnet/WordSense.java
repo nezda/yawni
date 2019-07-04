@@ -584,11 +584,10 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   private List<Relation> restrictRelations(final RelationType type) {
     final List<Relation> relations = synset.getRelations();
     List<Relation> list = null;
-    for (int i = 0, n = relations.size(); i < n; i++) {
-      final Relation relation = relations.get(i);
+    for (final Relation relation : relations) {
       // consider all isSemantic Relations, but only isLexical Relations
       // which have this as their source
-      if (relation.isLexical() && ! relation.getSource().equals(this)) {
+      if (relation.isLexical() && !relation.getSource().equals(this)) {
         continue;
       }
       if (type != null && type != relation.getType()) {

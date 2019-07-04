@@ -57,7 +57,7 @@ public class EnumAliases<E extends Enum<E>> {
    * @return new {@code EnumAliases} instance
    */
   public static <F extends Enum<F>> EnumAliases<F> make(final Class<F> clazz) {
-    return new EnumAliases<F>(clazz);
+    return new EnumAliases<>(clazz);
   }
 
   private final String enumName;

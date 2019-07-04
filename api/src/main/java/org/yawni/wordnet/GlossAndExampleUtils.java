@@ -127,7 +127,7 @@ public class GlossAndExampleUtils {
         sentenceGloss + " " + synset);
     }
     final int groupCount = match.groupCount();
-    final List<String> definitions = new ArrayList<String>(groupCount);
+    final List<String> definitions = new ArrayList<>(groupCount);
     for (int i = 0; i < groupCount; i++) {
       final String groupText = match.group(i + 1);
       if (groupText != null) {
@@ -154,7 +154,7 @@ public class GlossAndExampleUtils {
     if (groupCount == 0) {
       return LightImmutableList.of();
     }
-    final List<String> examples = new ArrayList<String>(groupCount);
+    final List<String> examples = new ArrayList<>(groupCount);
     for (int i = 0; i < groupCount; i++) {
       final String groupText = match.group(i + 1);
       if (groupText != null) {

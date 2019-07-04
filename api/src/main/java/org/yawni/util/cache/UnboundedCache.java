@@ -30,7 +30,7 @@ class UnboundedCache<K, V> implements Cache<K, V> {
   private final Map<K, V> backingMap;
 
   public UnboundedCache(final int initialCapacity) {
-    this.backingMap = new HashMap<K, V>(initialCapacity);
+    this.backingMap = new HashMap<>(initialCapacity);
   }
 
   @Override

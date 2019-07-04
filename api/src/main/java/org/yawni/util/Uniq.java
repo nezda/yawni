@@ -47,7 +47,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
   /** {@inheritDoc} */
 	@Override
   public Iterator<T> iterator() {
-    return new UniqIterator<T>(base);
+    return new UniqIterator<>(base);
   }
 
   private void validateSort(final boolean validateSort, final Iterable<T> base) {

@@ -33,10 +33,9 @@ class ActionHelper {
   private static final String CLEAR = "CLEAR";
   static {
     final DefaultEditorKit dek = new DefaultEditorKit();
-    ACTIONS = new HashMap<String, Action>();
+    ACTIONS = new HashMap<>();
     final Action[] actionsArray = dek.getActions();
-    for (int i = 0; i < actionsArray.length; i++) {
-      final Action a = actionsArray[i];
+    for (final Action a : actionsArray) {
       //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
       ACTIONS.put((String) a.getValue(Action.NAME), a);
     }

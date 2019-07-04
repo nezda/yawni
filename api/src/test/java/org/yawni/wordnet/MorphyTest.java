@@ -225,7 +225,7 @@ public class MorphyTest {
 		final POS pos = POS.valueOf(testElements[0]);
 		final String unstemmed = testElements[1];
 		final String stemmed = testElements[2];
-		final List<String> goldStems = new ArrayList<String>();
+		final List<String> goldStems = new ArrayList<>();
 		for (int i = 2; i < testElements.length; ++i) {
 			goldStems.add(testElements[i]);
 		}
@@ -437,7 +437,7 @@ public class MorphyTest {
 
   // note this relies on equals() and hashCode()
   private static <T> boolean areUnique(final Collection<T> items) {
-    return items.size() == new HashSet<T>(items).size();
+    return items.size() == new HashSet<>(items).size();
   }
 
   //TODO consider moving to Utils

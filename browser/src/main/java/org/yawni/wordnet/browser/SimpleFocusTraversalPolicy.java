@@ -27,7 +27,7 @@ class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
   private final Vector<Component> order;
 
   public SimpleFocusTraversalPolicy(final java.util.List<Component> order) {
-    this.order = new Vector<Component>(order.size());
+    this.order = new Vector<>(order.size());
     this.order.addAll(order);
   }
 

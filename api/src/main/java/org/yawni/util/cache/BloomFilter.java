@@ -91,7 +91,7 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
    * @param probability The acceptable false positive probability for membership queries.
    */
   public BloomFilter(final int capacity, final double probability) {
-    this(capacity, probability, BloomFilter.<E>hasher());
+    this(capacity, probability, BloomFilter.hasher());
   }
 
   /**

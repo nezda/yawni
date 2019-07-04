@@ -363,6 +363,6 @@ public class WordNetInterfaceTest {
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
-    return items.size() == new HashSet<T>(items).size();
+    return items.size() == new HashSet<>(items).size();
   }
 }

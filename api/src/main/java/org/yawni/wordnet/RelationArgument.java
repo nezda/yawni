@@ -44,38 +44,38 @@ public interface RelationArgument extends Iterable<WordSense> {
    *   <em>and</em> <em>all</em> {@link LexicalRelation}s emanating from <em>all</em> of its {@code WordSense}s.</li>
    * </ul>
    */
-  public List<Relation> getRelations();
+  List<Relation> getRelations();
 
   /** Filters {@link #getRelations() getRelations()} by type {@code type}. */
-  public List<Relation> getRelations(RelationType type);
+  List<Relation> getRelations(RelationType type);
 
   /** Returns the targets of the {@code Relation}s returned by {@link #getRelations() getRelations()}. */
-  public List<RelationArgument> getRelationTargets();
+  List<RelationArgument> getRelationTargets();
 
   /**
    * Returns the targets of the {@code Relation}s returned by
    * {@link #getRelations(RelationType) getRelations(RelationType)}
    */
-  public List<RelationArgument> getRelationTargets(RelationType type);
+  List<RelationArgument> getRelationTargets(RelationType type);
 
   /** {@code Synset} returns itself, {@code WordSense} returns its {@code Synset} */
-  public Synset getSynset();
+  Synset getSynset();
 
   /**
    * If word does not intersect this argument, returns {@code null}, else
    * returns the apropos {@code WordSense}
    */
-  public WordSense getWordSense(Word word);
+  WordSense getWordSense(Word word);
 
   /**
    * Returns the part of speech of this argument; notably will never be {@link POS#ALL}
    */
-  public POS getPOS();
+  POS getPOS();
 
   /**
    * Returns a description of this argument.  For a {@code WordSense}, this is
    * its lemma; for a {@code Synset}, it's the concatenated lemmas of
    * its {@code WordSense}s.
    */
-  public String getDescription();
+  String getDescription();
 }

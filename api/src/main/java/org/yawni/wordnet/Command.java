@@ -30,7 +30,7 @@ import org.yawni.util.Utils;
  * Handler for {@link WordNet#synsets(String)} and
  * {@link WordNet#wordSenses(String)}.
  */
-// Most comands are "filter"s
+// Most commands are "filter"s
 // Command composition would be sweet
 // Builder pattern may simplify this code
 enum Command {
@@ -57,7 +57,7 @@ enum Command {
         final int posOrd = Character.digit(value.charAt(0), 10);
         pos = org.yawni.wordnet.POS.fromOrdinal(Utils.checkedCast(posOrd));
         if (cmdToValue.containsKey(POS)) {
-          // ensure explicity POS compat with implied POS
+          // ensure explicitly POS compat with implied POS
           final org.yawni.wordnet.POS explicitPOS = org.yawni.wordnet.POS.valueOf(cmdToValue.get(POS));
           Preconditions.checkArgument(pos == explicitPOS,
             "inconsistent POS; explicit POS: "+explicitPOS+" implied POS: "+pos);
@@ -190,7 +190,7 @@ enum Command {
     }
     int idx = 1;
     final int len = query.length();
-    final EnumMap<Command, String> cmdToValue = new EnumMap<Command, String>(Command.class);
+    final EnumMap<Command, String> cmdToValue = new EnumMap<>(Command.class);
     // parse out <name>"="<value> pairs separated by "&"
     int eidx;
     do {
@@ -205,7 +205,7 @@ enum Command {
         eidx = len;
       }
       final String value = query.substring(idx, eidx);
-      idx = eidx == -1 ? len : eidx + 1;
+      idx = eidx + 1;
       log.trace("name: {} value: {}", name, value);
       final Command cmd = Command.fromValue(name);
       // NOTE: normalizeValue throws

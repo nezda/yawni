@@ -83,7 +83,7 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     this.lock = new ReentrantLock();
     this.hashes = numberOfHashes(capacity, bits);
     this.probability = probability(hashes, capacity, bits);
-    this.ref = new AtomicStampedReference<long[]>(new long[length], 0);
+    this.ref = new AtomicStampedReference<>(new long[length], 0);
   }
 
   /**

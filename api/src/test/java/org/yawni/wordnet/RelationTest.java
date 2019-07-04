@@ -287,7 +287,7 @@ public class RelationTest {
     final Word word = WN.lookupWord("turn", POS.VERB);
 
     for (final WordSense sense : word) {
-      final List<RelationArgument> g = new ArrayList<RelationArgument>();
+      final List<RelationArgument> g = new ArrayList<>();
       gather(sense.getSynset(), RelationType.VERB_GROUP, g);
       if (g.isEmpty()) {
         continue;
@@ -311,7 +311,7 @@ public class RelationTest {
     // This is not easily represented in our API without additional containers (e.g., List<List<Synset>>).
 
     // - gather these recursively
-    final List<RelationArgument> g1 = new ArrayList<RelationArgument>();
+    final List<RelationArgument> g1 = new ArrayList<>();
     gather(syn1, RelationType.VERB_GROUP, g1);
 //    System.err.println("g1: "+g1);
     System.err.println("g1:\n  "+Joiner.on("\n  ").join(g1));

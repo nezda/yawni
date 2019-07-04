@@ -62,10 +62,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">http://code.google.com/p/concurrentlinkedhashmap/</a>
  */
 public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V>, Serializable {
-  private static final EvictionListener<?, ?> nullListener = new EvictionListener<Object, Object>() {
-    public void onEviction(Object key, Object value) {
-    }
-  };
+  private static final EvictionListener<?, ?> nullListener = (EvictionListener<Object, Object>) (key, value) -> {};
   private static final long serialVersionUID = 8350170357874293408L;
   final ConcurrentMap<K, Node<K, V>> data;
   final EvictionListener<K, V> listener;
@@ -124,7 +121,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
    */
   public static <K, V> ConcurrentLinkedHashMap<K, V> create(EvictionPolicy policy, int maximumCapacity,
     int concurrencyLevel, EvictionListener<K, V> listener) {
-    return new ConcurrentLinkedHashMap<K, V>(policy, maximumCapacity, concurrencyLevel, listener);
+    return new ConcurrentLinkedHashMap<>(policy, maximumCapacity, concurrencyLevel, listener);
   }
 
   /**
@@ -141,13 +138,13 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     if ((policy == null) || (maximumCapacity < 0) || (concurrencyLevel <= 0) || (listener == null)) {
       throw new IllegalArgumentException();
     }
-    this.data = new ConcurrentHashMap<K, Node<K, V>>(maximumCapacity, 0.75f, concurrencyLevel);
+    this.data = new ConcurrentHashMap<>(maximumCapacity, 0.75f, concurrencyLevel);
     this.capacity = new AtomicInteger(maximumCapacity);
     this.length = new AtomicInteger();
     this.listener = listener;
     this.policy = policy;
     this.lock = new ReentrantLock();
-    this.sentinel = new Node<K, V>(lock);
+    this.sentinel = new Node<>(lock);
   }
 
   /**
@@ -217,7 +214,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     if (value == null) {
       throw new IllegalArgumentException();
     }
-    return data.containsValue(new Node<Object, Object>(null, value, null, lock));
+    return data.containsValue(new Node<>(null, value, null, lock));
   }
 
   /**
@@ -262,7 +259,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     if (value == null) {
       throw new IllegalArgumentException();
     }
-    Node<K, V> old = putIfAbsent(new Node<K, V>(key, value, sentinel, lock));
+    Node<K, V> old = putIfAbsent(new Node<>(key, value, sentinel, lock));
     return (old == null) ? null : old.getAndSetValue(value);
   }
 
@@ -273,7 +270,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     if (value == null) {
       throw new IllegalArgumentException();
     }
-    Node<K, V> old = putIfAbsent(new Node<K, V>(key, value, sentinel, lock));
+    Node<K, V> old = putIfAbsent(new Node<>(key, value, sentinel, lock));
     return (old == null) ? null : old.getValue();
   }
 
@@ -750,19 +747,15 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Object[] toArray() {
-      Collection<V> values = new ArrayList<V>(size());
-      for (V value : this) {
-        values.add(value);
-      }
+      Collection<V> values = new ArrayList<>(size());
+      values.addAll(this);
       return values.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] array) {
-      Collection<V> values = new ArrayList<V>(size());
-      for (V value : this) {
-        values.add(value);
-      }
+      Collection<V> values = new ArrayList<>(size());
+      values.addAll(this);
       return values.toArray(array);
     }
   }
@@ -833,18 +826,18 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Object[] toArray() {
-      Collection<Entry<K, V>> entries = new ArrayList<Entry<K, V>>(size());
+      Collection<Entry<K, V>> entries = new ArrayList<>(size());
       for (Entry<K, V> entry : this) {
-        entries.add(new SimpleEntry<K, V>(entry));
+        entries.add(new SimpleEntry<>(entry));
       }
       return entries.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] array) {
-      Collection<Entry<K, V>> entries = new ArrayList<Entry<K, V>>(size());
+      Collection<Entry<K, V>> entries = new ArrayList<>(size());
       for (Entry<K, V> entry : this) {
-        entries.add(new SimpleEntry<K, V>(entry));
+        entries.add(new SimpleEntry<>(entry));
       }
       return entries.toArray(array);
     }

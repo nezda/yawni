@@ -33,7 +33,7 @@ public class TreeIterator<T extends Object & Comparable<? super T>> implements I
   //FIXME stack is a Vector which adds synchronization overhead
   // - push(T) == add(T)
   // - pop(T) == remove(size() - 1)
-  private final Stack<Tree<T>> mStack = new Stack<Tree<T>>();
+  private final Stack<Tree<T>> mStack = new Stack<>();
 
   TreeIterator(Tree<T> tree) {
     stackLeftDaughters(tree);
@@ -42,11 +42,7 @@ public class TreeIterator<T extends Object & Comparable<? super T>> implements I
   // factory of Iterables consisting of TreeIterator's of the given Tree
   static <T extends Object & Comparable<? super T>>
   Iterable<T> of(final Tree<T> tree) {
-    return new Iterable<T>() {
-      public Iterator<T> iterator() {
-        return new TreeIterator<T>(tree);
-      }
-    };
+    return () -> new TreeIterator<>(tree);
   }
 
   public boolean hasNext() {
@@ -138,7 +134,7 @@ class Tree<T extends Object & Comparable<? super T>> {
   }
   static <T extends Object & Comparable<? super T>>
     Tree<T> of(T val) {
-    return new Tree<T>(val);
+    return new Tree<>(val);
   }
   public void add(T val) {
     final int cmp = val.compareTo(mVal);

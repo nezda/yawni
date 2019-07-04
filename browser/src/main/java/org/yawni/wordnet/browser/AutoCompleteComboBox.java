@@ -41,17 +41,15 @@ public class AutoCompleteComboBox extends JComboBox	implements JComboBox.KeySele
     final JTextField textField = (JTextField) getEditor().getEditorComponent();
     textField.setDocument(new CBDocument());
     
-    addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent evt) {
-        final String text = textField.getText();
-        for (int i = 0; i < aModel.getSize(); i++) {
-          final String current = aModel.getElementAt(i).toString();
-          if (current.toLowerCase().startsWith(text.toLowerCase())) {
-            textField.setText(current);
-            textField.setSelectionStart(text.length());
-            textField.setSelectionEnd(current.length());
-            break;
-          }
+    addActionListener(evt -> {
+      final String text = textField.getText();
+      for (int i = 0; i < aModel.getSize(); i++) {
+        final String current = aModel.getElementAt(i).toString();
+        if (current.toLowerCase().startsWith(text.toLowerCase())) {
+          textField.setText(current);
+          textField.setSelectionStart(text.length());
+          textField.setSelectionEnd(current.length());
+          break;
         }
       }
     });

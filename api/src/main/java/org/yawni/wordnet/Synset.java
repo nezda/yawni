@@ -118,7 +118,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 
     final int relationCount = tokenizer.nextInt();
     // allocate extra space in this temporary for additional Relations (e.g., morphosemantic)
-    final List<Relation> localRelations = new ArrayList<Relation>(2 * relationCount);
+    final List<Relation> localRelations = new ArrayList<>(2 * relationCount);
     for (int i = 0; i < relationCount; i++) {
       final Relation relation = Relation.makeRelation(this, localRelations.size(), tokenizer);
       localRelations.add(relation);
