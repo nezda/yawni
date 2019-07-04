@@ -50,20 +50,18 @@ public class PreferencesManagerTest {
     //System.err.println("TestNode: "+prefs.node("TestNode").get("k2", "FAILED"));
     assertEquals("v2", prefs.node("TestNode").get("k2", "FAILED"));
     // cannot get a child node AND its value directly with a get()
-    assertFalse("v2".equals(prefs.get("TestNode.k2", "FAILED")));
-    assertFalse("v2".equals(prefs.get("TestNode/k2", "FAILED")));
-    assertFalse("v2".equals(prefs.get("/TestNode/k2", "FAILED")));
+    assertNotEquals("v2", prefs.get("TestNode.k2", "FAILED"));
+    assertNotEquals("v2", prefs.get("TestNode/k2", "FAILED"));
+    assertNotEquals("v2", prefs.get("/TestNode/k2", "FAILED"));
   }
 
-  static void loadDefaults() {
+  private static void loadDefaults() {
     final InputStream is = PreferencesManagerTest.class.getResourceAsStream("testPrefs.xml");
     try {
       Preferences.importPreferences(is); 
       is.close();
-    } catch(InvalidPreferencesFormatException ipfe) {
+    } catch(InvalidPreferencesFormatException | IOException ipfe) {
       throw new RuntimeException(ipfe);
-    } catch(IOException ioe) {
-      throw new RuntimeException(ioe);
     }
   }
 }

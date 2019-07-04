@@ -73,6 +73,7 @@ import javax.swing.plaf.basic.BasicBorders;
  *        To invoke a browser on a local database stored at {@code <dir>}. </li>
  * </ul>
  */
+@SuppressWarnings("jol")
 class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(Browser.class.getName());
   private static Preferences prefs = Preferences.userNodeForPackage(Browser.class);
@@ -97,8 +98,8 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private SearchFrame searchWindow;
 
   // FIXME ditch this magic number
-  static final Icon BLANK_ICON = new BlankIcon(14, 14);
-  final int pad = 5;
+  private static final Icon BLANK_ICON = new BlankIcon(14, 14);
+  private final int pad = 5;
   private final Border textAreaBorder;
 
   Browser() {
@@ -237,13 +238,13 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
           if (key.endsWith(".separator")) {
             continue;
           }
-          if (key.indexOf("awt.") >= 0) {
+          if (key.contains("awt.")) {
             continue;
           }
-          if (key.indexOf("sun.") >= 0) {
+          if (key.contains("sun.")) {
             continue;
           }
-          if (key.indexOf("apple.") >= 0) {
+          if (key.contains("apple.")) {
             continue;
           }
           if (key.equals("gopherProxySet")) {
@@ -475,10 +476,10 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
    * @see #uncaughtException
    * @return dialog to show when an uncaught exception is encountered
    */
-  protected JDialog getUncaughtExceptionDialog(final Throwable t) {
+  private JDialog getUncaughtExceptionDialog(final Throwable t) {
     final JOptionPane optionPane = new JOptionPane(
       new Object[] {
-        "An unrecoverable error has occured.",
+        "An unrecoverable error has occurred.",
         getName() + " will now exit.",
         scrollableStackTrace(t)
       },
@@ -503,7 +504,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     synchronized (this) {
       throwable = this.throwable;
     }
-    log.error("uncaughtException0() caught {}", throwable);
+    log.error("uncaughtException0() caught", throwable);
     final JDialog dialog = getUncaughtExceptionDialog(throwable);
     dialog.setSize(new Dimension(600, 400));
     dialog.setResizable(true);
@@ -563,7 +564,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
    * Used to make JMenuItems with and without icons lineup horizontally.
    * @author http://forum.java.sun.com/thread.jspa?threadID=303795&forumID=57
    */
-  static class BlankIcon extends Object implements Icon {
+  static class BlankIcon implements Icon {
     private final int h;
     private final int w;
     BlankIcon(final int h, final int w) {
