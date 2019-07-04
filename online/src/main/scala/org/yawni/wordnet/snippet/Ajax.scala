@@ -41,23 +41,26 @@ import net.liftweb.util.Helpers._
 // - more typing
 //class Ajax extends DispatchSnippet {
 object Ajax extends DispatchSnippet {
-  override def dispatch = { 
+  override def dispatch = {
     case "searchField" => searchField
   }
   // searchField closure
   def searchField(xhtml: NodeSeq): NodeSeq = {
+//  def searchField(xhtml: NodeSeq): Elem = {
     // build up an ajax text box
     def searchBox: Elem = {
       SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxID"))
     }
     // searchBox ajaxText will activate on blur so this is just for show
-    def searchButton: Elem = {
-      SHtml.ajaxButton("Search", () => Noop)
+//    def searchButton: Elem = {
+//      SHtml.ajaxButton("Search", () => Noop)
+//    }
+    val viewBind = {
+//      "#searchButton" #> searchButton _ &
+      "#searchBox" #> searchBox
     }
-    bind("ajax", xhtml,
-         "searchButton" -%> searchButton,
-         "searchBox" -%> searchBox
-    ) ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
+//    ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
+    viewBind(xhtml)
   }
 }
 

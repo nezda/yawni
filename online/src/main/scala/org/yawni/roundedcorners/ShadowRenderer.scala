@@ -242,7 +242,7 @@ case class ShadowRenderer(size:Int,
     val imageType = img.getType()
     if (imageType == BufferedImage.TYPE_INT_ARGB || imageType == BufferedImage.TYPE_INT_RGB) {
       val raster = img.getRaster()
-      return raster.getDataElements(x, y, w, h, pixels)
+      raster.getDataElements(x, y, w, h, pixels)
     }
 
     // Unmanages the image

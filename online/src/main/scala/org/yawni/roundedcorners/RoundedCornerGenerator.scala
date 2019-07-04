@@ -441,7 +441,7 @@ object RoundedCornerGenerator {
   private def decodeColor(code:String):Color = cssSpecMap.get(code) match {
     case Some(color) => color
     case None => code match {
-      case ColorRE => Color.decode(code)
+      case ColorRE(code) => Color.decode(code)
       case _ => Color.decode("0x"+code)
     }
   }

@@ -11,34 +11,11 @@
   <name>Yawni Online</name>
   <packaging>war</packaging>
   <properties>
-    <scala.version>2.7.7</scala.version>
-    <lift.version>2.0</lift.version>
-    <maven-scala-plugin.version>2.12.2</maven-scala-plugin.version>
+    <scala.major-minor-version>2.12</scala.major-minor-version>
+    <scala.version>${scala.major-minor-version}.8</scala.version>
+    <lift.version>3.2.0</lift.version>
+    <maven-scala-plugin.version>2.14.1</maven-scala-plugin.version>
   </properties>
-  <repositories>
-    <repository>
-      <id>scala-tools.releases</id>
-      <name>Scala-Tools Maven2 Repository for Releases</name>
-      <url>http://scala-tools.org/repo-releases</url>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>scala-tools.snapshots</id>
-      <name>Scala-Tools Maven2 Repository for Snapshots</name>
-      <url>http://scala-tools.org/repo-snapshots</url>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>scala-tools.org</id>
@@ -67,13 +44,13 @@
     </dependency>
     <dependency>
       <groupId>net.liftweb</groupId>
-      <artifactId>lift-webkit</artifactId>
+      <artifactId>lift-webkit_${scala.major-minor-version}</artifactId>
       <version>${lift.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.liftweb</groupId>
-      <artifactId>lift-widgets</artifactId>
-      <version>${lift.version}</version>
+      <groupId>net.liftmodules</groupId>
+      <artifactId>widgets_3.2_${scala.major-minor-version}</artifactId>
+      <version>1.6.0</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

@@ -10,8 +10,7 @@ import org.yawni.wordnet._
 import org.yawni.util._
 import org.yawni.wordnet.POS._
 import org.yawni.wordnet.GlossAndExampleUtils._
-import scala.collection.jcl.Conversions._
-import scala.collection.jcl._
+import scala.collection.JavaConverters._
 import java.util.TreeSet // don't want List
 
 import net.liftweb.http.{ Req, GetRequest, PostRequest, LiftRules, JsonResponse, PlainTextResponse }
@@ -93,20 +92,20 @@ object Yawni {
     )
   }
 
-  implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
+//  implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
 
   // required data format described http://docs.jquery.com/Plugins/Autocomplete/autocomplete#url_or_dataoptions
   def autocomplete(prefix: String, limit: Int):String = {
     val wn = WordNet.getInstance
     val toReturn = new TreeSet(String.CASE_INSENSITIVE_ORDER)
     for (pos <- List(NOUN, VERB, ADJ, ADV);
-         forms <- wn.searchByPrefix(prefix, pos);
-         form <- forms if toReturn.size < limit
+         forms <- wn.searchByPrefix(prefix, pos).asScala;
+         form <- forms.asScala if toReturn.size < limit
          ) { toReturn.add(form.getLemma) }
     //JArray(toReturn.map(JString(_)).toList)
     // really weird that it can't handle JSON ??
     //JString(toReturn.mkString("\n"))
-    toReturn.mkString("\n")
+    toReturn.asScala.mkString("\n")
   }
 
   // group by Word
@@ -116,7 +115,7 @@ object Yawni {
     for (pos <- List(NOUN, VERB, ADJ, ADV)) {
       val noCaseForms = new TreeSet(String.CASE_INSENSITIVE_ORDER)
       val forms = wn.lookupBaseForms(someString, pos)
-      for (form <- forms) {
+      for (form <- forms.asScala) {
         if (! noCaseForms.contains(form)) {
           // block no case duplicates ("hell"/"Hell", "villa"/"Villa")
           noCaseForms.add(form)
@@ -154,7 +153,7 @@ object Yawni {
 
   private def appendSenses(word: Word) = {
     <ol>{
-    for (synset <- word.getSynsets)
+    for (synset <- word.getSynsets.asScala)
       yield <li>{ render(word, synset.getWordSense(word)) }</li>
     }</ol>
   }
