@@ -46,7 +46,6 @@ object Ajax extends DispatchSnippet {
   }
   // searchField closure
   def searchField(xhtml: NodeSeq): NodeSeq = {
-//  def searchField(xhtml: NodeSeq): Elem = {
     // build up an ajax text box
     def searchBox: Elem = {
       SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxID"))
@@ -55,12 +54,12 @@ object Ajax extends DispatchSnippet {
 //    def searchButton: Elem = {
 //      SHtml.ajaxButton("Search", () => Noop)
 //    }
+//    val msgName: String = S.attr("id_msgs") openOr "messages"
     val viewBind = {
 //      "#searchButton" #> searchButton _ &
       "#searchBox" #> searchBox
     }
-//    ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
-    viewBind(xhtml)
+    viewBind(xhtml) ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
   }
 }
 
