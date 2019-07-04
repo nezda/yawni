@@ -31,9 +31,6 @@
     A GUI browser of WordNet content using the Yawni API.
   </description>
   <packaging>jar</packaging>
-  <prerequisites>
-    <maven>3.0.3</maven>
-  </prerequisites>
   <build>
     <plugins>
       <plugin>

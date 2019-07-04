@@ -143,7 +143,7 @@ class Morphy {
   }
 
 	private static final CharMatcher DASH_OR_UNDERSCORE = CharMatcher.anyOf("_-");
-	private static final CharMatcher WN_WHITESPACE = CharMatcher.WHITESPACE.or(CharMatcher.BREAKING_WHITESPACE).or(CharMatcher.is('_'));
+	private static final CharMatcher WN_WHITESPACE = CharMatcher.whitespace().or(CharMatcher.breakingWhitespace()).or(CharMatcher.is('_'));
 	private static final CharMatcher SPACE = CharMatcher.is(' ');
 
   static String underScoreToSpace(final String s) {

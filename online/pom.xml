@@ -10,9 +10,6 @@
   <artifactId>yawni-wordnet-online</artifactId>
   <name>Yawni Online</name>
   <packaging>war</packaging>
-  <prerequisites>
-    <maven>3.0.3</maven>
-  </prerequisites>
   <properties>
     <scala.version>2.7.7</scala.version>
     <lift.version>2.0</lift.version>

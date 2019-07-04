@@ -17,7 +17,6 @@
 package org.yawni.wordnet;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
@@ -37,7 +36,6 @@ import java.net.JarURLConnection;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -270,7 +268,7 @@ final class FileManager implements FileManagerInterface {
         seek(position);
         return (char)raf.readByte();
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
     @Override
@@ -278,7 +276,7 @@ final class FileManager implements FileManagerInterface {
       try {
         return (int) raf.length();
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
     @Override

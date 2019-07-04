@@ -75,9 +75,6 @@
     <name>Apache Software Foundation</name>
     <url>http://www.apache.org/</url>
   </organization>
-  <prerequisites>
-    <maven>3.0.3</maven>
-  </prerequisites>
   <properties>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -114,7 +111,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-				<version>14.0.1</version>
+				<version>27.0.1-jre</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

@@ -21,8 +21,12 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import static org.yawni.wordnet.HasLemma.*;
 
-import java.util.*;
-import java.lang.management.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryType;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import org.yawni.util.Utils;
@@ -484,7 +488,7 @@ public class IterationTest {
   //@Ignore
   @Test
   public void words() {
-		final Stopwatch stopwatch = new Stopwatch().start();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("words");
     for (final Word word : WN.words(POS.ALL)) {
       final String s = word.toString();
@@ -496,7 +500,7 @@ public class IterationTest {
   //@Ignore
   @Test
   public void synsets() {
-		final Stopwatch stopwatch = new Stopwatch().start();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("synsets");
     for (final Synset synset : WN.synsets(POS.ALL)) {
       String s = synset.toString();
@@ -508,7 +512,7 @@ public class IterationTest {
   //@Ignore
   @Test
   public void wordSenses() {
-		final Stopwatch stopwatch = new Stopwatch().start();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("wordSenses");
     for (final WordSense wordSense : WN.wordSenses(POS.ALL)) {
       final String s = wordSense.toString();
@@ -520,7 +524,7 @@ public class IterationTest {
   //@Ignore
   @Test
   public void relations() {
-		final Stopwatch stopwatch = new Stopwatch().start();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("relations");
     for (final Relation relation : WN.relations(POS.ALL)) {
       final String s = relation.toString();
@@ -535,7 +539,7 @@ public class IterationTest {
    */
   @Test
   public void lookupSynsets() {
-		final Stopwatch stopwatch = new Stopwatch().start();
+		final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("lookupSynsets");
     for (final Word word : WN.words(POS.ALL)) {
       final String str = word.getLowercasedLemma();

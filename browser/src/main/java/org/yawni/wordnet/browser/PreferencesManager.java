@@ -16,12 +16,17 @@
  */
 package org.yawni.wordnet.browser;
 
-import com.google.common.base.Throwables;
-import java.io.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.prefs.*;
+import javax.swing.JFrame;
+import javax.swing.UIManager;
+import java.awt.AWTEvent;
+import java.awt.Dimension;
+import java.awt.event.AWTEventListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.prefs.InvalidPreferencesFormatException;
+import java.util.prefs.Preferences;
 
 /**
  * Save window positions and all other persistent user preferences.
@@ -78,10 +83,8 @@ class PreferencesManager implements AWTEventListener {
     try {
       Preferences.importPreferences(is);
       is.close();
-    } catch (InvalidPreferencesFormatException ipfe) {
-      throw Throwables.propagate(ipfe);
-    } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+    } catch (InvalidPreferencesFormatException | IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -181,7 +184,7 @@ class PreferencesManager implements AWTEventListener {
     //  }
     //  reader.close();
     //} catch(IOException ioe) {
-    //  throw Throwables.propagate(ioe);
+    //  throw new RuntimeException(ioe);
     //}
   }
 

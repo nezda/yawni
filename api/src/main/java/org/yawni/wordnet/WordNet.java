@@ -354,7 +354,7 @@ public final class WordNet implements WordNetInterface {
       try {
         line = fileManager.readLineAt(offset, fileName);
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
       if (line == null) {
         throw new IllegalStateException("line null for offset "+offset+" "+pos);
@@ -374,7 +374,7 @@ public final class WordNet implements WordNetInterface {
     try {
       return fileManager.readLineAt(offset, fileName);
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -485,7 +485,7 @@ public final class WordNet implements WordNetInterface {
         try {
           offset = fileManager.getIndexedLinePointer(lemma, fileName);
         } catch (IOException ioe) {
-          throw Throwables.propagate(ioe);
+          throw new RuntimeException(ioe);
         }
         if (offset >= 0) {
           indexWord = getIndexWordAt(pos, offset);
@@ -733,7 +733,7 @@ public final class WordNet implements WordNetInterface {
         exceptionsCache.put(cacheKey, LightImmutableList.<String>of());
       }
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
     return LightImmutableList.of();
   }
@@ -763,7 +763,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -779,7 +779,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -788,7 +788,7 @@ public final class WordNet implements WordNetInterface {
     try {
       return fileManager.getMatchingLines(senseKey, PlainTextResource.MORPHOSEMANTIC_RELATIONS.getFileName());
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -797,7 +797,7 @@ public final class WordNet implements WordNetInterface {
     try {
       return fileManager.getMatchingLines(senseKey, PlainTextResource.VERB_GROUP_RELATIONS.getFileName());
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -824,7 +824,7 @@ public final class WordNet implements WordNetInterface {
       line = line.substring(idx);
 			return line;
     } catch (IOException ioe) {
-			throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -863,7 +863,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -895,7 +895,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -959,7 +959,7 @@ public final class WordNet implements WordNetInterface {
         }
         return new Word(line, offset, WordNet.this);
       } catch (final IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class WordIterator
@@ -1007,7 +1007,7 @@ public final class WordNet implements WordNetInterface {
           return endOfData();
         }
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class SearchBySubstringIterator
@@ -1057,7 +1057,7 @@ public final class WordNet implements WordNetInterface {
           return endOfData();
         }
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class SearchByPrefixIterator
@@ -1208,7 +1208,7 @@ public final class WordNet implements WordNetInterface {
         } while (line.startsWith("  ")); // first few lines start with "  "
         return getSynsetAt(pos, offset, line);
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class POSSynsetsIterator
@@ -1351,7 +1351,7 @@ public final class WordNet implements WordNetInterface {
         assert toReturn.size() >= 2;
         return toReturn;
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class POSExceptionsIterator

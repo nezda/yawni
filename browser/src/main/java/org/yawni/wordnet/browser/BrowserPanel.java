@@ -552,7 +552,7 @@ public class BrowserPanel extends JPanel {
             get();
           } catch (InterruptedException ignore) {
           } catch (java.util.concurrent.ExecutionException ee) {
-            throw Throwables.propagate(ee);
+            throw new RuntimeException(ee);
           }
         }
       };
@@ -639,7 +639,7 @@ public class BrowserPanel extends JPanel {
           get();
         } catch (InterruptedException ignore) {
         } catch (java.util.concurrent.ExecutionException ee) {
-          throw Throwables.propagate(ee);
+          throw new RuntimeException(ee);
         }
       }
     };
