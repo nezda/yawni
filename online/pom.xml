@@ -111,8 +111,8 @@
     <dependency>
       <groupId>com.google.appengine</groupId>
       <artifactId>appengine-api-stubs</artifactId>
-      <version>1.9.75</version>
-      <scope>${appengine-sdk-version}</scope>
+      <version>${appengine-sdk-version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.appengine</groupId>
