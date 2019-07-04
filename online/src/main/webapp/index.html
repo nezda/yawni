@@ -20,12 +20,12 @@
     // });
     $(document).ready(function() {
       $('#searchBoxID').keyup(function(event) {
-        if (event.which == 13) {
+        if (event.which === 13) {
           /* forward to autocomplete 'result()' */
           $('#searchBoxID').search();
         }
         /* TODO tab key (9) should be translated to arrow down */
-        if (event.which == 9) {
+        if (event.which === 9) {
           /* event.which = 40 */
         }
       });
