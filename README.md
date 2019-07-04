@@ -10,8 +10,7 @@ cornerstone.  It embodies one of the most fundamental of all NLP problems:
 and semantic knowledge, primarily derived from WordNet, to your applications.  
 Yawni is written in the Java programming language.  
 
-The Yawni website is currently at:
-  http://www.yawni.org/
+The Yawni website is https://www.yawni.org/
 
 Yawni currently consists of 3 main modules:
 
@@ -29,19 +28,19 @@ browser/
 Quick Start
 
 Basic steps:
-  0) Install JDK 1.8 (or greater), Apache Maven 3.0.3 (or greater)
-  1) Specify the following Apache Maven dependencies in your project
+  0. Install JDK 1.8 (or greater), Apache Maven 3.0.3 (or greater)
+  1. Specify the following Apache Maven dependencies in your project
     <dependency>
       <groupId>org.yawni</groupId>
       <artifactId>yawni-wordnet-api</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.yawni</groupId>
-      <artifactId>yawni-wordnet-data</artifactId>
-      <version>2.0.0</version>
+      <artifactId>yawni-wordnet-data30</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
-  2) Start using the Yawni API!: all required resources are loaded on demand
+  2. Start using the Yawni API!: all required resources are loaded on demand
      from the classpath (i.e., jars) made accessible via a singleton:
      
      final WordNetInterface wn = WordNet.getInstance();
