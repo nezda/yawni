@@ -8,7 +8,7 @@ import org.yawni.wordnet._
 import org.yawni.util._
 import org.yawni.wordnet.POS._
 import scala.xml._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.util.TreeSet // don't want List
 
 @Path("/autocomplete")
@@ -31,12 +31,12 @@ class AutocompleteResource {
     val wn = WordNet.getInstance
     val toReturn = new TreeSet(String.CASE_INSENSITIVE_ORDER)
     for (pos <- List(NOUN, VERB, ADJ, ADV);
-         forms <- wn.searchByPrefix(prefix, pos);
-         form <- forms if toReturn.size < limit
+         forms <- wn.searchByPrefix(prefix, pos).asScala;
+         form <- forms.asScala if toReturn.size < limit
          ) { toReturn.add(form.getLemma) }
     //JArray(toReturn.map(JString(_)).toList)
     // really weird that it can't handle JSON ??
     //JString(toReturn.mkString("\n"))
-    toReturn.mkString("\n")
+    toReturn.asScala.mkString("\n")
   }
 }
