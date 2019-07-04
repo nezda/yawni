@@ -29,7 +29,7 @@ browser/
 Quick Start
 
 Basic steps:
-  0) Install JDK 1.6 (or greater), Apache Maven 2.0.9 (or greater)
+  0) Install JDK 1.8 (or greater), Apache Maven 2.0.9 (or greater)
   1) Specify the following Apache Maven dependencies in your project
     <dependency>
       <groupId>org.yawni</groupId>

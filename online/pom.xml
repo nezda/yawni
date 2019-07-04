@@ -3,8 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.yawni</groupId>
-    <artifactId>yawni</artifactId>
+    <artifactId>yawni-parent</artifactId>
     <version>2.0.0-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <artifactId>yawni-wordnet-online</artifactId>
   <name>Yawni Online</name>
@@ -61,7 +62,7 @@
     </dependency>
     <dependency>
       <groupId>org.yawni</groupId>
-      <artifactId>yawni-wordnet-data</artifactId>
+      <artifactId>yawni-wordnet-data30</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -153,6 +154,7 @@
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.26</version>
         <configuration>
           <contextPath>/</contextPath>
           <scanIntervalSeconds>5</scanIntervalSeconds>
