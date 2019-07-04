@@ -38,6 +38,6 @@ case class SearchRequest() {
   var params:String = null
 
   override 
-  def toString = "[SearchRequest command: %s params: %s]".format(command, params)
+  def toString = s"[SearchRequest command: $command params: $params]"
 }
 

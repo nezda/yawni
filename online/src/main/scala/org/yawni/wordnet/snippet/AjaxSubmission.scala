@@ -6,13 +6,15 @@ import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds.Noop
 import net.liftweb.util.Helpers._
 
+import scala.xml.Elem
+
 // plan
 // - text field
 // - search button
 // - searchResultArea : dynamically update output of searching with current text field value
 
 class AjaxSubmission {
-  def form = {
+  def form: Elem = {
     var word = ""
     //<span>
     //  { SHtml.text("", w => word = w) }

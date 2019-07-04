@@ -1,11 +1,11 @@
 package org.yawni.wordnet
 
-import _root_.java.io.File
-import _root_.junit.framework._
-import Assert._
-import _root_.scala.xml.XML
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.common._
+import java.io.File
+import junit.framework._
+import org.junit.Assert._
+import scala.xml.XML
+import net.liftweb.util._
+import net.liftweb.common._
 
 object AppTest {
   def suite: Test = {
@@ -14,7 +14,7 @@ object AppTest {
   }
 
   def main(args : Array[String]) {
-    _root_.junit.textui.TestRunner.run(suite)
+    junit.textui.TestRunner.run(suite)
   }
 }
 
@@ -24,9 +24,9 @@ object AppTest {
 class AppTest extends TestCase("app") {
 
   /**
-   * Rigourous Tests :-)
+   * Rigorous Tests :-)
    */
-  def testOK() = assertTrue(true)
+  def testOK(): Unit = assertTrue(true)
   // def testKO() = assertTrue(false);
 
   /**
@@ -35,7 +35,7 @@ class AppTest extends TestCase("app") {
    * Finds every *.html and *.xml file in src/main/webapp (and its
    * subdirectories) and tests to make sure they are well-formed.
    */
-  def testXml() = {
+  def testXml(): Unit = {
     var failed: List[File] = Nil
 
     def handledXml(file: String) =
@@ -52,11 +52,11 @@ class AppTest extends TestCase("app") {
         try {
           XML.loadFile(file)
         } catch {
-          case e: _root_.org.xml.sax.SAXParseException => failed = file :: failed
+          case e: org.xml.sax.SAXParseException => failed = file :: failed
         }
       }
       if (file.isFile && handledXHtml(file.getName)) {
-        PCDataXmlParser(new _root_.java.io.FileInputStream(file.getAbsolutePath)) match {
+        PCDataXmlParser(new java.io.FileInputStream(file.getAbsolutePath)) match {
           case Full(_) => // file is ok
           case _ => failed = file :: failed
         }
