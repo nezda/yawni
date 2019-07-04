@@ -39,15 +39,6 @@ object Yawni {
     case Req("about" :: Nil, _, GetRequest) => () => Full(aboutResponse)
   }
 
-  //def get = JsonResponse(JsArray(
-  //  JsObj("id" -> 1, "start" -> "2009-12-30T12:15:00.000+10:00",
-  //    "end" -> "2009-12-30T12:45:00.000+10:00",
-  //    "title" -> "some stuff"),
-  //  JsObj("id" -> 2, "start" -> "2009-12-30T14:15:00.000+10:00", 
-  //    "end" -> "2009-12-30T14:45:00.000+10:00",
-  //    "title" -> "some other stuff")
-  //))
-
   def xmlResponse(someString: String) = {
     XmlResponse(<html> { query(someString) } </html>)
   }
