@@ -14,21 +14,8 @@
     <scala.major-minor-version>2.12</scala.major-minor-version>
     <scala.version>${scala.major-minor-version}.8</scala.version>
     <lift.version>3.2.0</lift.version>
-    <maven-scala-plugin.version>2.14.1</maven-scala-plugin.version>
+    <scala-maven-plugin.version>4.1.0</scala-maven-plugin.version>
   </properties>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>scala-tools.org</id>
-      <name>Scala-Tools Maven2 Repository</name>
-      <url>http://scala-tools.org/repo-releases</url>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
   <dependencies>
     <dependency>
       <groupId>org.yawni</groupId>
@@ -53,14 +40,43 @@
       <version>1.6.0</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
+      <groupId>net.liftmodules</groupId>
+      <artifactId>fobo-twbs-bootstrap4-api_3.3_2.12</artifactId>
+      <version>2.1.1</version>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty</artifactId>
+      <groupId>org.webjars</groupId>
+      <artifactId>webjars-servlet-2.x</artifactId>
+      <version>1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>bootstrap</artifactId>
+      <version>4.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery</artifactId>
+      <version>3.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery-migrate</artifactId>
+      <version>1.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>popper.js</artifactId>
+      <version>1.14.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>font-awesome</artifactId>
+      <version>5.6.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-maven-plugin</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- for LiftConsole -->
@@ -73,29 +89,29 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src/main/scala</sourceDirectory>
-    <testSourceDirectory>src/test/scala</testSourceDirectory>
+<!--    <sourceDirectory>src/main/scala</sourceDirectory>-->
+<!--    <testSourceDirectory>src/test/scala</testSourceDirectory>-->
     <plugins>
       <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>${maven-scala-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>scala-compile</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>scala-testCompile</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>${scala-maven-plugin.version}</version>
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>scala-compile</id>-->
+<!--            <phase>process-resources</phase>-->
+<!--            <goals>-->
+<!--              <goal>compile</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>scala-testCompile</id>-->
+<!--            <phase>process-test-resources</phase>-->
+<!--            <goals>-->
+<!--              <goal>testCompile</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--        </executions>-->
         <configuration>
           <!-- <fork>false</fork> -->
           <useFsc>true</useFsc>
@@ -105,44 +121,21 @@
             <arg>-deprecation</arg>
             <!-- <arg>-Xno-varargs-conversion</arg> -->
             <arg>-explaintypes</arg>
+            <arg>-feature</arg>
           </args>
         </configuration>
       </plugin>
-      <!--
       <plugin>
-        <groupId>net.sf.alchim</groupId>
-        <artifactId>yuicompressor-maven-plugin</artifactId>
-        <version>0.7.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compress</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>9.4.19.v20190610</version>
         <configuration>
-          <nosuffix>true</nosuffix>
-        </configuration>
-      </plugin>
-      -->
-      <plugin>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>maven-jetty-plugin</artifactId>
-        <version>6.1.26</version>
-        <configuration>
-          <contextPath>/</contextPath>
-          <scanIntervalSeconds>5</scanIntervalSeconds>
+          <webApp>
+            <contextPath>/</contextPath>
+            <scanIntervalSeconds>5</scanIntervalSeconds>
+          </webApp>
         </configuration>
       </plugin>
     </plugins>
   </build>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>${maven-scala-plugin.version}</version>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>
