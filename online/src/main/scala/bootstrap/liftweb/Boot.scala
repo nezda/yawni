@@ -20,7 +20,6 @@ import net.liftweb.common.{Empty, Full, Logger}
 import net.liftweb.util._
 
 import net.liftweb.http._
-import net.liftmodules.{fobobs4api => fobo}
 import Helpers._
 
 import provider._
@@ -81,9 +80,6 @@ class Boot {
           )))
       //
     }
-
-    // FoBo init
-    fobo.API.init = fobo.API.Bootstrap4
   }
   private def makeUtf8(req: HTTPRequest): Unit = {req.setCharacterEncoding("UTF-8")}
 }
