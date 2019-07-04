@@ -22,6 +22,7 @@ import java.awt.geom.Arc2D
 import java.awt.geom.Rectangle2D
 import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage
+import scala.language.postfixOps
 
 /**
  * Class responsible for bulk of java2d manipulation work when used in the {@link RoundedCornerService}. 

@@ -30,6 +30,7 @@ import net.liftweb.http.js.JE._
 import org.yawni.roundedcorners._
 import java.io._
 import javax.imageio._
+import scala.language.postfixOps
 
 /**
  * Well documented <a href="http://tapestry.apache.org/tapestry4.1/developmentguide/hivemind/roundedcorners.html">

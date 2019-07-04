@@ -16,14 +16,12 @@
 package org.yawni.wordnet.snippet
 
 import net.liftweb.json._
-//import net.liftweb.json.JsonAST._
-import _root_.net.liftweb._
+import net.liftweb._
 import http._
 import js._
 import JsCmds._
 import common._
-import scala.xml._
-//import net.liftweb.http.rest._ //unused
+import scala.language.implicitConversions
 
 /**
  * Respond to JSON requests in a stateless dispatch

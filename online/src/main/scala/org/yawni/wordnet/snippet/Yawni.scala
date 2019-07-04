@@ -28,7 +28,7 @@ object Yawni {
     LiftRules.dispatch.prepend(Yawni.dispatch)
     // trigger preload
     val wn = WordNet.getInstance
-    val query = "was";
+    val query = "was"
     //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
     //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
   }

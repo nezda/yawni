@@ -1,6 +1,5 @@
 package org.yawni.wordnet.snippet
 
-import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.js.JsCmd
