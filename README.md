@@ -55,7 +55,7 @@ Basic steps:
    in `api/src/test/`.  For a more complex example application, check 
    out the `browser/` sub-module.
      
-Another WordNet Interface !?
+Yet Another WordNet Interface !? (get it?)
 
 WordNet consists of enough data to exceed the recommended capacity of Java Collections 
 (e.g., `java.util.SortedMap<String, X>`), but not enough to justify a full relational database.
