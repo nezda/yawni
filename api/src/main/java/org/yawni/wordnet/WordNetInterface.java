@@ -167,9 +167,10 @@ public interface WordNetInterface {
 
   /**
    * Returns an iterator of {@code Synset}s matching {@code query}.
+   * Throws {@link IllegalArgumentException}, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @param query Query string.
    * @return An iterable of {@code Synset}s.
-   * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
+   * @throws IllegalArgumentException
    * @yawni.experimental
    */
 	@Beta
@@ -177,9 +178,10 @@ public interface WordNetInterface {
 
   /**
    * Returns an iterator of {@code WordSense}s matching {@code query}.
+   * Throws {@link IllegalArgumentException}, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @param query Query string.
    * @return An iterable of {@code WordSense}s.
-   * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
+   * @throws IllegalArgumentException
    * @yawni.experimental
    */
 	@Beta

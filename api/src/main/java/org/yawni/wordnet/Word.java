@@ -174,7 +174,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   /**
-   * @return true if this {@code Word}'s {@link #getWordCount()} > 1}.
+   * @return true if this {@code Word}'s {@link #getWordCount()} &gt; 1}.
    */
   public boolean isCollocation() {
     return getWordCount() > 1;

@@ -24,8 +24,8 @@ import static org.yawni.wordnet.POS.*;
  * lexicographers' classes, sometimes called the WordNet 'supersenses'.
  * 
  * <p>
- * <cite>M. Ciaramita, Y. Altun. 2006 (EMNLP). Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger</cite><br/>
- * <cite>M. Ciaramita, M. Johnson. 2003 (ACL). Supersense Tagging of Unknown Nouns in WordNet</cite><br/>
+ * <cite>M. Ciaramita, Y. Altun. 2006 (EMNLP). Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger</cite><br>
+ * <cite>M. Ciaramita, M. Johnson. 2003 (ACL). Supersense Tagging of Unknown Nouns in WordNet</cite><br>
  * <a href="http://sourceforge.net/projects/supersensetag/">SuperSenseTagger</a>
  * 
  * @see http://wordnet.princeton.edu/man/lexnames.5WN.html

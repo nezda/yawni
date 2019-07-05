@@ -528,7 +528,7 @@ public enum RelationType {
 
   /**
    * {@code type} is the opposite concept of {@code this}.
-   * For example <code>{@link RelationType#HYPERNYM}.isSymmetricTo({@link RelationType#HYPONYM}<code>).
+   * For example <code>{@link RelationType#HYPERNYM}.isSymmetricTo({@link RelationType#HYPONYM}</code>).
    * {@code isInverseOf} might've been a better name.
    */
   public boolean isSymmetricTo(final RelationType type) {

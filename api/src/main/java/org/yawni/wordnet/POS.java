@@ -37,14 +37,14 @@ public enum POS {
    * <ol>
    *   <li> a content word that can be used to refer to a person, place, thing, quality, or action </li>
    *   <li> the word class that can serve as the subject or object of a verb, the object of a preposition, or in apposition </li>
-   * <ol>
+   * </ol>
    */
   NOUN("noun", 'n', 1),
   /**
    * <ol>
    *   <li> the word class that serves as the predicate of a sentence </li>
    *   <li> a content word that denotes an action, occurrence, or state of existence </li>
-   * <ol>
+   * </ol>
    */
   VERB("verb", 'v', 2),
   /**
@@ -52,7 +52,7 @@ public enum POS {
    * <ol>
    *   <li> a word that expresses an attribute of something </li>
    *   <li> the word class that qualifies nouns </li>
-   * <ol>
+   * </ol>
    */
   ADJ("adjective", 'a', 3),
   /**
@@ -60,7 +60,7 @@ public enum POS {
    * <ol>
    *   <li> the word class that qualifies verbs or clauses </li>
    *   <li> a word that modifies something other than a noun </li>
-   * <ol>
+   * </ol>
    */
   ADV("adverb", 'r', 4),
   /**

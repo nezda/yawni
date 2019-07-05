@@ -53,7 +53,7 @@ import java.util.RandomAccess;
  *
  * <p> Random notes
  * <ul>
- *   <li> Using {@code Iterator}s is slow compared to {@link LightImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
+ *   <li> Using {@code Iterator}s is slow compared to {@link LightImmutableList#get(int)} - unnecessary allocation / deallocation.
  *        Unfortunately, the new {@code foreach} syntax is so convenient.
  *   </li>
  *   <li> speed: inefficiencies in most implementations of base {@link Collection} classes ({@link java.util.AbstractCollection},
@@ -739,7 +739,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
   } // end class Quintupleton
 
   /**
-   * <h3> Broken (subList, etc.) impl! Do not use </h3>
+   * <em> Broken (subList, etc.) impl! Do not use </em>
    * Classic {@code ArrayList}-style implementation.
    * <p> Goal is to minimize memory requirements by avoiding begin/end fields for
    * common cases.

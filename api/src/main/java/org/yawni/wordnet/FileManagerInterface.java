@@ -37,7 +37,7 @@ import org.yawni.wordnet.FileManager.CharStream;
  * two design principles:  1) it uses only primitive types (including {@code String}) as argument and return types,
  * and 2) operations that search a file for a line with a specific property are provided by the
  * server.  The first principle ensures that scanning a database won't create a large number of remote objects that
- * must then be queried and garbage-collected (each requiring an additional <abbr title="Remote Procedure Call">RPC</abbr>).  The second
+ * must then be queried and garbage-collected (each requiring an additional RPC (Remote Procedure Call).  The second
  * principle avoids paging an entire database file across the network in order to search for
  * an entry.
  *
@@ -147,7 +147,7 @@ interface FileManagerInterface {
   String readLineNumber(final int linenum, final String fileName) throws IOException;
 
   /**
-   * The {@link Comparator Comparator<CharSequence>} that defines the sort order of the WordNet data files.
+   * The {@link Comparator Comparator&lt;CharSequence&gt;} that defines the sort order of the WordNet data files.
    */
   Comparator<CharSequence> comparator();
 }

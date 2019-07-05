@@ -885,7 +885,7 @@ final class FileManager implements FileManagerInterface {
 
   /**
    * {@inheritDoc}
-   * Note this is a covariant implementation of {@link java.util.Comparator Comparator<CharSequence>}
+   * Note this is a covariant implementation of {@link java.util.Comparator Comparator&lt;CharSequence&gt;}
    */
 	@Override
   public WordNetLexicalComparator comparator() {
