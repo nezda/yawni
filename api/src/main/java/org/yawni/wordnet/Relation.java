@@ -176,7 +176,6 @@ public abstract class Relation implements Comparable<Relation> {
   // Object methods
   //
 
-  /** {@inheritDoc} */
   @Override
   public boolean equals(final Object that) {
     return (that instanceof Relation)
@@ -185,13 +184,11 @@ public abstract class Relation implements Comparable<Relation> {
       && ((Relation) that).relationTypeOrdinal == this.relationTypeOrdinal;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return source.hashCode() + srcRelationIndex;
   }
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[").
@@ -210,8 +207,7 @@ public abstract class Relation implements Comparable<Relation> {
       append(']').toString();
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public int compareTo(final Relation that) {
     //TODO consider com.google.common.collect.Ordering
     // order by source Synset

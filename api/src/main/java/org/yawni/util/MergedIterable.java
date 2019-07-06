@@ -66,8 +66,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
     this.bases = bases;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterator<T> iterator() {
 		return Iterables.mergeSorted(bases, Ordering.natural()).iterator();
   }

@@ -44,8 +44,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
     this.base = base;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterator<T> iterator() {
     return new UniqIterator<>(base);
   }
@@ -79,8 +78,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
         this.top = SENTINEL;
       }
     }
-    /** {@inheritDoc} */
-		@Override
+    @Override
     public T next() {
       if (top == SENTINEL) {
         throw new NoSuchElementException();
@@ -104,7 +102,6 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
         return currTop;
       }
     }
-    /** {@inheritDoc} */
     // user's don't have to explicitly call this although that's a bit crazy
 		@Override
     public boolean hasNext() {

@@ -212,7 +212,6 @@ class PreferencesManager implements AWTEventListener {
   // - accessors
   // - tie in to
 
-  /** {@inheritDoc} */
   public void eventDispatched(final AWTEvent evt) {
     //System.err.println("event: " + evt);
     if (evt.getID() == WindowEvent.WINDOW_CLOSING) {

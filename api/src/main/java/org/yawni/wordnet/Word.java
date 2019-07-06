@@ -190,8 +190,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
     return taggedSenseCount;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterator<WordSense> iterator() {
     return getWordSenses().iterator();
   }
@@ -278,7 +277,6 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   // Object methods
   //
 
-  /** {@inheritDoc} */
   @Override
   public boolean equals(final Object that) {
     return (that instanceof Word)
@@ -286,14 +284,12 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       && ((Word) that).getOffset() == getOffset();
   }
 
-  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     // times 10 shifts left by 1 decimal place
     return (getOffset() * 10) + getPOS().hashCode();
   }
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[Word ").
@@ -305,8 +301,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       append("\"]").toString();
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public int compareTo(final Word that) {
     // if these ' ' → '_' replaces aren't done resulting sort will not match
     // index files.

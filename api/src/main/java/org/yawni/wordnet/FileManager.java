@@ -549,10 +549,7 @@ final class FileManager implements FileManagerInterface {
   // Line-based interface methods
   //
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public String readLineNumber(final int linenum, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     if (stream == null) {
@@ -607,9 +604,6 @@ final class FileManager implements FileManagerInterface {
   // Low-level Searching
   //
 
-  /**
-   * {@inheritDoc}
-   */
   // used by substring search iterator
 	@Override
   public int getMatchingLinePointer(int offset, final Matcher matcher, final String fileName) throws IOException {
@@ -639,9 +633,6 @@ final class FileManager implements FileManagerInterface {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   // used by prefix search iterator
 	@Override
   public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
@@ -666,7 +657,7 @@ final class FileManager implements FileManagerInterface {
   }
 
   /**
-   * {@inheritDoc}
+   *
    * XXX old version only languishing to verify new version
    */
   // used by prefix search iterator
@@ -729,10 +720,7 @@ final class FileManager implements FileManagerInterface {
     return aline != null && CharSequences.startsWith(aline, prefix);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException {
     return getIndexedLinePointer(target, 0, fileName, true);
   }
@@ -747,10 +735,7 @@ final class FileManager implements FileManagerInterface {
 		return getIndexedLinePointer(target, start, stream);
 	}
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public int getIndexedLinePointer(final CharSequence target, int start, CharStream stream) throws IOException {
     // This binary search method provides output usable by prefix search
     // changing this operation from linear time to logarithmic time.
@@ -825,9 +810,6 @@ final class FileManager implements FileManagerInterface {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Iterable<CharSequence> getMatchingLines(final CharSequence target, final String fileName) throws IOException {
     if (target.length() == 0) {

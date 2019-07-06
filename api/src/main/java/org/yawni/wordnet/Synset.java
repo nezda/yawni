@@ -391,8 +391,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return null;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterator<WordSense> iterator() {
     return wordSenses.iterator();
   }
@@ -437,8 +436,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return null;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public String getDescription() {
     final StringBuilder buffer = new StringBuilder();
     buffer.append('{');
@@ -476,8 +474,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return relations;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<Relation> getRelations(final RelationType soughtType) {
     // regardless of includeAuxiliaryTypes
     // - type == MERONYM should auxiliary type variants
@@ -543,14 +540,12 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return LightImmutableList.copyOf(list);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<RelationArgument> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<RelationArgument> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
@@ -563,8 +558,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return LightImmutableList.of(targets);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Synset getSynset() {
     return this;
   }
@@ -573,7 +567,6 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   // Object methods
   //
 
-  /** {@inheritDoc} */
   @Override
   public boolean equals(Object that) {
     return (that instanceof Synset)
@@ -581,14 +574,12 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       && ((Synset) that).getOffset() == getOffset();
   }
 
-  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     // times 10 shifts left by 1 decimal place
     return (getOffset() * 10) + getPOS().hashCode();
   }
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[Synset ").
@@ -606,8 +597,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       append("]").toString();
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public int compareTo(final Synset that) {
     int result;
     result = this.getPOS().compareTo(that.getPOS());

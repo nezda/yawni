@@ -106,7 +106,6 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     setFocusable(false);
   }
 
-  /** {@inheritDoc} */
   public Object getElementAt(final int index) {
     if (index < filterItems.size()) {
       return filterItems.get(index);
@@ -115,7 +114,6 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     }
   }
 
-  /** {@inheritDoc} */
   public int getSize() {
     return filterItems.size();
   }
@@ -264,19 +262,16 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     //XXX }
   }
 
-  /** {@inheritDoc} */
   public void changedUpdate(final DocumentEvent evt) {
     final String query = query(evt);
     redisplay(search(query), query);
   }
 
-  /** {@inheritDoc} */
   public void insertUpdate(final DocumentEvent evt) {
     final String query = query(evt);
     redisplay(search(query), query);
   }
 
-  /** {@inheritDoc} */
   public void removeUpdate(final DocumentEvent evt) {
     final String query = query(evt);
     redisplay(search(query), query);

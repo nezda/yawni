@@ -218,18 +218,15 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     }
   }
 
-  /** {@inheritDoc} {@link FocusListener} */
   public void focusGained(FocusEvent evt) {
     checkForPrompt();
   }
 
-  /** {@inheritDoc} {@link FocusListener} */
   public void focusLost(FocusEvent evt) {
     focusLost++;
     checkForPrompt();
   }
 
-  /** {@inheritDoc} {@link DocumentListener} */
   public void insertUpdate(DocumentEvent evt) {
     checkForPrompt();
     // NOTE: if document is replaced via setDocument(), 
@@ -238,12 +235,10 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     // be listened for
   }
 
-  /** {@inheritDoc} {@link DocumentListener} */
   public void removeUpdate(final DocumentEvent evt) {
     checkForPrompt();
   }
 
-  /** {@inheritDoc} {@link DocumentListener} */
   public void changedUpdate(final DocumentEvent evt) {
   }
 

@@ -54,7 +54,6 @@ public class AutoCompleteComboBox extends JComboBox	implements JComboBox.KeySele
       }
     });
   }
-  /** {@inheritDoc} */
   public int selectionForKey(final char aKey, final ComboBoxModel aModel) {
     final long now = System.currentTimeMillis();
     if (searchFor != null && aKey == KeyEvent.VK_BACK_SPACE && searchFor.length() > 0) {

@@ -179,18 +179,12 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return capacity.get();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int size() {
     int size = length.get();
     return (size >= 0) ? size : 0;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void clear() {
     for (K key : keySet()) {
@@ -198,17 +192,11 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean containsKey(Object key) {
     return data.containsKey(key);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean containsValue(Object value) {
     if (value == null) {
@@ -238,9 +226,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public V get(Object key) {
     Node<K, V> node = data.get(key);
@@ -251,9 +236,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public V put(K key, V value) {
     if (value == null) {
@@ -263,9 +245,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return (old == null) ? null : old.getAndSetValue(value);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public V putIfAbsent(K key, V value) {
     if (value == null) {
       throw new IllegalArgumentException();
@@ -292,9 +271,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return old;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public V remove(Object key) {
     Node<K, V> node = data.remove(key);
@@ -306,9 +282,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return node.getValue();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public boolean remove(Object key, Object value) {
     Node<K, V> node = data.get(key);
     if ((node != null) && node.value.equals(value) && data.remove(key, new Identity(node))) {
@@ -319,9 +292,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public V replace(K key, V value) {
     if (value == null) {
       throw new IllegalArgumentException();
@@ -330,9 +300,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return (node == null) ? null : node.getAndSetValue(value);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public boolean replace(K key, V oldValue, V newValue) {
     if (newValue == null) {
       throw new IllegalArgumentException();
@@ -341,25 +308,16 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> imple
     return (node == null) ? false : node.casValue(oldValue, newValue);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Set<K> keySet() {
     return new KeySet();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Collection<V> values() {
     return new Values();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Set<Entry<K, V>> entrySet() {
     return new EntrySet();

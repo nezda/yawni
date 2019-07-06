@@ -117,7 +117,6 @@ public enum POS {
   // Object methods
   //
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return toString;

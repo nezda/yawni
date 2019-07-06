@@ -479,7 +479,6 @@ public enum RelationType {
     this.subTypes = ImmutableSet.of();
   }
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return toString;

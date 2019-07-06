@@ -178,17 +178,11 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     return capacity;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int size() {
     return size;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void clear() {
     modCount++;
@@ -200,9 +194,6 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     return hasher.hashCode(o);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean contains(final Object o) {
     if (size == 0) {
@@ -219,9 +210,6 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean add(final E o) {
     boolean added = false;
@@ -297,17 +285,11 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     return hashCode ^ (hashCode >>> 16);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Iterator<E> iterator() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean equals(Object o) {
     if (o == this) {
@@ -319,17 +301,11 @@ public final class BloomFilter<E> extends AbstractSet<E> implements Serializable
     return (this.size == that.size) && Arrays.equals(this.words, that.words);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int hashCode() {
     return Arrays.hashCode(words);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString() {
     final int expectedModCount = modCount;
