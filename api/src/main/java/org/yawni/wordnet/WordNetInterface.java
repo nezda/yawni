@@ -170,7 +170,7 @@ public interface WordNetInterface {
    * Throws {@link IllegalArgumentException}, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @param query Query string.
    * @return An iterable of {@code Synset}s.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException to indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
 	@Beta
@@ -181,7 +181,7 @@ public interface WordNetInterface {
    * Throws {@link IllegalArgumentException}, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @param query Query string.
    * @return An iterable of {@code WordSense}s.
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException to indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
 	@Beta
