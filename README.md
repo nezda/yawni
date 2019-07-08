@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/nezda/yawni.svg?branch=master)](https://travis-ci.org/nezda/yawni)
+
 Yawni README file
 
 Introduction / Why Yawni and Why WordNet ?
