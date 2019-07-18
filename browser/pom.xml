@@ -140,6 +140,7 @@
                   <goal>shade</goal>
                 </goals>
                 <configuration>
+                  <minimizeJar>true</minimizeJar>
                   <transformers>
                     <!--
                     for JNLP usage
@@ -177,14 +178,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <archive>
                 <!-- <compress>false</compress> -->
@@ -193,15 +186,47 @@
                   <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
                 </manifest>
                 <manifestEntries>
+                  <Permissions>sandbox</Permissions>
+                  <Codebase>*</Codebase>
                   <Implementation-Build-Timestamp>${timestamp}</Implementation-Build-Timestamp>
                   <Implementation-Build-Rev>${buildNumber}</Implementation-Build-Rev>
                 </manifestEntries>
               </archive>
-              <alias>Luke Nezda</alias>
-              <storepass>secret</storepass>
-              <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>
-              <!-- <verify>true</verify> -->
+<!--              <alias>${alias}</alias>-->
+<!--              <storepass>${storepass}</storepass>-->
+<!--              <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>-->
             </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jarsigner-plugin</artifactId>
+            <configuration>
+              <alias>${alias}</alias>
+              <storepass>${storepass}</storepass>
+              <keypass>${keypass}</keypass>
+              <storetype>pkcs12</storetype>
+              <tsa>http://timestamp.comodoca.com/rfc3161</tsa>
+              <arguments>
+                <argument>-digestalg</argument>
+                <argument>SHA-256</argument>
+              </arguments>
+              <keystore>${keystore}</keystore>
+              <storetype>pkcs12</storetype>
+            </configuration>
+            <executions>
+              <execution>
+                <id>sign</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>verify</id>
+                <goals>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
