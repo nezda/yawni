@@ -18,6 +18,7 @@ package org.yawni.wordnet.browser;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -31,8 +32,12 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.security.AccessControlException;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
@@ -57,6 +62,7 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.event.HyperlinkEvent;
 import javax.swing.plaf.basic.BasicBorders;
 
 /**
@@ -76,7 +82,7 @@ import javax.swing.plaf.basic.BasicBorders;
 @SuppressWarnings("jol")
 class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(Browser.class.getName());
-  private static Preferences prefs = Preferences.userNodeForPackage(Browser.class);
+  //private static Preferences prefs = Preferences.userNodeForPackage(Browser.class);
   static {
     setSystemProperties();
   }
@@ -120,8 +126,10 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     // is weird; discussed here (esp. the comments):
     // http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
     //getRootPane().putClientProperty("apple.awt.draggableWindowBackground", Boolean.TRUE);
-    
-    this.setIconImage(getAppIcon().getImage());
+
+    if (getAppIcon() != null) {
+      this.setIconImage(getAppIcon().getImage());
+    }
 
     this.textAreaBorder = new BasicBorders.MarginBorder() {
       private final Insets insets = new Insets(pad, pad, pad, pad);
@@ -275,11 +283,27 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
             "<h2>"+app.getName()+" Browser</h2>"+
             "A graphical interface to the "+
             "WordNet online lexical database.<br>"+ //TODO would be cool if this were a live hyperlink
-            "<br>" +
+            "<br>"+
             "This Java version is by Luke Nezda and Oliver Steele.<br>"+
             "The GUI is loosely based on the Tcl/Tk interface<br>"+
             "by David Slomin and Randee Tengi.<br>"+
+            "<br>"+
+            "Learn more at <a href=\"https://www.yawni.org\">https://www.yawni.org</a><br>"+
             "<br>";
+        final JEditorPane descriptionPane = new JEditorPane("text/html", description);
+        descriptionPane.setEditable(false);
+        descriptionPane.setOpaque(false);
+        descriptionPane.addHyperlinkListener(e -> {
+          if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            if (Desktop.isDesktopSupported()) {
+              try {
+                Desktop.getDesktop().browse(e.getURL().toURI());
+              } catch (IOException | URISyntaxException ex) {
+                log.error("broken url: {}", e.getURL(), ex);
+              }
+            }
+          }
+        });
         // JLabel text cannot be selected with the mouse, so we use JEditorPane
         // format with table mainly so copy + paste will include newlines between rows
         // FIXME increase white space/padding around the edges
@@ -320,7 +344,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
         final String[] options = new String[] { "Dismiss" };
           JOptionPane.showOptionDialog(
             Browser.this,
-            new Object[] { description, info }, // message
+            new Object[] { descriptionPane, info }, // message
             "About", // title
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.PLAIN_MESSAGE,
@@ -392,8 +416,12 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
 
   private static ImageIcon getAppIcon() {
     if (APP_ICON == null) {
-      //APP_ICON = new ImageIcon(Browser.class.getResource("yawni_57x64_icon.png"));
-      APP_ICON = new ImageIcon(Browser.class.getResource("yawni_115x128_icon.png"));
+      try {
+        //APP_ICON = new ImageIcon(Browser.class.getResource("yawni_57x64_icon.png"));
+        APP_ICON = new ImageIcon(Browser.class.getResource("yawni_115x128_icon.png"));
+      } catch (NullPointerException npe) {
+        log.warn("can't find icon", npe);
+      }
     }
     return APP_ICON;
   }
@@ -449,7 +477,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   /**
    * Invoked when an uncaught exception is encountered.  This will
    * show a modal dialog alerting the user, and exit the app. This does
-   * <b>not</b> invoke <code>exit</code>.
+   * <b>not</b> invoke {@code exit}.
    *
    * @param thread the thread the exception was thrown on
    * @param throwable the thrown exception
@@ -556,7 +584,6 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     numGroup.add(numShow);
     numGroup.add(numHide);
 
-
     this.mainMenuBar.add(viewMenu);
   }
 
@@ -577,23 +604,37 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   } // end class BlankIcon
 
   private static void setSystemProperties() {
-    //TODO move to preferences ?
-    // these won't hurt anything on non OS X platforms
-    // http://mindprod.com/jgloss/antialiasing.html#GOTCHAS
-    // ? Java 5 option that may cause fonts to look worse ??
-    System.setProperty("swing.aatext", "true");
-    // Java 6 http://java.sun.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
-    System.setProperty("awt.useSystemAAFontSettings", "on");
-    System.setProperty("apple.awt.textantialiasing", "on");
-    System.setProperty("apple.laf.useScreenMenuBar", "true");
-    System.setProperty("apple.awt.brushMetalLook", "true");
-    System.setProperty("apple.awt.brushMetalRounded", "true");
-    System.setProperty("apple.awt.showGrowBox", "false");
+    try {
+      //TODO move to preferences ?
+      // these won't hurt anything on non OS X platforms
+      // http://mindprod.com/jgloss/antialiasing.html#GOTCHAS
+      // ? Java 5 option that may cause fonts to look worse ??
+      System.setProperty("swing.aatext", "true");
+      // Java 6 http://java.sun.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
+      System.setProperty("awt.useSystemAAFontSettings", "on");
+      System.setProperty("apple.awt.textantialiasing", "on");
+      System.setProperty("apple.laf.useScreenMenuBar", "true");
+      System.setProperty("apple.awt.brushMetalLook", "true");
+      System.setProperty("apple.awt.brushMetalRounded", "true");
+      System.setProperty("apple.awt.showGrowBox", "false");
+    } catch (AccessControlException ace) {
+      log.warn("can't set system properties :(", ace);
+    }
   }
 
   public static void main(final String[] args) {
+    try {
+      System.setProperty("java.security.debug", "all");
+    } catch (AccessControlException ace) {
+      log.warn("can't set system properties :(", ace);
+    }
+
     final long start = System.currentTimeMillis();
-    PreferencesManager.setLookAndFeel();
+    try {
+      PreferencesManager.setLookAndFeel();
+    } catch (AccessControlException ace) {
+      log.warn("can't PreferencesManager.setLookAndFeel() :(", ace);
+    }
 
     //final WordNetInterface wn;
     //String searchDir = null; // args[0]
