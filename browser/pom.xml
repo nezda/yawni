@@ -186,7 +186,8 @@
                   <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
                 </manifest>
                 <manifestEntries>
-                  <Permissions>sandbox</Permissions>
+                  <Application-Name>Yawni WordNet Browser</Application-Name>
+                  <Permissions>all-permissions</Permissions>
                   <Codebase>*</Codebase>
                   <Implementation-Build-Timestamp>${timestamp}</Implementation-Build-Timestamp>
                   <Implementation-Build-Rev>${buildNumber}</Implementation-Build-Rev>
