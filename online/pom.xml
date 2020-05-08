@@ -13,7 +13,7 @@
     <maven>3.0.3</maven>
   </prerequisites>
   <properties>
-    <scala.version>2.7.7</scala.version>
+    <scala.version>2.10.7</scala.version>
     <lift.version>2.0</lift.version>
     <maven-scala-plugin.version>2.12.2</maven-scala-plugin.version>
   </properties>
