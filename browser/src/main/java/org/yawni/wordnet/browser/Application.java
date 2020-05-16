@@ -16,7 +16,6 @@
  */
 package org.yawni.wordnet.browser;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -59,10 +58,8 @@ final class Application {
       //System.err.println("getPackage(): "+getPackagePath());
       //System.err.println("props: "+props);
       //System.err.println(this);
-		} catch (ParseException pe) {
-			throw Throwables.propagate(pe);
-    } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+		} catch (ParseException | IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

@@ -1,4 +1,5 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift="http://liftweb.net/">
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta content="en-us" http-equiv="Content-Language" />
@@ -6,28 +7,39 @@
     <meta name="keywords" content="WordNet" />
     
     <title>Yawni Online</title>
-    <lift:CSS.blueprint />
-    <lift:CSS.fancyType />
-
-    <script type="text/javascript" src="/classpath/jquery.js" id="jquery"></script>
-    <script type="text/javascript" src="/assets/jquery.bgiframe.min.js"></script>
-    <!-- <script type="text/javascript" src="/assets/jquery.dimensions.js"></script> -->
-    <script type="text/javascript" src="/assets/jquery.autocomplete.js"></script>
-    <!-- support older browsers (e.g., Firefox 3.0.1) -->
-    <script type="text/javascript" src="/assets/jquery.json-2.2.min.js"></script>
-    <link rel="stylesheet" href="/assets/jquery.autocomplete.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/4.2.1/css/bootstrap.min.css"/>
 
     <link type="text/css" href="/assets/style.css" rel="stylesheet" media="screen, projection" />
+
+    <script type="text/javascript" src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/webjars/font-awesome/5.6.1/js/all.min.js"></script>
+
+    <script type="text/javascript" src="/assets/jquery.bgiframe.min.js"></script>
+    <script type="text/javascript" src="/assets/jquery.autocomplete.js"></script>
+    <link rel="stylesheet" href="/assets/jquery.autocomplete.css" type="text/css" />
   </head>
   <body>
     <div class="container">
-      <div id="header" class="span-24 last">
-        <!-- <h1><img src="images/yawni_57x64_icon.png" alt="Yawni"/></h1> -->
-        <h1>Yawni Online</h1>
+      <div class="row">
+        <div class="col">
+          <h1>Yawni Online</h1>
+<!--          <img src="/images/yawni_115x128_icon.png" class="rounded float-right">-->
+        </div>
       </div>
       <!-- <lift:Msgs/> -->
-      <lift:bind name="content"/>
-      <div class="span-16 last small footer"><a href="http://www.yawni.org/">Powered by Yawni</a> &copy; 2010</div>
+      <div class="row">
+        <div class="col">
+          <div id="content">The main content will get bound here</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col small text-right">
+          <a href="https://www.yawni.org/">Powered by Yawni</a> &copy; 2019
+        </div>
+      </div>
     </div>
+    <!-- using web jars -->
+    <script type="text/javascript" src="/webjars/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/4.2.1/js/bootstrap.min.js"></script>
   </body>
 </html>

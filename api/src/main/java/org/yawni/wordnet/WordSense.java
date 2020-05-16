@@ -147,7 +147,6 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     return lemma;
   }
 
-  /** {@inheritDoc} */
   @Override
   public Iterator<WordSense> iterator() {
     return LightImmutableList.of(this).iterator();
@@ -552,8 +551,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     return coreRank;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public String getDescription() {
     if (getPOS() != POS.ADJ && getPOS() != POS.SAT_ADJ) {
       return lemma;
@@ -584,11 +582,10 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   private List<Relation> restrictRelations(final RelationType type) {
     final List<Relation> relations = synset.getRelations();
     List<Relation> list = null;
-    for (int i = 0, n = relations.size(); i < n; i++) {
-      final Relation relation = relations.get(i);
+    for (final Relation relation : relations) {
       // consider all isSemantic Relations, but only isLexical Relations
       // which have this as their source
-      if (relation.isLexical() && ! relation.getSource().equals(this)) {
+      if (relation.isLexical() && !relation.getSource().equals(this)) {
         continue;
       }
       if (type != null && type != relation.getType()) {
@@ -602,26 +599,22 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     return LightImmutableList.copyOf(list);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<Relation> getRelations() {
     return restrictRelations(null);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<Relation> getRelations(final RelationType type) {
     return restrictRelations(type);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<RelationArgument> getRelationTargets() {
     return Synset.collectTargets(getRelations());
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<RelationArgument> getRelationTargets(final RelationType type) {
     return Synset.collectTargets(getRelations(type));
   }
@@ -632,7 +625,6 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   // Object methods
   //
 
-  /** {@inheritDoc} */
   @Override
   public boolean equals(Object object) {
     return (object instanceof WordSense)
@@ -640,13 +632,11 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       && ((WordSense) object).lemma.equals(lemma);
   }
 
-  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return Objects.hashCode(synset, lemma);
   }
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new StringBuilder("[WordSense ").
@@ -660,8 +650,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       append(']').toString();
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public int compareTo(final WordSense that) {
     int result;
     result = WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(this.getLemma(), that.getLemma());

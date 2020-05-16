@@ -9,7 +9,7 @@ import org.yawni.util._
 import org.yawni.wordnet.POS._
 import org.yawni.wordnet.GlossAndExampleUtils._
 import scala.xml._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.util.TreeSet // don't want List
 
 /**
@@ -31,7 +31,7 @@ object Yawni {
     for (pos <- List(NOUN, VERB, ADJ, ADV)) {
       val noCaseForms = new TreeSet(String.CASE_INSENSITIVE_ORDER)
       val forms = wn.lookupBaseForms(someString, pos)
-      for (form <- forms) {
+      for (form <- forms.asScala) {
         if (! noCaseForms.contains(form)) {
           // block no case duplicates ("hell"/"Hell", "villa"/"Villa")
           noCaseForms.add(form)
@@ -69,7 +69,7 @@ object Yawni {
 
   private def appendSenses(word: Word) = {
     <ol>{
-    for (synset <- word.getSynsets)
+    for (synset <- word.getSynsets.asScala)
       yield <li>{ render(word, synset.getWordSense(word)) }</li>
     }</ol>
   }

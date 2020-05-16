@@ -30,14 +30,16 @@ class AboutResource {
   //  </h4>
   //</div>
 
+  //  read in META-INF/maven/org.yawni/yawni-wordnet-data30/pom.properties
+
   @GET
   def aboutResponse() = {
     <about>
       Yawni Online
       <serverStats>
-        <totalMemory>{ "%,d".format(Runtime.getRuntime.totalMemory) }</totalMemory>
-        <freeMemory>{ "%,d".format(Runtime.getRuntime.freeMemory) }</freeMemory>
-        <maxMemory>{ "%,d".format(Runtime.getRuntime.maxMemory) }</maxMemory>
+        <totalMemory>{ f"${Runtime.getRuntime.totalMemory}%,d" }</totalMemory>
+        <freeMemory>{ f"${Runtime.getRuntime.freeMemory}%,d" }</freeMemory>
+        <maxMemory>{ f"${Runtime.getRuntime.maxMemory}%,d" }</maxMemory>
       </serverStats>
     </about>
     // Open Sessions: <lift:runtime_stats:sessions/>

@@ -16,31 +16,27 @@
  */
 package bootstrap.liftweb
 
-import _root_.net.liftweb.common.{Box, Full, Empty, Failure, Logger}
+import net.liftweb.common.{Empty, Full, Logger}
 import net.liftweb.util._
-//import util.{Helpers, Log, NamedPF, Props}
-import net.liftweb.http._
-import net.liftweb.sitemap._
-import net.liftweb.sitemap.Loc._
-import Helpers._
-import org.yawni.wordnet._;
 
-import net.liftweb._
+import net.liftweb.http._
+import Helpers._
+
 import provider._
 
 import org.yawni.wordnet.snippet._
-import org.yawni.roundedcorners._
+import scala.language.postfixOps
 
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify Lift's environment
  */
 class Boot {
-  def boot {
+  def boot() {
     // where to search for snippet (functions)
     LiftRules.addToPackages("org.yawni.wordnet")
 
-    //LiftRules.fixCSS("css" :: Nil, Empty)
+    LiftRules.htmlProperties.default.set((r: Req) => Html5Properties(r.userAgent))
 
     Yawni.init()
 
@@ -52,8 +48,6 @@ class Boot {
     // manual plumbing/wiring for singleton object snippet:
     LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
 
-//    RoundedCornerService.init()
-
     // Show the spinny image when an Ajax call starts
     LiftRules.ajaxStart = Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
 
@@ -62,12 +56,30 @@ class Boot {
     
     LiftRules.early.append(makeUtf8)
 
-    // Build SiteMap
-//    val entries = Menu(Loc("Home", List("index"), "Home")) :: Nil
-//    LiftRules.setSiteMap(SiteMap(entries:_*))
+    LiftRules.noticesAutoFadeOut.default.set((notices: NoticeType.Value) => {
+      notices match {
+        case NoticeType.Notice => Full((8 seconds, 4 seconds))
+        case _                 => Empty
+      }
+    })
 
     // Dump browser information each time a new connection is made
     LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing
+
+    LiftRules.securityRules = () => {
+      SecurityRules(
+        content = Some(
+          ContentSecurityPolicy(
+            scriptSources = List(ContentSourceRestriction.UnsafeEval,
+              ContentSourceRestriction.UnsafeInline,
+              ContentSourceRestriction.Self),
+            styleSources = List(ContentSourceRestriction.UnsafeInline,
+              ContentSourceRestriction.Self),
+            imageSources = List(ContentSourceRestriction.All,
+              ContentSourceRestriction.Scheme("data")),
+          )))
+      //
+    }
   }
   private def makeUtf8(req: HTTPRequest): Unit = {req.setCharacterEncoding("UTF-8")}
 }

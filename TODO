@@ -945,7 +945,7 @@ everything
   - feature: gui: bundle as native OS X app; http://mojo.codehaus.org/osxappbundle-maven-plugin/
   + feature: gui: add prefix-typing navigation of PopdownButton content (like JComboBox)
     - DefaultKeySelectionManager
-  - bug: gui: OS X: app bar says "com.sun.javaws.Main" instead of "Yawni Browser"; clearly missing -Xdock:name="Yawni Browser"
+  - bug: gui: OS X: app bar says "com.sun.javaws.Main" instead of "Yawni WordNet Browser"; clearly missing -Xdock:name="Yawni WordNet Browser"
     - OS X Java Web Start bug: JnlpxArgs.getArgumentList: Internal Error: remaining custArgsMaxLen: -1110 < vmArgsPropertyStr.length: 72 dropping vmArgsPropertyStr
     - interesting alternative syntax: 
         <param name="java_arguments" value="-Djnlp.packEnabled=true">

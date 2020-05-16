@@ -27,7 +27,6 @@ public final class SemanticRelation extends Relation {
     // can't call getTarget() - infinite recursion
   }
 
-  /** {@inheritDoc} */
   @Override
   public Synset getSource() {
     @SuppressWarnings("unchecked")
@@ -35,7 +34,6 @@ public final class SemanticRelation extends Relation {
     return source;
   }
 
-  /** {@inheritDoc} */
   @Override
   public Synset getTarget() {
     @SuppressWarnings("unchecked")

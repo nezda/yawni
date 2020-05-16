@@ -1,35 +1,27 @@
 package org.yawni.wordnet.snippet
 
-import scala.xml.{ Text, NodeSeq, NodeBuffer }
-import net.liftweb.http.{ S, SHtml, XmlResponse }
-import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.jquery.JqJsCmds._
-import net.liftweb.util.Helpers._
+import java.util
 
+import scala.xml.{NodeBuffer, NodeSeq, Text}
+import net.liftweb.http.XmlResponse
 import org.yawni.wordnet._
 import org.yawni.util._
 import org.yawni.wordnet.POS._
 import org.yawni.wordnet.GlossAndExampleUtils._
-import scala.collection.jcl.Conversions._
-import scala.collection.jcl._
-import java.util.TreeSet // don't want List
 
-import net.liftweb.http.{ Req, GetRequest, PostRequest, LiftRules, JsonResponse, PlainTextResponse }
-import net.liftweb.common.{Full, Box}
-import net.liftweb.http.js.JE._
-
-import net.liftweb.json._
-import net.liftweb.json.JsonAST._
+import scala.collection.JavaConverters._
+import net.liftweb.http.{GetRequest, JsonResponse, LiftRules, PlainTextResponse, PostRequest, Req}
+import net.liftweb.common.Full
 
 /**
  * Handles rendering of 
  */
 object Yawni {
-  def init() = {
+  def init(): Unit = {
     LiftRules.dispatch.prepend(Yawni.dispatch)
     // trigger preload
     val wn = WordNet.getInstance
-    val query = "was";
+    val query = "was"
     //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
     //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
   }
@@ -37,19 +29,10 @@ object Yawni {
   def dispatch: LiftRules.DispatchPF = {
     // Req(url_pattern_list, suffix, request_type)
     case Req("api" :: someString :: Nil, _, GetRequest) => () => Full(xmlResponse(someString))
-    case Req("about" :: Nil, _, GetRequest) => () => Full(aboutResponse)
+    case Req("about" :: Nil, _, GetRequest) => () => Full(aboutResponse())
   }
 
-  //def get = JsonResponse(JsArray(
-  //  JsObj("id" -> 1, "start" -> "2009-12-30T12:15:00.000+10:00",
-  //    "end" -> "2009-12-30T12:45:00.000+10:00",
-  //    "title" -> "some stuff"),
-  //  JsObj("id" -> 2, "start" -> "2009-12-30T14:15:00.000+10:00", 
-  //    "end" -> "2009-12-30T14:45:00.000+10:00",
-  //    "title" -> "some other stuff")
-  //))
-
-  def xmlResponse(someString: String) = {
+  def xmlResponse(someString: String): XmlResponse = {
     XmlResponse(<html> { query(someString) } </html>)
   }
 
@@ -78,14 +61,14 @@ object Yawni {
   //  </h4>
   //</div>
 
-  def aboutResponse() = {
+  def aboutResponse(): XmlResponse = {
     XmlResponse(
       <about>
         Yawni Online
         <serverStats>
-          <totalMemory>{ "%,d".format(Runtime.getRuntime.totalMemory) }</totalMemory>
-          <freeMemory>{ "%,d".format(Runtime.getRuntime.freeMemory) }</freeMemory>
-          <maxMemory>{ "%,d".format(Runtime.getRuntime.maxMemory) }</maxMemory>
+          <totalMemory>{ f"${Runtime.getRuntime.totalMemory}%,d" }</totalMemory>
+          <freeMemory>{ f"${Runtime.getRuntime.freeMemory}%,d" }</freeMemory>
+          <maxMemory>{ f"${Runtime.getRuntime.maxMemory}%,d" }</maxMemory>
         </serverStats>
       </about>
       // Open Sessions: <lift:runtime_stats:sessions/>
@@ -93,20 +76,20 @@ object Yawni {
     )
   }
 
-  implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
+//  implicit def asScalaIterator[A](it : java.lang.Iterable[A]) = new MutableIterator.Wrapper(it.iterator)
 
   // required data format described http://docs.jquery.com/Plugins/Autocomplete/autocomplete#url_or_dataoptions
   def autocomplete(prefix: String, limit: Int):String = {
     val wn = WordNet.getInstance
-    val toReturn = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+    val toReturn = new util.TreeSet(String.CASE_INSENSITIVE_ORDER)
     for (pos <- List(NOUN, VERB, ADJ, ADV);
-         forms <- wn.searchByPrefix(prefix, pos);
-         form <- forms if toReturn.size < limit
+         forms <- wn.searchByPrefix(prefix, pos).asScala;
+         form <- forms.asScala if toReturn.size < limit
          ) { toReturn.add(form.getLemma) }
     //JArray(toReturn.map(JString(_)).toList)
     // really weird that it can't handle JSON ??
     //JString(toReturn.mkString("\n"))
-    toReturn.mkString("\n")
+    toReturn.asScala.mkString("\n")
   }
 
   // group by Word
@@ -114,9 +97,9 @@ object Yawni {
     val wn = WordNet.getInstance
     var results: NodeSeq = NodeSeq.Empty
     for (pos <- List(NOUN, VERB, ADJ, ADV)) {
-      val noCaseForms = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+      val noCaseForms = new util.TreeSet(String.CASE_INSENSITIVE_ORDER)
       val forms = wn.lookupBaseForms(someString, pos)
-      for (form <- forms) {
+      for (form <- forms.asScala) {
         if (! noCaseForms.contains(form)) {
           // block no case duplicates ("hell"/"Hell", "villa"/"Villa")
           noCaseForms.add(form)
@@ -154,7 +137,7 @@ object Yawni {
 
   private def appendSenses(word: Word) = {
     <ol>{
-    for (synset <- word.getSynsets)
+    for (synset <- word.getSynsets.asScala)
       yield <li>{ render(word, synset.getWordSense(word)) }</li>
     }</ol>
   }

@@ -16,14 +16,12 @@
 package org.yawni.wordnet.snippet
 
 import net.liftweb.json._
-import net.liftweb.json.JsonAST._
-import _root_.net.liftweb._
+import net.liftweb._
 import http._
 import js._
 import JsCmds._
 import common._
-import scala.xml._
-//import net.liftweb.http.rest._ //unused
+import scala.language.implicitConversions
 
 /**
  * Respond to JSON requests in a stateless dispatch
@@ -31,13 +29,13 @@ import scala.xml._
 object StatelessJson {
   def init() {
     // register the JSON handler
-    LiftRules.statelessDispatchTable.append {
+    LiftRules.statelessDispatch.append {
       case r @ Req("search" :: Nil, _, PostRequest) => () => handleJson(r)
       case r @ Req("autocomplete" :: Nil, _, GetRequest) => () => handleAutocomplete(r)
     }
   }
   
-  implicit def iterableToBox[X](in: Iterable[X]): Box[X] = in.toList.firstOption
+  implicit def iterableToBox[X](in: Iterable[X]): Box[X] = in.toList.headOption
 
   def handleJson(req: Req): Box[LiftResponse] =
     for {

@@ -16,10 +16,8 @@
  */
 package org.yawni.wordnet;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableMap;
 import static com.google.common.collect.Iterables.transform;
@@ -101,10 +99,10 @@ public final class WordNet implements WordNetInterface {
     this(new FileManager());
   }
 
-  /**
-   * Construct a dictionary backed by a set of files contained in
-   * {@code search directory}.
-   */
+//  /**
+//   * Construct a dictionary backed by a set of files contained in
+//   * {@code search directory}.
+//   */
 //  WordNet(final String searchDirectory) {
 //    this(new FileManager(searchDirectory));
 //  }
@@ -126,22 +124,22 @@ public final class WordNet implements WordNetInterface {
     return InstanceHolder.instance;
   }
 
-  /**
-   * Factory method to get <em>the</em> dictionary backed by a set of files contained
-   * in {@code searchDirectory}.
-   */
-  //FIXME ignores passed in searchDirectory reference
+//  /**
+//   * Factory method to get <em>the</em> dictionary backed by a set of files contained
+//   * in {@code searchDirectory}.
+//   */
+//  //FIXME ignores passed in searchDirectory reference
 //  public static WordNet getInstance(final String searchDirectory) {
 //    return InstanceHolder.instance;
 //  }
 
-  /**
-   * Factory method to get <em>the</em> {@link WordNetInterface} that retrieves file data from
-   * {@code fileManager}.  A client can use this to create a
-   * {@link WordNetInterface} backed by a {@link RemoteFileManager}.
-   * @see RemoteFileManager
-   */
-  //FIXME ignores passed in fileManager reference
+//  /**
+//   * Factory method to get <em>the</em> {@link WordNetInterface} that retrieves file data from
+//   * {@code fileManager}.  A client can use this to create a
+//   * {@link WordNetInterface} backed by a {@link RemoteFileManager}.
+//   * @see RemoteFileManager
+//   */
+//  //FIXME ignores passed in fileManager reference
 //  public static WordNet getInstance(final FileManagerInterface fileManager) {
 //    return InstanceHolder.instance;
 //  }
@@ -156,9 +154,11 @@ public final class WordNet implements WordNetInterface {
   private final Cache<DatabaseKey, Object> indexWordCache = Caches.withCapacity(DEFAULT_CACHE_CAPACITY);
 
   // generic custom hashing interface
-  static interface DatabaseKey {
-    @Override public int hashCode();
-    @Override public boolean equals(Object that);
+  interface DatabaseKey {
+    @Override
+    int hashCode();
+    @Override
+    boolean equals(Object that);
   } // end interface DatabaseKey
 
   static class POSOffsetDatabaseKey implements DatabaseKey {
@@ -354,7 +354,7 @@ public final class WordNet implements WordNetInterface {
       try {
         line = fileManager.readLineAt(offset, fileName);
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
       if (line == null) {
         throw new IllegalStateException("line null for offset "+offset+" "+pos);
@@ -374,7 +374,7 @@ public final class WordNet implements WordNetInterface {
     try {
       return fileManager.readLineAt(offset, fileName);
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -465,8 +465,7 @@ public final class WordNet implements WordNetInterface {
 
   private static final Object NULL_INDEX_WORD = new Object();
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Word lookupWord(final CharSequence lemma, final POS pos) {
     checkValidPOS(pos, "by lookupWord(lemma, pos)");
     final DatabaseKey cacheKey = new StringPOSDatabaseKey(lemma, pos);
@@ -485,7 +484,7 @@ public final class WordNet implements WordNetInterface {
         try {
           offset = fileManager.getIndexedLinePointer(lemma, fileName);
         } catch (IOException ioe) {
-          throw Throwables.propagate(ioe);
+          throw new RuntimeException(ioe);
         }
         if (offset >= 0) {
           indexWord = getIndexWordAt(pos, offset);
@@ -504,8 +503,7 @@ public final class WordNet implements WordNetInterface {
     return indexWord != NULL_INDEX_WORD ? (Word) indexWord : null;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<String> lookupBaseForms(final String someString, final POS pos) {
     if (pos == POS.ALL) {
       return LightImmutableList.copyOf(uniq(merge(
@@ -518,8 +516,7 @@ public final class WordNet implements WordNetInterface {
     }
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<Synset> lookupSynsets(final String someString, final POS pos) {
     if (pos == POS.ALL) {
       return LightImmutableList.copyOf(uniq(merge(
@@ -541,7 +538,7 @@ public final class WordNet implements WordNetInterface {
     // 0. if we have morphs, we will usually have syns
     // 1. get all the Words (usually 1, except for exceptional forms (e.g., 'geese'))
     // 2. merge all their Synsets
-    final ArrayList<Synset> syns = new ArrayList<Synset>();
+    final ArrayList<Synset> syns = new ArrayList<>();
     int morphNum = -1;
     for (final String lemma : morphs) {
       morphNum++;
@@ -551,9 +548,7 @@ public final class WordNet implements WordNetInterface {
         continue;
       }
       syns.ensureCapacity(syns.size() + word.getSynsets().size());
-      for (final Synset syn : word.getSynsets()) {
-        syns.add(syn);
-      }
+      syns.addAll(word.getSynsets());
     }
     // sometimes all morphstr() values will be generated and undefined for this POS
     // FIXME annoying that morphy sometimes returns undefined variants
@@ -565,8 +560,7 @@ public final class WordNet implements WordNetInterface {
     return LightImmutableList.copyOf(syns);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public List<WordSense> lookupWordSenses(final String someString, final POS pos) {
     if (pos == POS.ALL) {
       return LightImmutableList.copyOf(uniq(merge(
@@ -589,7 +583,7 @@ public final class WordNet implements WordNetInterface {
     // 0. if we have morphs, we will usually have syns
     // 1. get all the Words (usually 1, except for exceptional forms (e.g., 'geese'))
     // 2. merge all their Synsets
-    final ArrayList<WordSense> wordSenses = new ArrayList<WordSense>();
+    final ArrayList<WordSense> wordSenses = new ArrayList<>();
     int morphNum = -1;
     for (final String lemma : morphs) {
       morphNum++;
@@ -599,9 +593,7 @@ public final class WordNet implements WordNetInterface {
         continue;
       }
       wordSenses.ensureCapacity(wordSenses.size() + word.getSynsets().size());
-      for (final WordSense wordSense : word.getWordSenses()) {
-        wordSenses.add(wordSense);
-      }
+      wordSenses.addAll(word.getWordSenses());
     }
     // sometimes all morphstr() values will be generated and undefined for this POS
     // FIXME annoying that morphy sometimes returns undefined variants
@@ -613,8 +605,7 @@ public final class WordNet implements WordNetInterface {
     return LightImmutableList.copyOf(wordSenses);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Synset> synsets(final String query) {
     final EnumMap<Command, String> cmdToValue = Command.getCmdToValue(query);
     if (cmdToValue.containsKey(Command.OFFSET)) {
@@ -659,8 +650,7 @@ public final class WordNet implements WordNetInterface {
     throw new IllegalArgumentException("unsatisfiable query "+query);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<WordSense> wordSenses(final String query) {
     final EnumMap<Command, String> cmdToValue = Command.getCmdToValue(query);
     if (cmdToValue.size() == 1) {
@@ -730,10 +720,10 @@ public final class WordNet implements WordNetInterface {
         exceptionsCache.put(cacheKey, toReturn);
         return toReturn;
       } else {
-        exceptionsCache.put(cacheKey, LightImmutableList.<String>of());
+        exceptionsCache.put(cacheKey, LightImmutableList.of());
       }
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
     return LightImmutableList.of();
   }
@@ -763,7 +753,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -779,7 +769,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -788,7 +778,7 @@ public final class WordNet implements WordNetInterface {
     try {
       return fileManager.getMatchingLines(senseKey, PlainTextResource.MORPHOSEMANTIC_RELATIONS.getFileName());
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -797,7 +787,7 @@ public final class WordNet implements WordNetInterface {
     try {
       return fileManager.getMatchingLines(senseKey, PlainTextResource.VERB_GROUP_RELATIONS.getFileName());
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -824,7 +814,7 @@ public final class WordNet implements WordNetInterface {
       line = line.substring(idx);
 			return line;
     } catch (IOException ioe) {
-			throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -863,7 +853,7 @@ public final class WordNet implements WordNetInterface {
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -891,11 +881,11 @@ public final class WordNet implements WordNetInterface {
         assert line.charAt(idx + 1) != ' ';
         idx++;
         line = line.substring(idx);
-        assert line.indexOf("%s") >= 0;
+        assert line.contains("%s");
       }
 			return line;
     } catch (IOException ioe) {
-      throw Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
     }
   }
 
@@ -959,13 +949,12 @@ public final class WordNet implements WordNetInterface {
         }
         return new Word(line, offset, WordNet.this);
       } catch (final IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class WordIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Word> words(final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -974,12 +963,7 @@ public final class WordNet implements WordNetInterface {
         words(POS.ADJ),
         words(POS.ADV));
     } else {
-      return new Iterable<Word>() {
-				@Override
-        public Iterator<Word> iterator() {
-          return new WordIterator(pos);
-        }
-      };
+      return () -> new WordIterator(pos);
     }
   }
 
@@ -1007,13 +991,12 @@ public final class WordNet implements WordNetInterface {
           return endOfData();
         }
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class SearchBySubstringIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1022,12 +1005,7 @@ public final class WordNet implements WordNetInterface {
           searchBySubstring(substring, POS.ADJ),
           searchBySubstring(substring, POS.ADV));
     } else {
-      return new Iterable<Word>() {
-				@Override
-        public Iterator<Word> iterator() {
-          return new SearchBySubstringIterator(pos, substring);
-        }
-      };
+      return () -> new SearchBySubstringIterator(pos, substring);
     }
   }
 
@@ -1057,13 +1035,12 @@ public final class WordNet implements WordNetInterface {
           return endOfData();
         }
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class SearchByPrefixIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1072,12 +1049,7 @@ public final class WordNet implements WordNetInterface {
         searchByPrefix(prefix, POS.ADJ),
         searchByPrefix(prefix, POS.ADV));
     } else {
-      return new Iterable<Word>() {
-				@Override
-        public Iterator<Word> iterator() {
-          return new SearchByPrefixIterator(pos, prefix);
-        }
-      };
+      return () -> new SearchByPrefixIterator(pos, prefix);
     }
   }
 
@@ -1104,8 +1076,7 @@ public final class WordNet implements WordNetInterface {
     }
   } // end class SearchGlossBySubstringIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1114,22 +1085,12 @@ public final class WordNet implements WordNetInterface {
         searchGlossBySubstring(substring, POS.ADJ),
         searchGlossBySubstring(substring, POS.ADV));
     } else {
-      return new Iterable<Synset> () {
-				@Override
-        public Iterator<Synset> iterator() {
-          return new SearchGlossBySubstringIterator(pos, substring);
-        }
-      };
+      return () -> new SearchGlossBySubstringIterator(pos, substring);
     }
   }
 
   Iterable<Synset> synsets(final Lexname lexname) {
-    return new Iterable<Synset>() {
-			@Override
-      public Iterator<Synset> iterator() {
-        return new LexnameIterator(lexname);
-      }
-    };
+    return () -> new LexnameIterator(lexname);
   }
 
   private class LexnameIterator extends AbstractIterator<Synset> {
@@ -1152,12 +1113,7 @@ public final class WordNet implements WordNetInterface {
   } // end class LexnameIterator
 
   Iterable<WordSense> wordSenses(final AdjPosition adjPosition) {
-    return new Iterable<WordSense>() {
-			@Override
-      public Iterator<WordSense> iterator() {
-        return new AdjPositionIterator(adjPosition);
-      }
-    };
+    return () -> new AdjPositionIterator(adjPosition);
   }
 
   private class AdjPositionIterator extends AbstractIterator<WordSense> {
@@ -1208,13 +1164,12 @@ public final class WordNet implements WordNetInterface {
         } while (line.startsWith("  ")); // first few lines start with "  "
         return getSynsetAt(pos, offset, line);
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class POSSynsetsIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Synset> synsets(final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1223,12 +1178,7 @@ public final class WordNet implements WordNetInterface {
         synsets(POS.ADJ),
         synsets(POS.ADV));
     } else {
-      return new Iterable<Synset> () {
-				@Override
-        public Iterator<Synset> iterator() {
-          return new POSSynsetsIterator(pos);
-        }
-      };
+      return () -> new POSSynsetsIterator(pos);
     }
   }
 
@@ -1252,8 +1202,7 @@ public final class WordNet implements WordNetInterface {
     }
   } // end class POSWordSensesIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<WordSense> wordSenses(final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1262,12 +1211,7 @@ public final class WordNet implements WordNetInterface {
         wordSenses(POS.ADJ),
         wordSenses(POS.ADV));
     } else {
-      return new Iterable<WordSense> () {
-				@Override
-        public Iterator<WordSense> iterator() {
-          return new POSWordSensesIterator(pos);
-        }
-      };
+      return () -> new POSWordSensesIterator(pos);
     }
   }
 
@@ -1303,14 +1247,12 @@ public final class WordNet implements WordNetInterface {
     }
   } // end class SynsetToRelations
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Relation> relations(final POS pos) {
     return relations(null, pos);
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<Relation> relations(final RelationType relationType, final POS pos) {
     if (pos == POS.ALL) {
       return merge(
@@ -1319,12 +1261,7 @@ public final class WordNet implements WordNetInterface {
         relations(relationType, POS.ADJ),
         relations(relationType, POS.ADV));
     } else {
-      return new Iterable<Relation> () {
-				@Override
-        public Iterator<Relation> iterator() {
-          return new POSRelationsIterator(pos, relationType);
-        }
-      };
+      return () -> new POSRelationsIterator(pos, relationType);
     }
   }
 
@@ -1332,11 +1269,9 @@ public final class WordNet implements WordNetInterface {
    * @see WordNetInterface#exceptions
    */
   private class POSExceptionsIterator extends AbstractIterator<List<String>> {
-    private final POS pos;
     private final String fileName;
     private int nextOffset;
     POSExceptionsIterator(final POS pos) {
-      this.pos = pos;
       this.fileName = getExceptionsFilename(pos);
     }
     @Override
@@ -1351,13 +1286,12 @@ public final class WordNet implements WordNetInterface {
         assert toReturn.size() >= 2;
         return toReturn;
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
   } // end class POSExceptionsIterator
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterable<List<String>> exceptions(final POS pos) {
     if (pos == POS.ALL) {
       return concat(
@@ -1366,12 +1300,7 @@ public final class WordNet implements WordNetInterface {
         exceptions(POS.ADJ),
         exceptions(POS.ADV));
     } else {
-      return new Iterable<List<String>> () {
-				@Override
-        public Iterator<List<String>> iterator() {
-          return new POSExceptionsIterator(pos);
-        }
-      };
+      return () -> new POSExceptionsIterator(pos);
     }
   }
 }

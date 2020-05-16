@@ -19,14 +19,14 @@ package org.yawni.util.cache;
 /**
  * A {@code Cache} is a collection of values that are indexed by keys and stored for an
  * unspecified amount of time (which the implementor of {@code Cache} may further specify).
- * Implementations utilitize various strategies to evict entries (e.g., the least recently used entry)
+ * Implementations utilize various strategies to evict entries (e.g., the least recently used entry)
  * and support concurrent access using different means ranging from fully serialized access via 
  * brute force synchronization to lock striping.
  */
 public interface Cache<K, V> {
   /**
    * Stores {@code value} in the cache, indexed by {@code key}.  This operation makes
-   * it <em>likely</em>, although not certain, that a subsquent call to {@code get} with the
+   * it <em>likely</em>, although not certain, that a subsequent call to {@code get} with the
    * same ({@code equals}) key will retrieve the same ({@code ==}) value.
    *
    * <p> Multiple calls to {@code put} with the same {@code key} and {@code value}
@@ -34,17 +34,17 @@ public interface Cache<K, V> {
    * different {@code value}s has only the affect of the last call (assuming there were
    * no intervening calls to {@code get}).
    */
-  public V put(K key, V value);
+  V put(K key, V value);
 
   /**
    * If {@code key} was used in a previous call to {@code put}, this call <em>may</em>
    * return the {@code value} of that call, otherwise it returns {@code null}.
    */
-  public V get(K key);
+  V get(K key);
 
   /**
    * Removes all values stored in this cache; subsequent calls to {@code get}
    * will return {@code null}.
    */
-  public void clear();
+  void clear();
 }

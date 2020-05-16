@@ -3,17 +3,17 @@
   <!-- <jnlp spec="1.0+" codebase="file:///home/luke/code/java/yawni/jnlp/"> -->
   <jnlp spec="1.0+" codebase="http://www.fatbread.com/">
   <information>
-    <title>Yawni Browser</title>
+    <title>Yawni WordNet Browser</title>
     <vendor>Luke Nezda</vendor>
     <homepage href="http://www.fatbread.com/" />
-    <description>Yawni Browser</description>
+    <description>Yawni WordNet Browser</description>
     <description kind="short">Java Swing browser for WordNet</description>
     <offline-allowed/>
     <!-- not a 64x64 icon -->
     <icon href="http://www.fatbread.com/american-flag.png"/>
     <shortcut online="false">
       <desktop/>
-      <menu submenu="Yawni Browser"/>
+      <menu submenu="Yawni WordNet Browser"/>
     </shortcut>
   </information>
   <security>
@@ -23,7 +23,7 @@
   <resources>
     <!-- <j2se version="1.5+" initial-heap-size="64m" java-vm-args="-enableassertions" /> -->
     <!-- <j2se java-vm-args="-d32" version="1.6+" initial-heap-size="64m" java-vm-args="-enableassertions" /> -->
-    <!-- any other java-vm-args causes OS X problems ("title" in menu bar becomes "com.sun.javaws.Main", instead of "Yawni Browser") -->
+    <!-- any other java-vm-args causes OS X problems ("title" in menu bar becomes "com.sun.javaws.Main", instead of "Yawni WordNet Browser") -->
     <j2se version="1.6+" java-vm-args="-d32"/>
     <!-- <jar href="yawni-2.0.0-SNAPSHOT.jar"/> -->
     <jar href="yawni-browser-2.0.0-SNAPSHOT.jar"/>

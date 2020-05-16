@@ -3,18 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.yawni</groupId>
-    <artifactId>yawni</artifactId>
+    <artifactId>yawni-parent</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <artifactId>yawni-wordnet-rest</artifactId>
   <name>Yawni Online REST</name>
   <packaging>war</packaging>
-  <prerequisites>
-    <maven>3.0.3</maven>
-  </prerequisites>
   <properties>
-    <scala.version>2.8.0</scala.version>
+    <scala.major-minor-version>2.12</scala.major-minor-version>
+    <scala.version>${scala.major-minor-version}.8</scala.version>
     <maven-scala-plugin.version>2.14.1</maven-scala-plugin.version>
   </properties>
   <!--
@@ -89,6 +87,11 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.scala-lang.modules</groupId>
+      <artifactId>scala-xml_${scala.major-minor-version}</artifactId>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

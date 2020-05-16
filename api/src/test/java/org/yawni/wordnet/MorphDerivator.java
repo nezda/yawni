@@ -46,7 +46,7 @@ public class MorphDerivator {
   public static void main(String[] args) {
     final WordNet wordnet = WordNet.getInstance();
     for (final String arg : args) {
-      final Set<WordSense> seen = new LinkedHashSet<WordSense>();
+      final Set<WordSense> seen = new LinkedHashSet<>();
       for (final WordSense wordSense : wordnet.lookupWordSenses(arg, POS.ALL)) {
         gather(wordSense, seen);
       }

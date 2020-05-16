@@ -16,32 +16,13 @@
  */
 package org.yawni.wordnet.snippet
 
-import scala.xml.{ Elem, Text, NodeSeq, Group }
-import net.liftweb.http.{ S, SHtml, DispatchSnippet }
+import scala.xml.{ Elem, NodeSeq }
+import net.liftweb.http.{ SHtml, DispatchSnippet }
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.util.Helpers._
 
-//  def doSearch(msg: NodeSeq) = {
-//    //SHtml.ajaxText("", q => DisplayMessage(msgName,
-//    //                                 bind("text", msg, "value" -> Text(q)),
-//    //                                 4 seconds, 1 second))
-//    //SHtml.ajaxText("", q => SetHtml("resultz", Text(query(q).toString)))
-//  }
-//}
-
-// Manual Plumbing/Wiring: dispatch method here and this line Boot:
-//   LiftRules.snippetDispatch.append(Map("Ajax" -> Ajax))
-// If Ajax were a class, (but still extended and implemented DispatchSnippet), we could forgoe
-// this manual wiring in Boot.  Not clear why it can't look for object which extends DispatchSnippet ?
-//
-// Benefits: 
-// + much more efficient
-// + closure of handler method can have nested 'fields' and defs, thus it has equivalent power
-// Drawbacks: 
-// - more typing
-//class Ajax extends DispatchSnippet {
 object Ajax extends DispatchSnippet {
-  override def dispatch = { 
+  override def dispatch: PartialFunction[String, NodeSeq => NodeSeq] = {
     case "searchField" => searchField
   }
   // searchField closure
@@ -51,38 +32,14 @@ object Ajax extends DispatchSnippet {
       SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxID"))
     }
     // searchBox ajaxText will activate on blur so this is just for show
-    def searchButton: Elem = {
-      SHtml.ajaxButton("Search", () => Noop)
-    }
-    bind("ajax", xhtml,
-         "searchButton" -%> searchButton,
-         "searchBox" -%> searchBox
-    ) ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
-  }
-}
-
-// Automatic Plumbing/Wiring: <lift:Ajax.searchField> in app template triggers search for 
-// public class (not object!) snippet.Ajax with public member method 'searchField'.
-// Benefits: 
-// + include simplicity / 'automaticness'
-// Drawbacks: 
-// - reflection search happens for every new session and is not cached, so it is not very efficient.
-// - magic is harder to follow and template naming is tightly bound to code (no indirection)
-//class Ajax {
-//  // searchField closure
-//  def searchField(xhtml: NodeSeq): NodeSeq = {
-//    // build up an ajax text box
-//    def searchBox = {
-//      SHtml.ajaxText("", q => SetHtml("resultz", Yawni.query(q)), ("id", "searchBoxID"))
-//    }
-//    // searchBox ajaxText will activate on blur so this is just for show
-//    def searchButton = {
+//    def searchButton: Elem = {
 //      SHtml.ajaxButton("Search", () => Noop)
 //    }
-//    // bind the view to the functionality
-//    bind("ajax", xhtml,
-//         "searchButton" -%> searchButton,
-//         "searchBox" -%> searchBox
-//    ) ++ Script(JqOnLoad(SetValueAndFocus("searchBoxID", "")))
-//  }
-//}
+//    val msgName: String = S.attr("id_msgs") openOr "messages"
+    val viewBind = {
+//      "#searchButton" #> searchButton _ &
+      "#searchBox" #> searchBox
+    }
+    viewBind(xhtml) ++ Script(OnLoad(SetValueAndFocus("searchBoxID", "")))
+  }
+}

@@ -43,14 +43,14 @@ public class BloomFilterTest {
     final double ONE_PERCENT = 0.01;
     final double TEN_PERCENT = 0.1;
     final double desiredFpFatio = ONE_PERCENT;
-    final BloomFilter<Integer> filter = new BloomFilter<Integer>(size, desiredFpFatio);
+    final BloomFilter<Integer> filter = new BloomFilter<>(size, desiredFpFatio);
 
 //    System.err.println("filter: "+filter);
 		assertThat(filter.toString()).isNotNull();
 
     assertFalse("3 is in this empty filter? "+filter, filter.contains(3));
 
-    final Set<Integer> hard = new HashSet<Integer>(size);
+    final Set<Integer> hard = new HashSet<>(size);
 
     final Random rand = new Random(0);
     while (hard.size() != size) {
@@ -89,14 +89,15 @@ public class BloomFilterTest {
     final double ONE_PERCENT = 0.01;
     final double TEN_PERCENT = 0.1;
     final double desiredFpFatio = ONE_PERCENT;
-    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio, CHARSEQUENCE_HASHER);
+    final BloomFilter<CharSequence> filter = new BloomFilter<>(size, desiredFpFatio,
+        CHARSEQUENCE_HASHER);
 
 //    System.err.println("filter: "+filter);
 		assertThat(filter.toString()).isNotNull();
 
     assertFalse("\"3\" is in this empty filter? "+filter, filter.contains(String.valueOf(3)));
 
-    final Set<Integer> hard = new HashSet<Integer>(size);
+    final Set<Integer> hard = new HashSet<>(size);
 
     final Random rand = new Random(0);
     while (hard.size() != size) {
@@ -140,14 +141,15 @@ public class BloomFilterTest {
     final double ONE_PERCENT = 0.01;
     final double TEN_PERCENT = 0.1;
     final double desiredFpFatio = ONE_PERCENT;
-    final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(size, desiredFpFatio, CHARSEQUENCE_HASHER);
+    final BloomFilter<CharSequence> filter = new BloomFilter<>(size, desiredFpFatio,
+        CHARSEQUENCE_HASHER);
 
 //    System.err.println("filter: "+filter);
 		assertThat(filter.toString()).isNotNull();
 
     assertFalse("\"3\" is in this empty filter? "+filter, filter.contains(String.valueOf(3)));
 
-    final Set<Integer> hard = new HashSet<Integer>(size);
+    final Set<Integer> hard = new HashSet<>(size);
 
     for (int i = 0; i < size; i++) {
       final int next = i;

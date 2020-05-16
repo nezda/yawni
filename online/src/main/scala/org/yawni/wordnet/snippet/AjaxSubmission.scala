@@ -1,11 +1,12 @@
 package org.yawni.wordnet.snippet
 
-import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds.Noop
 import net.liftweb.util.Helpers._
+
+import scala.xml.Elem
 
 // plan
 // - text field
@@ -13,7 +14,7 @@ import net.liftweb.util.Helpers._
 // - searchResultArea : dynamically update output of searching with current text field value
 
 class AjaxSubmission {
-  def form = {
+  def form: Elem = {
     var word = ""
     //<span>
     //  { SHtml.text("", w => word = w) }

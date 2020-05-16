@@ -53,7 +53,7 @@ import java.util.RandomAccess;
  *
  * <p> Random notes
  * <ul>
- *   <li> Using {@code Iterator}s is slow compared to {@link LightImmutableList#get(int)} - unnecessary allocation / deallocation. </b>
+ *   <li> Using {@code Iterator}s is slow compared to {@link LightImmutableList#get(int)} - unnecessary allocation / deallocation.
  *        Unfortunately, the new {@code foreach} syntax is so convenient.
  *   </li>
  *   <li> speed: inefficiencies in most implementations of base {@link Collection} classes ({@link java.util.AbstractCollection},
@@ -100,19 +100,19 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     return Nothington.INSTANCE;
   }
   public static <E> LightImmutableList<E> of(E e0) {
-    return new Singleton<E>(e0);
+    return new Singleton<>(e0);
   }
   public static <E> LightImmutableList<E> of(E e0, E e1) {
-    return new Doubleton<E>(e0, e1);
+    return new Doubleton<>(e0, e1);
   }
   public static <E> LightImmutableList<E> of(E e0, E e1, E e2) {
-    return new Tripleton<E>(e0, e1, e2);
+    return new Tripleton<>(e0, e1, e2);
   }
   public static <E> LightImmutableList<E> of(E e0, E e1, E e2, E e3) {
-    return new Quadrupleton<E>(e0, e1, e2, e3);
+    return new Quadrupleton<>(e0, e1, e2, e3);
   }
   public static <E> LightImmutableList<E> of(E e0, E e1, E e2, E e3, E e4) {
-    return new Quintupleton<E>(e0, e1, e2, e3, e4);
+    return new Quintupleton<>(e0, e1, e2, e3, e4);
   }
   /**
    * Selects the most efficient implementation based on the length of {@code all}
@@ -128,7 +128,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       default:
         if (all.length > 5) {
           //return new Restleton<E>(all);
-          return new RegularImmutableList<E>(all);
+          return new RegularImmutableList<>(all);
         } else {
           // this is impossible
           throw new IllegalStateException();
@@ -153,7 +153,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       assert returnedElementsAsArray == elementsAsArray;
       return LightImmutableList.of(elementsAsArray);
     } else {
-      final Collection<E> elementsAsCollection = new ArrayList<E>();
+      final Collection<E> elementsAsCollection = new ArrayList<>();
       for (final E e : elements) {
         elementsAsCollection.add(e);
       }
@@ -186,7 +186,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
       return LightImmutableList.of(e0, e1, e2, e3, e4);
     }
     // give up; copy em' into temp var
-    final Collection<E> elementsAsCollection = new ArrayList<E>();
+    final Collection<E> elementsAsCollection = new ArrayList<>();
     elementsAsCollection.add(e0);
     elementsAsCollection.add(e1);
     elementsAsCollection.add(e2);
@@ -739,7 +739,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
   } // end class Quintupleton
 
   /**
-   * <h3> Broken (subList, etc.) impl! Do not use </h3>
+   * <em> Broken (subList, etc.) impl! Do not use </em>
    * Classic {@code ArrayList}-style implementation.
    * <p> Goal is to minimize memory requirements by avoiding begin/end fields for
    * common cases.
@@ -954,9 +954,9 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
             + ".." + toIndex + ", list size is " + size);
       }
       return (fromIndex == toIndex)
-          ? LightImmutableList.<E>of()
-          : new RegularImmutableList<E>(
-              array, offset + fromIndex, toIndex - fromIndex);
+          ? LightImmutableList.of()
+          : new RegularImmutableList<>(
+          array, offset + fromIndex, toIndex - fromIndex);
     }
   } // end class RegularImmutableList
 

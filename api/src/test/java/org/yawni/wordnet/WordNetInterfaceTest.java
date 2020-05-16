@@ -45,13 +45,13 @@ public class WordNetInterfaceTest {
 
   /**
    * test POS.ALL support
-   * + List<String> lookupBaseForms(POS pos, String someString)
-   * - List<Synset> lookupSynsets(POS pos, String someString)
-   * - Iterator<Relation> relations(POS pos)
-   * - Iterator<Relation> relations(POS pos, RelationType relationType)
-   * - Iterator<Word> words(POS pos)
-   * - Iterator<Synset> synsets(POS pos)
-   * - Iterator<WordSense> wordSenses(POS pos)
+   * + {@code List<String> lookupBaseForms(POS pos, String someString)}
+   * - {@code List<Synset> lookupSynsets(POS pos, String someString)}
+   * - {@code Iterator<Relation> relations(POS pos)}
+   * - {@code Iterator<Relation> relations(POS pos, RelationType relationType)}
+   * - {@code Iterator<Word> words(POS pos)}
+   * - {@code Iterator<Synset> synsets(POS pos)}
+   * - {@code Iterator<WordSense> wordSenses(POS pos)}
    */
   //@Ignore
   @Test
@@ -363,6 +363,6 @@ public class WordNetInterfaceTest {
   }
 
   private static <T> boolean isUnique(final Collection<T> items) {
-    return items.size() == new HashSet<T>(items).size();
+    return items.size() == new HashSet<>(items).size();
   }
 }

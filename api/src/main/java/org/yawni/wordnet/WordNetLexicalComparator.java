@@ -45,10 +45,7 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence>,
     this.lowerCase = lowerCase;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public int compare(final CharSequence s1, final CharSequence s2) {
     final int s1Len = s1.length();
     final int s2Len = s2.length();
@@ -75,10 +72,7 @@ public final class WordNetLexicalComparator implements Comparator<CharSequence>,
     return s1Len - s2Len;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public int hashCode(final Object obj) {
     if (!(obj instanceof CharSequence)) {
       return obj.hashCode();

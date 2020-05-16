@@ -67,10 +67,10 @@ class HasLemma<T> extends BaseMatcher<T> {
   }
   @Factory
   public static <T> Matcher<T> isLemmaOf(final Word operand) {
-    return new HasLemma<T>(operand);
+    return new HasLemma<>(operand);
   }
   @Factory
   public static <T> Matcher<T> isLemmaOf(final WordSense operand) {
-    return new HasLemma<T>(operand);
+    return new HasLemma<>(operand);
   }
 }

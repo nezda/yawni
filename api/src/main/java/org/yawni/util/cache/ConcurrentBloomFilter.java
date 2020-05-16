@@ -83,7 +83,7 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     this.lock = new ReentrantLock();
     this.hashes = numberOfHashes(capacity, bits);
     this.probability = probability(hashes, capacity, bits);
-    this.ref = new AtomicStampedReference<long[]>(new long[length], 0);
+    this.ref = new AtomicStampedReference<>(new long[length], 0);
   }
 
   /**
@@ -148,17 +148,11 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     return capacity;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int size() {
     return ref.getStamp();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void clear() {
     lock.lock();
@@ -169,9 +163,6 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean contains(final Object o) {
     final int[] size = new int[1];
@@ -188,9 +179,6 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean add(final E o) {
     final int[] indexes = indexes(o);
@@ -276,17 +264,11 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     return hashCode ^ (hashCode >>> 16);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Iterator<E> iterator() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean equals(Object o) {
     if (o == this) {
@@ -302,17 +284,11 @@ public final class ConcurrentBloomFilter<E> extends AbstractSet<E> {
     return (size1[0] == size2[0]) && Arrays.equals(words1, words2);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int hashCode() {
     return Arrays.hashCode(ref.getReference());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString() {
     final int size[] = new int[1];

@@ -36,7 +36,6 @@ public final class LexicalRelation extends Relation {
     super(that, Utils.checkedCast(relationType.ordinal()), relationIndex);
   }
 
-  /** {@inheritDoc} */
   @Override
   public WordSense getSource() {
     @SuppressWarnings("unchecked")
@@ -44,7 +43,6 @@ public final class LexicalRelation extends Relation {
     return source;
   }
 
-  /** {@inheritDoc} */
   @Override
   public WordSense getTarget() {
     @SuppressWarnings("unchecked")

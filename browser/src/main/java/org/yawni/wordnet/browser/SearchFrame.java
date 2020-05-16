@@ -178,13 +178,11 @@ class SearchFrame extends JDialog {
         this.posChoice.setSelectedIndex(idx);
       }
     }
-    this.posChoice.addItemListener(new ItemListener() {
-      public void itemStateChanged(final ItemEvent evt) {
-        assert posChoice == evt.getSource();
-        final POS pos = getSelectedPOS();
-        prefs.put("searchPOS", pos.name());
-        reissueSearch();
-      }
+    this.posChoice.addItemListener(evt -> {
+      assert posChoice == evt.getSource();
+      final POS pos = getSelectedPOS();
+      prefs.put("searchPOS", pos.name());
+      reissueSearch();
     });
     this.posChoice.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     this.posChoice.getActionMap().put("Slash", slashAction);
@@ -280,35 +278,33 @@ class SearchFrame extends JDialog {
     this.resultList.setLayoutOrientation(JList.VERTICAL);
 
     // handle changes to selected list item (by mouse or arrows)
-    this.resultList.addListSelectionListener(new ListSelectionListener() {
-      public void valueChanged(final ListSelectionEvent evt) {
-        if (resultList.isSelectionEmpty()) {
-          return;
-        }
-        final int index = resultList.getSelectedIndex();
-        final String lemma = searchListModel.getElementAt(index).toString();
-        Word word = null;
-        if (pos != POS.ALL) {
-          word = browserPanel.wordNet().lookupWord(lemma, pos);
-        } else {
-          // do lookup for all POS and return first hit
-          word = browserPanel.wordNet().lookupWord(lemma, POS.NOUN);
-          if (word == null) {
-            word = browserPanel.wordNet().lookupWord(lemma, POS.VERB);
-          }
-          if (word == null) {
-            word = browserPanel.wordNet().lookupWord(lemma, POS.ADJ);
-          }
-          if (word == null) {
-            word = browserPanel.wordNet().lookupWord(lemma, POS.ADV);
-          }
+    this.resultList.addListSelectionListener(evt -> {
+      if (resultList.isSelectionEmpty()) {
+        return;
+      }
+      final int index = resultList.getSelectedIndex();
+      final String lemma = searchListModel.getElementAt(index).toString();
+      Word word = null;
+      if (pos != POS.ALL) {
+        word = browserPanel.wordNet().lookupWord(lemma, pos);
+      } else {
+        // do lookup for all POS and return first hit
+        word = browserPanel.wordNet().lookupWord(lemma, POS.NOUN);
+        if (word == null) {
+          word = browserPanel.wordNet().lookupWord(lemma, POS.VERB);
         }
         if (word == null) {
-          System.err.println("null Word for lemma: "+lemma);
-          return;
+          word = browserPanel.wordNet().lookupWord(lemma, POS.ADJ);
         }
-        SearchFrame.this.browserPanel.setWord(word);
+        if (word == null) {
+          word = browserPanel.wordNet().lookupWord(lemma, POS.ADV);
+        }
       }
+      if (word == null) {
+        System.err.println("null Word for lemma: "+lemma);
+        return;
+      }
+      SearchFrame.this.browserPanel.setWord(word);
     });
 
     this.resultList.addFocusListener(new FocusAdapter() {

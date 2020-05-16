@@ -2,7 +2,7 @@
 # Run the browser
 #set -v
 YAWNI_VERSION=2.0.0-SNAPSHOT
-SLF4J_VERSION=1.6.6
+SLF4J_VERSION=1.7.5
 ASSERT_ENABLE="-ea"
 # system assertions (-esa) cause tons of logging on OS X ([AWT-\d+] ...)
 #ASSERT_ENABLE="-ea -esa"
@@ -23,12 +23,12 @@ MVN_REPO=$HOME/.m2/repository/
 #CLASSPATH=$MVN_REPO/org/yawni/yawni-wordnet-browser/$YAWNI_VERSION/yawni-wordnet-browser-$YAWNI_VERSION.jar:$MVN_REPO/org/slf4j/slf4j-api/$SLF4J_VERSION/slf4j-api-$SLF4J_VERSION.jar:$MVN_REPO/org/slf4j/slf4j-log4j12/$SLF4J_VERSION/slf4j-log4j12-$SLF4J_VERSION.jar:$MVN_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar
 # rigged up to test missing jar failure mode
 # note there's mvn dependency:build-classpath
-CLASSPATH=/Users/nezda/cvs/yawni.git/browser/target/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar
+#CLASSPATH=/Users/nezda/code/yawni/browser/target/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar
 # append data jar to classpath
 #CLASSPATH=$CLASSPATH:$MVN_REPO/org/yawni/wordnet/yawni-data/$VERSION/yawni-wordnet-data-$VERSION.jar
 # outter parens make this a Bash array of space separated elements
 #JVM_ARGS+=()
-JVM_ARGS=(-Xdock:name="Yawni Browser")
+JVM_ARGS=(-Xdock:name="Yawni WordNet Browser")
 #JVM_ARGS+=(-Xdock:icon=jar://org/yawni/wordnet/browser/yawni_115x128_icon.png)
 #JVM_ARGS+=(-Xdock:icon=./browser/src/main/resources/org/yawni/wordnet/browser/yawni_115x128_icon.png)
 #JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/log4j.properties)
@@ -45,8 +45,7 @@ JVM_ARGS+=(-Dapple.awt.brushMetalLook="true")
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
 #XXX incomplete CLASSPATH! $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
-# !! command below must be run from browser sub-project !!
-mvn -P useLog4j exec:java -Dlog4j.debug -Dlog4j.configuration=org/yawni/wordnet/log4j.properties -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
+mvn -f browser/pom.xml -P useLog4j exec:java -Dlog4j.debug -Dlog4j.configuration=org/yawni/wordnet/log4j.properties -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
 
 # use the maven-exec-plugin (from api module):
 # mvn -P useWNHOMEDataForTest -DWNHOME=/Users/nezda/code/c/wordnets/WordNet-2.0 exec:java -Dexec.mainClass="org.yawni.util.cache.BloomFilters" -Dexec.classpathScope="test"

@@ -37,7 +37,7 @@ import org.yawni.wordnet.FileManager.CharStream;
  * two design principles:  1) it uses only primitive types (including {@code String}) as argument and return types,
  * and 2) operations that search a file for a line with a specific property are provided by the
  * server.  The first principle ensures that scanning a database won't create a large number of remote objects that
- * must then be queried and garbage-collected (each requiring an additional <abbr title="Remote Procedure Call">RPC</abbr>).  The second
+ * must then be queried and garbage-collected (each requiring an additional RPC (Remote Procedure Call).  The second
  * principle avoids paging an entire database file across the network in order to search for
  * an entry.
  *
@@ -75,7 +75,7 @@ interface FileManagerInterface {
    * @throws IOException
    * @see #comparator()
    */
-  public int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException;
+  int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException;
 
   /**
    * @param target string sought
@@ -85,7 +85,8 @@ interface FileManagerInterface {
    * {@code fileName} is absolute or classpath relative.
    * @throws IOException
    */
-  public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean filenNameWnRelative) throws IOException;
+  int getIndexedLinePointer(final CharSequence target, int start, final String fileName,
+      final boolean filenNameWnRelative) throws IOException;
 
 	/**
 	 * Variant of {@link #getIndexedLinePointer(java.lang.CharSequence, int, java.lang.String, boolean) that gracefully
@@ -96,7 +97,7 @@ interface FileManagerInterface {
 	 * @return
 	 * @throws IOException
 	 */
-	public int getIndexedLinePointer(final CharSequence target, int start, final CharStream stream) throws IOException;
+  int getIndexedLinePointer(final CharSequence target, int start, final CharStream stream) throws IOException;
 
   /**
    * Efficient query method for sorted input which may have duplicates that returns ALL matches.  If {@code fileName}
@@ -106,13 +107,13 @@ interface FileManagerInterface {
    * @throws IOException
    * @see #getIndexedLinePointer(java.lang.CharSequence, java.lang.String)
    */
-  public Iterable<CharSequence> getMatchingLines(final CharSequence target, final String fileName) throws IOException;
+  Iterable<CharSequence> getMatchingLines(final CharSequence target, final String fileName) throws IOException;
 
   /**
    * Read the line that begins at file offset {@code offset} in the file named by {@code fileName}.
    * @throws IOException
    */
-  public String readLineAt(final int offset, final String fileName) throws IOException;
+  String readLineAt(final int offset, final String fileName) throws IOException;
 
   /**
    * Search for the line following the line that begins at {@code offset}.
@@ -120,7 +121,7 @@ interface FileManagerInterface {
    *         is the last line in the file.
    * @throws IOException
    */
-  public int getNextLinePointer(final int offset, final String fileName) throws IOException;
+  int getNextLinePointer(final int offset, final String fileName) throws IOException;
 
   /**
    * Search for a line whose index word <em>contains</em> {@code pattern} (case insensitive).
@@ -128,7 +129,7 @@ interface FileManagerInterface {
    *         no such line exists.
    * @throws IOException
    */
-  public int getMatchingLinePointer(final int offset, final Matcher pattern, final String fileName) throws IOException;
+  int getMatchingLinePointer(final int offset, final Matcher pattern, final String fileName) throws IOException;
 
   /**
    * Search for a line whose index word <em>begins with</em> {@code prefix} (case insensitive).
@@ -136,17 +137,17 @@ interface FileManagerInterface {
    *         no such line exists.
    * @throws IOException
    */
-  public int getPrefixMatchLinePointer(final int offset, final CharSequence prefix, final String fileName) throws IOException;
+  int getPrefixMatchLinePointer(final int offset, final CharSequence prefix, final String fileName) throws IOException;
 
   /**
    * Treat file contents like an array of lines and return the zero-based,
    * inclusive line corresponding to {@code linenum; not currently implemented efficiently
    * @throws IOException
    */
-  public String readLineNumber(final int linenum, final String fileName) throws IOException;
+  String readLineNumber(final int linenum, final String fileName) throws IOException;
 
   /**
-   * The {@link Comparator Comparator<CharSequence>} that defines the sort order of the WordNet data files.
+   * The {@link Comparator Comparator&lt;CharSequence&gt;} that defines the sort order of the WordNet data files.
    */
-  public Comparator<CharSequence> comparator();
+  Comparator<CharSequence> comparator();
 }

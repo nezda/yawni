@@ -1,55 +1,66 @@
-<lift:surround with="default" at="content">
-  <lift:ignore>
-  </lift:ignore>
-  <head>
-    <script type="text/javascript">
-      function doSearch() {
-        $.ajax({
-          url : 'search', 
-          data : $.toJSON({command : 'show', params : $('#searchBoxID').val()}), 
-          type : 'POST', dataType : 'script', contentType : 'text/json', timeout : 5000, cache : true,
-          beforeSend : function() {$('#ajax-loader').show();}, 
-          complete :   function() {
-            $('#ajax-loader').hide();
-            /* hide completions menu when a search is initiated */
-            $('.ac_results').hide();
-          }
-          });
-      }
-      $(window).load(function () {
-        $(':input:visible:enabled:first').focus();
-      });
-      $(document).ready(function() {
-        $('#searchBoxID').keyup(function(event) {
-          if (event.which == 13) {
-            /* forward to autocomplete 'result()' */
-            $('#searchBoxID').search();
-          }
-          /* TODO tab key (9) should be translated to arrow down */
-          if (event.which == 9) {
-            /* event.which = 40 */
-          }
+<div id="main" data-lift="surround?with=default;at=content">
+<!--  <lift:ignore>-->
+<!--  </lift:ignore>-->
+  <script type="text/javascript">
+    function doSearch() {
+      $.ajax({
+        url: 'search',
+        data: JSON.stringify({command: 'show', params: $('#searchBoxID').val()}),
+        type: 'POST', dataType: 'script', contentType: 'text/json', timeout: 5000, cache: true,
+        beforeSend: function() {$('#ajax-loader').show();},
+        complete:   function() {
+          $('#ajax-loader').hide();
+          /* hide completions menu when a search is initiated */
+          $('.ac_results').hide();
+        }
         });
-        $('#searchBoxID').autocomplete('autocomplete', {matchCase: false, max: 25, cacheLength: 100, autoFill: true, selectFirst: false}).
-          result(function(event, data, formatted) {
-            doSearch();
-          });
+    }
+    // $(window).load(function () {
+    //   $(':input:visible:enabled:first').focus();
+    // });
+    $(document).ready(function() {
+      $('#searchBoxID').keyup(function(event) {
+        if (event.which === 13) {
+          /* forward to autocomplete 'result()' */
+          $('#searchBoxID').search();
+        }
+        /* TODO tab key (9) should be translated to arrow down */
+        if (event.which === 9) {
+          /* event.which = 40 */
+        }
       });
-    </script>
-  </head>
+      $('#searchBoxID').autocomplete('autocomplete', {
+          matchCase: false, max: 25, cacheLength: 100, autoFill: true, selectFirst: false
+        }).
+        result(function(event, data, formatted) {
+          doSearch();
+        });
+    });
+  </script>
   <!--  NOTE: this uses the Ajax.scala class!! -->
-  <lift:Ajax.searchField id_msgs="messages">
-    <div class="span-16 search_panel">
-      <div class="append-bottom">
-        <span class="input_bubble">
-          <input id="searchBoxID" class="span-12" tabindex="1" type="search"/>
-          <button id="searchButton" onclick="doSearch();">Search</button> 
-        </span>
-        <div class="column span-1 last" style="float:right"><img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/></div>
+<!--  <div data-lift="Ajax.searchField;id_msgs=messages">-->
+  <div class="row" data-lift="Ajax.searchField">
+    <div class="col">
+      <div class="row">
+        <div class="col">
+          <div class="input-group mb-3 col-4 input_bubble">
+            <input id="searchBoxID" class="form-control" tabindex="1" type="search"/>
+            <div class="input-group-append">
+              <button id="searchButton" onclick="doSearch();">Search</button>
+            </div>
+            <div class="last">
+              <img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="json_result" class="resultz"></div>
+      <div class="row">
+        <div class="col">
+          <div id="json_result" class="resultz"></div>
+        </div>
+      </div>
       <!-- <div id="messages"></div> -->
+      <div class="recentQueries"></div>
     </div>
-    <div class="recentQueries span-8 last"></div>
-  </lift:Ajax.searchField>
-</lift:surround>
+  </div>
+</div>

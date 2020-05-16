@@ -80,7 +80,7 @@ $.Autocompleter = function(input, options) {
 	var blockSubmit;
 	
 	// prevent form submit in opera when selecting with return key
-	$.browser.opera && $(input.form).bind("submit.autocomplete", function() {
+	window.opera && $(input.form).bind("submit.autocomplete", function() {
 		if (blockSubmit) {
 			blockSubmit = false;
 			return false;
@@ -88,7 +88,7 @@ $.Autocompleter = function(input, options) {
 	});
 	
 	// only opera doesn't trigger keydown multiple times while pressed, others don't work with keypress at all
-	$input.bind(($.browser.opera ? "keypress" : "keydown") + ".autocomplete", function(event) {
+	$input.bind((window.opera ? "keypress" : "keydown") + ".autocomplete", function(event) {
 		// a keypress means the input has focus
 		// avoids issue where input had focus before the autocomplete was applied
 		hasFocus = 1;
@@ -647,8 +647,8 @@ $.Autocompleter.Select = function (options, input, select, config) {
 	function movePosition(step) {
 		active += step;
 		if (active < 0) {
-			active = listItems.size() - 1;
-		} else if (active >= listItems.size()) {
+			active = listItems.length - 1;
+		} else if (active >= listItems.length) {
 			active = 0;
 		}
 	}
@@ -668,7 +668,7 @@ $.Autocompleter.Select = function (options, input, select, config) {
 			var formatted = options.formatItem(data[i].data, i+1, max, data[i].value, term);
 			if ( formatted === false )
 				continue;
-			var li = $("<li/>").html( options.highlight(formatted, term) ).addClass(i%2 == 0 ? "ac_even" : "ac_odd").appendTo(list)[0];
+			var li = $("<li/>").html( options.highlight(formatted, term) ).addClass(i % 2 == 0 ? "ac_even" : "ac_odd").appendTo(list)[0];
 			$.data(li, "ac_data", data[i]);
 		}
 		listItems = list.find("li");
@@ -702,8 +702,8 @@ $.Autocompleter.Select = function (options, input, select, config) {
 			}
 		},
 		pageDown: function() {
-			if (active != listItems.size() - 1 && active + 8 > listItems.size()) {
-				moveSelect( listItems.size() - 1 - active );
+			if (active != listItems.length - 1 && active + 8 > listItems.length) {
+				moveSelect( listItems.length - 1 - active );
 			} else {
 				moveSelect(8);
 			}
@@ -733,18 +733,18 @@ $.Autocompleter.Select = function (options, input, select, config) {
 					overflow: 'auto'
 				});
 				
-                if($.browser.msie && typeof document.body.style.maxHeight === "undefined") {
-					var listHeight = 0;
-					listItems.each(function() {
-						listHeight += this.offsetHeight;
-					});
-					var scrollbarsVisible = listHeight > options.scrollHeight;
-                    list.css('height', scrollbarsVisible ? options.scrollHeight : listHeight );
-					if (!scrollbarsVisible) {
-						// IE doesn't recalculate width when scrollbar disappears
-						listItems.width( list.width() - parseInt(listItems.css("padding-left")) - parseInt(listItems.css("padding-right")) );
-					}
-                }
+          //       if($.browser.msie && typeof document.body.style.maxHeight === "undefined") {
+					// var listHeight = 0;
+					// listItems.each(function() {
+					// 	listHeight += this.offsetHeight;
+					// });
+					// var scrollbarsVisible = listHeight > options.scrollHeight;
+          //           list.css('height', scrollbarsVisible ? options.scrollHeight : listHeight );
+					// if (!scrollbarsVisible) {
+					// 	// IE doesn't recalculate width when scrollbar disappears
+					// 	listItems.width( list.width() - parseInt(listItems.css("padding-left")) - parseInt(listItems.css("padding-right")) );
+					// }
+          //       }
                 
             }
 		},

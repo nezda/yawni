@@ -57,7 +57,7 @@ public final class StringTokenizer extends AbstractCharSequenceTokenizer impleme
   /**
    * Returns the next token in the string as an CharSequence.
    * @return next token in the string as an CharSequence
-   * @throws NoSuchElementException if no tokens remain
+   * @throws java.util.NoSuchElementException if no tokens remain
    */
   @Override
   public String next() {

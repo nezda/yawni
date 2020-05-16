@@ -6,7 +6,7 @@ import com.google.inject.servlet.GuiceServletContextListener
 import com.google.inject.servlet.ServletModule
 import com.sun.jersey.guice.JerseyServletModule
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.xml._
 import javax.ws.rs.ext.MessageBodyWriter
 import com.sun.jersey.api.core.ResourceConfig
@@ -33,7 +33,7 @@ class YawniGuiceConfig extends GuiceServletContextListener {
           //,"com.sun.jersey.spi.container.ContainerRequestFilters" -> "com.sun.jersey.api.container.filter.LoggingFilter"
           //,"com.sun.jersey.spi.container.ContainerResponseFilters" -> "com.sun.jersey.api.container.filter.LoggingFilter"
           //,ResourceConfig.FEATURE_TRACE -> "true"
-          )
+          ).asJava
         serve("/*").`with`(classOf[GuiceContainer], params);
       }
     })

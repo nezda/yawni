@@ -51,7 +51,7 @@ public interface WordNetInterface {
    * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
    *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3 describes 'exceptional forms'</a>
    */
-  public List<String> lookupBaseForms(final String someString, final POS pos);
+  List<String> lookupBaseForms(final String someString, final POS pos);
 
 	/**
    * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)},
@@ -61,7 +61,7 @@ public interface WordNetInterface {
 	 * * @return an immutable list of the {@code WordSense}(s) of {@code someString} in {@code pos}
    * @see #lookupSynsets
    */
-  public List<WordSense> lookupWordSenses(final String someString, final POS pos);
+  List<WordSense> lookupWordSenses(final String someString, final POS pos);
 
   /**
    * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)},
@@ -70,7 +70,7 @@ public interface WordNetInterface {
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return an immutable list of the {@code Synset}(s) of {@code someString} in {@code pos}
    */
-  public List<Synset> lookupSynsets(final String someString, final POS pos);
+  List<Synset> lookupSynsets(final String someString, final POS pos);
 
 	/**
    * Look up a {@code Word} in the database by its <strong>lemma</strong> (aka baseform).  The search is
@@ -84,7 +84,7 @@ public interface WordNetInterface {
    * @return An {@code Word} representing the word, or
    * {@code null} if no such entry exists.
    */
-  public Word lookupWord(final CharSequence lemma, final POS pos);
+  Word lookupWord(final CharSequence lemma, final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Word}s in the database ordered by
@@ -92,7 +92,7 @@ public interface WordNetInterface {
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
    */
-  public Iterable<Word> words(final POS pos);
+  Iterable<Word> words(final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em>
@@ -104,7 +104,7 @@ public interface WordNetInterface {
    * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html">
    *   <code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
    */
-  public Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
+  Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em>
@@ -113,7 +113,7 @@ public interface WordNetInterface {
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
    */
-  public Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
+  Iterable<Word> searchByPrefix(final CharSequence prefix, final POS pos);
 
   /**
    * Returns an iterator of all the {@code Synset}s whose gloss <strong>contains</strong> {@code substring} (case sensitive).
@@ -122,28 +122,28 @@ public interface WordNetInterface {
    * @return An iterable of {@code Synset}s.
    * @throws java.util.regex.PatternSyntaxException
    */
-   public Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
+  Iterable<Synset> searchGlossBySubstring(final CharSequence substring, final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Synset}s in the database.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Synset}s.
    */
-  public Iterable<Synset> synsets(final POS pos);
+  Iterable<Synset> synsets(final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code WordSense}s in the database.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code WordSense}s.
    */
-  public Iterable<WordSense> wordSenses(final POS pos);
+  Iterable<WordSense> wordSenses(final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Relation}s in the database.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Relation}s.
    */
-  public Iterable<Relation> relations(final POS pos);
+  Iterable<Relation> relations(final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Relation}s in the database of
@@ -152,7 +152,7 @@ public interface WordNetInterface {
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Relation}s of type {@code RelationType}.
    */
-  public Iterable<Relation> relations(final RelationType relationType, final POS pos);
+  Iterable<Relation> relations(final RelationType relationType, final POS pos);
 
   /**
    * Returns an iterator of <strong>all</strong> the exceptions for the given part-of-speech.
@@ -163,27 +163,29 @@ public interface WordNetInterface {
    * @yawni.experimental
    */
 	@Beta
-  public Iterable<List<String>> exceptions(final POS pos);
+  Iterable<List<String>> exceptions(final POS pos);
 
   /**
    * Returns an iterator of {@code Synset}s matching {@code query}.
+   * Throws {@link IllegalArgumentException}, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @param query Query string.
    * @return An iterable of {@code Synset}s.
-   * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
+   * @throws IllegalArgumentException to indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
 	@Beta
-  public Iterable<Synset> synsets(final String query);
+  Iterable<Synset> synsets(final String query);
 
   /**
    * Returns an iterator of {@code WordSense}s matching {@code query}.
+   * Throws {@link IllegalArgumentException}, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
    * @param query Query string.
    * @return An iterable of {@code WordSense}s.
-   * @throws IllegalArgumentException, and other {@link RuntimeException}s indicate an unsupported and/or malformed query.
+   * @throws IllegalArgumentException to indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
 	@Beta
-  public Iterable<WordSense> wordSenses(final String query);
+  Iterable<WordSense> wordSenses(final String query);
 
 	/**
 	 * Some applications are written in terms of specific synsets from specific versions of WordNet.

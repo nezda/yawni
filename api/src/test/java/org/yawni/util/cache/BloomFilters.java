@@ -45,7 +45,8 @@ class BloomFilters {
       for (final Word word : dictionary.words(pos)) {
         count++;
       }
-      final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(count, fpProb, WordNetLexicalComparator.TO_LOWERCASE_INSTANCE);
+      final BloomFilter<CharSequence> filter = new BloomFilter<>(count, fpProb,
+          WordNetLexicalComparator.TO_LOWERCASE_INSTANCE);
 
 //      System.err.println(pos+" "+filter);
       for (final Word word : dictionary.words(pos)) {
@@ -79,7 +80,8 @@ class BloomFilters {
         //count += exceptions.size() - 1;
         count++;
       }
-      final BloomFilter<CharSequence> filter = new BloomFilter<CharSequence>(count, fpProb, WordNetLexicalComparator.TO_LOWERCASE_INSTANCE);
+      final BloomFilter<CharSequence> filter = new BloomFilter<>(count, fpProb,
+          WordNetLexicalComparator.TO_LOWERCASE_INSTANCE);
       for (final List<String> exceptions : dictionary.exceptions(pos)) {
 //        for (final String exception : exceptions.subList(1, exceptions.size())) {
         final String exception = exceptions.get(0);

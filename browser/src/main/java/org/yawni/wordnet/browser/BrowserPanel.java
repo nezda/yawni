@@ -16,7 +16,6 @@
  */
 package org.yawni.wordnet.browser;
 
-import com.google.common.base.Throwables;
 import org.yawni.util.Utils;
 import org.yawni.wordnet.WordNetInterface;
 import org.yawni.wordnet.WordNet;
@@ -41,17 +40,43 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.undo.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
+
 import org.yawni.util.WordCaseUtils;
 import org.yawni.wordnet.GlossAndExampleUtils;
 //import java.util.prefs.*;
@@ -106,14 +131,12 @@ public class BrowserPanel extends JPanel {
     this.undoAction = new UndoAction();
     this.redoAction = new RedoAction();
 
-    this.searchField.getDocument().addUndoableEditListener(new UndoableEditListener() {
-      public void undoableEditHappened(final UndoableEditEvent evt) {
-        //System.err.println("undoableEditHappened: "+evt);
-        // Remember the edit and update the menus.
-        undoManager.addEdit(evt.getEdit());
-        undoAction.updateUndoState();
-        redoAction.updateRedoState();
-      }
+    this.searchField.getDocument().addUndoableEditListener(evt -> {
+      //System.err.println("undoableEditHappened: "+evt);
+      // Remember the edit and update the menus.
+      undoManager.addEdit(evt.getEdit());
+      undoAction.updateUndoState();
+      redoAction.updateRedoState();
     });
 
     this.searchField.setInputVerifier(new InputVerifier() {
@@ -359,7 +382,7 @@ public class BrowserPanel extends JPanel {
 
   void wireToFrame(final Browser browser) {
     assert browser.isFocusCycleRoot();
-    final List<Component> components = new ArrayList<Component>();
+    final List<Component> components = new ArrayList<>();
     components.add(this.searchField);
     components.addAll(this.posBoxes.values());
     browser.setFocusTraversalPolicy(new SimpleFocusTraversalPolicy(components));
@@ -552,7 +575,7 @@ public class BrowserPanel extends JPanel {
             get();
           } catch (InterruptedException ignore) {
           } catch (java.util.concurrent.ExecutionException ee) {
-            throw Throwables.propagate(ee);
+            throw new RuntimeException(ee);
           }
         }
       };
@@ -583,18 +606,16 @@ public class BrowserPanel extends JPanel {
   } // end class VerbFramesAction
 
   void dismissPOSComboBoxPopup() {
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        for (final POS pos : POS.CATS) {
-          final RelationTypeComboBox comboBox = BrowserPanel.this.posBoxes.get(pos);
-          comboBox.getPopupMenu().setVisible(false);
-        }
+    SwingUtilities.invokeLater(() -> {
+      for (final POS pos : POS.CATS) {
+        final RelationTypeComboBox comboBox = BrowserPanel.this.posBoxes.get(pos);
+        comboBox.getPopupMenu().setVisible(false);
       }
     });
   }
 
   private EnumMap<POS, RelationTypeComboBox> makePOSComboBoxes() {
-    final EnumMap<POS, RelationTypeComboBox> newPOSBoxes = new EnumMap<POS, RelationTypeComboBox>(POS.class);
+    final EnumMap<POS, RelationTypeComboBox> newPOSBoxes = new EnumMap<>(POS.class);
     for (final POS pos : POS.CATS) {
       final RelationTypeComboBox comboBox = new RelationTypeComboBox(pos);
       comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
@@ -639,7 +660,7 @@ public class BrowserPanel extends JPanel {
           get();
         } catch (InterruptedException ignore) {
         } catch (java.util.concurrent.ExecutionException ee) {
-          throw Throwables.propagate(ee);
+          throw new RuntimeException(ee);
         }
       }
     };
@@ -691,7 +712,7 @@ public class BrowserPanel extends JPanel {
       }
       boolean enabled = false;
       //XXX System.err.println("  BrowserPanel forms: \""+Arrays.asList(forms)+"\" pos: "+pos);
-      final SortedSet<String> noCaseForms = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+      final SortedSet<String> noCaseForms = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
       for (final String form : forms) {
         if (noCaseForms.contains(form)) {
           // block no case duplicates ("hell"/"Hell", "villa"/"Villa")
@@ -765,16 +786,14 @@ public class BrowserPanel extends JPanel {
   // not "run" - lemma is clear)
   private void updateStatusBar(final Status status, final Object... args) {
     final String text = status.get(args);
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
+    SwingUtilities.invokeLater(() -> {
 //        if (status == Status.NO_MATCHES) {
 //          textPrompt.setText(text);
 //          textPrompt.setVisible(true);
 //          BrowserPanel.this.statusLabel.setText(" ");
 //          return;
 //        }
-        BrowserPanel.this.statusLabel.setText(text);
-      }
+      BrowserPanel.this.statusLabel.setText(text);
     });
   }
 
@@ -783,11 +802,9 @@ public class BrowserPanel extends JPanel {
     updateStatusBar(Status.SYNONYMS, word.getPOS().getLabel(), word.getLowercasedLemma());
     final StringBuilder buffer = new StringBuilder();
     appendSenses(word, buffer, true);
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        resultEditorPane.setText(buffer.toString());
-        resultEditorPane.setCaretPosition(0); // scroll to top
-      }
+    SwingUtilities.invokeLater(() -> {
+      resultEditorPane.setText(buffer.toString());
+      resultEditorPane.setCaretPosition(0); // scroll to top
     });
   }
 
@@ -961,12 +978,10 @@ public class BrowserPanel extends JPanel {
         buffer.append("</ul>\n");
       }
     }
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        resultEditorPane.setText(buffer.toString());
-        resultEditorPane.setCaretPosition(0); // scroll to top
-        updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
-      }
+    SwingUtilities.invokeLater(() -> {
+      resultEditorPane.setText(buffer.toString());
+      resultEditorPane.setCaretPosition(0); // scroll to top
+      updateStatusBar(Status.RELATION, relationType, word.getPOS(), word.getLowercasedLemma());
     });
   }
 

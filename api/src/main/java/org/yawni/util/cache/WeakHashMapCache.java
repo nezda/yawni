@@ -28,7 +28,7 @@ class WeakHashMapCache<K, V> implements Cache<K, V> {
   private final WeakHashMap<K, V> backingMap;
 
   public WeakHashMapCache(final int initialCapacity) {
-    this.backingMap = new WeakHashMap<K, V>(initialCapacity);
+    this.backingMap = new WeakHashMap<>(initialCapacity);
   }
 
   @Override

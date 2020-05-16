@@ -17,7 +17,6 @@
 package org.yawni.wordnet;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
@@ -37,7 +36,6 @@ import java.net.JarURLConnection;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -270,7 +268,7 @@ final class FileManager implements FileManagerInterface {
         seek(position);
         return (char)raf.readByte();
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
     @Override
@@ -278,7 +276,7 @@ final class FileManager implements FileManagerInterface {
       try {
         return (int) raf.length();
       } catch (IOException ioe) {
-        throw Throwables.propagate(ioe);
+        throw new RuntimeException(ioe);
       }
     }
     @Override
@@ -487,7 +485,7 @@ final class FileManager implements FileManagerInterface {
           //slow CharStream
           //stream = new RAFCharStream(pathname, new RandomAccessFile(pathname, "r"));
           //fast CharStream stream
-          stream = Optional.<CharStream>of(new NIOCharStream(pathname, new RandomAccessFile(file, "r")));
+          stream = Optional.of(new NIOCharStream(pathname, new RandomAccessFile(file, "r")));
           log.trace("FileCharStream");
         }
       }
@@ -551,10 +549,7 @@ final class FileManager implements FileManagerInterface {
   // Line-based interface methods
   //
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public String readLineNumber(final int linenum, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     if (stream == null) {
@@ -609,9 +604,6 @@ final class FileManager implements FileManagerInterface {
   // Low-level Searching
   //
 
-  /**
-   * {@inheritDoc}
-   */
   // used by substring search iterator
 	@Override
   public int getMatchingLinePointer(int offset, final Matcher matcher, final String fileName) throws IOException {
@@ -641,9 +633,6 @@ final class FileManager implements FileManagerInterface {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   // used by prefix search iterator
 	@Override
   public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
@@ -668,7 +657,7 @@ final class FileManager implements FileManagerInterface {
   }
 
   /**
-   * {@inheritDoc}
+   *
    * XXX old version only languishing to verify new version
    */
   // used by prefix search iterator
@@ -731,10 +720,7 @@ final class FileManager implements FileManagerInterface {
     return aline != null && CharSequences.startsWith(aline, prefix);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public int getIndexedLinePointer(final CharSequence target, final String fileName) throws IOException {
     return getIndexedLinePointer(target, 0, fileName, true);
   }
@@ -749,10 +735,7 @@ final class FileManager implements FileManagerInterface {
 		return getIndexedLinePointer(target, start, stream);
 	}
 
-  /**
-   * {@inheritDoc}
-   */
-	@Override
+  @Override
   public int getIndexedLinePointer(final CharSequence target, int start, CharStream stream) throws IOException {
     // This binary search method provides output usable by prefix search
     // changing this operation from linear time to logarithmic time.
@@ -827,9 +810,6 @@ final class FileManager implements FileManagerInterface {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Iterable<CharSequence> getMatchingLines(final CharSequence target, final String fileName) throws IOException {
     if (target.length() == 0) {
@@ -887,7 +867,7 @@ final class FileManager implements FileManagerInterface {
 
   /**
    * {@inheritDoc}
-   * Note this is a covariant implementation of {@link java.util.Comparator Comparator<CharSequence>}
+   * Note this is a covariant implementation of {@link java.util.Comparator Comparator&lt;CharSequence&gt;}
    */
 	@Override
   public WordNetLexicalComparator comparator() {

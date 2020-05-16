@@ -46,13 +46,13 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
   /** Validating factory method so template parameters are deduced. */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final Iterable<T>... bases) {
-      return new MergedIterable<T>(validateSort, ImmutableList.copyOf(bases));
+      return new MergedIterable<>(validateSort, ImmutableList.copyOf(bases));
   }
 
 	/** Validating factory method so template parameters are deduced. */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final ImmutableList<Iterable<T>> bases) {
-      return new MergedIterable<T>(validateSort, ImmutableList.copyOf(bases));
+      return new MergedIterable<>(validateSort, ImmutableList.copyOf(bases));
   }
 
   private final ImmutableList<Iterable<T>> bases;
@@ -66,10 +66,9 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
     this.bases = bases;
   }
 
-  /** {@inheritDoc} */
-	@Override
+  @Override
   public Iterator<T> iterator() {
-		return Iterables.mergeSorted(bases, Ordering.<T>natural()).iterator();
+		return Iterables.mergeSorted(bases, Ordering.natural()).iterator();
   }
 
   private void validateSort(final boolean validateSort, final Iterable<Iterable<T>> bases) {
@@ -78,9 +77,8 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
     }
     for (final Iterable<T> iterable : bases) {
       if (! Utils.isSorted(iterable, true)) {
-        final StringBuilder msg = new StringBuilder("Iterable ").
-          append(iterable).append(" violates sort criteria.");
-        throw new IllegalArgumentException(msg.toString());
+        final String msg = "Iterable " + iterable + " violates sort criteria.";
+        throw new IllegalArgumentException(msg);
       }
     }
   }

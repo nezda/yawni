@@ -232,7 +232,7 @@ public class Utils {
    */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> uniq(final boolean validateSort, final Iterable<T> base) {
-      return new Uniq<T>(validateSort, base);
+      return new Uniq<>(validateSort, base);
   }
 
   /**
