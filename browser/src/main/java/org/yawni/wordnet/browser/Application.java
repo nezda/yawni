@@ -34,7 +34,7 @@ final class Application {
   private final String artifactId;
   private final String applicationVersion;
   private final String buildNumber;
-	private final SimpleDateFormat buildDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat BUILD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private final Date buildDate;
 
   Application() {
@@ -54,7 +54,7 @@ final class Application {
       this.applicationVersion = (String) props.get("application.version");
       this.buildNumber = (String) props.get("application.buildNumber");
       final String buildDateString = (String) props.get("application.buildDate");
-      this.buildDate = buildDateFormat.parse(buildDateString);
+      this.buildDate = BUILD_DATE_FORMAT.parse(buildDateString);
       //System.err.println("getPackage(): "+getPackagePath());
       //System.err.println("props: "+props);
       //System.err.println(this);

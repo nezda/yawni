@@ -84,6 +84,7 @@ import org.yawni.wordnet.GlossAndExampleUtils;
 /**
  * The main panel of browser.
  */
+@SuppressWarnings("jol")
 public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
 //  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
@@ -763,7 +764,7 @@ public class BrowserPanel extends JPanel {
     VERB_FRAMES("Verb Frames search for verb \"%s\"");
     private final String formatString;
 
-    private Status(final String formatString) {
+    Status(final String formatString) {
       this.formatString = formatString;
     }
 
@@ -812,7 +813,7 @@ public class BrowserPanel extends JPanel {
    * Core search routine; renders all information about {@code Word} into {@code buffer}
    * as HTML.
    *
-   * <h3>TODO</h3>
+   * <em>TODO</em>
    * Factor out this logic into a "results" data structure like findtheinfo_ds() does
    * to separate logic from presentation.
    * A nice XML format would open up some nice possibilities for web services, commandline,
@@ -915,7 +916,7 @@ public class BrowserPanel extends JPanel {
   }
 
   /**
-   * Renders single {@code Word + RelationType}; calls recursive {@link #appendSenseChain()} method for
+   * Renders single {@code Word + RelationType}; calls recursive {@link #appendSenseChain(StringBuilder, WordSense, RelationArgument, RelationType, RelationType, int, Link)} method for
    * each applicable sense.
    */
   private void displaySenseChain(final Word word, final RelationType relationType) {
@@ -925,8 +926,8 @@ public class BrowserPanel extends JPanel {
     final List<WordSense> senses = word.getWordSenses();
     // count number of senses relationType applies to
     int numApplicableSenses = 0;
-    for (int i = 0, n = senses.size(); i < n; i++) {
-      if (! senses.get(i).getRelationTargets(relationType).isEmpty()) {
+    for (WordSense sens : senses) {
+      if (!sens.getRelationTargets(relationType).isEmpty()) {
         numApplicableSenses++;
       }
     }
@@ -987,7 +988,7 @@ public class BrowserPanel extends JPanel {
 
   /**
    * Adds information from {@linkplain Relation}s; base method signature of recursive method
-   * {@linkplain #appendSenseChain()}.
+   * {@linkplain #appendSenseChain(StringBuilder, WordSense, RelationArgument, RelationType, RelationType, int, Link)}.
    */
   private void appendSenseChain(
     final StringBuilder buffer,
@@ -1178,24 +1179,23 @@ public class BrowserPanel extends JPanel {
 
     private static String renderGloss(final Synset synset) {
       final StringBuilder description = new StringBuilder();
-      if (synset.getGloss() != null) {
-//        description.append("<hr noshade>");
-        description.append("<div class=\"gloss\">").
+      synset.getGloss();
+      //        description.append("<hr noshade>");
+      description.append("<div class=\"gloss\">").
 //          append("<hr noshade>").
-          append("<div class=\"definitions\">").
-          append(GlossAndExampleUtils.getDefinitionsChunk(synset)).
+        append("<div class=\"definitions\">").
+        append(GlossAndExampleUtils.getDefinitionsChunk(synset)).
+        append("</div>");
+      final String examplesChunk = GlossAndExampleUtils.getExamplesChunk(synset);
+      if (examplesChunk.length() != 0) {
+        description.append("<div class=\"examples\">").
+          append(examplesChunk).
           append("</div>");
-        final String examplesChunk = GlossAndExampleUtils.getExamplesChunk(synset);
-        if (examplesChunk.length() != 0) {
-          description.append("<div class=\"examples\">").
-            append(examplesChunk).
-            append("</div>");
-        }
-        description.append("</div>");
-//          append(" -- (").
-//          append(synset.getGloss()).
-//          append(')');
       }
+      description.append("</div>");
+      //          append(" -- (").
+      //          append(synset.getGloss()).
+      //          append(')');
       return description.toString();
     }
 
