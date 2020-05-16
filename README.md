@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/nezda/yawni.svg?branch=master)](https://travis-ci.org/nezda/yawni)
+[![Build Status](https://github.com/nezda/yawni/workflows/Java%20Actions%20CI/badge.svg?branch=master)](https://github.com/nezda/yawni/actions)
 
 Yawni README file
 
