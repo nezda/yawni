@@ -30,6 +30,8 @@ class AboutResource {
   //  </h4>
   //</div>
 
+  //  read in META-INF/maven/org.yawni/yawni-wordnet-data30/pom.properties
+
   @GET
   def aboutResponse() = {
     <about>

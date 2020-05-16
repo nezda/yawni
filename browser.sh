@@ -28,7 +28,7 @@ MVN_REPO=$HOME/.m2/repository/
 #CLASSPATH=$CLASSPATH:$MVN_REPO/org/yawni/wordnet/yawni-data/$VERSION/yawni-wordnet-data-$VERSION.jar
 # outter parens make this a Bash array of space separated elements
 #JVM_ARGS+=()
-JVM_ARGS=(-Xdock:name="Yawni Browser")
+JVM_ARGS=(-Xdock:name="Yawni WordNet Browser")
 #JVM_ARGS+=(-Xdock:icon=jar://org/yawni/wordnet/browser/yawni_115x128_icon.png)
 #JVM_ARGS+=(-Xdock:icon=./browser/src/main/resources/org/yawni/wordnet/browser/yawni_115x128_icon.png)
 #JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/log4j.properties)

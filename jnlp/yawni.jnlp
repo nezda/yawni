@@ -11,11 +11,11 @@
     <description kind="short">Yawni WordNet Browser</description>
     <!-- not a 64x64 icon -->
     <!-- <icon href="http://www.fatbread.com/american-flag.png"/> -->
-    <icon href="http://www.yawni.org/images/yawni_57x64_icon.png"/>
+    <icon href="https://www.yawni.org/assets/logo.png" kind="default"/>
     <offline-allowed/>
     <shortcut online="false">
       <desktop/>
-      <menu submenu="Yawni Browser"/>
+      <menu submenu="Yawni WordNet Browser"/>
     </shortcut>
   </information>
   <update check="always" policy="prompt-update"/>
