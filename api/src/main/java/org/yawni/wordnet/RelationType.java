@@ -258,12 +258,12 @@ public enum RelationType {
     b.symmetricType = a;
   }
 
-  static final EnumSet<RelationType> MORPHOSEMATIC_TYPES;
+  static final EnumSet<RelationType> MORPHOSEMANTIC_TYPES;
   static {
-    MORPHOSEMATIC_TYPES = EnumSet.noneOf(RelationType.class);
+    MORPHOSEMANTIC_TYPES = EnumSet.noneOf(RelationType.class);
     for (final RelationType relType : values()) {
       if (relType.getRelationTypeType() == RelationType.RelationTypeType.MORPHOSEMANTIC) {
-        MORPHOSEMATIC_TYPES.add(relType);
+        MORPHOSEMANTIC_TYPES.add(relType);
       }
     }
   }
@@ -280,7 +280,7 @@ public enum RelationType {
     setSymmetric(SIMILAR_TO, SIMILAR_TO);
     setSymmetric(ATTRIBUTE, ATTRIBUTE);
     setSymmetric(DERIVATIONALLY_RELATED, DERIVATIONALLY_RELATED);
-    for (final RelationType relType : MORPHOSEMATIC_TYPES) {
+    for (final RelationType relType : MORPHOSEMANTIC_TYPES) {
       setSymmetric(relType, relType);
     }
     setSymmetric(DOMAIN_OF_TOPIC, MEMBER_OF_TOPIC_DOMAIN);

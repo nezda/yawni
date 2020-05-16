@@ -16,12 +16,12 @@
  */
 package org.yawni.util;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Predicates and functions for {@code Iterable}s and {@code List}s.
@@ -49,7 +49,7 @@ public class Utils {
   public static int mismatch(final List<?> l1, int l1s, final int l1e,
       final List<?> l2, int l2s) {
     while (l1s < l1e) {
-      if (l2s >= l2.size() || ! Objects.equal(l1.get(l1s), l2.get(l2s))) {
+      if (l2s >= l2.size() || ! Objects.equals(l1.get(l1s), l2.get(l2s))) {
         break;
       }
       l1s++; l2s++;
@@ -297,18 +297,5 @@ public class Utils {
       list.add(item);
     }
     return list;
-  }
-
-  /**
-   * Verifies argument is in valid range of (signed) byte, else throws {@code IllegalArgumentException}.
-   * Very similar to Google Guava's {@code SignedBytes.checkedCast(long)}, but
-   * takes an {@code int} rather than a {@code long}.
-   */
-  public static byte checkedCast(int i) {
-    if (i <= Byte.MAX_VALUE && i >= Byte.MIN_VALUE) {
-      return (byte)i;
-    } else {
-      throw new IllegalArgumentException("int "+i+" outside byte range");
-    }
   }
 }

@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.SignedBytes;
+
 import java.util.EnumMap;
 import java.util.List;
 import org.slf4j.Logger;
@@ -24,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequences;
 import org.yawni.util.EnumAliases;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.Utils;
 
 /**
  * Handler for {@link WordNet#synsets(String)} and
@@ -55,7 +56,7 @@ enum Command {
       if (value.length() == 9) {
         // special case: 9 digits where leftmost is pos ordinal
         final int posOrd = Character.digit(value.charAt(0), 10);
-        pos = org.yawni.wordnet.POS.fromOrdinal(Utils.checkedCast(posOrd));
+        pos = org.yawni.wordnet.POS.fromOrdinal(SignedBytes.checkedCast(posOrd));
         if (cmdToValue.containsKey(POS)) {
           // ensure explicitly POS compat with implied POS
           final org.yawni.wordnet.POS explicitPOS = org.yawni.wordnet.POS.valueOf(cmdToValue.get(POS));

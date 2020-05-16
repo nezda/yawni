@@ -16,7 +16,6 @@
  */
 package org.yawni.util;
 
-import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,22 +27,6 @@ import com.google.common.collect.Iterators;
 import static org.junit.Assert.*;
 
 public class UtilsTest {
-  @Test
-  public void testEquals() {
-    Integer i1;
-    Integer i2;
-    i1 = i2 = null;
-    assertTrue(Objects.equal(i1, i2));
-    i1 = 1;
-    assertFalse(Objects.equal(i1, i2));
-    i1 = null;
-    i2 = 2;
-    assertFalse(Objects.equal(i1, i2));
-    i1 = 1;
-    i2 = new Integer(1);
-    assertTrue(Objects.equal(i1, i2));
-  }
-
   @Test
   public void testMismatch() {
     final List<Integer> empty = Collections.emptyList();

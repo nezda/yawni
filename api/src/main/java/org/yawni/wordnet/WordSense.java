@@ -19,13 +19,13 @@ package org.yawni.wordnet;
 import com.google.common.base.Objects;
 import java.util.ArrayList;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.SignedBytes;
 import org.yawni.util.EnumAliases;
 import java.util.Iterator;
 import java.util.List;
 
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.Utils;
 import static org.yawni.util.Utils.add;
 
 /**
@@ -99,7 +99,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     this.synset = synset;
     this.lemma = lemma;
     this.lexid = lexid;
-    this.adjPositionFlags = Utils.checkedCast(flags);
+    this.adjPositionFlags = SignedBytes.checkedCast(flags);
     this.senseNumber = -1;
     this.sensesTaggedFrequency = -1;
   }
@@ -450,7 +450,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     if (sentenceNumbers != null) {
       frames = Lists.newArrayList();
       // fetch the illustrative sentences indicated in sentenceNumbers
-      //TODO consider substibuting in lemma for "%s" in each
+      //TODO consider substituting in lemma for "%s" in each
       //FIXME this logic is a bit too complex/duplicated!!
       int s = 0;
       int e = sentenceNumbers.indexOf(',');

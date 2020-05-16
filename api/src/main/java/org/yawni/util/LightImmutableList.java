@@ -1146,7 +1146,7 @@ public abstract class LightImmutableList<E> implements List<E>, RandomAccess {
     @Override
     public int hashCode() {
       int result = 1;
-      // optimized for RandomAaccess - zero allocation
+      // optimized for RandomAccess - zero allocation
       for (int i = begin(), n = end(); i < n; i++) {
         final E next = get(i);
         result = (31 * result) + (next == null ? 0 : next.hashCode());

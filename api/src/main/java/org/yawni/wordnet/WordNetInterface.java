@@ -132,6 +132,15 @@ public interface WordNetInterface {
   Iterable<Synset> synsets(final POS pos);
 
   /**
+   * Returns an iterator of <strong>all</strong> the {@code Synset}s in the database
+   * for all parts-of-speech.
+   * @return An iterable of {@code Synset}s.
+   */
+  default Iterable<Synset> synsets() {
+    return synsets(POS.ALL);
+  }
+
+  /**
    * Returns an iterator of <strong>all</strong> the {@code WordSense}s in the database.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code WordSense}s.

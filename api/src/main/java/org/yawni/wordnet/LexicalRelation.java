@@ -16,7 +16,7 @@
  */
 package org.yawni.wordnet;
 
-import org.yawni.util.Utils;
+import com.google.common.primitives.SignedBytes;
 
 /**
  * A {@code LexicalRelation} encodes a lexical relationship between {@link WordSense}s.
@@ -33,7 +33,7 @@ public final class LexicalRelation extends Relation {
    * Copy constructor to create Relation with equal source and target, but different type
    */
   LexicalRelation(final LexicalRelation that, final RelationType relationType, final int relationIndex) {
-    super(that, Utils.checkedCast(relationType.ordinal()), relationIndex);
+    super(that, SignedBytes.checkedCast(relationType.ordinal()), relationIndex);
   }
 
   @Override

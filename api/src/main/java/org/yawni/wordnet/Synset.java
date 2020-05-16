@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.SignedBytes;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -26,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.Utils;
 import static org.yawni.util.Utils.add;
 
 /**
@@ -76,7 +77,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     // http://wordnet.princeton.edu/man/lexnames.5WN.html
     // disable assert to be lenient for generated WordNets
     //assert lexfilenumInt < 45 : "lexfilenumInt: "+lexfilenumInt;
-    this.lexfilenum = Utils.checkedCast(lexfilenumInt);
+    this.lexfilenum = SignedBytes.checkedCast(lexfilenumInt);
     CharSequence ss_type = tokenizer.nextToken();
     if ("s".contentEquals(ss_type)) {
       ss_type = "a";
@@ -85,7 +86,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     } else {
       this.isAdjectiveCluster = false;
     }
-    this.posOrdinal = Utils.checkedCast(POS.lookup(ss_type).ordinal());
+    this.posOrdinal = SignedBytes.checkedCast(POS.lookup(ss_type).ordinal());
 
     final int wordCount = tokenizer.nextHexInt();
     final WordSense[] localWordSenses = new WordSense[wordCount];
@@ -102,13 +103,17 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
         //TODO use String.regionMatches() instead of creating 'marker'
         final String marker = lemma.substring(lparenIdx + 1, rparenIdx);
         lemma = lemma.substring(0, lparenIdx);
-        if (marker.equals("p")) {
+        switch (marker) {
+        case "p":
           flags |= WordSense.AdjPosition.PREDICATIVE.flag;
-        } else if (marker.equals("a")) {
+          break;
+        case "a":
           flags |= WordSense.AdjPosition.ATTRIBUTIVE.flag;
-        } else if (marker.equals("ip")) {
+          break;
+        case "ip":
           flags |= WordSense.AdjPosition.IMMEDIATE_POSTNOMINAL.flag;
-        } else {
+          break;
+        default:
           throw new RuntimeException("unknown syntactic marker " + marker);
         }
       }
@@ -340,7 +345,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /**
-   * Returns the "gloss", or definition of this Synset, and optionally some example sentences.
+   * Returns the "gloss", or definition of this Synset, and optionally some example sentences
+   * or an empty String.
    */
   @SuppressWarnings("deprecation") // using Character.isSpace() for file compat
   public String getGloss() {

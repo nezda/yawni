@@ -24,13 +24,14 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
+import com.google.common.primitives.SignedBytes;
+
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
 import static org.yawni.util.MergedIterable.merge;
 import static org.yawni.util.Utils.uniq;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
-import org.yawni.util.Utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,7 +167,7 @@ public final class WordNet implements WordNetInterface {
     private final byte posOrdinal;
     POSOffsetDatabaseKey(final POS pos, final int offset) {
       this.offset = offset;
-      this.posOrdinal = Utils.checkedCast(pos.ordinal());
+      this.posOrdinal = SignedBytes.checkedCast(pos.ordinal());
     }
     @Override
     public boolean equals(final Object object) {
@@ -194,7 +195,7 @@ public final class WordNet implements WordNetInterface {
     private final byte posOrdinal;
     StringPOSDatabaseKey(final CharSequence key, final POS pos) {
       this.key = key;
-      this.posOrdinal = Utils.checkedCast(pos.ordinal());
+      this.posOrdinal = SignedBytes.checkedCast(pos.ordinal());
     }
     @Override
     public boolean equals(final Object object) {
@@ -209,8 +210,7 @@ public final class WordNet implements WordNetInterface {
     }
     @Override
     public int hashCode() {
-      // FIXME crap hashCode ?
-      return posOrdinal ^ CharSequences.hashCode(key);
+      return (31 * posOrdinal) + CharSequences.hashCode(key);
     }
     @Override
     public String toString() {
@@ -443,7 +443,7 @@ public final class WordNet implements WordNetInterface {
 			Closeables.closeQuietly(ois);
       return filter;
     } catch (Exception e) {
-      log.info("caught {}", e);
+      log.info("caught", e);
       System.err.println("caught!"+e);
       return null;
     }

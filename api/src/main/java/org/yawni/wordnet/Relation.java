@@ -17,7 +17,7 @@
 package org.yawni.wordnet;
 
 import org.yawni.util.CharSequenceTokenizer;
-import org.yawni.util.Utils;
+import com.google.common.primitives.SignedBytes;
 
 /**
  * A {@code Relation} encodes a lexical <em>or</em> semantic relationship between WordNet entities.  A lexical
@@ -85,17 +85,17 @@ public abstract class Relation implements Comparable<Relation> {
 
   /** Factory method */
   static Relation makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
-    final byte relationTypeOrdinal = Utils.checkedCast(RelationType.parseKey(tokenizer.nextToken(), synset.getPOS()).ordinal());
+    final byte relationTypeOrdinal = SignedBytes.checkedCast(RelationType.parseKey(tokenizer.nextToken(), synset.getPOS()).ordinal());
 
     final int targetOffset = tokenizer.nextInt();
 
-    final byte targetPOSOrdinal = Utils.checkedCast(POS.lookup(tokenizer.nextToken()).ordinal());
+    final byte targetPOSOrdinal = SignedBytes.checkedCast(POS.lookup(tokenizer.nextToken()).ordinal());
     final int linkIndices = tokenizer.nextHexInt();
     assert linkIndices >> 16 == 0;
     final int sourceIndex = linkIndices >> 8; // select high byte
     final int targetIndex = linkIndices & 0xFF; // select low byte
 
-    final RelationArgument source = Relation.resolveTarget(synset, sourceIndex);
+    final RelationArgument source = Relation.resolve(synset, sourceIndex);
     if (source instanceof WordSense) {
       return new LexicalRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
     } else if (source instanceof Synset) {
@@ -137,18 +137,18 @@ public abstract class Relation implements Comparable<Relation> {
 //  }
 
   // internal dev method
-  POS getTargetPOS() {
+  final POS getTargetPOS() {
     return POS.fromOrdinal(targetPOSOrdinal);
   }
 
   // internal dev method
-  int getTargetOffset() {
+  final int getTargetOffset() {
     return targetOffset;
   }
 
   // internal dev method
-  // 1-based index; see resolveTarget()
-  int getTargetIndex() {
+  // 1-based index; see resolve(synset, index)
+  final int getTargetIndex() {
     return targetIndex;
   }
 
@@ -156,7 +156,7 @@ public abstract class Relation implements Comparable<Relation> {
    * @return target vertex of this directed relationship
    */
   public RelationArgument getTarget() {
-    return Relation.resolveTarget(
+    return resolve(
         // using source.getSynset() to avoid requiring a local field
         source.getSynset().wordNet.getSynsetAt(
           getTargetPOS(),
@@ -164,7 +164,7 @@ public abstract class Relation implements Comparable<Relation> {
         targetIndex);
   }
 
-  private static RelationArgument resolveTarget(final Synset synset, final int index) {
+  private static RelationArgument resolve(final Synset synset, final int index) {
     if (index == 0) {
       return synset;
     } else {
