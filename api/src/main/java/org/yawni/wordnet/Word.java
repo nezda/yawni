@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.LightImmutableList;
-import com.google.common.primitives.SignedBytes;
 
 /**
  * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file (e.g., {@code index.noun}).
@@ -73,7 +72,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
       log.trace("parsing line: {}", line);
       final CharSequenceTokenizer tokenizer = new CharSequenceTokenizer(line, " ");
       this.lowerCasedLemma = tokenizer.nextToken().replace('_', ' ');
-      this.posOrdinal = SignedBytes.checkedCast(POS.lookup(tokenizer.nextToken()).ordinal());
+      this.posOrdinal = POS.lookup(tokenizer.nextToken()).getByteOrdinal();
       this.offset = offset;
 
       tokenizer.skipNextToken(); // poly_cnt

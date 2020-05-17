@@ -21,9 +21,9 @@ package org.yawni.wordnet;
  */
 public final class SemanticRelation extends Relation {
   SemanticRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int srcRelationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
-    super(targetOffset, targetIndex, targetPOSOrdinal, srcRelationIndex, source, relationTypeOrdinal);
-    assert super.getSource() instanceof Synset;
+    final int srcRelationIndex, final RelationArgument source, final RelationType relationType) {
+    super(targetOffset, targetIndex, targetPOSOrdinal, srcRelationIndex, source, relationType);
+    assert super.isSemantic();
     // can't call getTarget() - infinite recursion
   }
 

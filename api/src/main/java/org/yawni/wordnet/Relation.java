@@ -17,6 +17,7 @@
 package org.yawni.wordnet;
 
 import org.yawni.util.CharSequenceTokenizer;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.primitives.SignedBytes;
 
 /**
@@ -54,7 +55,7 @@ public abstract class Relation implements Comparable<Relation> {
    * Only used in {@code equals}, {@code compare}, {@code hashCode}: differentiates distinct relations of
    * the same type emanating from the same {@code Synset}.
    */
-  private final int srcRelationIndex;
+  private final int sourceRelationIndex;
   private final RelationArgument source;
 
   //
@@ -62,30 +63,30 @@ public abstract class Relation implements Comparable<Relation> {
   //
 
   Relation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int srcRelationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
+    final int srcRelationIndex, final RelationArgument source, final RelationType relationType) {
     this.targetOffset = targetOffset;
     this.targetIndex = targetIndex;
     this.targetPOSOrdinal = targetPOSOrdinal;
-    this.srcRelationIndex = srcRelationIndex;
+    this.sourceRelationIndex = srcRelationIndex;
     this.source = source;
-    this.relationTypeOrdinal = relationTypeOrdinal;
+    this.relationTypeOrdinal = relationType.getByteOrdinal();
   }
 
   /**
    * Copy constructor to create Relation with equal source and target, but different type
    */
-  Relation(final Relation that, final byte relationTypeOrdinal, final int relationIndex) {
+  Relation(final Relation that, final RelationType relationType, final int relationIndex) {
     this(that.targetOffset,
          that.targetIndex,
          that.targetPOSOrdinal,
          relationIndex,
          that.source,
-         relationTypeOrdinal);
+         relationType);
   }
 
   /** Factory method */
   static Relation makeRelation(final Synset synset, final int index, final CharSequenceTokenizer tokenizer) {
-    final byte relationTypeOrdinal = SignedBytes.checkedCast(RelationType.parseKey(tokenizer.nextToken(), synset.getPOS()).ordinal());
+    final RelationType relationType = RelationType.parseKey(tokenizer.nextToken(), synset.getPOS());
 
     final int targetOffset = tokenizer.nextInt();
 
@@ -97,9 +98,9 @@ public abstract class Relation implements Comparable<Relation> {
 
     final RelationArgument source = Relation.resolve(synset, sourceIndex);
     if (source instanceof WordSense) {
-      return new LexicalRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
+      return new LexicalRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationType);
     } else if (source instanceof Synset) {
-      return new SemanticRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationTypeOrdinal);
+      return new SemanticRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationType);
     } else {
       throw new IllegalArgumentException();
     }
@@ -180,13 +181,13 @@ public abstract class Relation implements Comparable<Relation> {
   public boolean equals(final Object that) {
     return (that instanceof Relation)
       && ((Relation) that).source.equals(this.source)
-      && ((Relation) that).srcRelationIndex == this.srcRelationIndex
+      && ((Relation) that).sourceRelationIndex == this.sourceRelationIndex
       && ((Relation) that).relationTypeOrdinal == this.relationTypeOrdinal;
   }
 
   @Override
   public int hashCode() {
-    return source.hashCode() + srcRelationIndex;
+    return source.hashCode() + sourceRelationIndex;
   }
 
   @Override
@@ -209,18 +210,10 @@ public abstract class Relation implements Comparable<Relation> {
 
   @Override
   public int compareTo(final Relation that) {
-    //TODO consider com.google.common.collect.Ordering
-    // order by source Synset
-    // then by 'index' field
-    // then by relationTypeOrdinal
-    int result;
-    result = this.getSource().getSynset().compareTo(that.getSource().getSynset());
-    if (result == 0) {
-      result = this.srcRelationIndex - that.srcRelationIndex;
-    }
-    if (result == 0) {
-      result = this.relationTypeOrdinal - that.relationTypeOrdinal;
-    }
-    return result;
+    return ComparisonChain.start()
+        .compare(this.getSource().getSynset(), that.getSource().getSynset())
+        .compare(this.sourceRelationIndex, that.sourceRelationIndex)
+        .compare(this.relationTypeOrdinal, that.sourceRelationIndex)
+        .result();
   }
 }

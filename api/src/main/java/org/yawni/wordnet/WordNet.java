@@ -24,7 +24,6 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.concat;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
-import com.google.common.primitives.SignedBytes;
 
 import java.io.BufferedInputStream;
 import org.yawni.util.cache.Cache;
@@ -167,7 +166,7 @@ public final class WordNet implements WordNetInterface {
     private final byte posOrdinal;
     POSOffsetDatabaseKey(final POS pos, final int offset) {
       this.offset = offset;
-      this.posOrdinal = SignedBytes.checkedCast(pos.ordinal());
+      this.posOrdinal = pos.getByteOrdinal();
     }
     @Override
     public boolean equals(final Object object) {
@@ -195,7 +194,7 @@ public final class WordNet implements WordNetInterface {
     private final byte posOrdinal;
     StringPOSDatabaseKey(final CharSequence key, final POS pos) {
       this.key = key;
-      this.posOrdinal = SignedBytes.checkedCast(pos.ordinal());
+      this.posOrdinal = pos.getByteOrdinal();
     }
     @Override
     public boolean equals(final Object object) {

@@ -86,12 +86,12 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     } else {
       this.isAdjectiveCluster = false;
     }
-    this.posOrdinal = SignedBytes.checkedCast(POS.lookup(ss_type).ordinal());
+    this.posOrdinal = POS.lookup(ss_type).getByteOrdinal();
 
     final int wordCount = tokenizer.nextHexInt();
     final WordSense[] localWordSenses = new WordSense[wordCount];
     for (int i = 0; i < wordCount; i++) {
-      String lemma = tokenizer.nextToken().toString();
+      String lemma = tokenizer.nextToken();
       final int lexid = tokenizer.nextHexInt();
       int flags = 0;
       // strip the syntactic marker, e.g., "(a)" || "(ip)" || ...
@@ -159,8 +159,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     assert posOrdinal == 2;
     // insert additional VERB_GROUP relation instances
     //TODO offsetKey can be created more efficiently with a custom method
-    final CharSequence srcOffsetKey = String.format("%08d", offset);
-    final Iterable<CharSequence> lexRelLines = wordNet.lookupVerbGroupLines(srcOffsetKey);
+    final CharSequence sourceOffsetKey = String.format("%08d", offset);
+    final Iterable<CharSequence> lexRelLines = wordNet.lookupVerbGroupLines(sourceOffsetKey);
     if (Iterables.isEmpty(lexRelLines)) {
       return false;
     }
@@ -172,15 +172,16 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     for (final CharSequence vgRelLine : lexRelLines) {
       final CharSequenceTokenizer lexTokenizer = new CharSequenceTokenizer(vgRelLine, " ");
       // not really necessary, could just skipToken()
-      final String srcOffset = lexTokenizer.nextToken();
-      assert srcOffset.contentEquals(srcOffsetKey);
+      final String sourceOffsetString = lexTokenizer.nextToken();
+      assert sourceOffsetString.contentEquals(sourceOffsetKey);
+      final int sourceOffset = Integer.parseInt(sourceOffsetString);
       while (lexTokenizer.hasMoreTokens()) {
         final int targetOffset = lexTokenizer.nextInt();
         final int targetIndex = 0; // targetIndex of Synset is 0; see Relation#getTarget()/Relation#resolveTarget
         final SemanticRelation vgRelation = new SemanticRelation(
           targetOffset, targetIndex, (byte)POS.VERB.ordinal(),
           localRelations.size(),
-          this, (byte)RelationType.VERB_GROUP.ordinal()
+          this, RelationType.VERB_GROUP
           );
         // ensure not already in there
         if (! contains(vgRelation, localRelations)) {

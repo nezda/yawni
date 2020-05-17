@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.SignedBytes;
+
 import java.util.NoSuchElementException;
 
 /**
@@ -105,12 +107,14 @@ public enum POS {
   private final String toString;
   private final char keyChar;
   private final int wnCode;
+  private final byte byteOrdinal;
 
   POS(final String label, final char key, final int wnCode) {
     this.label = label;
     this.keyChar = key;
     this.wnCode = wnCode;
-    this.toString = new StringBuffer("[POS ").append(label).append("]").toString();
+    this.toString = "[POS " + label + "]";
+    this.byteOrdinal = SignedBytes.checkedCast(wnCode);
   }
 
   //
@@ -133,6 +137,11 @@ public enum POS {
   /** The integer used in the original C WordNet APIs. */
   int getWordNetCode() {
     return wnCode;
+  }
+
+  byte getByteOrdinal() {
+    assert byteOrdinal == ordinal();
+    return byteOrdinal;
   }
 
   /**

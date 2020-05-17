@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.SignedBytes;
+
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import static org.yawni.wordnet.RelationTypeFlag.*;
@@ -385,6 +387,10 @@ public enum RelationType {
 
   static RelationType fromOrdinal(final byte ordinal) {
     return VALUES[ordinal];
+  }
+
+  byte getByteOrdinal() {
+    return SignedBytes.checkedCast(ordinal());
   }
 
   /**

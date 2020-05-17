@@ -16,16 +16,14 @@
  */
 package org.yawni.wordnet;
 
-import com.google.common.primitives.SignedBytes;
-
 /**
  * A {@code LexicalRelation} encodes a lexical relationship between {@link WordSense}s.
  */
 public final class LexicalRelation extends Relation {
   LexicalRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int srcRelationIndex, final RelationArgument source, final byte relationTypeOrdinal) {
-    super(targetOffset, targetIndex, targetPOSOrdinal, srcRelationIndex, source, relationTypeOrdinal);
-    assert super.getSource() instanceof WordSense;
+    final int srcRelationIndex, final RelationArgument source, final RelationType relationType) {
+    super(targetOffset, targetIndex, targetPOSOrdinal, srcRelationIndex, source, relationType);
+    assert isLexical();
     // can't call getTarget() - infinite recursion
   }
 
@@ -33,7 +31,7 @@ public final class LexicalRelation extends Relation {
    * Copy constructor to create Relation with equal source and target, but different type
    */
   LexicalRelation(final LexicalRelation that, final RelationType relationType, final int relationIndex) {
-    super(that, SignedBytes.checkedCast(relationType.ordinal()), relationIndex);
+    super(that, relationType, relationIndex);
   }
 
   @Override
