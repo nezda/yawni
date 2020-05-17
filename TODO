@@ -1957,7 +1957,7 @@ Performance
 < bug: use of singleton's prevents comparing distinct instantiations of the DB
 < bug: caching AND mmaping together may use too much memory - consider only one or the other or making this configurable
   - unverified -- memory usage seems good
-+ feature: using long's for file offets seems like overkill - it's gonna be a while till a plain-text WordNet uses up 4 bytes
++ feature: using long's for file offsets seems like overkill - it's gonna be a while till a plain-text WordNet uses up 4 bytes
 
 General Project Quality
 + bug: run RAT to ensure licenses are all good (http://code.google.com/p/arat/)

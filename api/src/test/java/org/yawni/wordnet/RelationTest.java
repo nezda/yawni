@@ -274,7 +274,7 @@ public class RelationTest {
     final List<RelationArgument> make7VGs = make7.getSynset().getRelationTargets(RelationType.VERB_GROUP);
 		switch (VERSION) {
 			case WN30:
-				assertThat(make7VGs).contains(make43.getSynset(), make43.getSynset());
+				assertThat(make7VGs).contains(make43.getSynset(), make44.getSynset());
 				break;
 		}
   }

@@ -86,7 +86,7 @@ public class WordSenseTest {
     System.err.println("testRelations");
     for (final WordSense sense : WN.wordSenses(POS.ALL)) {
       for (final Relation relation : sense.getRelations()) {
-        assertThat(relation.isLexical() ^ ! relation.getSource().equals(sense)).isTrue();
+        assertThat(relation.isLexical() ^ ! relation.hasSource(sense)).isTrue();
         //assertTrue("! type.isLexical(): "+relation, relation.getType().isLexical());
         if (! relation.getType().isLexical()) {
           //System.err.println("CONFUSED "+relation);

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.LightImmutableList;
+import com.google.common.collect.ComparisonChain;
 
 /**
  * A {@code Word} represents a line of a WordNet <code>index.<em>pos</em></code> file (e.g., {@code index.noun}).
@@ -180,7 +181,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
   }
 
   // little tricky to implement efficiently once we switch to LightImmutableList
-  // if we maintain the sometimes-offets/sometimes-Synsets optimization because somewhat inefficient to store Integer vs int
+  // if we maintain the sometimes-offsets/sometimes-Synsets optimization because somewhat inefficient to store Integer vs int
   // still much smaller than Synset objects, and still prevents "leaks"
 //  public int getSenseCount() {
 //  }
@@ -302,12 +303,11 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
 
   @Override
   public int compareTo(final Word that) {
-    // if these ' ' → '_' replaces aren't done resulting sort will not match
-    // index files.
-    int result = WordNetLexicalComparator.GIVEN_CASE_INSTANCE.compare(this.getLowercasedLemma(), that.getLowercasedLemma());
-    if (result == 0) {
-      result = this.getPOS().compareTo(that.getPOS());
-    }
-    return result;
+    // if these ' ' → '_' replaces aren't done resulting sort will not match index files.
+    return ComparisonChain.start()
+        .compare(this.getLowercasedLemma(), that.getLowercasedLemma(),
+            WordNetLexicalComparator.GIVEN_CASE_INSTANCE)
+        .compare(this.getPOS(), that.getPOS())
+        .result();
   }
 }

@@ -18,6 +18,8 @@ package org.yawni.util;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
@@ -297,5 +299,13 @@ public class Utils {
       list.add(item);
     }
     return list;
+  }
+
+  /**
+   * @param ints to {@link Arrays#hashCode(int[])} as varargs
+   * @return a corresponding hash code
+   */
+  public static int hash(int... ints) {
+    return Arrays.hashCode(ints);
   }
 }

@@ -40,7 +40,7 @@ import org.yawni.wordnet.WordNet.StringPOSDatabaseKey;
 class Morphy {
   private static final Logger log = LoggerFactory.getLogger(Morphy.class);
 
-  private static final String SUFX[] = {
+  private static final String[] SUFX = {
     // Noun suffixes
   //0    1      2      3      4       5       6      7
     "s", "ses", "xes", "zes", "ches", "shes", "men", "ies",
@@ -52,7 +52,7 @@ class Morphy {
     "er", "est", "er", "est"
   };
 
-  private static final String ADDR[] = {
+  private static final String[] ADDR = {
     // Noun endings
   //0   1    2    3    4     5     6      7
     "", "s", "x", "z", "ch", "sh", "man", "y",
@@ -74,10 +74,10 @@ class Morphy {
 
   // OFFSETS and CNTS into SUFX and ADDR (0 not used since NOUN == 1)
                                  //0  1  2  3
-  private static int OFFSETS[] = { 0, 0, 8, 16 };
-  private static int CNTS[] =    { 0, 8, 8, 4 };
+  private static final int[] OFFSETS = { 0, 0, 8, 16 };
+  private static final int[] CNTS =    { 0, 8, 8, 4 };
 
-  private static final String PREPOSITIONS[] = {
+  private static final String[] PREPOSITIONS = {
     "to",
     "at",
     "of",
@@ -272,7 +272,7 @@ class Morphy {
         final int end_idx1 = str.indexOf('_', st_idx);
         final int end_idx2 = str.indexOf('-', st_idx);
         int end_idx;
-        String append;
+        final String append;
         if (end_idx1 > 0 && end_idx2 > 0) {
           // LN remainder contains dashes and underscores
           if (end_idx1 < end_idx2) {
@@ -444,17 +444,6 @@ class Morphy {
     return dictionary.lookupWord(lemma, pos);
   }
 
-  static <T> LightImmutableList<T> addUnique(T item, LightImmutableList<T> items) {
-    if (items.isEmpty()) {
-      items = LightImmutableList.of(item);
-    } else if (! items.contains(item)) {
-      final List<T> appended = new ArrayList<>(items);
-      appended.add(item);
-      items = LightImmutableList.copyOf(appended);
-    }
-    return items;
-  }
-
   /**
    * Try to find baseform (lemma) of <b>individual word</b> {@code word}
    * in POS {@code pos}.
@@ -609,7 +598,7 @@ class Morphy {
       log.debug("exc_words " + exc_words +
           " found for firstWord \"" + firstWord + "\" but exc_words[1] != firstWord");
     }
-    String retval = null;
+    String retval;
     if (! exc_words.isEmpty() && ! exc_words.get(1).equals(firstWord)) {
       if (exc_words.size() != 2) {
         log.warn("losing exception list variant(s)?!: {}", exc_words);

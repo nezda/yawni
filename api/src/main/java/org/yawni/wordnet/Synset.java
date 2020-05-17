@@ -16,6 +16,8 @@
  */
 package org.yawni.wordnet;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.SignedBytes;
 
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
+
 import static org.yawni.util.Utils.add;
 
 /**
@@ -134,10 +137,10 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     this.relations = LightImmutableList.copyOf(localRelations);
     //assert relations.equals(localRelations);
 
-    if (posOrdinal == POS.VERB.ordinal()) {
+    if (posOrdinal == POS.VERB.getByteOrdinal()) {
       final int f_cnt = tokenizer.nextInt();
       for (int i = 0; i < f_cnt; i++) {
-        final CharSequence skip = tokenizer.nextToken(); // "+"
+        final CharSequence skip = tokenizer.nextToken();
         assert "+".contentEquals(skip) : "skip: "+skip;
         final int f_num = tokenizer.nextInt();
         final int w_num = tokenizer.nextHexInt();
@@ -158,8 +161,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     }
     assert posOrdinal == 2;
     // insert additional VERB_GROUP relation instances
-    //TODO offsetKey can be created more efficiently with a custom method
-    final CharSequence sourceOffsetKey = String.format("%08d", offset);
+    final CharSequence sourceOffsetKey = offsetKey(offset, null);
     final Iterable<CharSequence> lexRelLines = wordNet.lookupVerbGroupLines(sourceOffsetKey);
     if (Iterables.isEmpty(lexRelLines)) {
       return false;
@@ -177,12 +179,13 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       final int sourceOffset = Integer.parseInt(sourceOffsetString);
       while (lexTokenizer.hasMoreTokens()) {
         final int targetOffset = lexTokenizer.nextInt();
-        final int targetIndex = 0; // targetIndex of Synset is 0; see Relation#getTarget()/Relation#resolveTarget
+        final int targetIndex = 0; // targetIndex of Synset is 0; see Relation#getTarget()/Relation#resolve
+        final int sourceIndex = 0; // ''
         final SemanticRelation vgRelation = new SemanticRelation(
-          targetOffset, targetIndex, (byte)POS.VERB.ordinal(),
-          localRelations.size(),
-          this, RelationType.VERB_GROUP
-          );
+            targetOffset, targetIndex, POS.VERB,
+            wordNet, localRelations.size(), sourceOffset, sourceIndex, POS.VERB,
+            RelationType.VERB_GROUP
+        );
         // ensure not already in there
         if (! contains(vgRelation, localRelations)) {
           localRelations.add(vgRelation);
@@ -201,8 +204,9 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   // so we have to compare manually to prevent logical duplicates
   private static boolean contains(final Relation needle, final List<Relation> localRelations) {
     for (final Relation that : localRelations) {
-      if (that.getSource().equals(needle.getSource())
-        // DON'T USE SYNTHESIZED SOURCE RELATION INDEX && that.getSourceRelationIndex() == needle.getSourceRelationIndex()
+      if (that.getSourceOffset() == needle.getSourceOffset()
+         && that.getSourceIndex() == needle.getSourceIndex()
+         // DON'T USE SYNTHESIZED SOURCE RELATION INDEX && that.getSourceRelationIndex() == needle.getSourceRelationIndex()
          && that.getType() == needle.getType()
          && that.getTargetOffset() == needle.getTargetOffset()
          && that.getTargetIndex() == needle.getTargetIndex()) {
@@ -216,8 +220,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     if (relation.getType() != RelationType.DERIVATIONALLY_RELATED) {
       return false;
     }
-    final int srcPOSOrdinal = posOrdinal;
-    if (srcPOSOrdinal != POS.NOUN.ordinal() && srcPOSOrdinal != POS.VERB.ordinal()) {
+    final POS srcPOS = getPOS();
+    if (srcPOS != POS.NOUN && srcPOS != POS.VERB) {
       return false;
     }
     final POS targetPOS = relation.getTargetPOS();
@@ -227,14 +231,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     // insert MorphosemanticRelation instances
     final LexicalRelation lexRel = (LexicalRelation) relation;
 //      showLine(lexRel);
-    //TODO offsetKey can be created more efficiently with a custom method
-    final CharSequence srcOffsetKey;
-    if (srcPOSOrdinal == 1) {
-      srcOffsetKey = String.format("1%08d", offset);
-    } else {
-      assert srcPOSOrdinal == 2;
-      srcOffsetKey = String.format("2%08d", offset);
-    }
+    final String srcOffsetKey = offsetKey(offset, srcPOS);
     final Iterable<CharSequence> lexRelLines = wordNet.lookupMorphoSemanticRelationLines(srcOffsetKey);
     // 1331 of these
     if (Iterables.isEmpty(lexRelLines)) {
@@ -243,7 +240,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       return false;
     }
     // this is invariant for this relation
-    final int mySrcSynsetIdx = wordSenses.indexOf(lexRel.getSource());
+    // mySrcSynsetIdx = wordSenses.indexOf(lexRel.getSource())
+    final int mySrcSynsetIdx = lexRel.getSourceIndex() - 1;
     assert mySrcSynsetIdx >= 0;
     final POS myTargetPOS = lexRel.getTargetPOS();
     final int myTargetSynsetIdx = lexRel.getTargetIndex() - 1;
@@ -299,6 +297,23 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 //        showLine(lexRel);
     }
     return foundMatch;
+  }
+
+  private static String offsetKey(int offset, POS pos) {
+    final String offsetSuffix = Strings.padStart(String.valueOf(offset), 8, '0');
+    if (pos == null) {
+      return offsetSuffix;
+    }
+    switch (pos) {
+    case NOUN:
+//      return String.format("1%08d", offset);
+      return "1" + offsetSuffix;
+    case VERB:
+//      return String.format("2%08d", offset);
+      return "2" + offsetSuffix;
+    default:
+      throw new UnsupportedOperationException();
+    }
   }
 
   // debug method
@@ -378,7 +393,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   }
 
   /**
-   * The senses whose common meaning this Synset represents.
+   * The senses whose common meaning this {@code Synset} represents.
    */
   public List<WordSense> getWordSenses() {
     return wordSenses;
@@ -405,7 +420,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 
   /**
    * Offsets are used in some low-level applications as a means of referring to
-   * a specific {@code Synset}; Sometimes they need to be in 8-digit padded form, i.e.,
+   * a specific {@code Synset}; Sometimes they need to be in 9-digit padded form, i.e.,
    * {@code String.format("2%08d", synset.getOffset())}, so their lexicographic
    * sort order will match their numeric sort order.
    * @return this {@code Synset}'s offset in the data files.
@@ -536,7 +551,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     List<SemanticRelation> list = null;
     for (final Relation relation : relations) {
       if ((type == null || relation.getType() == type) &&
-        relation.getSource().equals(this)) {
+        relation.getSourceOffset() == this.getOffset() &&
+        relation.getSourcePOS() == this.getPOS()) {
         final SemanticRelation semanticRelation = (SemanticRelation) relation;
         list = add(list, semanticRelation);
       }
@@ -606,11 +622,9 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
 
   @Override
   public int compareTo(final Synset that) {
-    int result;
-    result = this.getPOS().compareTo(that.getPOS());
-    if (result == 0) {
-      result = this.getOffset() - that.getOffset();
-    }
-    return result;
+    return ComparisonChain.start()
+        .compare(this.getPOS(), that.getPOS())
+        .compare(this.getOffset(), that.getOffset())
+        .result();
   }
 }

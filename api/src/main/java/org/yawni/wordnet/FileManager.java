@@ -16,7 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
@@ -38,11 +37,12 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import org.yawni.util.LightImmutableList;
 
 /**
- * An implementation of {@code FileManagerInterface} that reads WordNet data
+ * An implementation of {@link FileManagerInterface} that reads WordNet data
  * from jar files or the local file system.  A {@code FileManager} caches the
  * file positions before and after {@link FileManagerInterface#readLineAt}
  * in order to eliminate the redundant I/O activity that a naïve implementation
@@ -152,7 +152,7 @@ final class FileManager implements FileManagerInterface {
         }
       }
     } catch (SecurityException ex) {
-      log.debug("need plan B due to: {}", ex);
+      log.debug("need plan B due to", ex);
       return null;
     }
     //log.error(propName+" is not defined correctly as either a Java system property or environment variable. "+
@@ -335,7 +335,7 @@ final class FileManager implements FileManagerInterface {
       return capacity;
     }
     @Override
-    String readLine() throws IOException {
+    String readLine() {
       final int s = position;
       final int e = scanForwardToLineBreak(true);
       if ((e - s) <= 0) {
@@ -344,11 +344,11 @@ final class FileManager implements FileManagerInterface {
       return stringBuffer.toString();
     }
     @Override
-    void skipLine() throws IOException {
+    void skipLine() {
       scanForwardToLineBreak();
     }
     @Override
-    String readLineWord() throws IOException {
+    String readLineWord() {
       final int s = position;
       bufferUntilSpace();
       final int e = scanForwardToLineBreak();
@@ -466,7 +466,7 @@ final class FileManager implements FileManagerInterface {
     if (stream == null) {
       final long start = System.nanoTime();
 
-      stream = Optional.fromNullable(getURLStream(fileName));
+      stream = Optional.ofNullable(getURLStream(fileName));
       if (stream.isPresent()) {
         log.trace("URLCharStream: {}", stream);
       } else {
@@ -500,7 +500,7 @@ final class FileManager implements FileManagerInterface {
       fileNameCache.put(fileName, stream);
     }
 
-    return stream.orNull();
+    return stream.orElse(null);
   }
 
   synchronized CharStream getFileStream(final String fileName) throws IOException {
@@ -654,70 +654,6 @@ final class FileManager implements FileManagerInterface {
       zoffset = foffset;
     }
     return zoffset;
-  }
-
-  /**
-   *
-   * XXX old version only languishing to verify new version
-   */
-  // used by prefix search iterator
-  int oldGetPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
-    if (prefix.length() == 0) {
-      return -1;
-    }
-    final CharStream stream = getFileStream(fileName);
-    final int origOffset = offset;
-    synchronized (stream) {
-      stream.seek(offset);
-      do {
-        // note the spaces of this 'word' are underscores
-        final String word = stream.readLineWord();
-        final int nextOffset = stream.position();
-        if (word == null) {
-          return -1;
-        }
-        nextLineOffsetCache.setNextLineOffset(fileName, offset, nextOffset);
-        if (CharSequences.startsWith(word, prefix)) {
-          if (! checkPrefixBinarySearch(prefix, origOffset, fileName)) {
-            throw new IllegalStateException("search failed for prefix: "+prefix+" fileName: "+fileName);
-          }
-
-          return offset;
-        }
-        offset = nextOffset;
-      } while (true);
-    }
-  }
-
-  // throw-away test method until confidence in binary-search based version gets near 100%
-  private boolean checkPrefixBinarySearch(final CharSequence prefix, final int offset, final String fileName) throws IOException {
-    final int foffset = getIndexedLinePointer(prefix, offset, fileName, true);
-    //XXX System.err.println("foffset: "+foffset+" prefix: \""+prefix+"\"");
-    final String aline;
-    //int zoffset;
-    if (foffset < 0) {
-      // invert -(o - 1)
-      final int moffset = -(foffset + 1);
-      //zoffset = moffset;
-      // if moffset < size && line[moffset].startsWith(prefix)
-      aline = readLineAt(moffset, fileName);
-    } else {
-      aline = readLineAt(foffset, fileName);
-      //zoffset = foffset;
-    }
-    //XXX System.err.println("aline: \""+aline+"\" zoffset: "+zoffset);
-
-    //System.err.println("line:  \""+line+"\" fileName: "+fileName);
-
-    //if (aline != null && aline.startsWith(prefix)) {
-    //  //assert offset >= 0;
-    //  System.err.println("offset >= 0: "+(offset >= 0)+" prefix: \""+prefix+"\"");
-    //} else {
-    //  //assert offset < 0;
-    //  System.err.println("offset < 0: "+(offset < 0)+" prefix: \""+prefix+"\"");
-    //}
-    //System.err.println();
-    return aline != null && CharSequences.startsWith(aline, prefix);
   }
 
   @Override

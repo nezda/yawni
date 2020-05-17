@@ -18,6 +18,8 @@ package org.yawni.wordnet;
 
 import com.google.common.base.Objects;
 import java.util.ArrayList;
+
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.SignedBytes;
 import org.yawni.util.EnumAliases;
@@ -66,8 +68,8 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
       this.flag = flag;
     }
-    static boolean isActive(final AdjPosition adjPosFlag, final int flags) {
-      return 0 != (adjPosFlag.flag & flags);
+    boolean isActive(final int flags) {
+      return 0 != (this.flag & flags);
     }
     static AdjPosition fromValue(final String label) {
       return staticThis.ALIASES.valueOf(label);
@@ -157,10 +159,10 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       return "NONE";
     }
     final StringBuilder flagString = new StringBuilder();
-    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags)) {
+    if (AdjPosition.PREDICATIVE.isActive(adjPositionFlags)) {
       flagString.append("predicative");
     }
-    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags)) {
+    if (AdjPosition.ATTRIBUTIVE.isActive(adjPositionFlags)) {
       if (flagString.length() != 0) {
         flagString.append(',');
       }
@@ -168,7 +170,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       // while the database files seem to indicate it as attributive
       flagString.append("prenominal");
     }
-    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags)) {
+    if (AdjPosition.IMMEDIATE_POSTNOMINAL.isActive(adjPositionFlags)) {
       if (flagString.length() != 0) {
         flagString.append(',');
       }
@@ -381,19 +383,19 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
       return AdjPosition.NONE;
     }
     assert getPOS() == POS.ADJ;
-    if (AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags)) {
-      assert ! AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
-      assert ! AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
+    if (AdjPosition.PREDICATIVE.isActive(adjPositionFlags)) {
+      assert ! AdjPosition.ATTRIBUTIVE.isActive(adjPositionFlags);
+      assert ! AdjPosition.IMMEDIATE_POSTNOMINAL.isActive(adjPositionFlags);
       return AdjPosition.PREDICATIVE;
     }
-    if (AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags)) {
-      assert ! AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
-      assert ! AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags);
+    if (AdjPosition.ATTRIBUTIVE.isActive(adjPositionFlags)) {
+      assert ! AdjPosition.PREDICATIVE.isActive(adjPositionFlags);
+      assert ! AdjPosition.IMMEDIATE_POSTNOMINAL.isActive(adjPositionFlags);
       return AdjPosition.ATTRIBUTIVE;
     }
-    if (AdjPosition.isActive(AdjPosition.IMMEDIATE_POSTNOMINAL, adjPositionFlags)) {
-      assert ! AdjPosition.isActive(AdjPosition.ATTRIBUTIVE, adjPositionFlags);
-      assert ! AdjPosition.isActive(AdjPosition.PREDICATIVE, adjPositionFlags);
+    if (AdjPosition.IMMEDIATE_POSTNOMINAL.isActive(adjPositionFlags)) {
+      assert ! AdjPosition.ATTRIBUTIVE.isActive(adjPositionFlags);
+      assert ! AdjPosition.PREDICATIVE.isActive(adjPositionFlags);
       return AdjPosition.IMMEDIATE_POSTNOMINAL;
     }
     throw new IllegalStateException("invalid flags "+adjPositionFlags);
@@ -583,9 +585,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     final List<Relation> relations = synset.getRelations();
     List<Relation> list = null;
     for (final Relation relation : relations) {
-      // consider all isSemantic Relations, but only isLexical Relations
-      // which have this as their source
-      if (relation.isLexical() && !relation.getSource().equals(this)) {
+      if (!relation.hasSource(this)) {
         continue;
       }
       if (type != null && type != relation.getType()) {
@@ -626,10 +626,10 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   //
 
   @Override
-  public boolean equals(Object object) {
-    return (object instanceof WordSense)
-      && ((WordSense) object).synset.equals(synset)
-      && ((WordSense) object).lemma.equals(lemma);
+  public boolean equals(Object that) {
+    return (that instanceof WordSense)
+      && ((WordSense) that).synset.equals(synset)
+      && ((WordSense) that).lemma.equals(lemma);
   }
 
   @Override
@@ -652,14 +652,10 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
 
   @Override
   public int compareTo(final WordSense that) {
-    int result;
-    result = WordNetLexicalComparator.TO_LOWERCASE_INSTANCE.compare(this.getLemma(), that.getLemma());
-    if (result == 0) {
-      result = this.getSenseNumber() - that.getSenseNumber();
-      if (result == 0) {
-        result = this.getSynset().compareTo(that.getSynset());
-      }
-    }
-    return result;
+    return ComparisonChain.start()
+        .compare(this.getLemma(), that.getLemma(), WordNetLexicalComparator.TO_LOWERCASE_INSTANCE)
+        .compare(this.getSenseNumber(), that.getSenseNumber())
+        .compare(this.getSynset(), that.getSynset())
+        .result();
   }
 }

@@ -1031,9 +1031,9 @@ public class BrowserPanel extends JPanel {
         final RelationArgument target = relation.getTarget();
         final boolean srcMatch;
         if (relation.isLexical()) {
-          srcMatch = relation.getSource().equals(rootWordSense);
+          srcMatch = relation.hasSource(rootWordSense);
         } else {
-          srcMatch = relation.getSource().getSynset().equals(rootWordSense.getSynset());
+          srcMatch = relation.hasSource(rootWordSense.getSynset());
         }
         if (! srcMatch) {
 //          System.err.println("rootWordSense: " + rootWordSense +

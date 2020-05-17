@@ -151,8 +151,8 @@ public class IterationTest {
     // + search for first word's prefix
     // + search for last word
     // + search for last word's prefix
-    // + search after last word (non-existant)
-    // + search before first word (non-existant)
+    // + search after last word (non-existent)
+    // + search before first word (non-existent)
     // + iterate over words, iterate over prefixes
     //   + assert containsLemma(Iterable<Word> matches)
     final Iterable<Word> firstWord = WN.searchByPrefix("'hood", POS.NOUN);
@@ -328,7 +328,7 @@ public class IterationTest {
     assertTrue("not distinct objects?", first != first(nounIndexWords));
   }
 
-  @Ignore // coverd by other tests
+  @Ignore // covered by other tests
   @Test
   public void exoticPOS() {
     logTest("exoticPOS");

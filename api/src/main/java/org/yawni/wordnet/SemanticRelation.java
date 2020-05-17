@@ -20,11 +20,22 @@ package org.yawni.wordnet;
  * A {@code SemanticRelation} encodes a lexical relationship between {@link Synset}s.
  */
 public final class SemanticRelation extends Relation {
-  SemanticRelation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int srcRelationIndex, final RelationArgument source, final RelationType relationType) {
-    super(targetOffset, targetIndex, targetPOSOrdinal, srcRelationIndex, source, relationType);
-    assert super.isSemantic();
+  SemanticRelation(final int targetOffset, final int targetIndex, final POS targetPOS, final WordNet wordNet,
+      final int sourceRelationIndex, final int sourceOffset, final int sourceIndex, final POS sourcePOS,
+      final RelationType relationType) {
+    super(targetOffset, targetIndex, targetPOS, wordNet, sourceRelationIndex,
+        sourceOffset, sourceIndex, sourcePOS, relationType);
     // can't call getTarget() - infinite recursion
+  }
+
+  @Override
+  public boolean isLexical() {
+    return false;
+  }
+
+  @Override
+  public boolean isSemantic() {
+    return true;
   }
 
   @Override
@@ -32,6 +43,13 @@ public final class SemanticRelation extends Relation {
     @SuppressWarnings("unchecked")
     final Synset source = (Synset) super.getSource();
     return source;
+  }
+
+  @Override
+  public boolean hasSource(final RelationArgument that) {
+    return that instanceof Synset
+        && that.getSynset().getOffset() == this.getSourceOffset()
+        && that.getSynset().getPOS() == this.getSourcePOS();
   }
 
   @Override

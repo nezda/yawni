@@ -18,7 +18,8 @@ package org.yawni.wordnet;
 
 import org.yawni.util.CharSequenceTokenizer;
 import com.google.common.collect.ComparisonChain;
-import com.google.common.primitives.SignedBytes;
+
+import static org.yawni.util.Utils.hash;
 
 /**
  * A {@code Relation} encodes a lexical <em>or</em> semantic relationship between WordNet entities.  A lexical
@@ -34,9 +35,9 @@ import com.google.common.primitives.SignedBytes;
  */
 public abstract class Relation implements Comparable<Relation> {
   /**
-   * These target* fields are used to avoid paging in the target before it is
+   * These target* and source* fields are used to avoid paging in the target/source before it is
    * required, and to prevent keeping a large portion of the database resident
-   * once the target has been queried.  The first time they are used, they act as
+   * once the target/source has been queried.  The first time they are used, they act as
    * an external key; subsequent uses, in conjunction with
    * {@link WordNet}'s caching mechanism, can be thought of as a
    * {@link java.lang.ref.WeakReference}.
@@ -44,6 +45,12 @@ public abstract class Relation implements Comparable<Relation> {
   private final int targetOffset;
   private final int targetIndex;
   private final byte targetPOSOrdinal;
+
+  private final int sourceOffset;
+  private final int sourceIndex;
+  private final byte sourcePOSOrdinal;
+
+  private final WordNet wordNet;
 
   //
   // Instance variables
@@ -56,19 +63,22 @@ public abstract class Relation implements Comparable<Relation> {
    * the same type emanating from the same {@code Synset}.
    */
   private final int sourceRelationIndex;
-  private final RelationArgument source;
 
   //
   // Constructor
   //
 
-  Relation(final int targetOffset, final int targetIndex, final byte targetPOSOrdinal,
-    final int srcRelationIndex, final RelationArgument source, final RelationType relationType) {
+  Relation(final int targetOffset, final int targetIndex, final POS targetPOS, final WordNet wordNet,
+    final int sourceRelationIndex, final int sourceOffset, final int sourceIndex, final POS sourcePOS,
+      final RelationType relationType) {
     this.targetOffset = targetOffset;
     this.targetIndex = targetIndex;
-    this.targetPOSOrdinal = targetPOSOrdinal;
-    this.sourceRelationIndex = srcRelationIndex;
-    this.source = source;
+    this.targetPOSOrdinal = targetPOS.getByteOrdinal();
+    this.wordNet = wordNet;
+    this.sourceRelationIndex = sourceRelationIndex;
+    this.sourceOffset = sourceOffset;
+    this.sourceIndex = sourceIndex;
+    this.sourcePOSOrdinal = sourcePOS.getByteOrdinal();
     this.relationTypeOrdinal = relationType.getByteOrdinal();
   }
 
@@ -78,9 +88,12 @@ public abstract class Relation implements Comparable<Relation> {
   Relation(final Relation that, final RelationType relationType, final int relationIndex) {
     this(that.targetOffset,
          that.targetIndex,
-         that.targetPOSOrdinal,
+         that.getTargetPOS(),
+         that.wordNet,
          relationIndex,
-         that.source,
+         that.sourceOffset,
+         that.sourceIndex,
+         that.getSourcePOS(),
          relationType);
   }
 
@@ -90,7 +103,7 @@ public abstract class Relation implements Comparable<Relation> {
 
     final int targetOffset = tokenizer.nextInt();
 
-    final byte targetPOSOrdinal = SignedBytes.checkedCast(POS.lookup(tokenizer.nextToken()).ordinal());
+    final POS targetPOS = POS.lookup(tokenizer.nextToken());
     final int linkIndices = tokenizer.nextHexInt();
     assert linkIndices >> 16 == 0;
     final int sourceIndex = linkIndices >> 8; // select high byte
@@ -98,9 +111,11 @@ public abstract class Relation implements Comparable<Relation> {
 
     final RelationArgument source = Relation.resolve(synset, sourceIndex);
     if (source instanceof WordSense) {
-      return new LexicalRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationType);
+      return new LexicalRelation(targetOffset, targetIndex, targetPOS,
+          synset.wordNet, index, synset.getOffset(), sourceIndex, synset.getPOS(), relationType);
     } else if (source instanceof Synset) {
-      return new SemanticRelation(targetOffset, targetIndex, targetPOSOrdinal, index, source, relationType);
+      return new SemanticRelation(targetOffset, targetIndex, targetPOS,
+          synset.wordNet, index, synset.getOffset(), sourceIndex, synset.getPOS(), relationType);
     } else {
       throw new IllegalArgumentException();
     }
@@ -114,28 +129,21 @@ public abstract class Relation implements Comparable<Relation> {
   }
 
   /** A lexical relationship holds between {@link WordSense}s */
-  public boolean isLexical() {
-    return source instanceof WordSense;
-    // else assert instanceof Synset;
-  }
+  public abstract boolean isLexical();
 
   /** A semantic relationship holds between {@link Synset}s */
-  public boolean isSemantic() {
-    return source instanceof Synset;
-    // else assert instanceof WordSense;
-  }
+  public abstract boolean isSemantic();
 
   /**
    * @return source vertex of this directed relationship
    */
   public RelationArgument getSource() {
-    return source;
+    return resolve(
+        wordNet.getSynsetAt(
+            getSourcePOS(),
+            getSourceOffset()),
+        getSourceIndex());
   }
-
-//  // internal dev method
-//  int getSourceOffset() {
-//    return source.getOffset();
-//  }
 
   // internal dev method
   final POS getTargetPOS() {
@@ -153,13 +161,34 @@ public abstract class Relation implements Comparable<Relation> {
     return targetIndex;
   }
 
+  // internal dev method
+  final POS getSourcePOS() {
+    return POS.fromOrdinal(sourcePOSOrdinal);
+  }
+
+  // internal dev method
+  final int getSourceOffset() {
+    return sourceOffset;
+  }
+
+  // internal dev method
+  // 1-based index; see resolve(synset, index)
+  final int getSourceIndex() {
+    return sourceIndex;
+  }
+
+  final int getSourceRelationIndex() {
+    return sourceRelationIndex;
+  }
+
+  public abstract boolean hasSource(RelationArgument that);
+
   /**
    * @return target vertex of this directed relationship
    */
   public RelationArgument getTarget() {
     return resolve(
-        // using source.getSynset() to avoid requiring a local field
-        source.getSynset().wordNet.getSynsetAt(
+        wordNet.getSynsetAt(
           getTargetPOS(),
           getTargetOffset()),
         targetIndex);
@@ -178,16 +207,21 @@ public abstract class Relation implements Comparable<Relation> {
   //
 
   @Override
-  public boolean equals(final Object that) {
-    return (that instanceof Relation)
-      && ((Relation) that).source.equals(this.source)
-      && ((Relation) that).sourceRelationIndex == this.sourceRelationIndex
-      && ((Relation) that).relationTypeOrdinal == this.relationTypeOrdinal;
+  public boolean equals(final Object obj) {
+    if (obj instanceof Relation) {
+      Relation that = (Relation) obj;
+      return that.sourceOffset == this.sourceOffset
+          && that.sourceIndex == this.sourceIndex
+          && that.sourcePOSOrdinal == this.sourcePOSOrdinal
+          && that.sourceRelationIndex == this.sourceRelationIndex
+          && that.relationTypeOrdinal == this.relationTypeOrdinal;
+    }
+    return false;
   }
 
   @Override
   public int hashCode() {
-    return source.hashCode() + sourceRelationIndex;
+    return hash(sourceOffset, sourceIndex, sourcePOSOrdinal, sourceRelationIndex);
   }
 
   @Override
@@ -201,7 +235,7 @@ public abstract class Relation implements Comparable<Relation> {
       //append(index).
       append(" from ").
       //append(source).
-      append(source).
+      append(getSource()).
       //append(" → ").
       append(" to ").
       append(getTarget()).
@@ -211,7 +245,9 @@ public abstract class Relation implements Comparable<Relation> {
   @Override
   public int compareTo(final Relation that) {
     return ComparisonChain.start()
-        .compare(this.getSource().getSynset(), that.getSource().getSynset())
+        .compare(this.sourcePOSOrdinal, that.sourcePOSOrdinal)
+        .compare(this.sourceOffset, that.sourceOffset)
+        .compare(this.sourceIndex, that.sourceIndex)
         .compare(this.sourceRelationIndex, that.sourceRelationIndex)
         .compare(this.relationTypeOrdinal, that.sourceRelationIndex)
         .result();
