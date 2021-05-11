@@ -37,15 +37,15 @@ Yawni Subprojects
 Apps of WordNet
 - WordNet supersenses (WNSS) (Ciaramita and Altun, 2006)
   Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger
-  http://sourceforge.net/projects/supersensetag/
+  https://sourceforge.net/projects/supersensetag/
   - Java port "underway" by Jordi Atserias | Yahoo! Research (sourceforge user: batalla)
     - https://supersensetag.svn.sourceforge.net/svnroot/supersensetag/branches/SSTjava/
 - Apache Jackrabbit includes Sandbox SynonymProvider using org.apache.lucene.index.memory.SynonymMap
   jackrabbit/sandbox/wordnet-synonyms/src/main/java/org/apache/jackrabbit/core/query/wordnet/WordNetSynonyms.java
 - Using the 'Alignment API' with Wordnet
-  http://alignapi.gforge.inria.fr/alignwn.html
+  https://alignapi.gforge.inria.fr/alignwn.html
 
-Bob Carpenter's Stemming Examples (http://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
+Bob Carpenter's Stemming Examples (https://lingpipe-blog.com/2009/02/25/stemming-morphology-corpus-coding-standards/)
   * odious: odious ? probably means "odium" or could mean it has no further stem ?
   * euphoria: euphoria (CELEX-2 stems “euphoric” to “euphoria”)
   * OK mathematical: mathematics
@@ -75,7 +75,7 @@ Compounds
   * SPACE supercomputer: super computer (CELEX: missing)
   * newsgathering: news gathering (CELEX: missing) 
 
-? why does this web UI to WN 3.0 http://poets.notredame.ac.jp/cgi-bin/wn
+? why does this web UI to WN 3.0 https://poets.notredame.ac.jp/cgi-bin/wn
   show "microorganism" and "infectious agent" as Pertainyms of "viral" ?
   - these are both immediate hypernyms of the derivationally related source noun "virus" 
     + are derivationally related forms of adjectives "Pertainyms" ? no
@@ -107,7 +107,7 @@ Release TODOs
     - maybe want some default includes
   - if fast-boot be desirable, make FileManager.getFileStream() impl configurable ?
   - for some reason, Apple JVM doesn't include Rhino?
-    - can be fetched from: http://repo1.maven.org/maven2/rhino/js/
+    - can be fetched from: https://repo1.maven.org/maven2/rhino/js/
       <dependency>
         <groupId>rhino</groupId>
         <artifactId>js</artifactId>
@@ -116,7 +116,7 @@ Release TODOs
 
 // - do a Lucene Tokenizer / Analyzer integration - good performance test best
 //   - use tikluc demo
-//     - indexed reuters docs: http://192.168.1.66:8880/skwish/meta?id=10500
+//     - indexed reuters docs: https://192.168.1.66:8880/skwish/meta?id=10500
 //
 //  org.apache.lucene.analysis.TeeSinkTokenFilter.SinkFilter
 //    - seems to be modern way to "hook into" Token stream
@@ -149,7 +149,7 @@ Release TODOs
 
 - can DFS Iterator be easily created with AbstractIterator with no explicit stack ?
   - i.e., with a constant amount of extra space
-  - http://lingpipe-blog.com/2009/01/27/quiz-answer-continuation-passing-style-for-converting-visitors-to-iterators/
+  - https://lingpipe-blog.com/2009/01/27/quiz-answer-continuation-passing-style-for-converting-visitors-to-iterators/
 
 - Ted Pederson's WordNet stop list; "normally used as function words"
   I, a, an, as, at, by, he, his, me, or, thou, us, who
@@ -251,21 +251,21 @@ ought
 everything
 ? children - irregular
 
-- http://en.wikipedia.org/wiki/File:Flag_of_the_United_States.svg
+- https://en.wikipedia.org/wiki/File:Flag_of_the_United_States.svg
 
 - interesting JavaDoc paragraph from JComboBox docs (references package-summary.html)
    * <p>
    * <strong>Warning:</strong> Swing is not thread safe. For more
    * information see <a href="package-summary.html#threading">Swing's Threading Policy</a>.
   - Lucene docs should use this since they have awesome package-level docs
-    http://lucene.apache.org/java/2_9_0/api/core/org/apache/lucene/analysis/package-summary.html
+    https://lucene.apache.org/java/2_9_0/api/core/org/apache/lucene/analysis/package-summary.html
     org.apache.lucene.analysis
 
 - JIDE has some awesome (feel) open source components; auto-complete, IntelliHints, Searchable (aka FindAsYouType), and SearchableBar (like Firefox), JideSplitButton: PopdownButton with menu; license looks tricky
 
 - WordNet online for inspiration
-- http://www.yawni.org/wiki/Main/GettingStarted
-  - code inspiration from http://aboisvert.github.com/stopwatch/
+- https://www.yawni.org/wiki/Main/GettingStarted
+  - code inspiration from https://aboisvert.github.com/stopwatch/
 
 + bug: api: issues with checking out and building yawni
   + data sub-project currently needs my jar signature
@@ -282,7 +282,7 @@ everything
     /Users/nezda/Library/Application\ Support/TextMate/Bundles/scala.tmtheme
     /Users/nezda/code/scala/scalate-1.2/examples/scalate-sample
     * problems with mvn scala:cc
-      - http://github.com/davidB/maven-scala-plugin/issues/issue/36
+      - https://github.com/davidB/maven-scala-plugin/issues/issue/36
       ℞ prescription take
       ℹ information source
       Å angstrom sign
@@ -311,20 +311,20 @@ everything
     -DarchetypeGroupId=net.liftweb \
     -DarchetypeArtifactId=lift-archetype-blank \
     -DarchetypeVersion=2.0-M1 \
-    -DremoteRepositories=http://scala-tools.org/repo-releases \
+    -DremoteRepositories=https://scala-tools.org/repo-releases \
     -DgroupId=org.yawni \
     -DartifactId=yawni-wordnet-online \
     -Dversion=2.0.0-SNAPSHOT
   - gae details
     - update online version: 
       ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update online/target/yawni-wordnet-online-2.0.0-SNAPSHOT
-      can tweak GAE "version" in WEB-INF/appengine-web.xml ; previous versions remain available and web accessisble! e.g., http://5.latest.yawni-online.appspot.com/rest.html
+      can tweak GAE "version" in WEB-INF/appengine-web.xml ; previous versions remain available and web accessisble! e.g., https://5.latest.yawni-online.appspot.com/rest.html
 
       ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update rest/target/yawni-wordnet-rest-2.0.0-SNAPSHOT
   - online version features
     - autocomplete
       - show 'hint' text : conflicts with "default focus" behavior :/
-      - fade-in/fade-out of suggestions would be slick (like http://loopj.com/tokeninput/demo.html)
+      - fade-in/fade-out of suggestions would be slick (like https://loopj.com/tokeninput/demo.html)
       - support tab / shift-tab navigation like TagDragon (and Firefox search widget)
       - decrease lag from 400ms to less
       - should indicate no known matches; could also try 1 additional search using morphological processing
@@ -349,9 +349,9 @@ everything
     + italicize examples; gray text (use BluePrint CSS class alt)
     - em dash where apropos
     - rounded corners:
-      - this site uses rounded corners a lot: http://scala-tools.org/mvnsites/maven-scala-plugin/
+      - this site uses rounded corners a lot: https://scala-tools.org/mvnsites/maven-scala-plugin/
         -moz-border-radius: 14px 14px 14px 14px !important
-      - Tapestry has neat REST service for this: http://tapestry.apache.org/tapestry4.1/developmentguide/hivemind/roundedcorners.html
+      - Tapestry has neat REST service for this: https://tapestry.apache.org/tapestry4.1/developmentguide/hivemind/roundedcorners.html
       - use div class showgrid to see the BluePrint grid
         <span style="padding: 14px; -moz-border-radius: 14px 14px 14px 14px ! important; background: none repeat scroll 0% 0% white;">
           <input>
@@ -369,7 +369,7 @@ everything
         - maybe closer to search box
       + AJAX active spinner has white background which looks weird on non-white background
         x make it transparent - better to match background colors
-        + http://www.ajaxload.info/
+        + https://www.ajaxload.info/
       + rounded corners should work in Safari too
       + add search button, if only for aesthetics (searchField activates onBlur anyway)
       + add footer (copyright, etc.)
@@ -393,7 +393,7 @@ everything
       - entry to "waiting" page is ignored; returns empty result !?
       ! likely only occurs on GAE and is caused by 1 request being serviced by multiple JVMs; LiftSession is not fully stored in servlet session, so this clustered servicing fails to behave correctly
     - rounded corners won't work on IE (5,6,7,8)
-      http://www.w3schools.com/browsers/browsers_stats.asp
+      https://www.w3schools.com/browsers/browsers_stats.asp
       ? what about Chrome & Opera ?
     + SLF4J impl collision
     + AJAX page seems to reset when page is left and then revisited 
@@ -410,19 +410,19 @@ everything
       + various problems with xhtml and this widget
     + browser scroll bar causes jarring left/right shift
       html { overflow-y: scroll; }
-      http://www.w3.org/TR/CSS21/visufx.html#overflow
+      https://www.w3.org/TR/CSS21/visufx.html#overflow
   - custom 404 page
-    http://wiki.liftweb.net/index.php/Setting_up_a_custom_404_page
+    https://wiki.liftweb.net/index.php/Setting_up_a_custom_404_page
   - tests
     - Lift example uses several test libraries: 'specs', 'mockito', jwebunit-htmlunit
     - Selenium tests
     - load tests : JMeter
-      - http://code.google.com/p/perfbench/source/browse/trunk/perfbench
+      - https://code.google.com/p/perfbench/source/browse/trunk/perfbench
 
 - Tapestry on Google App Engine ?
 
 - feature: api: alternate an all caps WordNet term with one with periods after each letter so "CEO" matches input "C.E.O."
-  - this article has such an example of "C.E.O.": http://www.nytimes.com/2008/11/23/magazine/23Netflix-t.html?_r=2&pagewanted=all
+  - this article has such an example of "C.E.O.": https://www.nytimes.com/2008/11/23/magazine/23Netflix-t.html?_r=2&pagewanted=all
 - feature: api: expose WordNet data version (e.g., 3.0)
 - feature: api: expose About dialog diagnostics as Map (code currently inlined in Browser.java; some of this info in browser.Application)
   - maybe should have Application or Module or something in every subproj
@@ -540,14 +540,14 @@ everything
         + a [available%3:00:00::] [available] obtainable
         + a [whole%3:00:00::] [whole] including all components
         + n [shoe%1:06:00::] [shoe] footwear
-   - http://wordnet.princeton.edu/wordnet/download/
+   - https://wordnet.princeton.edu/wordnet/download/
      - when were the new "Standoff Files" released ?
 
   - Geo-WN ; toponym disambiguation
   - VerbNet
   - FrameNet
   - SentiWordNet (crappy non-commercial license)
-  - SUMO: mappings http://sigmakee.cvs.sourceforge.net/sigmakee/KBs/WordNetMappings/
+  - SUMO: mappings https://sigmakee.cvs.sourceforge.net/sigmakee/KBs/WordNetMappings/
   - Collins English Dictionary (CED) old edition available cheaply from LDC ($100); challenging to parse
   - Wiktionary; hard to parse; Ninja Words uses this
   - LDOCE: Procter, Paul (Ed.). 1978. Longman Dictionary of Contemporary English
@@ -573,7 +573,7 @@ everything
 
 - site element notes
   + link to yawni.sourceforge.net (which is linked to yawni.org)
-  - add WordNet 3.0 documentation since http://wordnet.princeton.edu seems to be down often
+  - add WordNet 3.0 documentation since https://wordnet.princeton.edu seems to be down often
   + Google Analytics include
   + name
   + description
@@ -586,7 +586,7 @@ everything
     - Scala + Yawni = WordNet REPL!
       // rlwrap scala -Xnojline
       alias wnrepl='scala -cp /Users/nezda/.m2/repository/org/yawni/yawni-wordnet-api/2.0.0-SNAPSHOT/yawni-wordnet-api-2.0.0-SNAPSHOT.jar:/Users/nezda/.m2/repository/org/yawni/yawni-wordnet-data/2.0.0-SNAPSHOT/yawni-wordnet-data-2.0.0-SNAPSHOT.jar:/Users/nezda/.m2/repository/com/google/guava/guava/13.0/guava-13.0.jar:/Users/nezda/.m2/repository/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9:/Users/nezda/.m2/repository/org/slf4j/slf4j-api/1.6.6/slf4j-api-1.6.6.jar:/Users/nezda/.m2/repository/org/slf4j/slf4j-nop/1.6.6/slf4j-nop-1.6.6.jar'
-      // http://stackoverflow.com/questions/9516567/settings-maxprintstring-for-scala-2-9-repl
+      // https://stackoverflow.com/questions/9516567/settings-maxprintstring-for-scala-2-9-repl
       - alternative to this manual alias, BUT must specify Xmx via MAVEN_OPTS since can't fork scala console
       mvn -Dscala.version=2.9.2 net.alchim31.maven:scala-maven-plugin:3.0.2:console
       
@@ -636,8 +636,8 @@ everything
   ~ sourceforge project URL
   + sourceforge icon + URL (for tracking)
   - Amazon Associates book links
-    - this site has a link for an Erlang book: http://www.satine.org/archives/2007/12/13/amazon-simpledb/
-  + new screenshot of substring search window: http://grab.by/3GWK ; replaces http://grab.by/1Ic4#file.png (before brushed metal fix)
+    - this site has a link for an Erlang book: https://www.satine.org/archives/2007/12/13/amazon-simpledb/
+  + new screenshot of substring search window: https://grab.by/3GWK ; replaces https://grab.by/1Ic4#file.png (before brushed metal fix)
   + donations link / directions / terse plea
   - ohloh link
   - freshmeat link
@@ -671,23 +671,23 @@ everything
   - ssh to sourceforge site
     ssh -t lnezda,yawni@shell.sourceforge.net create
   - follow FEST projects' lead: use pmwiki, ask for Atlassin Confluence, Jira, and Fisheye
-    http://www.pmwiki.org/wiki/Cookbook/SourceForgeServers
+    https://www.pmwiki.org/wiki/Cookbook/SourceForgeServers
     + yawni icon URL
-      http://yawni.sourceforge.net/yawni_43x48_icon.png
-      http://www.yawni.org/images/yawni_43x48_icon.png
-      http://www.yawni.org/images/yawni_57x64_icon.png
+      https://yawni.sourceforge.net/yawni_43x48_icon.png
+      https://www.yawni.org/images/yawni_43x48_icon.png
+      https://www.yawni.org/images/yawni_57x64_icon.png
     + sourceforge icon link
-      <img src="http://sourceforge.net/sflogo.php?group_id=36271&amp;type=3" alt="SourceForge.net Logo" class="sflogo" />
+      <img src="https://sourceforge.net/sflogo.php?group_id=36271&amp;type=3" alt="SourceForge.net Logo" class="sflogo" />
     + using Skittlish theme
-      http://www.pmwiki.org/wiki/Cookbook/Skittlish
+      https://www.pmwiki.org/wiki/Cookbook/Skittlish
     + added clean URLs
     * how to edit a pmwiki page
-      http://yawni.sourceforge.net/pmwiki/PmWiki/DocumentationIndex
-      http://yawni.sourceforge.net/pmwiki/Site/SiteFooter?action=edit
+      https://yawni.sourceforge.net/pmwiki/PmWiki/DocumentationIndex
+      https://yawni.sourceforge.net/pmwiki/Site/SiteFooter?action=edit
 (:notitle:)
 (:notitlegroup:)
 (:notabs:)
-    + created Yawni pledgie campaign: http://pledgie.com/campaigns/7717
+    + created Yawni pledgie campaign: https://pledgie.com/campaigns/7717
     + tag lines
       1. Object-oriented API to the WordNet database of lexical relationships
       2. The commercial-grade WordNet Java API.
@@ -706,8 +706,8 @@ everything
       - what's WordNet
       - who might use WordNet ?
 
-  <link rel="shortcut icon" href="http://www.yawni.org/favicon.ico"/>
-  <link rel="icon" type="image/x-icon" type="image/vnd.microsoft.icon" href="http://www.yawni.org/favicon.ico"/>
+  <link rel="shortcut icon" href="https://www.yawni.org/favicon.ico"/>
+  <link rel="icon" type="image/x-icon" type="image/vnd.microsoft.icon" href="https://www.yawni.org/favicon.ico"/>
 
 - Apache Pivot
   - Web Start app probably more compelling than applet
@@ -796,7 +796,7 @@ everything
     - Bryan Rink
     - Rion Snow
       - The Stanford WordNet Project
-      - http://ai.stanford.edu/~rion/swn/index.html
+      - https://ai.stanford.edu/~rion/swn/index.html
     - opennlp
       - mailing lists
       - annotation.org
@@ -806,16 +806,16 @@ everything
   + feature: promotion: point yawni.org at SourceForge site
   ~ bug: promotion: ⊚ update SourceForge site (add download, no longer beta, Maven info, ...)
   + feature: promotion: add PmWiki-based content to SourceForge site: basic documentation, basic examples, some color
-  + feature: promotion: make Wiki-based homepage the default landing page for http://yawni.sourceforge.net (like http://jwordnet.sourceforge.net)
+  + feature: promotion: make Wiki-based homepage the default landing page for https://yawni.sourceforge.net (like https://jwordnet.sourceforge.net)
   - feature: promotion: ⊚ ask Oliver Steele to update project members (i.e., remove Kurt Hayes)
-  - feature: promotion: ⊚ have Princeton update the JWordNet link on http://wordnet.princeton.edu/wordnet/related-projects/
+  - feature: promotion: ⊚ have Princeton update the JWordNet link on https://wordnet.princeton.edu/wordnet/related-projects/
   - feature: promotion: ⊚ Amazon Affiliate sponsored links
     ? any Semantic Web books apropos here ?
-    - WordNet: An Electronic Lexical Database (book) http://www.amazon.com/WordNet-Electronic-Database-Language-Communication/dp/026206197X/ref=sr_1_1?ie=UTF8&s=books&qid=1261949881&sr=8-1
-    - Word Sense Disambiguation: Algorithms and Applications (book) http://www.amazon.com/Word-Sense-Disambiguation-Algorithms-Applications/dp/1402068700/ref=sr_1_1?ie=UTF8&s=books&qid=1261949949&sr=1-1
+    - WordNet: An Electronic Lexical Database (book) https://www.amazon.com/WordNet-Electronic-Database-Language-Communication/dp/026206197X/ref=sr_1_1?ie=UTF8&s=books&qid=1261949881&sr=8-1
+    - Word Sense Disambiguation: Algorithms and Applications (book) https://www.amazon.com/Word-Sense-Disambiguation-Algorithms-Applications/dp/1402068700/ref=sr_1_1?ie=UTF8&s=books&qid=1261949949&sr=1-1
   + bug: use consistent URL in documentation, etc.
-    http://sourceforge.net/projects/yawni/ -- SourceForge standard page
-    http://yawni.sourceforge.net/ -- looks spammy with ad in the center
+    https://sourceforge.net/projects/yawni/ -- SourceForge standard page
+    https://yawni.sourceforge.net/ -- looks spammy with ad in the center
   ~ feature: promotion: gui: add Web Start app link to main page
     - make sure it works on Linux from Firefox ; see what others do
   - feature: api: ⊚ publish to public Maven repositories
@@ -844,7 +844,7 @@ everything
     
     How can we test behavior in the sandboxed, high security environment?
   + bug: api: gui: default build data/ and use it for unit tests in core/ and browser/ to sidestep environment issues and work in IDEs
-  - bug: api: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: http://mina.apache.org/logging-configuration.html
+  - bug: api: gui: ⊚ add basic Getting Started documentation including slf4j requirements; copy / reference Apache Mina docs on same: https://mina.apache.org/logging-configuration.html
   - bug: api: decrease unit test Xmx -- 256m is excessive; note that base cache sizes form a minimum required memory (esp. if they are filled)
     - 4 active: DEFAULT_CACHE_CAPACITY=10000 (morphyCache, synsetCache, indexWordCache, exceptionsCache)
       - these can easily get fairly large and capture 
@@ -880,7 +880,7 @@ everything
         Applies to all 4 senses of Roman
         * similar for 3+
   < feature: api: add alternation support to GetIndex for {' ' → '/', '-' → '/'} (e.g., "read write memory" → "read/write memory")
-  < feature: api: add information on Unicode characters (e.g., '→' U+2192 RIGHTWARDS ARROW; see gloss of "tilde" and http://rishida.net/scripts/uniview/ for ideas) 
+  < feature: api: add information on Unicode characters (e.g., '→' U+2192 RIGHTWARDS ARROW; see gloss of "tilde" and https://rishida.net/scripts/uniview/ for ideas) 
     - would these be gloss? synonyms ?
     - would be cool, for example, to have:
       - suggested usage of smart quotes (“”)
@@ -926,7 +926,7 @@ everything
     Show/Hide Core WordNet Rank
     Show/Hide WordSense Antonyms
     Show/Hide WordSense AdjPosition
-  + feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); http://tips4java.wordpress.com/2009/11/29/text-prompt/
+  + feature: gui: in search fields (or corresponding results area), use TextPrompt to show basic directions (like OS X Dictionary used to?); https://tips4java.wordpress.com/2009/11/29/text-prompt/
     * verify with author that Apache License is OK ?
     - text "Type a word to lookup in WordNet…" requires more width in searchField than we have
     - doesn't work in combination with OS X features (but does look  kinda cool, if a little textually busy)
@@ -940,9 +940,9 @@ everything
       Type a word to look up in… (horizontally centered, gray-ish/alpha, normal, serif font, ≈2x normal size (plenty of room))
       New Oxford American Dictionary (horizontally centered, gray-ish/alpha, italics, serif font, ≈2x normal size (plenty of room))
   - feature: gui: rename ActionHelper to StyledActionHelper or something; factor all similar code into it (or it into similar code), i.e., StyledTextPane
-  - feature: api: refactoring: consider optimizing CharSequences.parseInt/parseLong (à la http://nadeausoftware.com/articles/2009/08/java_tip_how_parse_integers_quickly)
+  - feature: api: refactoring: consider optimizing CharSequences.parseInt/parseLong (à la https://nadeausoftware.com/articles/2009/08/java_tip_how_parse_integers_quickly)
   < bug: gui: SearchFrame dialog should render with apple.awt.brushMetalLook on OS X (Apple bug)
-  - feature: gui: bundle as native OS X app; http://mojo.codehaus.org/osxappbundle-maven-plugin/
+  - feature: gui: bundle as native OS X app; https://mojo.codehaus.org/osxappbundle-maven-plugin/
   + feature: gui: add prefix-typing navigation of PopdownButton content (like JComboBox)
     - DefaultKeySelectionManager
   - bug: gui: OS X: app bar says "com.sun.javaws.Main" instead of "Yawni WordNet Browser"; clearly missing -Xdock:name="Yawni WordNet Browser"
@@ -951,7 +951,7 @@ everything
         <param name="java_arguments" value="-Djnlp.packEnabled=true">
       ? what JNLP version added this ?
   + bug: gui: OS X: if app window focus changes while a PopdownButton JPopupMenu is showing, it stays above ALL other application windows ! known bug; only affects heavyweight popups which OS X uses exclusively
-    - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4812585
+    - https://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4812585
   - bug: gui: OS X: when selecting POS button, focus is not explicitly on "Senses"
   < feature: gui: OS X using reflection, ala OSXAdapter, override handleQuit(), handleAbout()
   + bug: gui: OS X search field (x) no longer works (searchField.putClientProperty("JTextField.variant", "search");) ; fix searchField.putClientProperty("JTextField.Search.CancelAction", Action...
@@ -968,7 +968,7 @@ everything
     - icns file for OS X ?
     - scoured Interfacelift, found Bombia Design and asked for a quote
       To whom it may concern:
-      I am the primary developer of the open source project "Yawni" (Yet Another WordNet API) (http://sourceforge.net/projects/yawni/), a graphical and programmatic interface to WordNet  (http://wordnet.princeton.edu/).  I have been working hard on both the "back end" and UI of the project and even have a concept for an icon.  My concept is a yawning cat (I like this one: http://www.joua.net/paddington/yawn.jpg), possibly vectorized à la vectormagic.com.  I found your portfolios via Interfacelift and was curious what it would cost me to have you create a scalable icon for the project. Obviously I don't have much to spend on this free and open source project, but I think a memorable icon is an important way to promote a project.
+      I am the primary developer of the open source project "Yawni" (Yet Another WordNet API) (https://sourceforge.net/projects/yawni/), a graphical and programmatic interface to WordNet  (https://wordnet.princeton.edu/).  I have been working hard on both the "back end" and UI of the project and even have a concept for an icon.  My concept is a yawning cat (I like this one: https://www.joua.net/paddington/yawn.jpg), possibly vectorized à la vectormagic.com.  I found your portfolios via Interfacelift and was curious what it would cost me to have you create a scalable icon for the project. Obviously I don't have much to spend on this free and open source project, but I think a memorable icon is an important way to promote a project.
       Kind regards,
       - Luke
       Dallas, Texas, USA
@@ -999,7 +999,7 @@ everything
     - this behavior is called a dialog ("modal" means the dialog must be dismissed before the main screen is available for use again)
       - Apple fail: JDialog doesn't respect apple.awt.brushMetalLook !
       - JWindow respects apple.awt.brushMetalLook, but has no native close or resize controls
-        - thought about slide out drawer, but apparently this is hard (http://forums.java.net/jive/thread.jspa?threadID=30506)
+        - thought about slide out drawer, but apparently this is hard (https://forums.java.net/jive/thread.jspa?threadID=30506)
         - swingx JXCollapsiblePane could be nice solution -- essentially frame-internal drawer / JSplitPane with slide / fade effects
     ? why doesn't drag-from-non-menu-bar move app to another desktop ?
   + bug: gui: jnlp version doesn't use apple.awt.brushMetalLook
@@ -1083,8 +1083,8 @@ everything
   <regex>  → Iterable<Word> ** Iterable<WordSense> if case sensitive; linear traversal
   <glob>   → Iterable<Word> ** Iterable<WordSense> if case sensitive; linear traversal
     - glob-style regexes (e.g., "*" means ".*", "p*za")
-      http://jakarta.apache.org/oro/api/org/apache/oro/text/GlobCompiler.html
-      http://stackoverflow.com/questions/1247772/is-there-an-equivalent-of-java-util-regex-for-glob-type-patterns
+      https://jakarta.apache.org/oro/api/org/apache/oro/text/GlobCompiler.html
+      https://stackoverflow.com/questions/1247772/is-there-an-equivalent-of-java-util-regex-for-glob-type-patterns
       tricky to "guess" when to do this without shorting out more complex regexes
       - if anchored (^ or $), don't guess - we've got a pro
       - if ".*", don't guess - we've got a pro
@@ -1101,7 +1101,7 @@ everything
     - random Synset implemenation: random POS; random offset; pick closest Synset
     * useful feature would be realistic skews (e.g., more common POS (NOUN), unigram vs. collocation, higher senseTaggedFrequency)
 
-  <custom output format>  e.g., http://www.w3.org/TR/wordnet-rdf/
+  <custom output format>  e.g., https://www.w3.org/TR/wordnet-rdf/
    - activate outputting specific fields (e.g., synset offset, lexname, isCore, ...)
 
 - customize rendering
@@ -1203,7 +1203,7 @@ x feature: howto for developing in NetBeans ?
 - feature: consider a "lexicon" class for simple uses (like stemming)
 - feature: consider test / example coverage
   - Ruby WordNet has some decent looking "examples/" and tests (linguawordnet)
-    http://www.deveiate.org/projects/Ruby-WordNet/browser/examples
+    https://www.deveiate.org/projects/Ruby-WordNet/browser/examples
     source:trunk/tests/wntestcase.rb
     source:trunk/tests/linguawordnet.tests.rb
     source:trunk/tests/synset.tests.rb
@@ -1296,9 +1296,9 @@ x feature: howto for developing in NetBeans ?
   + searchBySubstring()
   + relations()
 ~ feature: add GUI unit/functional tests with FEST-swing
-  * http://easytesting.org/swing/wiki/pmwiki.php
-    - filed http://java.dzone.com/news/festive-functional-tests-swing
-  * http://java.dzone.com/news/festive-functional-tests-swing
+  * https://easytesting.org/swing/wiki/pmwiki.php
+    - filed https://java.dzone.com/news/festive-functional-tests-swing
+  * https://java.dzone.com/news/festive-functional-tests-swing
   + decent keyboard-nav test of core search window
   + test PopdownButton Enter key with mouse in it (was hard problem to solve!)
   - test getDominantCasedLemma
@@ -1406,7 +1406,7 @@ x feature: howto for developing in NetBeans ?
       - JVM options
         -server
         -Xbatch
-        -XX:SoftRefLRUPolicyMSPerMB=2500 http://java.sun.com/docs/hotspot/HotSpotFAQ.html
+        -XX:SoftRefLRUPolicyMSPerMB=2500 https://java.sun.com/docs/hotspot/HotSpotFAQ.html
         -Xmx !
         -Xms (especially as times get very short - need longer test)
       - environment
@@ -1488,7 +1488,7 @@ x feature: howto for developing in NetBeans ?
     * many initials already have their period-free form in the data files
   - feature: api: create lemmatizing Lucene analyzer
   ~ feature: api: add unit tests for FileManagerInterface routines utilizing toy files at classpath-relative paths/URLs
-  + feature: api: ⊚ nice API to verb groups; add a field to WordSense (e.g., byte verbGroupNumber) and sort by it ? (http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html)
+  + feature: api: ⊚ nice API to verb groups; add a field to WordSense (e.g., byte verbGroupNumber) and sort by it ? (https://wordnet.princeton.edu/wordnet/man/wngroups7wn)
     - since this relation is sort of lexical, we can add specicialized impl and filter on source WordSense, but return source Synset; note the common thread is the Word, NOT the WordSense
     - working on this: precomputing the transitive closure offline; 
       - respire: 00002325 00001740 00002573
@@ -1524,7 +1524,7 @@ x feature: howto for developing in NetBeans ?
   ~ feature: api: ⊚ add search support for java.text.Normalizer to allow searches for accented words to work (e.g., "resumé", "résumé", "résumés" to match "resume" (similar for "cliché" → "cliche"))
     - an alternative is org.apache.lucene.analysis.ASCIIFoldingFilter
     - Normalizer requires Java 6 which excludes some platforms - could use reflection
-    - aka words with diacritics: http://en.wikipedia.org/wiki/List_of_English_words_with_diacritics
+    - aka words with diacritics: https://en.wikipedia.org/wiki/List_of_English_words_with_diacritics
   < feature: interface to parse and cleanly represent (in code) glosstags corpus
     - convert to lighter JSON or binary XML format ?
     - delivered as 1 giant bzipped collection of XML files in directories
@@ -1589,7 +1589,7 @@ x feature: howto for developing in NetBeans ?
     + make adjective positions an enum and make accessible by an EnumSet (only 7 possible combos?)
 
 - Browser (aka GUI)
-  < feature: gui: GTK LAF -- too many bugs to list: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6417110
+  < feature: gui: GTK LAF -- too many bugs to list: https://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6417110
     + solution: for Windows and Mac, use native LAF, for Linux use CrossPlatform LAF
     - Linux doesn't use anti-aliased fonts
     - Linux and OS X + Java 5: preferred button size much smaller (esp on Linux)
@@ -1640,12 +1640,12 @@ x feature: howto for developing in NetBeans ?
       - what if defaults load itself fails? fail whole program or hard-code default also !?
     - add button/commandline/environment/system variable to trigger reloading defaults.xml
     - preferences modification screen ?
-    - Preferences API FTW: http://java.sun.com/j2se/1.4.2/docs/guide/lang/preferences.html
+    - Preferences API FTW: https://java.sun.com/j2se/1.4.2/docs/guide/lang/preferences.html
       which is like a platform-independent Windows registry (note has KEY and
       value size limitations so don't try to store serialized objects in there)
       - how does this interact with Java Web Start ?
     - write properties to jar file is a bad idea: 
-      http://forum.java.sun.com/thread.jspa?threadID=5207074&messageID=9830109
+      https://forum.java.sun.com/thread.jspa?threadID=5207074&messageID=9830109
       * risks corrupting the jar file (and invalidating its signature)
     + load defaults.xml file from jar file (updated common-build.xml <jarify> macro)
       + load defaults.xml from Class.getResourceAsStream();
@@ -1666,15 +1666,15 @@ x feature: howto for developing in NetBeans ?
           long getWhen()
     - act directly on multi-clicks identified using a lastClickTime state variable 
     - use javax.swing.Timer to act on single clicks which turn out NOT to be multi-clicks
-      http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=2&t=009927
+      https://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=2&t=009927
     AbstractButton.getMultiClickThreshhold() may be useful
   + feature: gui: generate the magnifying glass icon with Java2D and make it the substring menu icon; used DrawIt
   + feature: gui: what is the "standard" undo/redo icon ?
     ~ macvim (7.1r27) ones look pretty official (includes the swishy orange undo arrow)
       + emailed author and requested SVG version but he never responded
     - just generate the OS X one ? (orange swishy arrow)
-    - http://tango.freedesktop.org/Image:Tango-feet.png
-    - http://java.sun.com/developer/techDocs/hi/repository/index.html
+    - https://tango.freedesktop.org/Image:Tango-feet.png
+    - https://java.sun.com/developer/techDocs/hi/repository/index.html
     - xswingx /org/jdesktop/xswingx/demo/Search_SnapBack.png  
   ~ feature: gui: add Cmd++ / Cmd+- font scaling
     - add more sizes and cycle through results
@@ -1685,16 +1685,16 @@ x feature: howto for developing in NetBeans ?
     + Action.SMALL_ICON - menu, toolbar icon
     - Action.SHORT_DESCRIPTION - tooltip
     + generate associated icons: simple anti-aliased small/large bold sans font "A" (mimics OS X icons))
-      http://weblogs.java.net/blog/kirillcool/archive/2005/07/how_to_create_s.html
+      https://weblogs.java.net/blog/kirillcool/archive/2005/07/how_to_create_s.html
     + add menu options
   < bug: gui: anti-aliasing not settable via Java 1.5 web start (known web start bug) - make a generic recursive function to set it on JComponent in an application
-    ? what is swing.useSystemFontSettings (http://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html#application_desc) which is a respected web start property
+    ? what is swing.useSystemFontSettings (https://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html#application_desc) which is a respected web start property
   < bug: gui: SearchFrame / Browser window switch on OS X has ugly, slow, visible repaint with apple.awt.brushMetalLook L&F
     - possible fixes in:
-      http://developer.apple.com/technotes/tn2007/tn2196.html
+      https://developer.apple.com/technotes/tn2007/tn2196.html
       - use Quartz rendering pipeline options ?
   < bug: gui: native Linux (GTK) L&F seems to work on lcc64 only ? java6 only ? 64-bit JVM only ?
-  < feature: gui: hyperlink word senses in glosses using new http://wordnet.princeton.edu/glosstags
+  < feature: gui: hyperlink word senses in glosses using new https://wordnet.princeton.edu/glosstags
   < feature: gui: add font zoom buttons to BrowserPanel (could use same ones created for the menu)
   - feature: gui: add edit menu and copy, paste, select all, +undo, +redo to it
   - feature: gui: add back/forward (history) buttons to BrowserPanel (just trigger undo)
@@ -1809,8 +1809,8 @@ x feature: howto for developing in NetBeans ?
   - remove cruft / extra debug crap
 < feature: consider taking CharSequence for search in interface to allow use of mutable query "String"'s, etc (from user perspective, still fully backwards compat with String (Java 1.5-wise)
 + feature: run code through various tools (God bless Maven)
-  + findbugs (http://findbugs.cs.umd.edu/demo/jnlp/findbugs.jnlp)
-  + CPD - looks good (http://pmd.sourceforge.net/cpd.jnlp)
+  + findbugs (https://findbugs.cs.umd.edu/demo/jnlp/findbugs.jnlp)
+  + CPD - looks good (https://pmd.sourceforge.net/cpd.jnlp)
 + bug: make line ends native in files and svn
 < feature: work on Morphy
   * add exact match in 1 spot
@@ -1821,7 +1821,7 @@ x feature: howto for developing in NetBeans ?
     - guess to find missing items ("blogging")
     ? consider returning morphologically derived terms ?
   - strive for symmetric search results
-    FAQ http://wordnet.princeton.edu/faq#morphology says "the morphological component of WordNet is unidirectional"
+    FAQ https://wordnet.princeton.edu/faq#morphology says "the morphological component of WordNet is unidirectional"
     "long time" is a NOUN, "longtime" is an ADJ, both come up in searches for
     "long time", but only the ADJ comes up in searches for "longtime"
   - why doesn't "blogging" → "blog" work ? (double g)
@@ -1960,12 +1960,12 @@ Performance
 + feature: using long's for file offsets seems like overkill - it's gonna be a while till a plain-text WordNet uses up 4 bytes
 
 General Project Quality
-+ bug: run RAT to ensure licenses are all good (http://code.google.com/p/arat/)
++ bug: run RAT to ensure licenses are all good (https://code.google.com/p/arat/)
 ~ bug: api: test on Windows, Linux, Mac
 ~ bug: api: add javadoc to all important methods
   - remove dated/wrong comments regarding original impl
   - remove LN comments ? maybe replace with @author for now ? use tool to compare APIs
-  - consider using prose from http://www.w3.org/TR/wordnet-rdf/
+  - consider using prose from https://www.w3.org/TR/wordnet-rdf/
 + bug: make sure there are no tab's
 + bug: make sure line endings are all consistent (native and nailed down in svn)
 
@@ -2028,8 +2028,8 @@ General Project Quality
     - UIMA - various NLP apps (pos, pchunk, doc/phrase/sentence-similarity (dup filtering), clustering
   - practical lexical semantic web resource
     - synergies with other Apache technologies (W3C RDF/OWL Representation of WordNet)
-      http://www.w3.org/TR/wordnet-rdf/
-      WordNetRDF http://wordnet.princeton.edu/~agraves/
+      https://www.w3.org/TR/wordnet-rdf/
+      WordNetRDF https://wordnet.princeton.edu/~agraves/
     - candidate ISO lexicon standard: Lexical Markup Framework (LMF)
   - makes WordNet much more approachable to developers
   - super memory efficient and fast
