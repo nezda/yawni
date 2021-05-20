@@ -55,17 +55,17 @@ class ActionHelper {
 
   private static Action compose(final Action... actions) {
     assert actions.length >= 2;
-    String name = "";
+    StringBuilder name = new StringBuilder();
     int ai = 0;
     for (final Action action : actions) {
       final String aname = (String) action.getValue(Action.NAME);
       assert aname != null && aname.length() > 0;
-      name += aname;
+      name.append(aname);
       if (ai != actions.length - 1) {
-        name += "-";
+        name.append("-");
       }
     }
-    return new AbstractAction(name) {
+    return new AbstractAction(name.toString()) {
       public void actionPerformed(final ActionEvent e) {
         for (final Action action : actions) {
           action.actionPerformed(e);
@@ -74,6 +74,7 @@ class ActionHelper {
     };
   }
 
+  @SuppressWarnings("unused")
   static Action selectAllCut() {
     return ACTIONS.get(SELECT_ALL_CUT);
   }

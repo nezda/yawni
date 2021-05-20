@@ -22,9 +22,9 @@ public class AutoCompleteComboBox<E> extends JComboBox<E>	implements JComboBox.K
     }
   } // end class CBDocument
 
-  public AutoCompleteComboBox(Object[] items) {
+  public AutoCompleteComboBox(E[] items) {
     super(items);
-    final ComboBoxModel aModel = getModel();
+    final ComboBoxModel<E> aModel = getModel();
     setKeySelectionManager(this);
     // select item0 , but setArmed(false)
 //    final JMenuItem item0 = (JMenuItem) getItemAt(0);
@@ -85,14 +85,14 @@ public class AutoCompleteComboBox<E> extends JComboBox<E>	implements JComboBox.K
     super.fireActionEvent();
   }
 
-  public static void main(String arg[]) {
+  public static void main(String[] args) {
     final JFrame frame = new JFrame("AutoCompleteComboBox");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setSize(200, 300);
     final Container contentPane = frame.getContentPane();
     contentPane.setLayout(null);
     final String[] names = {"Beate", "Claudia", "Fjodor", "Fred", "Friedrich",	"Fritz", "Frodo", "Hermann", "Willi"};
-    final JComboBox comboBox = new AutoCompleteComboBox(names);
+    final JComboBox<String> comboBox = new AutoCompleteComboBox<>(names);
 //    final Locale[] locales = Locale.getAvailableLocales();
 //    final JComboBox comboBox = new AutoCompleteComboBox(locales);
     comboBox.setBounds(50, 50, 100, 21);

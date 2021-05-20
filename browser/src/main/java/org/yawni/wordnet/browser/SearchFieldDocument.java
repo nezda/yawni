@@ -23,7 +23,7 @@ import javax.swing.text.*;
  * to non-junk.
  */
 class SearchFieldDocument extends PlainDocument {
-  private final int MAX_LEN = 256;
+  private static final int MAX_LEN = 256;
 
   @Override
   public void insertString(
@@ -48,15 +48,15 @@ class SearchFieldDocument extends PlainDocument {
     //System.err.println("input text: "+text);
     // TODO scrub text and then insert the remains
     // shortcut common case: is short and contains nothing but letters or digits
-    boolean dirty = false == isClean(text, insOffset);
+    boolean dirty = isDirty(text, insOffset);
     if (dirty) {
       //System.err.println("dirty insert?: \""+text+"\"");
       text = scrub(text, insOffset);
     }
     super.insertString(insOffset, text, attr);
-    if (dirty) {
-      //System.err.println("dirty doc: "+getText(0, getLength()));
-    }
+//    if (dirty) {
+//      //System.err.println("dirty doc: "+getText(0, getLength()));
+//    }
   }
 
   @Override
@@ -65,7 +65,7 @@ class SearchFieldDocument extends PlainDocument {
       final int length,
       String text,
       final AttributeSet attr) throws BadLocationException {
-    if (length != 0 && false == isClean(text, offset)) {
+    if (length != 0 && isDirty(text, offset)) {
       //final String toReplace = getText(offset, length);
       //System.err.println("toReplace: \""+toReplace+"\""+
       //    " (length: "+length+") with \""+text+"\" (length: "+text.length()+")");
@@ -102,12 +102,12 @@ class SearchFieldDocument extends PlainDocument {
     return toInsert;
   }
 
-  private boolean isClean(final String proposedNewText, final int insOffset) {
+  private boolean isDirty(final String proposedNewText, final int insOffset) {
     for (int i = 0, len = proposedNewText.length(); i < len; i++) {
       if (! Character.isLetterOrDigit(proposedNewText.charAt(i))) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 }

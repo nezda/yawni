@@ -37,11 +37,13 @@ import org.yawni.util.*;
  *   queries via method:
  *     {@code abstract public Iterable search(final String query)}
  *   </li>
+ *   <li>
  *   <ul>
  *     <li> this method will be called in a separate thread and should ideally
  *     support thread interruption</li>
  *     <li> gets query from search field from {@code DocumentEvent} via the {@code Document}</li>
  *   </ul>
+ *   </li>
  *   <li> uses {@code JList} reference to maintain display correctness and optimize responsiveness</li>
  * </ul>
  *
@@ -58,9 +60,9 @@ import org.yawni.util.*;
  *
  * <p>Inspired by <a href="http://www.oreilly.com/catalog/swinghks/">http://www.oreilly.com/catalog/swinghks/</a>
  */
-public abstract class ConcurrentSearchListModel extends AbstractListModel implements DocumentListener {
+public abstract class ConcurrentSearchListModel<E> extends AbstractListModel<E> implements DocumentListener {
   private static final Logger log = LoggerFactory.getLogger(ConcurrentSearchListModel.class.getName());
-  private List filterItems;
+  private final List<E> filterItems;
   private final ExecutorService service;
   private int rowUpdateInterval;
 
@@ -72,23 +74,24 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     jlist.clearSelection();
     jlist.setFocusable(focusable);
   }
-  private JList jlist;
-  private Future lastTask;
+  private JList<E> jlist;
+  private Future<?> lastTask;
   private String lastQuery;
 
   public ConcurrentSearchListModel() {
     //TODO consider CopyOnWriteArrayList
-    this.filterItems = new Vector();
+    this.filterItems = new Vector<>();
     this.service = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
     //this.service = Executors.newFixedThreadPool(2, new DaemonThreadFactory());
     //setRowUpdateInterval(Integer.MAX_VALUE);
     //setRowUpdateInterval(1);
   }
 
-  abstract public Iterable search(final String query);
+  abstract public Iterable<E> search(final String query);
 
   public void searchDone(final String query, final int numHits) { }
 
+  @SuppressWarnings("unused")
   public void setRowUpdateInterval(final int rowUpdateInterval) {
     //TODO ideally just compute this based on visible row range on-the-fly
     //XXX simple, but superior method is to make sure range [0, lastVisibleRow]
@@ -100,13 +103,13 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     this.rowUpdateInterval = rowUpdateInterval;
   }
   
-  public void setJList(final JList jlist) {
+  public void setJList(final JList<E> jlist) {
     assert jlist != null;
     this.jlist = jlist;
     setFocusable(false);
   }
 
-  public Object getElementAt(final int index) {
+  public E getElementAt(final int index) {
     if (index < filterItems.size()) {
       return filterItems.get(index);
     } else {
@@ -130,9 +133,9 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     }
   } // end class CatchAndRelease
   
-  private void redisplay(final Iterable toDisplay, final String query) {
+  private void redisplay(final Iterable<E> toDisplay, final String query) {
     //XXX System.err.println("doRedisplay submitted "+new Date());
-    final Future submittedTask =
+    final Future<?> submittedTask =
       service.submit(new CatchAndRelease() {
       @Override
       void doRun() {
@@ -156,7 +159,7 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
   // runs complete search in background, then updates displayed list
   // TODO
   // - run some of search, then display some of search, run more of search, update display
-  private void doRedisplay(final Iterable toDisplay, final String query) {
+  private void doRedisplay(final Iterable<E> toDisplay, final String query) {
     // redisplay() should be called in a non-event dispatch thread - it will need a little API
     // Easiest to use a single-threaded ExecutorService
     // - "waiting for work" is trivial
@@ -197,8 +200,8 @@ public abstract class ConcurrentSearchListModel extends AbstractListModel implem
     // make sure the search field is always responsive
 
     final int oldSize = filterItems.size();
-    final List newItems = new Vector();
-    for (final Object obj : toDisplay) {
+    final List<E> newItems = new Vector<>();
+    for (final E obj : toDisplay) {
       if (Thread.interrupted()) {
         System.err.println("interrupted! query: \""+query+"\""+
             " newItems.size(): "+newItems.size()+String.format(" %,d", System.currentTimeMillis()));

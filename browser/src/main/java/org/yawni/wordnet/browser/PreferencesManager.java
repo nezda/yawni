@@ -42,7 +42,7 @@ class PreferencesManager implements AWTEventListener {
   // good article
   // http://blogs.sun.com/CoreJavaTechTips/entry/the_preferences_api
 
-  private static Preferences prefs = Preferences.userNodeForPackage(PreferencesManager.class);
+  private static final Preferences prefs = Preferences.userNodeForPackage(PreferencesManager.class);
   private static PreferencesManager saver;
 
   static {
@@ -60,7 +60,7 @@ class PreferencesManager implements AWTEventListener {
     //}
     //TODO need way to do this in GUI since it clobbers user actions
     //loadDefaults();
-  };
+  }
 
   static synchronized void loadDefaults() {
     // FIXME currently clobbers all settings

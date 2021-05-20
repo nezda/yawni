@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * Simple FocusTraversalPolicy which cycles through provided components in sequential order
- * and defauls to the first component
+ * and defaults to the first component
  */
 class SimpleFocusTraversalPolicy extends FocusTraversalPolicy {
   private final Vector<Component> order;

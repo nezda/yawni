@@ -41,7 +41,7 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     // show prompt independent of focus (disappears on typing into textComponent though)
     ALWAYS,
     FOCUS_GAINED,
-    FOCUS_LOST;
+    FOCUS_LOST,
   }
 
   private final JTextComponent sourceTextComponent;
@@ -68,7 +68,7 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
   //   - tests are dead locking!?
   //   - label should have larger font
   //   - maybe label should be in italics or a serif font
-  //   - use this to replace Status.INTRO functinoality ("Enter search word...")
+  //   - use this to replace Status.INTRO functionality ("Enter search word...")
   //     and maybe No search results
   //   - fade in/out
   public TextPrompt(final String promptText,
@@ -103,22 +103,23 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
 
   /**
    * Convenience method to change the alpha value of the current foreground
-   * Color to the specifice value.
+   * Color to the specific value.
    *
    * @param alpha value in the range of 0 - 1.0.
    */
+  @SuppressWarnings("unused")
   public void changeAlpha(float alpha) {
     changeAlpha((int) (alpha * 255));
   }
 
   /**
    * Convenience method to change the alpha value of the current foreground
-   *  Color to the specifice value.
+   *  Color to the specific value.
    *
    * @param alpha value in the range of 0 - 255.
    */
   public void changeAlpha(int alpha) {
-    alpha = alpha > 255 ? 255 : alpha < 0 ? 0 : alpha;
+    alpha = alpha > 255 ? 255 : Math.max(alpha, 0);
 
     final Color foreground = getForeground();
     final int red = foreground.getRed();
@@ -170,6 +171,7 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
    *
    * @return the showPromptOnce property.
    */
+  @SuppressWarnings("unused")
   public boolean getShowPromptOnce() {
     return showPromptOnce;
   }
@@ -181,6 +183,7 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
    * @param showPromptOnce  when true the prompt will only be shown once,
    *                        otherwise it will be shown repeatedly.
    */
+  @SuppressWarnings("unused")
   public void setShowPromptOnce(boolean showPromptOnce) {
     this.showPromptOnce = showPromptOnce;
   }
@@ -204,17 +207,9 @@ public class TextPrompt extends JLabel implements FocusListener, DocumentListene
     //  Check the Show property and component focus to determine if the
     //  prompt should be displayed.
     if (sourceTextComponent.hasFocus()) {
-      if (show == Show.ALWAYS || show == Show.FOCUS_GAINED) {
-        setVisible(true);
-      } else {
-        setVisible(false);
-      }
+      setVisible(show == Show.ALWAYS || show == Show.FOCUS_GAINED);
     } else {
-      if (show == Show.ALWAYS || show == Show.FOCUS_LOST) {
-        setVisible(true);
-      } else {
-        setVisible(false);
-      }
+      setVisible(show == Show.ALWAYS || show == Show.FOCUS_LOST);
     }
   }
 

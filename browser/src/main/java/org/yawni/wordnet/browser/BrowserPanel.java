@@ -1054,7 +1054,8 @@ public class BrowserPanel extends JPanel {
         } else {
           buffer.append("RELATION TARGET ");
         }
-        buffer.append(Renderer.getLongDescription(target.getSynset()));
+        final boolean verbose = false;
+        buffer.append(Renderer.getLongDescription(target.getSynset(), verbose));
         buffer.append("</li>\n");
       }
 
@@ -1166,15 +1167,13 @@ public class BrowserPanel extends JPanel {
       return buffer.toString();
     }
 
-    private static String getLongDescription(final Synset synset) {
-      return getLongDescription(null, synset, false);
+    private static String getLongDescription(final Synset synset, final boolean verbose) {
+      return getLongDescription(null, synset, verbose);
     }
 
     public static String getLongDescription(final WordSense wordSense, final Synset synset, final boolean verbose) {
       // wordSense.getSynset().equals(synset) only sometimes
-      final StringBuilder description = new StringBuilder(getDescription(wordSense, synset, verbose));
-      description.append(renderGloss(synset));
-      return description.toString();
+      return getDescription(wordSense, synset, verbose) + renderGloss(synset);
     }
 
     private static String renderGloss(final Synset synset) {

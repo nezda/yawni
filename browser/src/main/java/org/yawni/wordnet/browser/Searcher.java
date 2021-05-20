@@ -172,7 +172,7 @@ public class Searcher {
     }
     for (final Synset synset : word.getSynsets()) {
       // count hypernyms
-      System.err.println(lemma+" "+pos.name()+" hypers: "+countHypernyms(wn, synset,
+      System.err.println(lemma+" "+pos.name()+" hypernyms: "+countHypernyms(wn, synset,
           new LinkedHashSet<>()));
     }
   }

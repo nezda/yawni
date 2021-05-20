@@ -1,8 +1,6 @@
 package org.yawni.wordnet.browser;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -16,7 +14,7 @@ import javax.swing.border.*;
  */
 public class ActivationTest extends JFrame {
   // Static =================================================================
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     EventQueue.invokeLater(() -> new ActivationTest().setVisible(true));
   }
   // Fields =================================================================

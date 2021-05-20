@@ -188,7 +188,7 @@ class Tree<T extends Object & Comparable<? super T>> {
       mRight.prettyPrint(output, indent + "  ");
     }
     //output.append(indent + this + "\n");
-    output.append(indent + this.mVal + "\n");
+    output.append(indent).append(String.valueOf(this.mVal)).append("\n");
     if (mLeft != null) {
       mLeft.prettyPrint(output, indent + "  ");
     }

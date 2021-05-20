@@ -25,22 +25,21 @@ import static com.google.common.collect.Iterables.transform;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
 
 // TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JDialog {
-  private static Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
+  private static final Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
 
   private final Dimension minSize;
   private final BrowserPanel browserPanel;
   private final JComponent searchPanel;
   private final JTextField searchField;
-  private final ConcurrentSearchListModel searchListModel;
-  private final JList resultList;
+  private final ConcurrentSearchListModel<String> searchListModel;
+  private final JList<String> resultList;
   private final JLabel statusLabel;
-  private final JComboBox posChoice;
+  private final JComboBox<String> posChoice;
   private POS pos;
   private SearchType searchType;
   //private static final String LONGEST_WORD = "blood-oxygenation level dependent functional magnetic resonance imaging";
@@ -165,7 +164,7 @@ class SearchFrame extends JDialog {
     };
 
     // build POS chooser
-    this.posChoice = new JComboBox();
+    this.posChoice = new JComboBox<>();
     this.posChoice.putClientProperty("JComboBox.isPopDown", Boolean.TRUE);
     this.posChoice.setFont(this.posChoice.getFont().deriveFont(this.posChoice.getFont().getSize() - 1f));
     this.posChoice.setRequestFocusEnabled(false);
@@ -209,9 +208,9 @@ class SearchFrame extends JDialog {
     this.add(this.searchPanel, BorderLayout.NORTH);
 
     // build reactive searching ListModel + DocumentListener
-    this.searchListModel = new ConcurrentSearchListModel() {
+    this.searchListModel = new ConcurrentSearchListModel<String>() {
       @Override
-      public Iterable search(final String query) {
+      public Iterable<String> search(final String query) {
         // performs the actual search
         final Iterable<Word> searchResults;
         switch (searchType) {
@@ -268,7 +267,7 @@ class SearchFrame extends JDialog {
       }
     };
     this.searchField.getDocument().addDocumentListener(this.searchListModel);
-    this.resultList = new JList(searchListModel);
+    this.resultList = new JList<>(searchListModel);
     // JList cell prototype, causes horizontal scrollbar to always
     // show which is confusing
     //this.resultList.setPrototypeCellValue(LONGEST_WORD);
@@ -283,8 +282,8 @@ class SearchFrame extends JDialog {
         return;
       }
       final int index = resultList.getSelectedIndex();
-      final String lemma = searchListModel.getElementAt(index).toString();
-      Word word = null;
+      final String lemma = searchListModel.getElementAt(index);
+      Word word;
       if (pos != POS.ALL) {
         word = browserPanel.wordNet().lookupWord(lemma, pos);
       } else {
@@ -445,7 +444,7 @@ class SearchFrame extends JDialog {
 
     private final String formatString;
 
-    private Status(final String formatString) {
+    Status(final String formatString) {
       this.formatString = formatString;
     }
 
@@ -569,7 +568,7 @@ class SearchFrame extends JDialog {
     }
   }
 
-  //XXX unused
+  @SuppressWarnings("unused")
   String cleanSearchField() {
     // " " is OK (SearchType.SUBSTRING search for collocations)
     // " a" is NOT OK (translate to "a")

@@ -32,6 +32,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -79,7 +80,6 @@ import javax.swing.plaf.basic.BasicBorders;
  *        To invoke a browser on a local database stored at {@code <dir>}. </li>
  * </ul>
  */
-@SuppressWarnings("jol")
 class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(Browser.class.getName());
   //private static Preferences prefs = Preferences.userNodeForPackage(Browser.class);
@@ -315,6 +315,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
             "<tr><td>"+
               "<b>WNHOME:</b> env: "+System.getenv("WNHOME")+
               " prop: "+System.getProperty("WNHOME")+ //TODO turn red if this is set but doesn't exist
+              " WordNetVersion: "+WordNetVersion.detect()+
             "</td></tr>"+
             "<tr><td>"+
               "<b>WNSEARCHDIR:</b> env: "+System.getenv("WNSEARCHDIR")+

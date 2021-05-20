@@ -65,7 +65,7 @@ public class PopdownButton extends JButton {
   //
   // nice-to-haves
   // - menu shown/hidden on press, rather than on release
-  // - defautl down triangle 'buddy' icon
+  // - default down triangle 'buddy' icon
   // - check out Kirill's CommandButton
   //
   // functioning interactions:
@@ -107,7 +107,7 @@ public class PopdownButton extends JButton {
     // - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6350814
     // Install a special client property on the button to prevent it from
     // closing the popup when the down arrow is pressed.
-    final JComboBox box = new JComboBox();
+    final JComboBox<Object> box = new JComboBox<>();
     final Object preventHide = box.getClientProperty("doNotCancelPopup");
     this.putClientProperty("doNotCancelPopup", preventHide);
   }
@@ -129,7 +129,7 @@ public class PopdownButton extends JButton {
   private Action createButtonAction(final String label) {
     final AbstractAction action = new AbstractAction(label) {
       public void actionPerformed(final ActionEvent evt) {
-        if (false == isEnabled()) {
+        if (!isEnabled()) {
           log.warn("not enabled");
           return;
         }
@@ -211,6 +211,7 @@ public class PopdownButton extends JButton {
 //    System.err.println("popup focused?: "+focused);
   }
 
+  @SuppressWarnings("unused")
   public AbstractButton getButton() {
     return this;
   }
@@ -262,6 +263,7 @@ public class PopdownButton extends JButton {
 		@Override
     public void menuKeyReleased(final MenuKeyEvent evt) {
     }
+    @SuppressWarnings("unused")
     private void printClasses(Object o) {
       Class<?> clazz = o.getClass();
       do {

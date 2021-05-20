@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import org.yawni.wordnet.WordNetInterface.WordNetVersion;
+
 /**
  * Reads a properties file (target/classes/) containing the
  * output of the buildnumber-maven-plugin.
@@ -33,8 +35,9 @@ final class Application {
   private final String moduleName;
   private final String artifactId;
   private final String applicationVersion;
+  private final WordNetVersion wordNetVersion;
   private final String buildNumber;
-	private static final SimpleDateFormat BUILD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private static final SimpleDateFormat BUILD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private final Date buildDate;
 
   Application() {
@@ -52,13 +55,14 @@ final class Application {
       this.moduleName = (String) props.get("application.moduleName");
       this.artifactId = (String) props.get("application.artifactId");
       this.applicationVersion = (String) props.get("application.version");
+      this.wordNetVersion = WordNetVersion.detect();
       this.buildNumber = (String) props.get("application.buildNumber");
       final String buildDateString = (String) props.get("application.buildDate");
       this.buildDate = BUILD_DATE_FORMAT.parse(buildDateString);
       //System.err.println("getPackage(): "+getPackagePath());
       //System.err.println("props: "+props);
       //System.err.println(this);
-		} catch (ParseException | IOException e) {
+    } catch (ParseException | IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -90,6 +94,10 @@ final class Application {
 
   public String getVersion() {
     return applicationVersion;
+  }
+
+  public WordNetVersion getWordNetVersion() {
+    return wordNetVersion;
   }
 
   public String getBuildNumber() {

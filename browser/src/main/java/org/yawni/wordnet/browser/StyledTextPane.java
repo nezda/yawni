@@ -241,8 +241,7 @@ class StyledTextPane extends JTextPane {
     if (actions == null) {
       actions = new HashMap<>();
       final Action[] actionsArray = getStyledEditorKit().getActions();
-      for (int i = 0; i < actionsArray.length; i++) {
-        final Action a = actionsArray[i];
+      for (final Action a : actionsArray) {
         //System.err.println("a: "+a+" name: "+a.getValue(Action.NAME));
         actions.put(a.getValue(Action.NAME), a);
       }
