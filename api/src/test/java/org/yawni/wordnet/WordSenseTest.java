@@ -26,26 +26,26 @@ import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class WordSenseTest {
   private static WordNetInterface WN;
-	private static WordNetVersion VERSION;
+  private static WordNetVersion VERSION;
 
   @BeforeClass
   public static void init() {
     WN = WordNet.getInstance();
-		VERSION = WordNetVersion.detect();
-		System.err.println("WordNetVersion: "+VERSION);
+    VERSION = WordNetVersion.detect();
+    System.err.println("WordNetVersion: "+VERSION);
   }
 
   @Test
   public void testSpecificLexicalRelations() {
     System.err.println("testSpecificLexicalRelations");
-		final EnumSet<WordNetVersion> testForVersions = EnumSet.of(WordNetVersion.WN21, WordNetVersion.WN30);
-		if (!testForVersions.contains(VERSION)) {
-			return;
-		}
-		final WordSense viral = WN.lookupWord("viral", POS.ADJ).getSense(1);
-		final WordSense virus = WN.lookupWord("virus", POS.NOUN).getSense(1);
-		assertThat(viral.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(virus);
-		assertThat(virus.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(viral);
+    final EnumSet<WordNetVersion> testForVersions = EnumSet.of(WordNetVersion.WN21, WordNetVersion.WN30);
+    if (!testForVersions.contains(VERSION)) {
+      return;
+    }
+    final WordSense viral = WN.lookupWord("viral", POS.ADJ).getSense(1);
+    final WordSense virus = WN.lookupWord("virus", POS.NOUN).getSense(1);
+    assertThat(viral.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(virus);
+    assertThat(virus.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(viral);
 
     final WordSense hypocrite = WN.lookupWord("hypocrite", POS.NOUN).getSense(1);
     final WordSense hypocritical = WN.lookupWord("hypocritical", POS.ADJ).getSense(1);
@@ -69,16 +69,16 @@ public class WordSenseTest {
 //    assertThat(palatine.getSynset().getRelationTargets(RelationType.HYPERNYM)).contains(roman2);
     assertThat(palatine.getSynset().getRelationTargets(RelationType.HYPERNYM)).contains(roman2.getSynset());
 
-		// inter-connections among invent derivs depends on where you start
-		final WordSense invent = WN.lookupWord("invent", POS.VERB).getSense(1);
-		final WordSense inventor = WN.lookupWord("inventor", POS.NOUN).getSense(1);
-		assertThat(invent.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(inventor);
-		assertThat(inventor.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(invent);
+    // inter-connections among invent derivs depends on where you start
+    final WordSense invent = WN.lookupWord("invent", POS.VERB).getSense(1);
+    final WordSense inventor = WN.lookupWord("inventor", POS.NOUN).getSense(1);
+    assertThat(invent.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(inventor);
+    assertThat(inventor.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(invent);
 
-		final WordSense invention = WN.lookupWord("invention", POS.NOUN).getSense(1);
-		System.err.println("invent derivs:\n" + Joiner.on("\n").join(invent.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
-		System.err.println("invention derivs:\n" + Joiner.on("\n").join(invention.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
-		System.err.println("inventor derivs:\n" + Joiner.on("\n").join(inventor.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
+    final WordSense invention = WN.lookupWord("invention", POS.NOUN).getSense(1);
+    System.err.println("invent derivs:\n" + Joiner.on("\n").join(invent.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
+    System.err.println("invention derivs:\n" + Joiner.on("\n").join(invention.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
+    System.err.println("inventor derivs:\n" + Joiner.on("\n").join(inventor.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)));
   }
 
   @Test
@@ -102,9 +102,9 @@ public class WordSenseTest {
   public void testSenseKey() {
     System.err.println("testSenseKey");
     for (final WordSense sense : WN.wordSenses(POS.ALL)) {
-			// NOTE: String != StringBuilder ! (use .toString() or contentEquals())
-			final String currSenseKey = sense.getSenseKey().toString();
-			final String altSenseKey = getSenseKey(sense).toString();
+      // NOTE: String != StringBuilder ! (use .toString() or contentEquals())
+      final String currSenseKey = sense.getSenseKey().toString();
+      final String altSenseKey = getSenseKey(sense).toString();
       assertThat(currSenseKey).isEqualTo(altSenseKey);
     }
   }
@@ -120,7 +120,7 @@ public class WordSenseTest {
   private String oldAdjClusterSenseKey(final WordSense sense) {
     final List<RelationArgument> adjsses = sense.getSynset().getRelationTargets(RelationType.SIMILAR_TO);
     assert adjsses.size() == 1 || VERSION == WordNetVersion.WN20;
-		// with WN20 sense: [WordSense 2093443@[POS adjective]:"acerate"#1] adjsses: [[Synset 2092764@[POS adjective]<adj.all>{simple, unsubdivided}], [Synset 1749884@[POS adjective]<adj.all>{pointed}]]
+    // with WN20 sense: [WordSense 2093443@[POS adjective]:"acerate"#1] adjsses: [[Synset 2092764@[POS adjective]<adj.all>{simple, unsubdivided}], [Synset 1749884@[POS adjective]<adj.all>{pointed}]]
     final Synset adjss = (Synset) adjsses.get(0);
     // if satellite, key lemma in cntlist.rev
     // is adjss's first word (no case) and
@@ -145,15 +145,15 @@ public class WordSenseTest {
         );
   }
 
-	// torture test for "soft" caches - SoftReferences don't seem to have time to clear under such aggressive load
-	@Test
+  // torture test for "soft" caches - SoftReferences don't seem to have time to clear under such aggressive load
+  @Test
   public void testLargeNumberOfSearches() {
-		for (int i = 0; i <= 1000000; i++) {
-			final String query = String.valueOf(i);
-			for (WordSense wordSense : WN.lookupWordSenses(query, POS.ALL)) {
+    for (int i = 0; i <= 1000000; i++) {
+      final String query = String.valueOf(i);
+      for (WordSense wordSense : WN.lookupWordSenses(query, POS.ALL)) {
 //				System.err.println(wordSense);
-				assertThat(wordSense.toString()).isNotNull();
-			}
-		}
-	}
+        assertThat(wordSense.toString()).isNotNull();
+      }
+    }
+  }
 }

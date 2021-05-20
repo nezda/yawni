@@ -47,7 +47,7 @@ enum TeleologicalRelation {
   SOURCE, // 8 instances
   ;
 
-  private TeleologicalRelation() {
+  TeleologicalRelation() {
     staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
   }
 

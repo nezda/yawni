@@ -31,7 +31,6 @@ import static org.yawni.util.CharSequences.*;
  */
 public abstract class AbstractCharSequenceTokenizer {
   protected static final String DEFAULT_DELIMITERS = " \t\n\r\f";
-	protected static final CharMatcher DEFAULT_DELIMITERS_CHARMATCHER = CharMatcher.anyOf(DEFAULT_DELIMITERS);
   protected final CharSequence string;
   protected String delimiters;
   private int position;
@@ -88,13 +87,13 @@ public abstract class AbstractCharSequenceTokenizer {
    * @param string the string to be tokenized
    * @return number of tokens that can be retrieved before an exception will result
    */
-  public final static int countTokens(final CharSequence string) {
+  public static int countTokens(final CharSequence string) {
     return countTokens(string, 0, string.length(), DEFAULT_DELIMITERS);
   }
 
-	public static int countTokens(final CharSequence string, CharMatcher delimiter) {
-		return delimiter.countIn(string) + 1;
-	}
+  public static int countTokens(final CharSequence string, CharMatcher delimiter) {
+    return delimiter.countIn(string) + 1;
+  }
 
   /**
    * Returns the number of tokens in {@code string} separated by
@@ -103,7 +102,7 @@ public abstract class AbstractCharSequenceTokenizer {
    * @param delimiters the delimiters to use
    * @return number of tokens that can be retrieved before an exception will result
    */
-  public final static int countTokens(final CharSequence string, final String delimiters) {
+  public static int countTokens(final CharSequence string, final String delimiters) {
     return countTokens(string, 0, string.length(), delimiters);
   }
 
@@ -116,13 +115,13 @@ public abstract class AbstractCharSequenceTokenizer {
    * @param delimiters the delimiters to use
    * @return number of tokens that can be retrieved before an exception will result
    */
-  public final static int countTokens(
+  public static int countTokens(
     final CharSequence string,
     final int position,
     final int length,
     final String delimiters) {
     int count = 0;
-    int i = 0;
+    int i = position;
     while (true) {
       final int s = scanToTokenStart(string, i, delimiters);
       if (s == length) {
@@ -234,7 +233,7 @@ public abstract class AbstractCharSequenceTokenizer {
     return position;
   }
 
-  protected static final int scanToTokenStart(
+  protected static int scanToTokenStart(
     final CharSequence string,
     int position,
     final String delimiters) {
@@ -256,7 +255,7 @@ public abstract class AbstractCharSequenceTokenizer {
     return position;
   }
 
-  protected static final int scanToTokenEnd(
+  protected static int scanToTokenEnd(
     final CharSequence string,
     int position,
     final String delimiters) {
@@ -282,7 +281,7 @@ public abstract class AbstractCharSequenceTokenizer {
 
   // precondition: on last of curr line (can include 0)
   // postcondition: on first of curr line (can include 0)
-  protected static final int scanBackToTokenFirst(
+  protected static int scanBackToTokenFirst(
     final CharSequence string,
     int position,
     final String delimiters) {
@@ -309,7 +308,7 @@ public abstract class AbstractCharSequenceTokenizer {
 
   // precondition: on first of curr line
   // postcondition: on last of prev line (can include 0)
-  protected static final int scanBackToTokenLast(
+  protected static int scanBackToTokenLast(
     final CharSequence string,
     int position,
     final String delimiters) {

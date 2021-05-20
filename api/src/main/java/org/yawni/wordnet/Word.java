@@ -210,7 +210,7 @@ public final class Word implements Comparable<Word>, Iterable<WordSense> {
         // TODO This might be better as a Soft or Weak -Reference
         final Synset[] syns = new Synset[synsetOffsets.length];
         for (int i = 0; i < synsetOffsets.length; i++) {
-          syns[i] = wordNet.getSynsetAt(getPOS(), synsetOffsets[i]);
+          syns[i] = wordNet.getSynsetAt(getPOS(), synsetOffsets[i]).orElse(null);
           assert syns[i] != null : "null Synset at index "+i+" of "+this;
         }
         this.synsets = LightImmutableList.of(syns);

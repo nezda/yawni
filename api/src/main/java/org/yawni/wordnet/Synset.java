@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.util.CharSequenceTokenizer;
@@ -332,7 +334,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
   // Accessors
   //
 
-	@Override
+  @Override
   public POS getPOS() {
     return POS.fromOrdinal(posOrdinal);
   }
@@ -403,7 +405,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
    * If {@code word} is a member of this {@code Synset}, return the
    * {@code WordSense} it implies, else return {@code null}.
    */
-	@Override
+  @Override
   public WordSense getWordSense(final Word word) {
     for (final WordSense wordSense : wordSenses) {
       if (wordSense.getLemma().equalsIgnoreCase(word.getLowercasedLemma())) {
@@ -491,7 +493,7 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
    *
    * @see Synset#getSemanticRelations(RelationType)
    */
-	@Override
+  @Override
   public List<Relation> getRelations() {
     return relations;
   }
@@ -561,6 +563,11 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
       return LightImmutableList.of();
     }
     return LightImmutableList.copyOf(list);
+  }
+
+  public Stream<Synset> getSemanticRelationTargets(final RelationType type) {
+    return getSemanticRelations(type).stream()
+        .map(SemanticRelation::getTarget);
   }
 
   @Override

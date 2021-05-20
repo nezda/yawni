@@ -162,7 +162,7 @@ enum Command {
     return rawValue;
   }
 
-  private Command() {
+  Command() {
     for (final String variant : variants()) {
       staticThis.ALIASES.registerAlias(this, variant);
     }

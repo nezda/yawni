@@ -160,7 +160,7 @@ public class MorphosemanticRelationTest {
       final int  srcOffset = Integer.parseInt(parts[0].substring(1));
       // nutrient%1:03:00::
       final String srcSenseKey = parts[1];
-      final Synset srcSynset = WordNet.getInstance().getSynsetAt(srcPOS, srcOffset);
+      final Synset srcSynset = WordNet.getInstance().getSynsetAt(srcPOS, srcOffset).orElse(null);
       assertThat(srcSynset).isNotNull();
 
       assertThat(parts[3]).hasSize(9);
@@ -168,7 +168,7 @@ public class MorphosemanticRelationTest {
       final POS targetPOS = POS.fromOrdinal(Byte.parseByte(parts[3].substring(0, 1)));
       final int targetOffset = Integer.parseInt(parts[3].substring(1));
       final String targetSenseKey = parts[4];
-      final Synset targetSynset = WordNet.getInstance().getSynsetAt(targetPOS, targetOffset);
+      final Synset targetSynset = WordNet.getInstance().getSynsetAt(targetPOS, targetOffset).orElse(null);
       assertThat(targetSynset).isNotNull();
 
       // TODO

@@ -46,12 +46,12 @@ class GetIndex extends AbstractList<CharSequence> {
   private final int numAlternations;
 
   // backwards compat hack
-  // could vary behavior based on POS, Morphy, but actually dont'
+  // could vary behavior based on POS, Morphy, but actually don't
   GetIndex(final String searchStr, final POS pos, final Morphy morphy) {
     this(searchStr, DEFAULT_TO_ALTERNATE);
   }
 
-  // could vary behavior based on POS, Morphy, but actually dont'
+  // could vary behavior based on POS, Morphy, but actually don't
   GetIndex(final String searchStr, final char[] toAlternate) {
     this.givenForm = checkNotNull(searchStr);
     this.toAlternate = checkNotNull(toAlternate);

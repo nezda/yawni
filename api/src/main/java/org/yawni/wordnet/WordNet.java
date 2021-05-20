@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.yawni.util.EnumAliases;
@@ -286,39 +287,39 @@ public final class WordNet implements WordNetInterface {
     return toReturn;
   }
 
-	enum PlainTextResource {
-		CNTLIST_DOT_REV("cntlist.rev", true, true),
-		CORE_RANK("core-wordnet.ranked", false, false),
-		// alt filenames:
-		// "morphosemantic-links.xls.tsv.sensekeys.bidi"
-		// "morphosemantic-links.xls.tsv.offsets.bidi"
-		MORPHOSEMANTIC_RELATIONS("morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi", false, false),
-		VERB_GROUP_RELATIONS("verb_groups.non_pairs.offsets", false, false),
-		VERB_SENTENCES_INDEX("sentidx.vrb", true, true),
-		VERB_SENTENCES("sents.vrb", true, true),
-		GENERIC_VERB_FRAMES("frames.vrb", true, true);
+  enum PlainTextResource {
+    CNTLIST_DOT_REV("cntlist.rev", true, true),
+    CORE_RANK("core-wordnet.ranked", false, false),
+    // alt filenames:
+    // "morphosemantic-links.xls.tsv.sensekeys.bidi"
+    // "morphosemantic-links.xls.tsv.offsets.bidi"
+    MORPHOSEMANTIC_RELATIONS("morphosemantic-links.xls.tsv.offsets.synsetIndexes.bidi", false, false),
+    VERB_GROUP_RELATIONS("verb_groups.non_pairs.offsets", false, false),
+    VERB_SENTENCES_INDEX("sentidx.vrb", true, true),
+    VERB_SENTENCES("sents.vrb", true, true),
+    GENERIC_VERB_FRAMES("frames.vrb", true, true);
 
-		private final String fileName;
-		private final boolean required;
-		private final boolean fileNameWnRelative;
-		// on 1st access, resolve Future<CharStream>
-		// memoized Supplier<CharStream>
+    private final String fileName;
+    private final boolean required;
+    private final boolean fileNameWnRelative;
+    // on 1st access, resolve Future<CharStream>
+    // memoized Supplier<CharStream>
 
-		PlainTextResource(final String fileName, final boolean required, final boolean fileNameWnRelative) {
-			this.fileName = fileName;
-			this.required = required;
-			this.fileNameWnRelative = fileNameWnRelative;
-			// detect & prevent accidental duplicates
-			staticThis.ALIASES.registerAlias(this, fileName);
-		}
+    PlainTextResource(final String fileName, final boolean required, final boolean fileNameWnRelative) {
+      this.fileName = fileName;
+      this.required = required;
+      this.fileNameWnRelative = fileNameWnRelative;
+      // detect & prevent accidental duplicates
+      staticThis.ALIASES.registerAlias(this, fileName);
+    }
 
-		public String getFileName() {
-			return fileName;
-		}
-		private static class staticThis {
-			static EnumAliases<PlainTextResource> ALIASES = EnumAliases.make(PlainTextResource.class);
-		}
-	} // end enum PlainTextResource
+    public String getFileName() {
+      return fileName;
+    }
+    private static class staticThis {
+      static EnumAliases<PlainTextResource> ALIASES = EnumAliases.make(PlainTextResource.class);
+    }
+  } // end enum PlainTextResource
 
   //
   // Entity retrieval
@@ -377,7 +378,8 @@ public final class WordNet implements WordNetInterface {
     }
   }
 
-  Synset getSynsetAt(final POS pos, final int offset, String line) {
+  @Override
+  public Optional<Synset> getSynsetAt(final POS pos, final int offset) {
     final DatabaseKey cacheKey = new POSOffsetDatabaseKey(pos, offset);
     Synset synset = (Synset) synsetCache.get(cacheKey);
     if (synset != null) {
@@ -386,14 +388,14 @@ public final class WordNet implements WordNetInterface {
     } else {
       getSynsetAtCacheMiss++;
       cacheDebug(synsetCache);
-      synset = new Synset(getSynsetLineAt(pos, offset), this);
-      synsetCache.put(cacheKey, synset);
+      try {
+        synset = new Synset(getSynsetLineAt(pos, offset), this);
+        synsetCache.put(cacheKey, synset);
+      } catch (IllegalArgumentException iae) {
+        synset = null;
+      }
     }
-    return synset;
-  }
-
-  Synset getSynsetAt(final POS pos, final int offset) {
-    return getSynsetAt(pos, offset, null);
+    return Optional.ofNullable(synset);
   }
 
   //
@@ -439,7 +441,7 @@ public final class WordNet implements WordNetInterface {
       final ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(input));
       @SuppressWarnings("unchecked")
       final BloomFilter<CharSequence> filter = (BloomFilter<CharSequence>) ois.readObject();
-			Closeables.closeQuietly(ois);
+      Closeables.closeQuietly(ois);
       return filter;
     } catch (Exception e) {
       log.info("caught", e);
@@ -629,12 +631,8 @@ public final class WordNet implements WordNetInterface {
         final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
         if (cmdToValue.containsKey(Command.OFFSET)) {
           final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
-          final Synset synset = getSynsetAt(pos, offset);
-          if (synset != null) {
-            return LightImmutableList.of(synset);
-          } else {
-            return LightImmutableList.of();
-          }
+          final Optional<Synset> synset = getSynsetAt(pos, offset);
+          return synset.map(LightImmutableList::of).orElse(LightImmutableList.of());
         } else if (cmdToValue.containsKey(Command.WORD)) {
           final String someString = cmdToValue.get(Command.WORD);
           return lookupSynsets(someString, pos);
@@ -669,12 +667,8 @@ public final class WordNet implements WordNetInterface {
         final POS pos = POS.valueOf(cmdToValue.get(Command.POS));
         if (cmdToValue.containsKey(Command.OFFSET)) {
           final int offset = Integer.parseInt(cmdToValue.get(Command.OFFSET));
-          final Iterable<WordSense> synset = getSynsetAt(pos, offset);
-          if (synset != null) {
-            return synset;
-          } else {
-            return LightImmutableList.of();
-          }
+          final Optional<Synset> synset = getSynsetAt(pos, offset);
+          return synset.map(syn -> ((Iterable<WordSense>)syn)).orElse(LightImmutableList.of());
         } else if (cmdToValue.containsKey(Command.WORD)) {
           final String someString = cmdToValue.get(Command.WORD);
           return lookupWordSenses(someString, pos);
@@ -706,8 +700,8 @@ public final class WordNet implements WordNetInterface {
       return cached;
     }
     assert someString != null;
-		// empty string is valid input
-		//assert someString.length() > 0 : "someString: \""+someString+"\" "+pos+" cacheKey: "+cacheKey;
+    // empty string is valid input
+    //assert someString.length() > 0 : "someString: \""+someString+"\" "+pos+" cacheKey: "+cacheKey;
     assert pos != null;
     final String fileName = getExceptionsFilename(pos);
     try {
@@ -743,14 +737,14 @@ public final class WordNet implements WordNetInterface {
   String lookupCntlistDotRevLine(final CharSequence senseKey) {
     //TODO add caching
     try {
-			final int offset = fileManager.getIndexedLinePointer(senseKey, PlainTextResource.CNTLIST_DOT_REV.getFileName());
-			final String line;
+      final int offset = fileManager.getIndexedLinePointer(senseKey, PlainTextResource.CNTLIST_DOT_REV.getFileName());
+      final String line;
       if (offset < 0) {
         line = null;
       } else {
         line = fileManager.readLineAt(offset, PlainTextResource.CNTLIST_DOT_REV.getFileName());
       }
-			return line;
+      return line;
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -759,14 +753,14 @@ public final class WordNet implements WordNetInterface {
   // throws IllegalStateException if data file is not found
   String lookupCoreRankLine(final CharSequence senseKey) {
     try {
-			final int offset = fileManager.getIndexedLinePointer(senseKey, PlainTextResource.CORE_RANK.getFileName());
-			final String line;
+      final int offset = fileManager.getIndexedLinePointer(senseKey, PlainTextResource.CORE_RANK.getFileName());
+      final String line;
       if (offset < 0) {
         line = null;
       } else {
         line = fileManager.readLineAt(offset, PlainTextResource.CORE_RANK.getFileName());
       }
-			return line;
+      return line;
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -794,7 +788,7 @@ public final class WordNet implements WordNetInterface {
   String lookupGenericFrame(final int framenum) {
     assert framenum >= 1;
     try {
-			String line = fileManager.readLineNumber(framenum - 1, PlainTextResource.GENERIC_VERB_FRAMES.getFileName());
+      String line = fileManager.readLineNumber(framenum - 1, PlainTextResource.GENERIC_VERB_FRAMES.getFileName());
       assert line != null : "framenum: "+framenum;
       // parse line. format example:
       //<number>
@@ -811,7 +805,7 @@ public final class WordNet implements WordNetInterface {
       assert line.charAt(idx + 1) != ' ';
       idx++;
       line = line.substring(idx);
-			return line;
+      return line;
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -823,7 +817,7 @@ public final class WordNet implements WordNetInterface {
    */
   String lookupVerbSentencesNumbers(final CharSequence verbSenseKey) {
     try {
-			String line = null;
+      String line = null;
       final int offset = fileManager.getIndexedLinePointer(verbSenseKey, PlainTextResource.VERB_SENTENCES_INDEX.getFileName());
       if (offset >= 0) {
         line = fileManager.readLineAt(offset, PlainTextResource.VERB_SENTENCES_INDEX.getFileName());
@@ -850,7 +844,7 @@ public final class WordNet implements WordNetInterface {
           line = null;
         }
       }
-			return line;
+      return line;
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -882,7 +876,7 @@ public final class WordNet implements WordNetInterface {
         line = line.substring(idx);
         assert line.contains("%s");
       }
-			return line;
+      return line;
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -1161,7 +1155,9 @@ public final class WordNet implements WordNetInterface {
           }
           nextOffset = fileManager.getNextLinePointer(nextOffset, fileName);
         } while (line.startsWith("  ")); // first few lines start with "  "
-        return getSynsetAt(pos, offset, line);
+        int usedOffset = offset;
+        return getSynsetAt(pos, offset).orElseThrow(
+            () -> new NoSuchElementException(pos + " " + usedOffset));
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }

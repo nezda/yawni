@@ -17,6 +17,8 @@
 package org.yawni.wordnet;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,16 +29,18 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
+
+import org.yawni.util.Utils;
 import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
 public class RelationTest {
   private static WordNetInterface WN;
-	private static WordNetVersion VERSION;
+  private static WordNetVersion VERSION;
 
   @BeforeClass
   public static void init() {
     WN = WordNet.getInstance();
-		VERSION = WordNetVersion.detect();
+    VERSION = WordNetVersion.detect();
   }
 
   @Test
@@ -168,7 +172,7 @@ public class RelationTest {
 
   @Test
   public void exhaustivelyTestRelations() {
-    System.err.println("exhaustivelyTestRelations");
+    System.err.println("exhaustivelyTestRelations ["+WordNetVersion.detect()+"]");
     for (final RelationType relType : RelationType.values()) {
       int numLexical = 0, numSemantic = 0;
       for (final Relation rel : WN.relations(relType, POS.ALL)) {
@@ -259,12 +263,12 @@ public class RelationTest {
     final List<Relation> turn1VGs = turn1.getSynset().getRelations(RelationType.VERB_GROUP);
     System.err.println("turn1VGs: "+turn1VGs);
     final List<RelationArgument> turn1VGTargets = turn1.getSynset().getRelationTargets(RelationType.VERB_GROUP);
-		switch (VERSION) {
-			case WN30:
-				assertThat(turn1VGTargets).hasSize(2);
-				assertThat(turn1VGTargets).contains(turn4.getSynset(), turn19.getSynset());
-			break;
-		}
+    switch (VERSION) {
+      case WN30:
+        assertThat(turn1VGTargets).hasSize(2);
+        assertThat(turn1VGTargets).contains(turn4.getSynset(), turn19.getSynset());
+      break;
+    }
 
     // verb make#7 groups with make#43 and make#44
     final Word make = WN.lookupWord("make", POS.VERB);
@@ -272,11 +276,11 @@ public class RelationTest {
     final WordSense make43 = make.getSense(43);
     final WordSense make44 = make.getSense(44);
     final List<RelationArgument> make7VGs = make7.getSynset().getRelationTargets(RelationType.VERB_GROUP);
-		switch (VERSION) {
-			case WN30:
-				assertThat(make7VGs).contains(make43.getSynset(), make44.getSynset());
-				break;
-		}
+    switch (VERSION) {
+      case WN30:
+        assertThat(make7VGs).contains(make43.getSynset(), make44.getSynset());
+        break;
+    }
   }
 
   @Ignore// re-writing
@@ -333,7 +337,7 @@ public class RelationTest {
     FocalWordSynsetComparator(final Word focalWord) {
       this.focalWord = focalWord;
     }
-		@Override
+    @Override
     public int compare(RelationArgument s1, RelationArgument s2) {
       final WordSense ws1 = focalSense(s1.getSynset());
       final WordSense ws2 = focalSense(s2.getSynset());
@@ -414,5 +418,25 @@ public class RelationTest {
         assertThat(relation.getType().isSemantic()).isTrue(); // msg: "! isSemantic(): "+relation
       }
     }
+  }
+
+  @Test
+  public void shortestPaths() {
+    final Stopwatch stopwatch = Stopwatch.createStarted();
+    final Synset tiger = WN.lookupWord("tiger", POS.NOUN).getSense(1).getSynset();
+    final Synset king = WN.lookupWord("king", POS.NOUN).getSense(1).getSynset();
+    final int actualTigerDepth = Utils.depth(tiger);
+    final int actualKingDepth = Utils.depth(king);
+    final Synset expectedLcs = WN.getSynsetAt(POS.NOUN, 7846).orElse(null);
+    System.err.println("tiger: "+tiger+" depth: "+Utils.depth(tiger)); // depth: 3
+    System.err.println("king: "+king+" depth: "+Utils.depth(king)); // depth: 5
+    stopwatch.stop();
+    System.err.println("lookups took: "+stopwatch);
+    stopwatch.reset().start();
+    final Synset actualLcs = Utils.getLeastCommonSubsumer(tiger, king);
+    assertThat(actualTigerDepth).isEqualTo(3);
+    assertThat(actualKingDepth).isEqualTo(5);
+    assertThat(actualLcs.equals(expectedLcs)).isFalse();
+    System.err.println("getLeastCommonSubsumer took: "+stopwatch);
   }
 }

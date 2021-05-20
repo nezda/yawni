@@ -16,6 +16,8 @@
  */
 package org.yawni.wordnet;
 
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,5 +72,13 @@ public class SynsetTest {
 			assertThat(count).isEqualTo(expectedCount);
 		}
     System.err.printf("tested %,d descriptions.\n", count);
+  }
+
+  @Test
+  public void getSynsetAt() {
+    final Optional<Synset> findable = WN.getSynsetAt(POS.NOUN, 7846);
+    assertThat(findable.map(Synset::getOffset)).isEqualTo(Optional.of(7846));
+    final Optional<Synset> notFindable = WN.getSynsetAt(POS.NOUN, 7841);
+    assertThat(notFindable).isEqualTo(Optional.empty());
   }
 }

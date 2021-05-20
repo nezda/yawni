@@ -19,6 +19,8 @@ package org.yawni.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -28,10 +30,12 @@ import java.util.Iterator;
  * <p> TODO add support for {@link java.util.Comparator}s
  * @yawni.internal
  */
-public final class MergedIterable<T extends Object & Comparable<? super T>> implements Iterable<T> {
+public final class MergedIterable<T extends Object & Comparable<? super T>>
+    implements Iterable<T>, Serializable {
   private static final long serialVersionUID = 1L;
 
   /** Primary factory method so template parameters are deduced. */
+  @SafeVarargs
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<T>... bases) {
       return merge(false, ImmutableList.copyOf(bases));
@@ -44,6 +48,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>> impl
   }
 
   /** Validating factory method so template parameters are deduced. */
+  @SafeVarargs
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final Iterable<T>... bases) {
       return new MergedIterable<>(validateSort, ImmutableList.copyOf(bases));

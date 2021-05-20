@@ -101,14 +101,14 @@ public class GlossAndExampleUtils {
   private static final String CAPTURING_PARENTHESIZED_ASIDE = "[ ]*(\\([^()]+\\))?";
   private static final String NON_CAPTURING_PARENTHESIZED_ASIDE = "[ ]*(?:\\([^()]+\\))?";
 
-  private static Pattern GLOSS_DEFINITIONS_PATTERN = Pattern.compile(
+  private static final Pattern GLOSS_DEFINITIONS_PATTERN = Pattern.compile(
     GLOSS_DEFINITION_1_CAPTURING_PATTERN +
     Joiner.on("").join(Collections.nCopies(16, GLOSS_DEFINITION_REST_CAPTURING_PATTERN)) +
     GLOSS_EXAMPLES_NON_CAPTURING_PATTERN +
     ";?"+NON_CAPTURING_PARENTHESIZED_ASIDE+"$"
     );
 
-  private static Pattern GLOSS_EXAMPLES_PATTERN = Pattern.compile(
+  private static final Pattern GLOSS_EXAMPLES_PATTERN = Pattern.compile(
     GLOSS_DEFINITIONS_NON_CAPTURING_PATTERN +
     Joiner.on("").join(Collections.nCopies(15, GLOSS_EXAMPLE_CAPTURING_PATTERN)) +
     ";?"+CAPTURING_PARENTHESIZED_ASIDE+"$"

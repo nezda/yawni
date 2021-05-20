@@ -20,6 +20,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
+
 import org.yawni.util.EnumAliases;
 
 /**
@@ -53,26 +55,26 @@ public interface WordNetInterface {
    */
   List<String> lookupBaseForms(final String someString, final POS pos);
 
-	/**
+  /**
    * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)},
-	 * {@link #lookupWord(CharSequence, POS)} and {@link Word#getWordSenses()}.
+   * {@link #lookupWord(CharSequence, POS)} and {@link Word#getWordSenses()}.
    * @param someString Some string (need <em>not</em> be a base form).
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
-	 * * @return an immutable list of the {@code WordSense}(s) of {@code someString} in {@code pos}
+   * @return an immutable list of the {@code WordSense}(s) of {@code someString} in {@code pos}
    * @see #lookupSynsets
    */
   List<WordSense> lookupWordSenses(final String someString, final POS pos);
 
   /**
    * Convenient combination of basic API methods {@link #lookupBaseForms(String, POS)},
-	 * {@link #lookupWord(CharSequence, POS)} and {@link Word#getSynsets}.
+   * {@link #lookupWord(CharSequence, POS)} and {@link Word#getSynsets}.
    * @param someString Some string (need <em>not</em> be a base form).
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return an immutable list of the {@code Synset}(s) of {@code someString} in {@code pos}
    */
   List<Synset> lookupSynsets(final String someString, final POS pos);
 
-	/**
+  /**
    * Look up a {@code Word} in the database by its <strong>lemma</strong> (aka baseform).  The search is
    * case-independent and phrases are separated by spaces (e.g., "look up", not
    * "look_up"), but otherwise {@code lemma} must match the form in the
@@ -96,7 +98,7 @@ public interface WordNetInterface {
 
   /**
    * Returns an iterator of <strong>all</strong> the {@code Word}s whose <em>lemmas</em>
-	 * contain {@code substring} as a <strong>substring</strong>.
+   * contain {@code substring} as a <strong>substring</strong>.
    * @param substring The substring to search for.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
@@ -141,6 +143,16 @@ public interface WordNetInterface {
   }
 
   /**
+   * Get a {@code Synset} in the database by its <strong>exact </strong> {@code offset}, aka "synset id".
+   * @param pos The part-of-speech to search ({@link POS#ALL} doesn't make sense here).
+   * @param offset within the part-of-speech file to search
+   * @return the corresponding {@code Synset} if it exists
+   * @see <a href="https://wordnet.princeton.edu/documentation/wnsearch3wn">
+   *   {@code read_synset()}</a>
+   */
+  Optional<Synset> getSynsetAt(final POS pos, final int offset);
+
+  /**
    * Returns an iterator of <strong>all</strong> the {@code WordSense}s in the database.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code WordSense}s.
@@ -171,7 +183,7 @@ public interface WordNetInterface {
    *   https://wordnet.princeton.edu/documentation/morphy7wn#sect3</a>
    * @yawni.experimental
    */
-	@Beta
+  @Beta
   Iterable<List<String>> exceptions(final POS pos);
 
   /**
@@ -182,7 +194,7 @@ public interface WordNetInterface {
    * @throws IllegalArgumentException to indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
-	@Beta
+  @Beta
   Iterable<Synset> synsets(final String query);
 
   /**
@@ -193,64 +205,64 @@ public interface WordNetInterface {
    * @throws IllegalArgumentException to indicate an unsupported and/or malformed query.
    * @yawni.experimental
    */
-	@Beta
+  @Beta
   Iterable<WordSense> wordSenses(final String query);
 
-	/**
-	 * Some applications are written in terms of specific synsets from specific versions of WordNet.
-	 */
-	enum WordNetVersion {
-		UNKNOWN,
-		WN30("3.0", "3.", "3"),
-		WN21("2.1"),
-		WN20("2.0", "2.", "2"),
-		WN16("1.6");
+  /**
+   * Some applications are written in terms of specific synsets from specific versions of WordNet.
+   */
+  enum WordNetVersion {
+    UNKNOWN,
+    WN30("3.0", "3.", "3"),
+    WN21("2.1"),
+    WN20("2.0", "2.", "2"),
+    WN16("1.6");
 
-		private static final WordNetVersion[] VALUES = values();
+    private static final WordNetVersion[] VALUES = values();
 
-		WordNetVersion(final String... aliases) {
-			staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
-			for (final String alias : aliases) {
-				assert alias.indexOf(' ') < 0;
-				staticThis.ALIASES.registerAlias(this, alias, alias.toUpperCase());
-			}
-		}
+    WordNetVersion(final String... aliases) {
+      staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
+      for (final String alias : aliases) {
+        assert alias.indexOf(' ') < 0;
+        staticThis.ALIASES.registerAlias(this, alias, alias.toUpperCase());
+      }
+    }
 
-		static WordNetVersion detect() {
-			return detect(WordNetVersion.class.getClassLoader());
-		}
+    public static WordNetVersion detect() {
+      return detect(WordNetVersion.class.getClassLoader());
+    }
 
-		// if more than 1 item, indicates configuration error
-		// if empty list returned, indicates WordNetVersion.UNKNOWN
-		static WordNetVersion detect(ClassLoader classLoader) {
-			final ImmutableList.Builder<WordNetVersion> toReturn = ImmutableList.builder();
-			for (final WordNetVersion wnv : VALUES) {
-				// check classpath for yawni-wordnet-data* markers, e.g., org/yawni/wordnet/data/WN30
-				final String resourceName = "org/yawni/wordnet/data/"+wnv.name();
-				final URL url = classLoader.getResource(resourceName);
-				if (url != null) {
-					toReturn.add(wnv);
-				}
-			}
-			ImmutableList<WordNetVersion> versions = toReturn.build();
-			if (versions.isEmpty()) {
-				return UNKNOWN;
-			} else if (versions.size() == 1) {
-				return versions.get(0);
-			} else {
-				throw new IllegalStateException("Invalid configuration: multiple yawni-wordnet-data* jars detected: "+versions);
-			}
-		}
+    // if more than 1 item, indicates configuration error
+    // if empty list returned, indicates WordNetVersion.UNKNOWN
+    static WordNetVersion detect(ClassLoader classLoader) {
+      final ImmutableList.Builder<WordNetVersion> toReturn = ImmutableList.builder();
+      for (final WordNetVersion wnv : VALUES) {
+        // check classpath for yawni-wordnet-data* markers, e.g., org/yawni/wordnet/data/WN30
+        final String resourceName = "org/yawni/wordnet/data/"+wnv.name();
+        final URL url = classLoader.getResource(resourceName);
+        if (url != null) {
+          toReturn.add(wnv);
+        }
+      }
+      ImmutableList<WordNetVersion> versions = toReturn.build();
+      if (versions.isEmpty()) {
+        return UNKNOWN;
+      } else if (versions.size() == 1) {
+        return versions.get(0);
+      } else {
+        throw new IllegalStateException("Invalid configuration: multiple yawni-wordnet-data* jars detected: "+versions);
+      }
+    }
 
-		/** Customized form of {@link #valueOf(String)} */
-//		static WordNetVersion fromValue(final String name) {
-//			final boolean throwIfNull = false;
-//			final WordNetVersion toReturn = staticThis.ALIASES.valueOf(name, throwIfNull);
-//			return (toReturn == null) ? UNKNOWN : toReturn;
-//		}
+    /** Customized form of {@link #valueOf(String)} */
+//    static WordNetVersion fromValue(final String name) {
+//      final boolean throwIfNull = false;
+//      final WordNetVersion toReturn = staticThis.ALIASES.valueOf(name, throwIfNull);
+//      return (toReturn == null) ? UNKNOWN : toReturn;
+//    }
 
-		private static class staticThis {
-			static EnumAliases<WordNetVersion> ALIASES = EnumAliases.make(WordNetVersion.class);
-		}
-	}
+    private static class staticThis {
+      static EnumAliases<WordNetVersion> ALIASES = EnumAliases.make(WordNetVersion.class);
+    }
+  }
 }

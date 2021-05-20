@@ -86,12 +86,12 @@ enum MorphosemanticRelation {
   final String longNounLabel;
   final String longVerbLabel;
   
-  private MorphosemanticRelation(final String shallowForm, final String longNounLabel, final String longVerbLabel) {
+  MorphosemanticRelation(final String shallowForm, final String longNounLabel, final String longVerbLabel) {
     this(longNounLabel, longVerbLabel);
     staticThis.ALIASES.registerAlias(this, shallowForm.toLowerCase(), shallowForm.toUpperCase());
   }
   
-  private MorphosemanticRelation(final String longNounLabel, final String longVerbLabel) {
+  MorphosemanticRelation(final String longNounLabel, final String longVerbLabel) {
     staticThis.ALIASES.registerAlias(this, name(), name().toLowerCase());
     this.longNounLabel = longNounLabel;
     this.longVerbLabel = longVerbLabel;

@@ -146,7 +146,7 @@ public class MorphyTest {
       { POS.NOUN.name(), "axes", "axis", "ax", "axes", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
       { POS.NOUN.name(), "bases", "basis", "base", "bases" }, // NOTE: noun "basis" ?
       { POS.NOUN.name(), "boxesful", "boxful" },
-      //{ POS.NOUN.name(), "bachelor of art", "Bachelor of Arts" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/man/morphy.7WN.html#toc8)
+      //{ POS.NOUN.name(), "bachelor of art", "Bachelor of Arts" }, //currently fails - known morpphy algorihm bug (http://wordnet.princeton.edu/documentation/morphy7wn#toc8)
       { POS.NOUN.name(), "Bachelor of Sciences in Engineering", "Bachelor of Science in Engineering" },
       { POS.NOUN.name(), "cd", "Cd", "cd", "CD" },
       { POS.NOUN.name(), "lines of business", "line of business" },

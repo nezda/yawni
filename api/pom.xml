@@ -27,7 +27,6 @@
   </parent>
   <artifactId>yawni-wordnet-api</artifactId>
   <name>Yawni WordNet API</name>
-  <version>2.0.0-SNAPSHOT</version>
   <description>
     Yawni WordNet API: a pure Java standalone object-oriented interface to the WordNet
     database of lexical and semantic relationships.

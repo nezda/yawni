@@ -54,9 +54,8 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
       return;
     }
     if (! Utils.isSorted(base, true)) {
-      final StringBuilder msg = new StringBuilder("Iterable ").
-        append(base).append(" violates sort criteria.");
-      throw new IllegalArgumentException(msg.toString());
+      final String msg = "Iterable " + base + " violates sort criteria.";
+      throw new IllegalArgumentException(msg);
     }
   }
 

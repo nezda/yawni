@@ -40,7 +40,7 @@ public final class WordCaseUtils {
     final List<String> lemmas = getUniqueLemmaCaseVariants(word);
     if (lemmas.size() == 1) {
       // single case
-      return lemmas.get(0).toString();
+      return lemmas.get(0);
     } else {
       return word.getLowercasedLemma();
     }

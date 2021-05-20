@@ -141,7 +141,7 @@ public abstract class Relation implements Comparable<Relation> {
     return resolve(
         wordNet.getSynsetAt(
             getSourcePOS(),
-            getSourceOffset()),
+            getSourceOffset()).orElse(null),
         getSourceIndex());
   }
 
@@ -190,7 +190,7 @@ public abstract class Relation implements Comparable<Relation> {
     return resolve(
         wordNet.getSynsetAt(
           getTargetPOS(),
-          getTargetOffset()),
+          getTargetOffset()).orElse(null),
         targetIndex);
   }
 

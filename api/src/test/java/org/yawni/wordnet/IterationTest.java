@@ -378,6 +378,7 @@ public class IterationTest {
     }
     for (final POS pos : POS.CATS) {
       //System.err.println(pos+" relations isSorted");
+      Utils.isSorted(WN.relations(pos), true);
       assertTrue(pos+" relations not sorted?", Utils.isSorted(WN.relations(pos)));
     }
     for (final POS pos : POS.CATS) {
