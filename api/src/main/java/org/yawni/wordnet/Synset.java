@@ -33,6 +33,7 @@ import org.yawni.util.CharSequenceTokenizer;
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.yawni.util.Utils.add;
 
 /**
@@ -491,7 +492,8 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
    * for which it is the source <em>and</em> {@link LexicalRelation}s for which one of its
    * senses is the source.
    *
-   * @see Synset#getSemanticRelations(RelationType)
+   * @see RelationArgument#getSemanticRelations(RelationType)
+   * @see RelationArgument#getLexicalRelations(RelationType)
    */
   @Override
   public List<Relation> getRelations() {
@@ -540,7 +542,12 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
     return LightImmutableList.copyOf(list);
   }
 
-  // consider getSemanticRelations()
+  @Override
+  public List<LexicalRelation> getLexicalRelations(final RelationType type) {
+    return getRelations(type).stream().
+        filter(Relation::isLexical).map(LexicalRelation.class::cast).
+        collect(toImmutableList());
+  }
 
   /**
    * Returns <em>only</em> {@link SemanticRelation}s
@@ -549,12 +556,15 @@ public final class Synset implements RelationArgument, Comparable<Synset>, Itera
    *
    * @see Synset#getRelations()
    */
+  @Override
   public List<SemanticRelation> getSemanticRelations(final RelationType type) {
     List<SemanticRelation> list = null;
     for (final Relation relation : relations) {
       if ((type == null || relation.getType() == type) &&
         relation.getSourceOffset() == this.getOffset() &&
-        relation.getSourcePOS() == this.getPOS()) {
+        relation.getSourcePOS() == this.getPOS() &&
+        relation instanceof SemanticRelation
+      ) {
         final SemanticRelation semanticRelation = (SemanticRelation) relation;
         list = add(list, semanticRelation);
       }

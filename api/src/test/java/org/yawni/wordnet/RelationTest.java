@@ -436,7 +436,8 @@ public class RelationTest {
     final Synset actualLcs = Utils.getLeastCommonSubsumer(tiger, king);
     assertThat(actualTigerDepth).isEqualTo(3);
     assertThat(actualKingDepth).isEqualTo(5);
-    assertThat(actualLcs.equals(expectedLcs)).isFalse();
+    assertThat(actualLcs.equals(expectedLcs))
+        .as("actualLcs: "+actualLcs+" expectedLcs: "+expectedLcs).isFalse();
     System.err.println("getLeastCommonSubsumer took: "+stopwatch);
   }
 }

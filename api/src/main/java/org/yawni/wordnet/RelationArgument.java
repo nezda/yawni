@@ -49,6 +49,30 @@ public interface RelationArgument extends Iterable<WordSense> {
   /** Filters {@link #getRelations() getRelations()} by type {@code type}. */
   List<Relation> getRelations(RelationType type);
 
+  /**
+   * Convenience filtered form of {@link RelationArgument#getRelations()}
+   */
+  List<SemanticRelation> getSemanticRelations(final RelationType type);
+
+  /**
+   * Convenience filtered form of {@link RelationArgument#getRelations()}
+   */
+  List<LexicalRelation> getLexicalRelations(final RelationType type);
+
+  /**
+   * Equivalent to {@code getSemanticRelations(null)}
+   */
+  default List<SemanticRelation> getSemanticRelations() {
+    return getSemanticRelations(null);
+  }
+
+  /**
+   * Equivalent to {@code getLexicalRelations(null)}
+   */
+  default List<LexicalRelation> getLexicalRelations() {
+    return getLexicalRelations(null);
+  }
+
   /** Returns the targets of the {@code Relation}s returned by {@link #getRelations() getRelations()}. */
   List<RelationArgument> getRelationTargets();
 

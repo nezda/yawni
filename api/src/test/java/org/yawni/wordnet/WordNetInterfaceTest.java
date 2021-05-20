@@ -243,12 +243,15 @@ public class WordNetInterfaceTest {
     query = "?offset=100001000";
 //    System.err.println("query: "+query);
     caughtExpectedException = false;
+    Iterable<Synset> found = null;
     try {
-      WN.synsets(query);
+      found = WN.synsets(query);
     } catch (IllegalArgumentException e) {
       caughtExpectedException = true;
     }
-    assertThat(caughtExpectedException).isTrue();
+    // this very low offset still returns something
+    assertThat(caughtExpectedException).as("query: ["+query+"] found: "+found).isFalse();
+    assertThat(found).isEmpty();
 
     // lexname query
     query = "?lexname=verb.contact";

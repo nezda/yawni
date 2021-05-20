@@ -28,6 +28,8 @@ import java.util.List;
 
 import org.yawni.util.CharSequences;
 import org.yawni.util.LightImmutableList;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static org.yawni.util.Utils.add;
 
 /**
@@ -142,8 +144,8 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
 
   /**
    * Returns the <em>natural-cased</em> lemma representation of this {@code WordSense} (aka "true cased"). Its
-	 * lemma is its orthographic representation, for example <tt>"dog"</tt> or <tt>"U.S.A."</tt> or <tt>"George
-	 * Washington"</tt>. Contrast to the canonical lemma provided by {@link Word#getLowercasedLemma()}.
+   * lemma is its orthographic representation, for example <tt>"dog"</tt> or <tt>"U.S.A."</tt> or <tt>"George
+   * Washington"</tt>. Contrast to the canonical lemma provided by {@link Word#getLowercasedLemma()}.
    */
   public String getLemma() {
     return lemma;
@@ -245,7 +247,7 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     if (getSynset().isAdjectiveCluster()) {
       final List<RelationArgument> adjsses = getSynset().getRelationTargets(RelationType.SIMILAR_TO);
       //assert adjsses.size() == 1 : this + " adjsses: " + adjsses;
-			// failed with WN20: [WordSense 2093443@[POS adjective]:"acerate"#1] adjsses: [[Synset 2092764@[POS adjective]<adj.all>{simple, unsubdivided}], [Synset 1749884@[POS adjective]<adj.all>{pointed}]]
+      // failed with WN20: [WordSense 2093443@[POS adjective]:"acerate"#1] adjsses: [[Synset 2092764@[POS adjective]<adj.all>{simple, unsubdivided}], [Synset 1749884@[POS adjective]<adj.all>{pointed}]]
       final Synset adjss = (Synset) adjsses.get(0);
       // if satellite, key lemma in cntlist.rev
       // is adjss's first word (no case) and
@@ -585,9 +587,12 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
     final List<Relation> relations = synset.getRelations();
     List<Relation> list = null;
     for (final Relation relation : relations) {
-      if (!relation.hasSource(this)) {
+      // consider all isSemantic Relations, but only isLexical Relations
+      // which have this as their source
+      if (relation.isLexical() && !relation.getSource().equals(this)) {
         continue;
       }
+
       if (type != null && type != relation.getType()) {
         continue;
       }
@@ -607,6 +612,20 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
   @Override
   public List<Relation> getRelations(final RelationType type) {
     return restrictRelations(type);
+  }
+
+  @Override
+  public List<LexicalRelation> getLexicalRelations(final RelationType type) {
+    return restrictRelations(type).stream().
+        filter(Relation::isLexical).map(LexicalRelation.class::cast).
+        collect(toImmutableList());
+  }
+
+  @Override
+  public List<SemanticRelation> getSemanticRelations(final RelationType type) {
+    return restrictRelations(type).stream().
+        filter(Relation::isLexical).map(SemanticRelation.class::cast).
+        collect(toImmutableList());
   }
 
   @Override

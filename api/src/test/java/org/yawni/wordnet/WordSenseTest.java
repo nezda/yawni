@@ -42,6 +42,11 @@ public class WordSenseTest {
     if (!testForVersions.contains(VERSION)) {
       return;
     }
+    final WordSense abstraction = WN.lookupWord("abstraction", POS.NOUN).getSense(6);
+    final LexicalRelation abstractionUndergoer = abstraction.getLexicalRelations(RelationType.UNDERGOER).get(0);
+    final SemanticRelation abstractionHyponym = abstraction.getSynset().getSemanticRelations(RelationType.HYPONYM).get(0);
+    assertThat(abstractionUndergoer.compareTo(abstractionHyponym)).isLessThan(0);
+
     final WordSense viral = WN.lookupWord("viral", POS.ADJ).getSense(1);
     final WordSense virus = WN.lookupWord("virus", POS.NOUN).getSense(1);
     assertThat(viral.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(virus);
@@ -50,9 +55,9 @@ public class WordSenseTest {
     final WordSense hypocrite = WN.lookupWord("hypocrite", POS.NOUN).getSense(1);
     final WordSense hypocritical = WN.lookupWord("hypocritical", POS.ADJ).getSense(1);
 
-    // relation missing from WordNet 3.0!
+    // relation missing from WordNet 3.0! TODO in 3.1?
     // assertThat(hypocrite.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocritical);
-    // relation missing from WordNet 3.0!
+    // relation missing from WordNet 3.0! TODO in 3.1?
     // assertThat(hypocritical.getRelationTargets(RelationType.DERIVATIONALLY_RELATED)).contains(hypocrite);
 
     final WordSense hypocrisy = WN.lookupWord("hypocrisy", POS.NOUN).getSense(1);
