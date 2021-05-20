@@ -247,8 +247,8 @@ public abstract class Relation implements Comparable<Relation> {
     return ComparisonChain.start()
         .compare(this.sourcePOSOrdinal, that.sourcePOSOrdinal)
         .compare(this.sourceOffset, that.sourceOffset)
-        .compare(this.sourceIndex, that.sourceIndex)
         .compare(this.sourceRelationIndex, that.sourceRelationIndex)
+        .compare(this.sourceIndex, that.sourceIndex)
         .compare(this.relationTypeOrdinal, that.sourceRelationIndex)
         .result();
   }
