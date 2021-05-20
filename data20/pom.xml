@@ -29,7 +29,7 @@
   <name>Yawni WordNet Data 2.0</name>
   <description>
     Jar file containing the Princeton WordNet 2.0 data files, and derivative files to support efficient,
-    exhausitve access to this information.
+    exhaustive access to this information.
   </description>
   <packaging>jar</packaging>
   <build>
