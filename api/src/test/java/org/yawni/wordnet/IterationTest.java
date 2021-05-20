@@ -44,13 +44,13 @@ import org.yawni.wordnet.WordSense.AdjPosition;
  */
 public class IterationTest {
   private static WordNetInterface WN;
-	private static WordNetVersion VERSION;
-	private Random rand;
+  private static WordNetVersion VERSION;
+  private Random rand;
 
-	@BeforeClass
+  @BeforeClass
   public static void init() {
     WN = WordNet.getInstance();
-		VERSION = WordNetVersion.detect();
+    VERSION = WordNetVersion.detect();
   }
 
   @Before
@@ -88,11 +88,11 @@ public class IterationTest {
       }
     }
 
-		switch (VERSION) {
-			case WN30: assertEquals(1382, numWithZeroWords); break;
-			case WN21: assertEquals(253, numWithZeroWords); break;
-			case WN20: assertEquals(1420, numWithZeroWords); break;
-		}
+    switch (VERSION) {
+      case WN30: assertEquals(1382, numWithZeroWords); break;
+      case WN21: assertEquals(253, numWithZeroWords); break;
+      case WN20: assertEquals(1420, numWithZeroWords); break;
+    }
     System.err.printf("  %20s %d\n", "numWithZeroWords:", numWithZeroWords);
   }
 
@@ -316,11 +316,11 @@ public class IterationTest {
       last = word;
     }
     //System.err.println("last: "+last);
-		switch (VERSION) {
-			case WN30: assertEquals(4786625, last.getOffset()); break;
-			case WN21: assertEquals(4751460, last.getOffset()); break;
-			case WN20: assertEquals(4637479, last.getOffset()); break;
-		}
+    switch (VERSION) {
+      case WN30: assertEquals(4786625, last.getOffset()); break;
+      case WN21: assertEquals(4751460, last.getOffset()); break;
+      case WN20: assertEquals(4637479, last.getOffset()); break;
+    }
     assertThat("zyrian", isLemmaOf(last));
 
     assertEquals(first, first(nounIndexWords));
@@ -461,9 +461,9 @@ public class IterationTest {
           numCore, numNounCore, numVerbCore, numAdjCore);
 //        assertEquals(4997, numCore);
         // apparently 36 of the sensekeys in this data are invalid with respect to WordNet 3.0
-				if (VERSION == WordNetVersion.WN30) {
-					assertEquals(4961, numCore);
-				}
+        if (VERSION == WordNetVersion.WN30) {
+          assertEquals(4961, numCore);
+        }
         printMemoryUsage();
         System.err.println("iterationIndexWordsVisited: " + iterationIndexWordsVisited+
             " iteration_total_p_cnt: " + iteration_total_p_cnt+
@@ -488,50 +488,50 @@ public class IterationTest {
   //@Ignore
   @Test
   public void words() {
-		final Stopwatch stopwatch = Stopwatch.createStarted();
+    final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("words");
     for (final Word word : WN.words(POS.ALL)) {
       final String s = word.toString();
       //System.err.println(s);
     }
-		stopwatch.stop();
-		System.err.println("  "+stopwatch);
+    stopwatch.stop();
+    System.err.println("  "+stopwatch);
   }
   //@Ignore
   @Test
   public void synsets() {
-		final Stopwatch stopwatch = Stopwatch.createStarted();
+    final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("synsets");
     for (final Synset synset : WN.synsets(POS.ALL)) {
       String s = synset.toString();
       //System.err.println(s);
     }
-		stopwatch.stop();
-		System.err.println("  "+stopwatch);
+    stopwatch.stop();
+    System.err.println("  "+stopwatch);
   }
   //@Ignore
   @Test
   public void wordSenses() {
-		final Stopwatch stopwatch = Stopwatch.createStarted();
+    final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("wordSenses");
     for (final WordSense wordSense : WN.wordSenses(POS.ALL)) {
       final String s = wordSense.toString();
       //System.err.println(s);
     }
-		stopwatch.stop();
-		System.err.println("  "+stopwatch);
+    stopwatch.stop();
+    System.err.println("  "+stopwatch);
   }
   //@Ignore
   @Test
   public void relations() {
-		final Stopwatch stopwatch = Stopwatch.createStarted();
+    final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("relations");
     for (final Relation relation : WN.relations(POS.ALL)) {
       final String s = relation.toString();
       //System.err.println(s);
     }
-		stopwatch.stop();
-		System.err.println("  "+stopwatch);
+    stopwatch.stop();
+    System.err.println("  "+stopwatch);
   }
 
   /**
@@ -539,7 +539,7 @@ public class IterationTest {
    */
   @Test
   public void lookupSynsets() {
-		final Stopwatch stopwatch = Stopwatch.createStarted();
+    final Stopwatch stopwatch = Stopwatch.createStarted();
     logTest("lookupSynsets");
     for (final Word word : WN.words(POS.ALL)) {
       final String str = word.getLowercasedLemma();
@@ -551,8 +551,8 @@ public class IterationTest {
         }
       }
     }
-		stopwatch.stop();
-		System.err.println("  "+stopwatch);
+    stopwatch.stop();
+    System.err.println("  "+stopwatch);
   }
 
   void logTest(final String methodName) {
