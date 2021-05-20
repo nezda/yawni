@@ -139,7 +139,8 @@ public class Utils {
           final T curr = iterator.next();
           if (prev.compareTo(curr) > 0) {
             if (infoException) {
-              final String msg = "Sort failure with prev: " + prev + " curr: " + curr;
+              final String msg = "Sort failure: prev.compareTo(curr): "
+                  + prev.compareTo(curr) + " prev: " + prev + " curr: " + curr;
               throw new IllegalArgumentException(msg);
             }
             return false;

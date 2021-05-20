@@ -87,7 +87,11 @@ import org.yawni.wordnet.GlossAndExampleUtils;
 @SuppressWarnings("jol")
 public class BrowserPanel extends JPanel {
   private static final Logger log = LoggerFactory.getLogger(BrowserPanel.class.getName());
-//  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
+  // useful for debugging: TODO add as menu item
+  private boolean showSenseKey = false;
+  private boolean showSynsetOffset = false;
+
+  //  private static Preferences prefs = Preferences.userNodeForPackage(BrowserPanel.class).node(BrowserPanel.class.getSimpleName());
   WordNetInterface wordNet() {
     return WordNet.getInstance();
   }
@@ -547,7 +551,7 @@ public class BrowserPanel extends JPanel {
       return "[RelationTypeAction "+relationType+" "+pos+"]";
     }
 
-		@Override
+    @Override
     public void actionPerformed(final ActionEvent evt) {
       final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
         @Override
@@ -814,7 +818,7 @@ public class BrowserPanel extends JPanel {
    * as HTML.
    *
    * <em>TODO</em>
-   * Factor out this logic into a "results" data structure like findtheinfo_ds() does
+   * Factor out this logic into a "results" data structure like {@code findtheinfo_ds()} does
    * to separate logic from presentation.
    * A nice XML format would open up some nice possibilities for web services, commandline,
    * and this traditional GUI application.
@@ -847,7 +851,7 @@ public class BrowserPanel extends JPanel {
     buffer.append(")<br>\n");
     buffer.append("<ol>\n");
     for (final Synset sense : senses) {
-      buffer.append("<li>");
+      buffer.append("<li title=\"synset offset: ").append(sense.getOffset()).append("\">");
       final WordSense wordSense = sense.getWordSense(word);
       final int coreRank = wordSense.getCoreRank();
       if (coreRank > 0) {
@@ -855,9 +859,16 @@ public class BrowserPanel extends JPanel {
         buffer.append(coreRank);
         buffer.append("] ");
       }
-//      buffer.append(' ');
-//      buffer.append(sense.getWordSense(word).getSenseKey());
-//      buffer.append(" ");
+      if (showSenseKey) {
+        buffer.append(' ');
+        buffer.append(sense.getWordSense(word).getSenseKey());
+        buffer.append(' ');
+      }
+      if (showSynsetOffset) {
+        buffer.append(' ');
+        buffer.append(sense.getOffset());
+        buffer.append(' ');
+      }
       final int cnt = wordSense.getSensesTaggedFrequency();
       if (cnt != 0) {
         buffer.append('(');
