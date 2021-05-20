@@ -12,7 +12,7 @@
   <packaging>war</packaging>
   <properties>
     <scala.major-minor-version>2.12</scala.major-minor-version>
-    <scala.version>${scala.major-minor-version}.8</scala.version>
+    <scala.version>${scala.major-minor-version}.10</scala.version>
     <lift.version>3.3.0</lift.version>
     <scala-maven-plugin.version>4.1.0</scala-maven-plugin.version>
     <!-- for appengine -->
