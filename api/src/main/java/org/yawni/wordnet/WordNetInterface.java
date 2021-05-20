@@ -25,7 +25,7 @@ import org.yawni.util.EnumAliases;
 /**
  * A representation the WordNet computational lexicon.
  *
- * @see <a href="http://wordnet.princeton.edu/">http://wordnet.princeton.edu/</a>
+ * @see <a href="https://wordnet.princeton.edu/">https://wordnet.princeton.edu/</a>
  * @see WordNet
  */
 public interface WordNetInterface {
@@ -46,10 +46,10 @@ public interface WordNetInterface {
    * @param someString Some string (need <em>not</em> be a base form).
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return an immutable list of the baseform(s) of {@code someString}
-   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">
-   *   http://wordnet.princeton.edu/man/morphy.7WN.html</a>
-   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
-   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3 describes 'exceptional forms'</a>
+   * @see <a href="https://wordnet.princeton.edu/documentation/morphy7wn">
+   *   https://wordnet.princeton.edu/documentation/morphy7wn</a>
+   * @see <a href="https://wordnet.princeton.edu/documentation/morphy7wn#sect3">
+   *   https://wordnet.princeton.edu/documentation/morphy7wn#sect3 describes 'exceptional forms'</a>
    */
   List<String> lookupBaseForms(final String someString, final POS pos);
 
@@ -101,7 +101,7 @@ public interface WordNetInterface {
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of {@code Word}s.
    * @throws java.util.regex.PatternSyntaxException
-   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wn.1WN.html">
+   * @see <a href="https://wordnet.princeton.edu/wordnet/man/wn.1WN.html">
    *   <code>wn -grep (<i>n</i>|<i>v</i>|<i>a</i>|<i>r</i>)</code></a>
    */
   Iterable<Word> searchBySubstring(final CharSequence substring, final POS pos);
@@ -167,8 +167,8 @@ public interface WordNetInterface {
    * Returns an iterator of <strong>all</strong> the exceptions for the given part-of-speech.
    * @param pos The part-of-speech ({@link POS#ALL} is also supported).
    * @return An iterable of the exceptional strings.
-   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
-   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
+   * @see <a href="https://wordnet.princeton.edu/documentation/morphy7wn#sect3">
+   *   https://wordnet.princeton.edu/documentation/morphy7wn#sect3</a>
    * @yawni.experimental
    */
 	@Beta

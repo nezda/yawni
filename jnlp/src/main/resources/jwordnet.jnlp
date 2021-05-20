@@ -4,10 +4,10 @@
   <information>
     <title>JWordNet Browser</title>
     <vendor>Luke Nezda</vendor>
-    <homepage href="http://www.fatbread.com/" />
+    <homepage href="https://www.fatbread.com/" />
     <description>Java Swing browser for WordNet</description>
     <!-- not a 64x64 icon - rejected ? -->
-    <icon href="http://www.fatbread.com/american-flag.png"/>
+    <icon href="https://www.fatbread.com/american-flag.png"/>
     <!--
     <shortcut>
        <desktop/>

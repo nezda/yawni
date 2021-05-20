@@ -5,8 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-// adapted from http://www.java.happycodings.com/Java_Swing/code5.html
-public class AutoCompleteComboBox extends JComboBox	implements JComboBox.KeySelectionManager {
+// adapted from https://www.java.happycodings.com/Java_Swing/code5.html
+public class AutoCompleteComboBox<E> extends JComboBox<E>	implements JComboBox.KeySelectionManager {
 	private String searchFor;
 	private long lap;
 	public class CBDocument extends PlainDocument {

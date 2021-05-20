@@ -4,7 +4,7 @@
   <information>
     <title>JWordNet Daat</title>
     <vendor>Luke Nezda</vendor>
-    <homepage href="http://www.fatbread.com/" />
+    <homepage href="https://www.fatbread.com/" />
     <description>WordNet data in jar for JWordNet browser</description>
   </information>
   <offline-allowed/>

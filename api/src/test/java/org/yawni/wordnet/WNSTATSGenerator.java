@@ -23,7 +23,7 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterables.size;
 
 /**
- * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats.7WN.html">wnstats</a>.
+ * Generates <a href="http://wordnet.princeton.edu/wordnet/man/wnstats7wn">wnstats</a>.
  * Serves as a useful example of various iteration methods and attests correctness of API.
  */
 public class WNSTATSGenerator {

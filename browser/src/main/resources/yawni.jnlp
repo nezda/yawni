@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
   <!-- FIXME make the codebase path a param -->
   <!-- <jnlp spec="1.0+" codebase="file:///home/luke/code/java/yawni/jnlp/"> -->
-  <jnlp spec="1.0+" codebase="http://www.fatbread.com/">
+  <jnlp spec="1.0+" codebase="https://www.fatbread.com/">
   <information>
     <title>Yawni WordNet Browser</title>
     <vendor>Luke Nezda</vendor>
-    <homepage href="http://www.fatbread.com/" />
+    <homepage href="https://www.fatbread.com/" />
     <description>Yawni WordNet Browser</description>
     <description kind="short">Java Swing browser for WordNet</description>
     <offline-allowed/>
     <!-- not a 64x64 icon -->
-    <icon href="http://www.fatbread.com/american-flag.png"/>
+    <icon href="https://www.fatbread.com/american-flag.png"/>
     <shortcut online="false">
       <desktop/>
       <menu submenu="Yawni WordNet Browser"/>

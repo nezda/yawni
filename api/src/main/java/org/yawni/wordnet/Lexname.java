@@ -28,7 +28,7 @@ import static org.yawni.wordnet.POS.*;
  * <cite>M. Ciaramita, M. Johnson. 2003 (ACL). Supersense Tagging of Unknown Nouns in WordNet</cite><br>
  * <a href="http://sourceforge.net/projects/supersensetag/">SuperSenseTagger</a>
  * 
- * @see http://wordnet.princeton.edu/man/lexnames.5WN.html
+ * @see https://wordnet.princeton.edu/documentation/lexnames5wn
  */
 // TODO integrate descriptions into API
 enum Lexname {

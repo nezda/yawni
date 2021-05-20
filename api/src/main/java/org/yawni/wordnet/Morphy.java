@@ -35,7 +35,7 @@ import org.yawni.wordnet.WordNet.StringPOSDatabaseKey;
 /**
  * Java port of {@code morph.c}'s {@code morphstr} - WordNet's search
  * code morphological processing functions.
- * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html">http://wordnet.princeton.edu/man/morphy.7WN.html</a>
+ * @see <a href="https://wordnet.princeton.edu/documentation/morphy7wn">https://wordnet.princeton.edu/documentation/morphy7wn</a>
  */
 class Morphy {
   private static final Logger log = LoggerFactory.getLogger(Morphy.class);

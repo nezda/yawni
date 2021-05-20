@@ -692,8 +692,8 @@ public final class WordNet implements WordNetInterface {
    * processor find base forms from irregular inflections.
    * <strong>NOTE: The first entry is the exceptional word itself (e.g., for "geese", it's "geese")</strong>.
    * Port of {@code morph.c exc_lookup()}
-   * @see <a href="http://wordnet.princeton.edu/man/morphy.7WN.html#sect3">
-   *   http://wordnet.princeton.edu/man/morphy.7WN.html#sect3</a>
+   * @see <a href="https://wordnet.princeton.edu/documentation/morphy7wn#sect3">
+   *   https://wordnet.princeton.edu/documentation/morphy7wn#sect3</a>
    */
   LightImmutableList<String> getExceptions(final CharSequence someString, final POS pos) {
     checkValidPOS(pos, "by getExceptions()");
@@ -728,7 +728,7 @@ public final class WordNet implements WordNetInterface {
   }
 
   /**
-   * <em>looks up</em> <a href="http://wordnet.princeton.edu/man/senseidx.5WN.html#sect3">senskey</a>
+   * <em>looks up</em> <a href="https://wordnet.princeton.edu/documentation/senseidx5wn#sect3">senskey</a>
    * in the {@code cntlist.rev} file and returns the matching line (or
    * {@code null}).  Informationally equivalent to searching
    * {@code index.sense} (or {@code sense.idx} on older Windows

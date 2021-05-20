@@ -5,7 +5,7 @@
   <information>
     <title>Yawni Data</title>
     <vendor>Luke Nezda</vendor>
-    <homepage href="http://www.fatbread.com/" />
+    <homepage href="https://www.fatbread.com/" />
     <description>WordNet data in jar for Yawni browser</description>
   </information>
   <offline-allowed/>

@@ -24,8 +24,8 @@ import org.yawni.util.EnumAliases;
  * with {@link RelationType#DERIVATIONALLY_RELATED} {@link Relation}s.  This work is outlined
  * in the 2007 paper "Putting Semantics into WordNet's "Morphosemantic" Links" by Fellbaum, et al.
  *
- * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
- *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
+ * @see <a href="https://wordnet.princeton.edu/wordnet/download/standoff/">
+ *     https://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
 enum MorphosemanticRelation {
   /** 

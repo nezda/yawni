@@ -38,12 +38,12 @@ import static org.yawni.wordnet.RelationTypeFlag.*;
  * 
  * <p> Relevant Princeton C WordNet code is in {@code include/wn.h}, {@code src/wnglobal.c}
  *
- * @see <a href="http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4">
- *   http://wordnet.princeton.edu/wordnet/man/wnsearch.3WN.html#sect4</a>
- * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect4">Glossary of WordNet Terms</a>
+ * @see <a href="https://wordnet.princeton.edu/wordnet/man/wnsearch3wn#sect4">
+ *   https://wordnet.princeton.edu/wordnet/man/wnsearch3wn#sect4</a>
+ * @see <a href="https://wordnet.princeton.edu/documentation/wngloss7wn#sect4">Glossary of WordNet Terms</a>
  * @see Relation
  * @see POS
- * @see <a href="http://wordnet.princeton.edu/man/wnsearch.3WN.html#sect4">WordNet Searches</a>
+ * @see <a href="https://wordnet.princeton.edu/documentation/wnsearch3wn#sect4">WordNet Searches</a>
  */
 public enum RelationType {
   // consider Unicode ellipsis: "…" instead of "..."
@@ -112,7 +112,7 @@ public enum RelationType {
    * like members of a Synset.  Relation is lexically motivated, but can cross Word boundaries.
    * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
    * Lexical examples: V"bear"#4 → V"bear"#12 and V"bear"#12 → V"bear"#4
-   * @see <a href="http://wordnet.princeton.edu/wordnet/man/wngroups.7WN.html">
+   * @see <a href="https://wordnet.princeton.edu/wordnet/man/wngroups7wn">
    *  wngroups.7WN</a>
    */
   VERB_GROUP("verb group", "$", 19, V),
@@ -163,7 +163,7 @@ public enum RelationType {
    * are similar in meaning to it (usually specializations).  Only the 'head sense'
    * has a 'direct antonym', and the 'satellite' senses have 'indirect
    * antonyms' through it.
-   * @see <a href="http://wordnet.princeton.edu/man/wngloss.7WN.html#sect3">http://wordnet.princeton.edu/man/wngloss.7WN.html#sect3</a>
+   * @see <a href="https://wordnet.princeton.edu/documentation/wngloss7wn#sect3">https://wordnet.princeton.edu/documentation/wngloss7wn#sect3</a>
    * @see POS#SAT_ADJ
    */
   SIMILAR_TO("similar to", "&", 5, ADJ),
@@ -271,7 +271,7 @@ public enum RelationType {
   }
 
   // documented as 'reflect' at
-  // http://wordnet.princeton.edu/man/wninput.5WN.html#sect3
+  // https://wordnet.princeton.edu/documentation/wninput5wn#sect3
   static {
     setSymmetric(ANTONYM, ANTONYM);
     setSymmetric(HYPERNYM, HYPONYM);

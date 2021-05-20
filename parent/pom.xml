@@ -17,7 +17,7 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.yawni</groupId>
   <artifactId>yawni-parent</artifactId>
@@ -31,14 +31,14 @@
   </scm>
   <description>Yawni is a pure Java standalone object-oriented interface to the WordNet
     database of lexical and semantic relationships.</description>
-  <url>http://www.yawni.org</url>
+  <url>https://www.yawni.org</url>
   <inceptionYear>2001</inceptionYear>
   <developers>
     <developer>
       <id>nezda</id>
       <name>Luke Nezda</name>
       <email>nezda -at- yahoo.com</email>
-      <url>http://www.fatbread.com/</url>
+      <url>https://www.fatbread.com/</url>
       <roles>
         <role>2.0 Architect</role>
         <role>2.0 Developer</role>
@@ -48,7 +48,7 @@
       <id>mihai</id>
       <name>Dr. Mihai Surdeanu</name>
       <email>mihai -at- surdeanu.name</email>
-      <url>http://www.surdeanu.name/mihai</url>
+      <url>https://www.surdeanu.name/mihai</url>
       <roles>
         <role>2.0 Developer</role>
       </roles>
@@ -57,7 +57,7 @@
       <id>osteele</id>
       <name>Oliver Steele</name>
       <email>osteele -at- sourceforget.net</email>
-      <url>http://www.osteele.com/</url>
+      <url>https://www.osteele.com/</url>
       <roles>
         <role>1.0 Architect</role>
         <role>1.0 Developer</role>
@@ -67,13 +67,13 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
   <organization>
     <name>Apache Software Foundation</name>
-    <url>http://www.apache.org/</url>
+    <url>https://www.apache.org/</url>
   </organization>
   <properties>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
@@ -87,6 +87,11 @@
       <dependency>
         <groupId>org.yawni</groupId>
         <artifactId>yawni-wordnet-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yawni</groupId>
+        <artifactId>yawni-wordnet-data31</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -421,7 +426,7 @@
           -->
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <argLine>
-            -Xmx128m -XX:+HeapDumpOnOutOfMemoryError
+            -Xmx512m -XX:+HeapDumpOnOutOfMemoryError
           </argLine>
         </configuration>
       </plugin>
@@ -543,7 +548,7 @@
               <storepass>${storepass}</storepass>
               <keypass>${keypass}</keypass>
               <storetype>pkcs12</storetype>
-              <tsa>http://timestamp.comodoca.com/rfc3161</tsa>
+              <tsa>https://timestamp.comodoca.com/rfc3161</tsa>
               <arguments>
                 <argument>-digestalg</argument>
                 <argument>SHA-256</argument>
@@ -597,13 +602,13 @@
       </build>
     </profile>
     <profile>
-      <id>src</id>
+      <id>sources</id>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
+            <version>3.2.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -782,7 +787,7 @@ java.io.FileNotFoundException: /Users/nezda/code/java/yawni.git/api/target/jacoc
     <repository>
       <id>nexus-releases</id>
       <name>Nexus Release Repository</name>
-      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 </project>

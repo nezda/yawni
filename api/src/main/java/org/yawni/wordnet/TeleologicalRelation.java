@@ -24,8 +24,8 @@ import org.yawni.util.EnumAliases;
  * of the typical activity (purpose) for which that artifact was intended. 11 semantic
  * relations are used to encode that activity.
  *
- * @see <a href="http://wordnet.princeton.edu/wordnet/download/standoff/">
- *     http://wordnet.princeton.edu/wordnet/download/standoff/</a>
+ * @see <a href="https://wordnet.princeton.edu/wordnet/download/standoff/">
+ *     https://wordnet.princeton.edu/wordnet/download/standoff/</a>
  */
 // TODO integrate into API:
 // * add RelationType.RelationTypeType.TELEOLOGICAL
