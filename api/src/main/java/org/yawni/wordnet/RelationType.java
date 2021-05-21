@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -127,11 +127,11 @@ public enum RelationType {
    * @see RelationType#PART_MERONYM
    */
   MERONYM("meronym", "%" /* non-existent */, 12, N),
-  /** aka "is member" */ // HASMEMBERPTR
+  /** aka "is member" `HASMEMBERPTR` */
   MEMBER_MERONYM("member meronym", "%m", 6, N, "Member Meronyms (... are members of %s)"),
-  /** aka "is stuff" */ // HASSTUFFPTR
+  /** aka "is stuff" aka `HASSTUFFPTR`*/
   SUBSTANCE_MERONYM("substance meronym", "%s", 7, N, "Substance Meronyms (... are substances of %s)"),
-  /** aka "is part" */ // HASPARTPTR
+  /** aka "is part" aka `HASPARTPTR` */
   PART_MERONYM("part meronym", "%p", 8, N, "Part Meronyms (... are parts of %s)"),
 
   /**
@@ -142,11 +142,11 @@ public enum RelationType {
    * @see RelationType#PART_HOLONYM
    */
   HOLONYM("holonym", "#" /* non-existent */, 13, N),
-  /** aka "has member" */ // ISMEMBERPTR
+  /** aka "has member" aka `ISMEMBERPTR` */
   MEMBER_HOLONYM("member holonym", "#m", 9, N, "Member Holonyms (%s is a member of ...)"),
-  /** aka "has stuff" */ // ISSTUFFPTR
+  /** aka "has stuff" `ISSTUFFPTR` */
   SUBSTANCE_HOLONYM("substance holonym", "#s", 10, N, "Substance Holonyms (%s is a substance of ...)"),
-  /** aka "has part" */ // ISPARTPTR
+  /** aka "has part" `ISPARTPTR` */
   PART_HOLONYM("part holonym", "#p", 11, N, "Part Holonyms (%s is a part of ...)"),
 
   // domain terms
@@ -329,7 +329,7 @@ public enum RelationType {
      *
      * Example 1:
      * { Bill Clinton } --instance hypernym--> { President of the United States }
-     * Bill Clinton, <em>the instance</em>, does not particpate in any other hypernym/hyponym relationships.
+     * Bill Clinton, <em>the instance</em>, does not participate in any other hypernym/hyponym relationships.
      * That said, how does he get linked to hypernym { person } ?
      *
      * MORE GENERAL:  { President of the United States } --hypernym--> { head of state } --hypernym-->
@@ -406,7 +406,7 @@ public enum RelationType {
         switch (pType) {
           // resolves collision between PERTAINYM (for adjectives) and DERIVED (for adverbs)
           // thanks to David Ayre (http://sourceforge.net/users/dayre/) for pointing this out!
-          // http://sourceforge.net/tracker/index.php?func=detail&aid=1372493&group_id=33824&atid=409470
+          // https://sourceforge.net/tracker/index.php?func=detail&aid=1372493&group_id=33824&atid=409470
           case DERIVED:
           case PERTAINYM:
             if (pos == POS.ADJ) {

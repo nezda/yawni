@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ import static org.yawni.wordnet.POS.*;
  * <p>
  * <cite>M. Ciaramita, Y. Altun. 2006 (EMNLP). Broad-Coverage Sense Disambiguation and Information Extraction with a Supersense Sequence Tagger</cite><br>
  * <cite>M. Ciaramita, M. Johnson. 2003 (ACL). Supersense Tagging of Unknown Nouns in WordNet</cite><br>
- * <a href="http://sourceforge.net/projects/supersensetag/">SuperSenseTagger</a>
+ * <a href="https://sourceforge.net/projects/supersensetag/">SuperSenseTagger</a>
  * 
  * @see https://wordnet.princeton.edu/documentation/lexnames5wn
  */

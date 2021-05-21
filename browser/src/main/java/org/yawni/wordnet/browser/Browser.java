@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -124,7 +124,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     this.getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
     // allows drags to switch OS X Spaces, but also makes whole Window draggable which
     // is weird; discussed here (esp. the comments):
-    // http://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
+    // https://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
     //getRootPane().putClientProperty("apple.awt.draggableWindowBackground", Boolean.TRUE);
 
     if (getAppIcon() != null) {
@@ -590,7 +590,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
 
   /**
    * Used to make JMenuItems with and without icons lineup horizontally.
-   * @author http://forum.java.sun.com/thread.jspa?threadID=303795&forumID=57
+   * @author https://forum.java.sun.com/thread.jspa?threadID=303795&forumID=57
    */
   static class BlankIcon implements Icon {
     private final int h;
@@ -608,10 +608,10 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     try {
       //TODO move to preferences ?
       // these won't hurt anything on non OS X platforms
-      // http://mindprod.com/jgloss/antialiasing.html#GOTCHAS
+      // https://mindprod.com/jgloss/antialiasing.html#GOTCHAS
       // ? Java 5 option that may cause fonts to look worse ??
       System.setProperty("swing.aatext", "true");
-      // Java 6 http://java.sun.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
+      // Java 6 https://java.sun.com/javase/6/docs/technotes/guides/2d/flags.html#aaFonts
       System.setProperty("awt.useSystemAAFontSettings", "on");
       System.setProperty("apple.awt.textantialiasing", "on");
       System.setProperty("apple.laf.useScreenMenuBar", "true");

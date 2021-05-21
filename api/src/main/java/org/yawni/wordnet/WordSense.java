@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -508,13 +508,13 @@ public final class WordSense implements RelationArgument, Comparable<WordSense> 
    *   British National Corpus</a>; WordSenses were selected by salience.
    * This data was created as part of Evocation project at Princeton;
    * This method provides access to a simple distillation of
-   * <a href="http://wordnet.cs.princeton.edu/downloads/5K.clean.txt">
-   * http://wordnet.cs.princeton.edu/downloads/5K.clean.txt</a>
+   * <a href="https://wordnet.cs.princeton.edu/downloads/5K.clean.txt">
+   * https://wordnet.cs.princeton.edu/downloads/5K.clean.txt</a>
    * @return 1-based rank, -1 if sense is unranked, or 0 to indicate required
    * data file missing
    *
-   * @see <a href="http://wordnet.cs.princeton.edu/downloads.html">
-   *   http://wordnet.cs.princeton.edu/downloads.html</a>
+   * @see <a href="https://wordnet.cs.princeton.edu/downloads.html">
+   *   https://wordnet.cs.princeton.edu/downloads.html</a>
    */
   public int getCoreRank() {
     if (coreRank == 0) {

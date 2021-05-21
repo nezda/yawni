@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ import javax.swing.text.html.StyleSheet;
 
 /**
  * Nice looking SansSerif HTML rendering JTextPane.
- * @see http://www.jroller.com/jnicho02/entry/using_css_with_htmleditorpane
+ * @see https://www.jroller.com/jnicho02/entry/using_css_with_htmleditorpane
  */
 class StyledTextPane extends JTextPane {
   private static final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();

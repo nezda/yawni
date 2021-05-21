@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,8 +45,8 @@ import org.slf4j.LoggerFactory;
 // These issues seems to have been avoided:
 //   if mouse inButton and menu keyboard activated, takes double keyboard action to hide menu
 // Mouse click event missed after use JPopupMenu
-// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4694797
-// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
+// https://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4694797
+// https://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4765250
 public class PopdownButton extends JButton {
   private static final Logger log = LoggerFactory.getLogger(PopdownButton.class.getName());
 
@@ -81,7 +81,7 @@ public class PopdownButton extends JButton {
     this.setVerticalTextPosition(AbstractButton.CENTER);
     this.setHorizontalTextPosition(AbstractButton.LEADING);
 
-    // http://developer.apple.com/technotes/tn2007/tn2196.html#BUTTONS
+    // https://developer.apple.com/technotes/tn2007/tn2196.html#BUTTONS
     this.putClientProperty("JButton.buttonType", "textured");
     this.putClientProperty("JComponent.sizeVariant", "regular");
 
@@ -103,8 +103,8 @@ public class PopdownButton extends JButton {
 
     // The special sauce to make this command button work right.
     // God bless
-    // - http://explodingpixels.wordpress.com/2008/11/10/prevent-popup-menu-dismissal/
-    // - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6350814
+    // - https://explodingpixels.wordpress.com/2008/11/10/prevent-popup-menu-dismissal/
+    // - https://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6350814
     // Install a special client property on the button to prevent it from
     // closing the popup when the down arrow is pressed.
     final JComboBox<Object> box = new JComboBox<>();

@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,10 +23,10 @@ import java.util.Stack;
 import com.google.common.collect.AbstractIterator;
 
 /**
- * General programming technique called <a href="http://en.wikipedia.org/wiki/Continuation-passing_style">
+ * General programming technique called <a href="https://en.wikipedia.org/wiki/Continuation-passing_style">
  * continuation passing style</a> (CPS) which is a general technique to convert recursion into iteration.
  * Ceremoniously snipped from
- * <a href="http://lingpipe-blog.com/2009/01/27/quiz-answer-continuation-passing-style-for-converting-visitors-to-iterators/">
+ * <a href="https://lingpipe-blog.com/2009/01/27/quiz-answer-continuation-passing-style-for-converting-visitors-to-iterators/">
  * the great Bob Carpenter</a>'s blog.
  */
 public class TreeIterator<T extends Object & Comparable<? super T>> implements Iterator<T> {

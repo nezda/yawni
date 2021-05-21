@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * A <a href="http://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a> implementation that uses a restricted version of the
+ * A <a href="https://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a> implementation that uses a restricted version of the
  * {@link Set} interface. The set does not support traversal, i.e., {@link #iterator iterator()}, or removal
  * operations and may report false positives on membership queries.
  * <p>

@@ -6,7 +6,7 @@
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +33,8 @@ import javax.swing.text.*;
  * of the parent text component. You are free to change the properties after
  * class construction.
  *
- * <p> Courtesy <a href="http://tips4java.wordpress.com/2009/11/29/text-prompt/">
- *   http://tips4java.wordpress.com/2009/11/29/text-prompt/</a>
+ * <p> Courtesy <a href="https://tips4java.wordpress.com/2009/11/29/text-prompt/">
+ *   https://tips4java.wordpress.com/2009/11/29/text-prompt/</a>
  */
 public class TextPrompt extends JLabel implements FocusListener, DocumentListener, PropertyChangeListener {
   public enum Show {
