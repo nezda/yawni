@@ -213,6 +213,7 @@ public interface WordNetInterface {
    */
   enum WordNetVersion {
     UNKNOWN,
+    WN31("3.1"),
     WN30("3.0", "3.", "3"),
     WN21("2.1"),
     WN20("2.0", "2.", "2"),
