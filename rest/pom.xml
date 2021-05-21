@@ -12,8 +12,8 @@
   <packaging>war</packaging>
   <properties>
     <scala.major-minor-version>2.12</scala.major-minor-version>
-    <scala.version>${scala.major-minor-version}.8</scala.version>
-    <maven-scala-plugin.version>2.14.1</maven-scala-plugin.version>
+    <scala.version>${scala.major-minor-version}.10</scala.version>
+    <scala-maven-plugin.version>4.5.1</scala-maven-plugin.version>
   </properties>
   <!--
   <repositories>
@@ -62,7 +62,7 @@
     </dependency>
     <dependency>
       <groupId>org.yawni</groupId>
-      <artifactId>yawni-wordnet-data30</artifactId>
+      <artifactId>${default-wordnet-data-version}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -109,12 +109,12 @@
 
   <build>
     <sourceDirectory>src/main/scala</sourceDirectory>
-<!--    <testSourceDirectory>src/test/scala</testSourceDirectory>-->
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
     <plugins>
       <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>${maven-scala-plugin.version}</version>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>${scala-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>scala-compile</id>
@@ -140,6 +140,7 @@
             <arg>-deprecation</arg>
             <!-- <arg>-Xno-varargs-conversion</arg> -->
             <arg>-explaintypes</arg>
+            <arg>-feature</arg>
           </args>
         </configuration>
       </plugin>
@@ -156,13 +157,13 @@
       </plugin>
     </plugins>
   </build>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>${maven-scala-plugin.version}</version>
-      </plugin>
-    </plugins>
-  </reporting>
+<!--  <reporting>-->
+<!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>org.scala-tools</groupId>-->
+<!--        <artifactId>maven-scala-plugin</artifactId>-->
+<!--        <version>${scala-maven-plugin.version}</version>-->
+<!--      </plugin>-->
+<!--    </plugins>-->
+<!--  </reporting>-->
 </project>

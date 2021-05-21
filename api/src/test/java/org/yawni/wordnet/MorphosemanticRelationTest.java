@@ -76,9 +76,9 @@ public class MorphosemanticRelationTest {
 //  @Ignore
   @Test
   public void testRawSearch() throws Exception {
-		if (WordNetVersion.detect() != WordNetVersion.WN30) {
-			return;
-		}
+    if (WordNetVersion.detect() != WordNetVersion.WN30) {
+      return;
+    }
 
     System.err.println("rawSearch");
     final String path = "/dict/" + WordNet.PlainTextResource.MORPHOSEMANTIC_RELATIONS.getFileName();

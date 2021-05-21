@@ -16,7 +16,6 @@
  */
 package org.yawni.wordnet;
 
-import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.Before;

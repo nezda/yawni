@@ -257,10 +257,10 @@ public class PopdownButton extends JButton {
         log.debug("  SELECTED null");
       }
     }
-		@Override
+    @Override
     public void menuKeyPressed(final MenuKeyEvent evt) {
     }
-		@Override
+    @Override
     public void menuKeyReleased(final MenuKeyEvent evt) {
     }
     @SuppressWarnings("unused")

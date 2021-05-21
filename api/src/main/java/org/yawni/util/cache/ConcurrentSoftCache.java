@@ -26,47 +26,47 @@ import org.slf4j.LoggerFactory;
  * {@link java.lang.ref.SoftReference}-values.
  */
 class ConcurrentSoftCache<K, V> implements Cache<K, V> {
-	private static final Logger log = LoggerFactory.getLogger(ConcurrentSoftCache.class);
+  private static final Logger log = LoggerFactory.getLogger(ConcurrentSoftCache.class);
   private static final long serialVersionUID = 1L;
 
-	private final com.google.common.cache.Cache<K, V> backingCache;
+  private final com.google.common.cache.Cache<K, V> backingCache;
 
   @SuppressWarnings("unchecked")
   public ConcurrentSoftCache(final int initialCapacity) {
-		final CacheBuilder<Object, Object> builder = CacheBuilder
-			.newBuilder()
-			//.initialCapacity(initialCapacity)
-			// use "initialCapacity" as a maximumSize because softValues don't seem to be cleared quick enough under load
-			.maximumSize(initialCapacity)
-			.softValues();
-		if (log.isDebugEnabled()) {
-			builder.recordStats();
-		}
-		backingCache = builder.build();
+    final CacheBuilder<Object, Object> builder = CacheBuilder
+      .newBuilder()
+      //.initialCapacity(initialCapacity)
+      // use "initialCapacity" as a maximumSize because softValues don't seem to be cleared quick enough under load
+      .maximumSize(initialCapacity)
+      .softValues();
+    if (log.isDebugEnabled()) {
+      builder.recordStats();
+    }
+    backingCache = builder.build();
   }
 
   @Override
   public V put(K key, V value) {
-		backingCache.put(key, value);
-		// not supported by guava Cache#put
-		return null;
+    backingCache.put(key, value);
+    // not supported by guava Cache#put
+    return null;
   }
 
-	// used for adding trace output to understand cache behavior
-	private int queryCount = 0;
+  // used for adding trace output to understand cache behavior
+  private int queryCount = 0;
 
   @Override
   public V get(K key) {
-		if (log.isDebugEnabled()) {
-			if (++queryCount % 1000 == 0) {
-				log.debug("{}", backingCache.stats());
-			}
-		}
-		return backingCache.getIfPresent(key);
+    if (log.isDebugEnabled()) {
+      if (++queryCount % 1000 == 0) {
+        log.debug("{}", backingCache.stats());
+      }
+    }
+    return backingCache.getIfPresent(key);
   }
 
   @Override
   public void clear() {
-		backingCache.invalidateAll();
+    backingCache.invalidateAll();
   }
 }

@@ -188,12 +188,12 @@ final class FileManager implements FileManagerInterface {
     abstract void seek(final int position) throws IOException;
     abstract int position() throws IOException;
     // IOExceptions laundered as RuntimeExceptions
-		@Override
+    @Override
     public abstract char charAt(int position);
     // IOExceptions laundered as RuntimeExceptions
-		@Override
+    @Override
     public abstract int length();
-		@Override
+    @Override
     public CharSequence subSequence(int s, int e) {
       final boolean doBuffer = true;
       resetBuffer(doBuffer);
@@ -447,8 +447,8 @@ final class FileManager implements FileManagerInterface {
         throw new RuntimeException("unknown length not currently supported");
       }
       final byte[] buffer = new byte[len];
-			ByteStreams.readFully(input, buffer);
-			Closeables.closeQuietly(input);
+      ByteStreams.readFully(input, buffer);
+      Closeables.closeQuietly(input);
       return ByteBuffer.wrap(buffer);
     }
   } // end class InputStreamCharStream
@@ -564,7 +564,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Core search routine.  Only called from within synchronized blocks.
    */
-	@Override
+  @Override
   public String readLineAt(final int offset, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     requireStream(stream, fileName);
@@ -585,7 +585,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Core search routine.  Only called from within synchronized blocks.
    */
-	@Override
+  @Override
   public int getNextLinePointer(final int offset, final String fileName) throws IOException {
     final CharStream stream = getFileStream(fileName);
     requireStream(stream, fileName);
@@ -605,7 +605,7 @@ final class FileManager implements FileManagerInterface {
   //
 
   // used by substring search iterator
-	@Override
+  @Override
   public int getMatchingLinePointer(int offset, final Matcher matcher, final String fileName) throws IOException {
     if (matcher.pattern().pattern().length() == 0) {
       // shunt behavior where empty string matches everything
@@ -634,7 +634,7 @@ final class FileManager implements FileManagerInterface {
   }
 
   // used by prefix search iterator
-	@Override
+  @Override
   public int getPrefixMatchLinePointer(int offset, final CharSequence prefix, final String fileName) throws IOException {
     if (prefix.length() == 0) {
       return -1;
@@ -661,15 +661,15 @@ final class FileManager implements FileManagerInterface {
     return getIndexedLinePointer(target, 0, fileName, true);
   }
 
-	@Override
-	public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean fileNameWnRelative) throws IOException {
-		if (log.isTraceEnabled()) {
+  @Override
+  public int getIndexedLinePointer(final CharSequence target, int start, final String fileName, final boolean fileNameWnRelative) throws IOException {
+    if (log.isTraceEnabled()) {
       log.trace("target: "+target+" fileName: "+fileName);
     }
     final CharStream stream = getFileStream(fileName, fileNameWnRelative);
     requireStream(stream, fileName);
-		return getIndexedLinePointer(target, start, stream);
-	}
+    return getIndexedLinePointer(target, start, stream);
+  }
 
   @Override
   public int getIndexedLinePointer(final CharSequence target, int start, CharStream stream) throws IOException {
@@ -683,9 +683,9 @@ final class FileManager implements FileManagerInterface {
     if (target.length() == 0) {
       return -1;
     }
-		if (stream == null) {
-			return -1;
-		}
+    if (stream == null) {
+      return -1;
+    }
     synchronized (stream) {
       int stop = stream.length();
       while (true) {
@@ -751,11 +751,11 @@ final class FileManager implements FileManagerInterface {
     if (target.length() == 0) {
       return LightImmutableList.of();
     }
-		final boolean fileNameWnRelative = false;
-		final CharStream stream = getFileStream(fileName, fileNameWnRelative);
-		if (stream == null) {
-			return LightImmutableList.of();
-		}
+    final boolean fileNameWnRelative = false;
+    final CharStream stream = getFileStream(fileName, fileNameWnRelative);
+    if (stream == null) {
+      return LightImmutableList.of();
+    }
     // construct q s.t. it precisely preceeds target in sorted order, and leverage
     // feature of binary search returning (-insertion_point - 1) for non-matches
     final char last = target.charAt(target.length() - 1);
@@ -805,7 +805,7 @@ final class FileManager implements FileManagerInterface {
    * {@inheritDoc}
    * Note this is a covariant implementation of {@link java.util.Comparator Comparator&lt;CharSequence&gt;}
    */
-	@Override
+  @Override
   public WordNetLexicalComparator comparator() {
     // caseless searches rely on this
     return WordNetLexicalComparator.TO_LOWERCASE_INSTANCE;

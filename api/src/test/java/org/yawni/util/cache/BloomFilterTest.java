@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 
 public class BloomFilterTest {
   private static final Hasher<CharSequence> CHARSEQUENCE_HASHER = new Hasher<CharSequence>() {
-		@Override
+    @Override
     public int hashCode(Object o) {
       if (! (o instanceof String) &&
           o instanceof CharSequence) {
@@ -46,7 +46,7 @@ public class BloomFilterTest {
     final BloomFilter<Integer> filter = new BloomFilter<>(size, desiredFpFatio);
 
 //    System.err.println("filter: "+filter);
-		assertThat(filter.toString()).isNotNull();
+    assertThat(filter.toString()).isNotNull();
 
     assertFalse("3 is in this empty filter? "+filter, filter.contains(3));
 
@@ -93,7 +93,7 @@ public class BloomFilterTest {
         CHARSEQUENCE_HASHER);
 
 //    System.err.println("filter: "+filter);
-		assertThat(filter.toString()).isNotNull();
+    assertThat(filter.toString()).isNotNull();
 
     assertFalse("\"3\" is in this empty filter? "+filter, filter.contains(String.valueOf(3)));
 
@@ -145,7 +145,7 @@ public class BloomFilterTest {
         CHARSEQUENCE_HASHER);
 
 //    System.err.println("filter: "+filter);
-		assertThat(filter.toString()).isNotNull();
+    assertThat(filter.toString()).isNotNull();
 
     assertFalse("\"3\" is in this empty filter? "+filter, filter.contains(String.valueOf(3)));
 

@@ -102,7 +102,7 @@ final class Uniq<T extends Object & Comparable<? super T>> implements Iterable<T
       }
     }
     // user's don't have to explicitly call this although that's a bit crazy
-		@Override
+    @Override
     public boolean hasNext() {
       return top != SENTINEL;
     }

@@ -130,7 +130,7 @@ public class Utils {
    * @throws IllegalArgumentException with informative message if {@code infoException}
    * and <em>not</em> sorted.
    */
-	// Ordering.isOrdered does all but infoException
+  // Ordering.isOrdered does all but infoException
   public static <T extends Object & Comparable<? super T>>
     boolean isSorted(final Iterator<? extends T> iterator, final boolean infoException) {
       if (iterator.hasNext()) {
@@ -304,17 +304,17 @@ public class Utils {
   /**
    * @return the first item from {@code iterable} if it is not empty, or {@code null}
    */
-//	@Deprecated // use com.google.common.collect.Iterables#getFirst
+//@Deprecated // use com.google.common.collect.Iterables#getFirst
   public static <T> T first(final Iterable<T> iterable) {
-		return Iterables.getFirst(iterable, null);
+    return Iterables.getFirst(iterable, null);
   }
 
   /**
    * @return the last item from {@code list} if it is not empty, or {@code null}
    */
-	@Deprecated // use com.google.common.collect.Iterables.getLast
+  @Deprecated // use com.google.common.collect.Iterables.getLast
   public static <T> T last(final List<T> list) {
-		return Iterables.getLast(list, null);
+    return Iterables.getLast(list, null);
   }
 
   /**

@@ -414,7 +414,7 @@ public enum RelationType {
             } else if (pos == POS.ADV) {
               return DERIVED;
             } else {
-              throw new IllegalStateException();
+              throw new IllegalStateException("PERTAINYM with pos "+pos+" for key "+key);
             }
           default:
             return pType;

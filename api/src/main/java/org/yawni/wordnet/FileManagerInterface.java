@@ -88,20 +88,20 @@ interface FileManagerInterface {
   int getIndexedLinePointer(final CharSequence target, int start, final String fileName,
       final boolean filenNameWnRelative) throws IOException;
 
-	/**
-	 * Variant of {@link #getIndexedLinePointer(java.lang.CharSequence, int, java.lang.String, boolean) that gracefully
-	 * returns no matches if stream is null allowing aggressive error checks to be done by the caller.
-	 * @param target
-	 * @param start
-	 * @param stream
-	 * @return
-	 * @throws IOException
-	 */
+  /**
+   * Variant of {@link #getIndexedLinePointer(java.lang.CharSequence, int, java.lang.String, boolean) that gracefully
+   * returns no matches if stream is null allowing aggressive error checks to be done by the caller.
+   * @param target
+   * @param start
+   * @param stream
+   * @return
+   * @throws IOException
+   */
   int getIndexedLinePointer(final CharSequence target, int start, final CharStream stream) throws IOException;
 
   /**
    * Efficient query method for sorted input which may have duplicates that returns ALL matches.  If {@code fileName}
-	 * does not refer to an existing file, returns no results, a graceful form of failure for optional resources.
+   * does not refer to an existing file, returns no results, a graceful form of failure for optional resources.
    * @param target prefix word sought
    * @param fileName
    * @throws IOException

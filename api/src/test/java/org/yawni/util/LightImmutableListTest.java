@@ -155,10 +155,10 @@ public class LightImmutableListTest {
     LightImmutableList<Integer> result = LightImmutableList.copyOf(expResult);
     // compile test for covariant subList
     assertTrue(result instanceof LightImmutableList.Quintupleton);
-		assertTrue(result.subList(0, 1) instanceof LightImmutableList.Singleton);
-		assertTrue(result.subList(1, 2) instanceof LightImmutableList.Singleton);
-		assertTrue(result.subList(0, 2) instanceof LightImmutableList.Doubleton);
-		assertTrue(result.subList(0, 4) instanceof LightImmutableList.Quadrupleton);
+    assertTrue(result.subList(0, 1) instanceof LightImmutableList.Singleton);
+    assertTrue(result.subList(1, 2) instanceof LightImmutableList.Singleton);
+    assertTrue(result.subList(0, 2) instanceof LightImmutableList.Doubleton);
+    assertTrue(result.subList(0, 4) instanceof LightImmutableList.Quadrupleton);
     listTest(expResult, result);
   }
   @Test
@@ -188,7 +188,7 @@ public class LightImmutableListTest {
     listTest(expResult, result);
   }
 
-	private <E> void listTest(List<E> expResult, List<E> result) {
+  private <E> void listTest(List<E> expResult, List<E> result) {
     listTest(expResult, result, true);
   }
 

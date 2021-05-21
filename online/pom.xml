@@ -14,7 +14,7 @@
     <scala.major-minor-version>2.12</scala.major-minor-version>
     <scala.version>${scala.major-minor-version}.10</scala.version>
     <lift.version>3.3.0</lift.version>
-    <scala-maven-plugin.version>4.1.0</scala-maven-plugin.version>
+    <scala-maven-plugin.version>4.5.1</scala-maven-plugin.version>
     <!-- for appengine -->
     <appengine-sdk-version>1.9.75</appengine-sdk-version>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>org.yawni</groupId>
-      <artifactId>yawni-wordnet-data30</artifactId>
+      <artifactId>${default-wordnet-data-version}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

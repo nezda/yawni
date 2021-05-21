@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
           <groupId>org.yawni</groupId>
-          <artifactId>yawni-wordnet-data30</artifactId>
+          <artifactId>${default-wordnet-data-version}</artifactId>
           <scope>test</scope>
         </dependency>
         <!-- having multiple data* in classpath at once is a configuration error -->

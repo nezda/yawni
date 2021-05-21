@@ -6,13 +6,13 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 // adapted from https://www.java.happycodings.com/Java_Swing/code5.html
-public class AutoCompleteComboBox<E> extends JComboBox<E>	implements JComboBox.KeySelectionManager {
-	private String searchFor;
-	private long lap;
-	public class CBDocument extends PlainDocument {
+public class AutoCompleteComboBox<E> extends JComboBox<E> implements JComboBox.KeySelectionManager {
+  private String searchFor;
+  private long lap;
+  public class CBDocument extends PlainDocument {
     @Override
-		public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
-			if (str == null) {
+    public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
+      if (str == null) {
         return;
       }
       super.insertString(offset, str, a);
@@ -91,7 +91,7 @@ public class AutoCompleteComboBox<E> extends JComboBox<E>	implements JComboBox.K
     frame.setSize(200, 300);
     final Container contentPane = frame.getContentPane();
     contentPane.setLayout(null);
-    final String[] names = {"Beate", "Claudia", "Fjodor", "Fred", "Friedrich",	"Fritz", "Frodo", "Hermann", "Willi"};
+    final String[] names = {"Beate", "Claudia", "Fjodor", "Fred", "Friedrich","Fritz", "Frodo", "Hermann", "Willi"};
     final JComboBox<String> comboBox = new AutoCompleteComboBox<>(names);
 //    final Locale[] locales = Locale.getAvailableLocales();
 //    final JComboBox comboBox = new AutoCompleteComboBox(locales);

@@ -56,7 +56,7 @@ public class SynsetTest {
   public void testDescriptions() {
     System.err.println("testDescriptions");
     int count = 0;
-		final ImmutableMap<WordNetVersion, Integer> numSynsets = ImmutableMap.of(WordNetVersion.WN30, 117659, WordNetVersion.WN21, 117597);
+    final ImmutableMap<WordNetVersion, Integer> numSynsets = ImmutableMap.of(WordNetVersion.WN30, 117659, WordNetVersion.WN21, 117597);
     final Integer expectedCount = numSynsets.get(WordNetVersion.detect());
     for (final Synset synset : WN.synsets(POS.ALL)) {
       count++;
@@ -68,9 +68,9 @@ public class SynsetTest {
       //TODO assert something here, don't just exercise
       final String msg2 = count+" "+synset+"\n  "+synset.getDescription();
     }
-		if (expectedCount != null) {
-			assertThat(count).isEqualTo(expectedCount);
-		}
+    if (expectedCount != null) {
+      assertThat(count).isEqualTo(expectedCount);
+    }
     System.err.printf("tested %,d descriptions.\n", count);
   }
 

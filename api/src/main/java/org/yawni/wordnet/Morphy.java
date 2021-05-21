@@ -130,11 +130,11 @@ class Morphy {
       if (SPACE.matchesAllOf(origstr)) {
         return "_";
       }
-			origstr = DASH_OR_UNDERSCORE.trimFrom(origstr);
+      origstr = DASH_OR_UNDERSCORE.trimFrom(origstr);
     }
-		// strip edge underscores (e.g., "_slovaks_" → "slovaks")
+    // strip edge underscores (e.g., "_slovaks_" → "slovaks")
     // lowercase and flatten all runs of white space to a single '_'
-		String toReturn = WN_WHITESPACE.trimAndCollapseFrom(origstr.toLowerCase(Locale.ROOT), '_');
+    String toReturn = WN_WHITESPACE.trimAndCollapseFrom(origstr.toLowerCase(Locale.ROOT), '_');
     //TODO if contains any non-ASCII chars, Normalize, pulling apart combined characters and
     // then remove these non-ASCII chars
     //final String normalized = java.text.Normalizer.normalize(origstr, Form.NFD);
@@ -142,9 +142,9 @@ class Morphy {
     return toReturn;
   }
 
-	private static final CharMatcher DASH_OR_UNDERSCORE = CharMatcher.anyOf("_-");
-	private static final CharMatcher WN_WHITESPACE = CharMatcher.whitespace().or(CharMatcher.breakingWhitespace()).or(CharMatcher.is('_'));
-	private static final CharMatcher SPACE = CharMatcher.is(' ');
+  private static final CharMatcher DASH_OR_UNDERSCORE = CharMatcher.anyOf("_-");
+  private static final CharMatcher WN_WHITESPACE = CharMatcher.whitespace().or(CharMatcher.breakingWhitespace()).or(CharMatcher.is('_'));
+  private static final CharMatcher SPACE = CharMatcher.is(' ');
 
   static String underScoreToSpace(final String s) {
     return s.replace('_', ' ');

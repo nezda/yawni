@@ -74,12 +74,12 @@ class GetIndex extends AbstractList<CharSequence> {
     this.numAlternations = (int) Math.pow(toAlternate.length, numCandidates);
   }
 
-	@Override
+  @Override
   public int size() {
     return numAlternations;
   }
 
-	@Override
+  @Override
   public CharSequence get(int nextState) {
     // TODO
     // ? does any term in WordNet actually have n dashes (say n=2+) ?

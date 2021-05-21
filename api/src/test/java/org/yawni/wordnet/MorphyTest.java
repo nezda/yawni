@@ -48,13 +48,13 @@ import org.yawni.wordnet.WordNetInterface.WordNetVersion;
  */
 public class MorphyTest {
   private static WordNetInterface WN;
-	private static WordNetVersion VERSION;
+  private static WordNetVersion VERSION;
 
   @BeforeClass
   public static void init() {
     WN = WordNet.getInstance();
-		VERSION = WordNetVersion.detect();
-		System.err.println("WordNetVersion: "+VERSION);
+    VERSION = WordNetVersion.detect();
+    System.err.println("WordNetVersion: "+VERSION);
   }
 
   @Test
@@ -138,9 +138,9 @@ public class MorphyTest {
       { POS.NOUN.name(), "_-", null },
       { POS.NOUN.name(), " -", null },
       { POS.NOUN.name(), "- ", null },
-			// from http://mail-archives.apache.org/mod_mbox/opennlp-users/201208.mbox/%3C70649AB6-40E1-47FA-9B40-E18691627F36%40yahoo.com%3E
-			// yawni tokenizes this on underscores
-			{ POS.NOUN.name(), "found_r_n_rnhttpsttlc_blablacompost_show_post_full_view_dw_w_b_ar_dxxcfazbay_ppid_rnrn", null },
+      // from http://mail-archives.apache.org/mod_mbox/opennlp-users/201208.mbox/%3C70649AB6-40E1-47FA-9B40-E18691627F36%40yahoo.com%3E
+      // yawni tokenizes this on underscores
+      { POS.NOUN.name(), "found_r_n_rnhttpsttlc_blablacompost_show_post_full_view_dw_w_b_ar_dxxcfazbay_ppid_rnrn", null },
       { POS.NOUN.name(), "armful", "armful" },
       { POS.NOUN.name(), "attorneys general", "attorney general", "Attorney General" },
       { POS.NOUN.name(), "axes", "axis", "ax", "axes", "Axis" }, // NOTE: noun "axe" is only derivationally related to "ax"
@@ -198,55 +198,55 @@ public class MorphyTest {
       //{ POS.ADJ.name(), "low-pitch", "low-pitched" }, // WN doesn't get this
     };
     for (final String[] testElements : unstemmedStemmedCasesAllVersions) {
-			individualTest(testElements);
-		}
+      individualTest(testElements);
+    }
 
 
-		if (VERSION == WordNetVersion.WN30) {
-			final String[][] unstemmedStemmedCasesWN30 = new String[][] {
-				// { POS, <unstemmed>, <stemmed> }
-				{ POS.VERB.name(), "bird-dogged", "bird-dog", "bird-dogged" }, // no Word for this exceptional verb
-				{ POS.VERB.name(), "booby-trapped", "booby-trap", "booby-trapped" }, // no Word for the verb form of this
-				{ POS.VERB.name(), "bloging" /* spelled wrong */, "blog" }, // WN21 has this too
-				//{ POS.VERB.name(), "blogging" /* spelled _correctly_, not in exceptions file */, "blog" },
-				{ POS.VERB.name(), "founder", "founder" }, // note asymmetries: "founder" → {"founder"}, "founded" → {"found"}, "found" → {"find", "found"}
-				{ POS.ADJ.name(), "onliner" /* no idea */, "online" },
-				// should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
-				{ POS.NOUN.name(), "superheroes", "superhero", "superheroes" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
-				{ POS.NOUN.name(), "yourselves", "yourself", "yourselves" }, // no Word for this pronoun
-			};
-			for (final String[] testElements : unstemmedStemmedCasesWN30) {
-				individualTest(testElements);
-			}
-		}
+    if (VERSION == WordNetVersion.WN30) {
+      final String[][] unstemmedStemmedCasesWN30 = new String[][] {
+        // { POS, <unstemmed>, <stemmed> }
+        { POS.VERB.name(), "bird-dogged", "bird-dog", "bird-dogged" }, // no Word for this exceptional verb
+        { POS.VERB.name(), "booby-trapped", "booby-trap", "booby-trapped" }, // no Word for the verb form of this
+        { POS.VERB.name(), "bloging" /* spelled wrong */, "blog" }, // WN21 has this too
+        //{ POS.VERB.name(), "blogging" /* spelled _correctly_, not in exceptions file */, "blog" },
+        { POS.VERB.name(), "founder", "founder" }, // note asymmetries: "founder" → {"founder"}, "founded" → {"found"}, "found" → {"find", "found"}
+        { POS.ADJ.name(), "onliner" /* no idea */, "online" },
+        // should both variants be returned ? { POS.ADJ.name(), "onliner" /* no idea */, "on-line" },
+        { POS.NOUN.name(), "superheroes", "superhero", "superheroes" }, // NOTE: this isn't in WordNet (Brett Spell noted this)
+        { POS.NOUN.name(), "yourselves", "yourself", "yourselves" }, // no Word for this pronoun
+      };
+      for (final String[] testElements : unstemmedStemmedCasesWN30) {
+        individualTest(testElements);
+      }
+    }
   }
 
-	private void individualTest(String[] testElements) {
-		final POS pos = POS.valueOf(testElements[0]);
-		final String unstemmed = testElements[1];
-		final String stemmed = testElements[2];
-		final List<String> goldStems = new ArrayList<>();
-		for (int i = 2; i < testElements.length; ++i) {
-			goldStems.add(testElements[i]);
-		}
-		assertTrue("goldStems: "+goldStems, areUnique(goldStems));
-		final List<String> baseForms = stem(unstemmed, pos);
-		String msg = "unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms;
-		assertTrue(msg, baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
-		//System.err.println(msg);
-		assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
-		//TODO on failure, could try other POS
-		if (baseForms.size() >= 2 && ! goldStems.equals(baseForms)) {
-			//TODO tighten up this test - don't allow any extra unspecified variants
-			// note this considers case variants distinct
-			System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
-		}
-		assertTrue(areUnique(baseForms));
+  private void individualTest(String[] testElements) {
+    final POS pos = POS.valueOf(testElements[0]);
+    final String unstemmed = testElements[1];
+    final String stemmed = testElements[2];
+    final List<String> goldStems = new ArrayList<>();
+    for (int i = 2; i < testElements.length; ++i) {
+      goldStems.add(testElements[i]);
+    }
+    assertTrue("goldStems: "+goldStems, areUnique(goldStems));
+    final List<String> baseForms = stem(unstemmed, pos);
+    String msg = "unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+baseForms;
+    assertTrue(msg, baseForms.contains(stemmed) || (stemmed == null && baseForms.isEmpty()));
+    //System.err.println(msg);
+    assertFalse("baseForms: "+baseForms, baseFormContainsUnderScore(baseForms));
+    //TODO on failure, could try other POS
+    if (baseForms.size() >= 2 && ! goldStems.equals(baseForms)) {
+      //TODO tighten up this test - don't allow any extra unspecified variants
+      // note this considers case variants distinct
+      System.err.println("extra variants for \""+unstemmed+"\": "+baseForms+" goldStems: "+goldStems);
+    }
+    assertTrue(areUnique(baseForms));
 
-		final List<String> upperBaseForms = stem(unstemmed.toUpperCase(), pos);
-		msg = "UPPER unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+upperBaseForms;
-		assertTrue(msg, upperBaseForms.contains(stemmed) || (stemmed == null && upperBaseForms.isEmpty()));
-	}
+    final List<String> upperBaseForms = stem(unstemmed.toUpperCase(), pos);
+    msg = "UPPER unstemmed: \""+unstemmed+"\" "+pos+" gold: \""+stemmed+"\" output: "+upperBaseForms;
+    assertTrue(msg, upperBaseForms.contains(stemmed) || (stemmed == null && upperBaseForms.isEmpty()));
+  }
 
   @Test
   public void testLookupWord() {

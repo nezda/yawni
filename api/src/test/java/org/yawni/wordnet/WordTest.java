@@ -29,18 +29,18 @@ public class WordTest {
     wordNet = WordNet.getInstance();
   }
 
-	@Test
-	public void test0() {
-		final Word result = wordNet.lookupWord("running-away", POS.VERB);
-		final List<WordSense> result2 = wordNet.lookupWordSenses("running-away", POS.VERB);
-		final List<WordSense> result3 = wordNet.lookupWordSenses("running-away", POS.ALL);
-		//System.err.println("test0 result : " + result);
-		//System.err.println("test0 result2: " + result2);
-		//System.err.println("test0 result3: " + result3);
-		// running-away is not a VERB lemma
-		assertThat(result == null).isTrue();
-		assertThat(result2).isNotEmpty();
-	}
+  @Test
+  public void test0() {
+    final Word result = wordNet.lookupWord("running-away", POS.VERB);
+    final List<WordSense> result2 = wordNet.lookupWordSenses("running-away", POS.VERB);
+    final List<WordSense> result3 = wordNet.lookupWordSenses("running-away", POS.ALL);
+    //System.err.println("test0 result : " + result);
+    //System.err.println("test0 result2: " + result2);
+    //System.err.println("test0 result3: " + result3);
+    // running-away is not a VERB lemma
+    assertThat(result == null).isTrue();
+    assertThat(result2).isNotEmpty();
+  }
 
   @Test
   public void countCollocations() {

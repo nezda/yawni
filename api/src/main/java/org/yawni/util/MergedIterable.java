@@ -41,7 +41,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>>
       return merge(false, ImmutableList.copyOf(bases));
   }
 
-	/** Primary factory method so template parameters are deduced. */
+  /** Primary factory method so template parameters are deduced. */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final Iterable<Iterable<T>> bases) {
       return merge(false, ImmutableList.copyOf(bases));
@@ -54,7 +54,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>>
       return new MergedIterable<>(validateSort, ImmutableList.copyOf(bases));
   }
 
-	/** Validating factory method so template parameters are deduced. */
+  /** Validating factory method so template parameters are deduced. */
   public static <T extends Object & Comparable<? super T>>
     Iterable<T> merge(final boolean validateSort, final ImmutableList<Iterable<T>> bases) {
       return new MergedIterable<>(validateSort, ImmutableList.copyOf(bases));
@@ -73,7 +73,7 @@ public final class MergedIterable<T extends Object & Comparable<? super T>>
 
   @Override
   public Iterator<T> iterator() {
-		return Iterables.mergeSorted(bases, Ordering.natural()).iterator();
+    return Iterables.mergeSorted(bases, Ordering.natural()).iterator();
   }
 
   private void validateSort(final boolean validateSort, final Iterable<Iterable<T>> bases) {

@@ -47,7 +47,7 @@ class HasLemma<T> extends BaseMatcher<T> {
   private HasLemma(final WordSense wordSense) {
     this.wordOrWordSense = wordSense;
   }
-	@Override
+  @Override
   public boolean matches(Object operand) {
     String lemma = (String) operand;
     if (wordOrWordSense instanceof Word) {
@@ -59,7 +59,7 @@ class HasLemma<T> extends BaseMatcher<T> {
         " unsupported class: " + wordOrWordSense.getClass());
     }
   }
-	@Override
+  @Override
   public void describeTo(final Description description) {
     description.
       appendText("is lemma of ").

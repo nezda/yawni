@@ -88,7 +88,7 @@ public class EnumAliases<E extends Enum<E>> {
    * @throws IllegalArgumentException
    */
   public E valueOf(final Object alias, final boolean throwIfNull) {
-		Preconditions.checkState(!mapping.isEmpty(), "You forgot to register aliases in your enum constructor.");
+    Preconditions.checkState(!mapping.isEmpty(), "You forgot to register aliases in your enum constructor.");
     final E toReturn = mapping.get(alias);
     Preconditions.checkArgument(!throwIfNull || toReturn != null, "Unknown %s alias %s", enumName, alias);
     return toReturn;
