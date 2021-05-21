@@ -16,15 +16,15 @@ The Yawni website is <https://www.yawni.org/>
 
 Yawni currently consists of 3 main modules:
 
-`api/`
+[`api/`](https://github.com/nezda/yawni/tree/master/api)
   Yawni WordNet API: a pure Java standalone object-oriented interface to the WordNet
   database of lexical and semantic relationships.
 
-`data/`
+[`data*/`](https://github.com/nezda/yawni/tree/master/data30)
   Yawni WordNet Data: Jar file containing the Princeton WordNet 3.0 data files, and derivative files to support efficient,
   exhaustive access to this information.
 
-`browser/`
+[`browser/`](https://github.com/nezda/yawni/tree/master/browser)
   Yawni WordNet Browser: A GUI browser of WordNet content using the Yawni API.
 
 Quick Start
@@ -64,6 +64,7 @@ WordNet consists of enough data to exceed the recommended capacity of Java Colle
 
 There are a lot of Java interfaces to WordNet already.
 Here are 8 of the Java APIs, along with their URL and software license.
+- Stanford NLP WordNet <https://nlp.stanford.edu/nlp/javadoc/wn/doc/> ; [“Academic User”](https://nlp.stanford.edu/nlp/javadoc/wn/LICENSE)
 - JAWS (Java API for WordNet Searching) <http://lyle.smu.edu/~tspell/jaws/index.html>; non-profit
 - Jawbone ; <http://sites.google.com/site/mfwallace/jawbone>; MIT license
 - JWI (MIT Java Wordnet Interface) ; <http://projects.csail.mit.edu/jwi/>; non-commercial license
@@ -78,7 +79,7 @@ In fact, Yawni is the new name of that original Java WordNet, JWordNet.
 
 Why Yawni ?
 - commercial-grade implementation
-  - very fast & small memory foot print
+  - very fast & small memory footprint
   - pure Java implementation
   - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., stemming) routines
   - simple, intuitive, and well documented API
@@ -87,7 +88,7 @@ Why Yawni ?
   - easy Apache Maven-based build with minimal dependencies
   - extensive unit tests provide peace of mind (and great examples!)
 - includes refined GUI browser featuring
-  - user friendly, snappy
+  - user-friendly, snappy
   - incremental find (Ctrl+Shift+F / ⇧ ⌘ F)
   - comprehensive keyboard support (arrows, tab, etc.)
   - multi-window support (Ctrl+N / ⌘ N)
