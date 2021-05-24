@@ -35,8 +35,6 @@ JVM_ARGS=(-Xdock:name="Yawni WordNet Browser")
 JVM_ARGS+=(-Dlog4j.configuration=org/yawni/wordnet/browser/log4j.properties)
 JVM_ARGS+=(-Dfile.encoding=UTF-8)
 JVM_ARGS+=(-d32)
-# no longer works
-JVM_ARGS+=(-Dapple.awt.brushMetalLook="true")
 #JVM_ARGS+=(-XX:+AggressiveOpts)
 #JVM_ARGS+=(-XX:+UseFastAccessorMethods)
 # need lots RAM for huge searches (e.g., all hyponyms of "person")
@@ -45,6 +43,8 @@ JVM_ARGS+=(-Dapple.awt.brushMetalLook="true")
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
 #XXX incomplete CLASSPATH! $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
+# not working... https://stackoverflow.com/a/50294983/689119
+#export MAVEN_OPTS="-Xdock:name=\"Yawni WordNet Browser\" $MAVEN_OPTS"
 mvn -f browser/pom.xml -P useLog4j exec:java -Dlog4j.debug -Dlog4j.configuration=org/yawni/wordnet/log4j.properties -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
 
 # use the maven-exec-plugin (from api module):
