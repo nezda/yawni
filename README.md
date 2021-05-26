@@ -80,17 +80,17 @@ Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Stee
 - commercial-grade implementation
   - 🚀 very fast & small memory footprint 👣
   - pure Java ☕ so compatible with any JVM language! Scala, Clojure, Kotlin, …
-  - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., stemming) routines
+  - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., lemmatization, i.e., stemming) routines
   - simple, intuitive, and well documented 📚 API
-  - all required resources can load from jars making deployment a snap 💥
+  - all required resources load from jars by default making deployment a snap 💥
   - all query results are immutable 🔒; safely cached and/or accessed by concurrent threads
   - easy Apache Maven-based build with minimal dependencies
-  - extensive unit tests provide peace of mind (and great examples!)
+  - extensive unit tests 🧪 provide peace of mind (and great examples!)
 - includes refined GUI browser featuring
-  - user-friendly & snappy 🚀
-  - 🔍 incremental find (Ctrl+Shift+F / ⌘ ⇧ F)
-  - comprehensive keyboard support (arrows ⇦ ⇨ ⇧ ⇩, tab ↹, etc.)
-  - multi-window support (Ctrl+N / ⌘ N)
+  - user-friendly 😊 🎛 🔍 & snappy 🚀
+  - incremental find 🔍 (Ctrl+Shift+F / ⌘ ⇧ F)
+  - comprehensive keyboard navigation ⌨ 🧭 support (arrows ⇦ ⇨ ⇧ ⇩, tab ↹, etc.)
+  - multi-window 🪟🪟 support (Ctrl+N / ⌘ N)
   - cross-platform 🔀 including zero-install Java Web Start version
 - commercial-friendly Apache license
 
@@ -103,7 +103,7 @@ Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Stee
 - Major reduction in memory requirements
   - use of primitives where possible (hidden by API)
   - eliminated unused / unneeded fields
-- Implemented `Morphy` stemming algorithms
+- Implemented `Morphy` stemming / lemmatization algorithms
 - Completely rewritten GUI browser in Java Swing featuring
   - incremental find
   - no limits on search (Never see "Search too large.  Narrow search and try again..." again!)
