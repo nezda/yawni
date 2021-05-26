@@ -94,6 +94,11 @@
       <artifactId>yawni-wordnet-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.github.mfornos</groupId>
+      <artifactId>humanize-icu</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+    <dependency>
       <groupId>org.yawni</groupId>
       <artifactId>${default-wordnet-data-version}</artifactId>
       <scope>test</scope>

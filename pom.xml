@@ -47,7 +47,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -55,7 +54,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M2</version>
         <executions>
           <execution>
             <id>enforce-maven</id>
