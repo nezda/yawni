@@ -1,10 +1,10 @@
 [![Build Status](https://github.com/nezda/yawni/workflows/Java%20CI/badge.svg?branch=master)](https://github.com/nezda/yawni/actions)
 
-Yawni README file
+## Introduction / Why Yawni and Why WordNet ?
+<img alt="Yawning!" align="right" src=".assets/yawni-logo.png">
 
-Introduction / Why Yawni and Why WordNet ?
 
-Yawni is an API to Princeton University's WordNet.  WordNet is a graph; it is a potentially 
+Yawni is an API to Princeton University's [WordNet®](https://wordnet.princeton.edu/).  WordNet is a graph; it is a potentially 
 invaluable resource for injecting knowledge into applications.  WordNet is
 probably the single most used NLP resource ; many companies have it as their
 cornerstone.  It embodies one of the most fundamental of all NLP problems:
@@ -27,10 +27,10 @@ Yawni currently consists of 3 main modules:
 [`browser/`](https://github.com/nezda/yawni/tree/master/browser)
   Yawni WordNet Browser: A GUI browser of WordNet content using the Yawni API.
 
-Quick Start
+## 🚀 Quick Start
 
-Basic steps:
-0. Install JDK 1.8 (or greater), Apache Maven 3.0.3 (or greater)
+### Basic steps 👣
+0. Install JDK 11 (or greater), Apache Maven 3.0.3 (or greater)
 1. Specify the following Apache Maven dependencies in your project
     
     ```xml
@@ -53,11 +53,11 @@ Basic steps:
     final WordNetInterface wn = WordNet.getInstance();
     ```
 
-   Numerous unit tests serve as great executable examples are included 
-   in `api/src/test/`.  For a more complex example application, check 
-   out the `browser/` sub-module.
+   Numerous unit tests that serve as great executable examples are included 
+   in [`api/src/test/java/org/yawni/`](https://github.com/nezda/yawni/tree/master/api/src/test/java/org/yawni/).  For a more complex example application, check 
+   out the [`browser/`](https://github.com/nezda/yawni/tree/master/browser) sub-module.
      
-Yet Another WordNet Interface !? (get it?)
+## Yet Another WordNet Interface !? (get it?)
 
 WordNet consists of enough data to exceed the recommended capacity of Java Collections 
 (e.g., `java.util.SortedMap<String, X>`), but not enough to justify a full relational database.
@@ -65,41 +65,40 @@ WordNet consists of enough data to exceed the recommended capacity of Java Colle
 There are a lot of Java interfaces to WordNet already.
 Here are 8 of the Java APIs, along with their URL and software license.
 - Stanford NLP WordNet <https://nlp.stanford.edu/nlp/javadoc/wn/doc/> ; [“Academic User”](https://nlp.stanford.edu/nlp/javadoc/wn/LICENSE)
+- Java WordNet Library <http://www.cis.upenn.edu/~dbikel/software.html#wn> academic license
 - JAWS (Java API for WordNet Searching) <http://lyle.smu.edu/~tspell/jaws/index.html>; non-profit
 - Jawbone ; <http://sites.google.com/site/mfwallace/jawbone>; MIT license
 - JWI (MIT Java Wordnet Interface) ; <http://projects.csail.mit.edu/jwi/>; non-commercial license
-- Java WordNet Library <http://www.cis.upenn.edu/~dbikel/software.html#wn> academic license
-- Java WordNet Interface (javawn) <http://sourceforge.net/projects/javawn/>; GPL
-- WordNet JNI Java Native Support (WNJN) ; <http://wnjn.sourceforge.net/> ; GPL
+- Java WordNet Interface (javawn) <http://sourceforge.net/projects/javawn/>; GPL 2.0
+- WordNet JNI Java Native Support (WNJN) ; <http://wnjn.sourceforge.net/> ; GPL 2.0
 - JWNL (Java WordNet Library) ; <http://sourceforge.net/projects/jwordnet/>; BSD
 - extJWNL (Extended Java WordNet Library) ; <http://sourceforge.net/projects/extjwnl/>; BSD
 
-Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Steele's original JWordNet.  
-In fact, Yawni is the new name of that original Java WordNet, JWordNet.
+Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Steele's original JWordNet. In fact, **Yawni** *is* the new name of that original Java WordNet, JWordNet.
 
-Why Yawni ?
+# Why Yawni ?
 - commercial-grade implementation
-  - very fast & small memory footprint
-  - pure Java implementation
+  - 🚀 very fast & small memory footprint 👣
+  - pure Java ☕ so compatible with any JVM language! Scala, Clojure, Kotlin, …
   - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., stemming) routines
-  - simple, intuitive, and well documented API
-  - all required resources can load from jars making deployment a snap
-  - all query results are immutable ; safely cached and/or accessed by concurrent threads
+  - simple, intuitive, and well documented 📚 API
+  - all required resources can load from jars making deployment a snap 💥
+  - all query results are immutable 🔒; safely cached and/or accessed by concurrent threads
   - easy Apache Maven-based build with minimal dependencies
   - extensive unit tests provide peace of mind (and great examples!)
 - includes refined GUI browser featuring
-  - user-friendly, snappy
-  - incremental find (Ctrl+Shift+F / ⇧ ⌘ F)
-  - comprehensive keyboard support (arrows, tab, etc.)
+  - user-friendly & snappy 🚀
+  - 🔍 incremental find (Ctrl+Shift+F / ⌘ ⇧ F)
+  - comprehensive keyboard support (arrows ⇦ ⇨ ⇧ ⇩, tab ↹, etc.)
   - multi-window support (Ctrl+N / ⌘ N)
-  - cross-platform including zero-install Java Web Start version
+  - cross-platform 🔀 including zero-install Java Web Start version
 - commercial-friendly Apache license
 
-Changes in 2.x versions
+#### Changes in 2.x versions
 
 - Extreme speed improvements: literally faster than the C version (benchmark source included)
   - Bloom filters used to avoid fruitless lookups (no loss in accuracy!)
-  - re-implemented `LRUCache` using Google Guava's `MapMaker`
+  - re-implemented `LRUCache` using [`Caffeine`](https://github.com/ben-manes/caffeine)
   - `FileManager.CharStream` and `FileManager.NIOCharStream` utilize in-memory and `java.nio` for maximum speed
 - Major reduction in memory requirements
   - use of primitives where possible (hidden by API)
@@ -120,7 +119,7 @@ Changes in 2.x versions
   - fixed Verb example sentences and generic frames (and made them directly accessible)
   - fixed iteration bugs and memory leaks
   - fixed various thread safety bugs
-- Updated to leverage Java 1.6
+- Updated to leverage Java 1.6 and beyond
   - generics
   - use of `Enum`, `EnumSet`, and `EnumMap` where apropos
   - uses maximally configurable slf4j logging system
