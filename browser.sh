@@ -43,9 +43,7 @@ JVM_ARGS+=(-d32)
 #JVM_ARGS+=(-Dlog4j.debug)
 # expand all array elements of JVM_ARGS Bash array
 #XXX incomplete CLASSPATH! $java "${JVM_ARGS[@]}" $ASSERT_ENABLE -DWNHOME="$wnhome" -cp "$CLASSPATH" org.yawni.wordnet.browser.Browser "$@"
-# not working... https://stackoverflow.com/a/50294983/689119
-#export MAVEN_OPTS="-Xdock:name=\"Yawni WordNet Browser\" $MAVEN_OPTS"
-mvn -f browser/pom.xml -P useLog4j exec:java -Dlog4j.debug -Dlog4j.configuration=org/yawni/wordnet/log4j.properties -Dexec.mainClass="org.yawni.wordnet.browser.Browser" -Dexec.classpathScope="test"
+mvn -f browser/pom.xml -P useLog4j exec:exec -Dexec.classpathScope="test" -Dexec.executable="java" -Dexec.args="-classpath %classpath -Dlog4j.debug=true -Dlog4j.configuration=org/yawni/wordnet/browser/log4j.properties -Xdock:name=\"Yawni WordNet Browser\" org.yawni.wordnet.browser.Browser"
 
 # use the maven-exec-plugin (from api module):
 # mvn -P useWNHOMEDataForTest -DWNHOME=/Users/nezda/code/c/wordnets/WordNet-2.0 exec:java -Dexec.mainClass="org.yawni.util.cache.BloomFilters" -Dexec.classpathScope="test"
