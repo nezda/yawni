@@ -98,7 +98,7 @@ Many of the pure Java ones (like Yawni), are actually derivatives of [Oliver Ste
 
 - Extreme speed improvements: literally faster than the C version (benchmark source included)
   - Bloom filters used to avoid fruitless lookups (no loss in accuracy!)
-  - re-implemented `LRUCache` using [`Caffeine`](https://github.com/ben-manes/caffeine)
+  - re-implemented `LRUCache` using Google Guava's `MapMaker`
   - `FileManager.CharStream` and `FileManager.NIOCharStream` utilize in-memory and `java.nio` for maximum speed
 - Major reduction in memory requirements
   - use of primitives where possible (hidden by API)

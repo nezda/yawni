@@ -2,7 +2,7 @@
 # Run the browser
 #set -v
 YAWNI_VERSION=2.0.0-SNAPSHOT
-SLF4J_VERSION=1.7.5
+SLF4J_VERSION=1.7.30
 ASSERT_ENABLE="-ea"
 # system assertions (-esa) cause tons of logging on OS X ([AWT-\d+] ...)
 #ASSERT_ENABLE="-ea -esa"
