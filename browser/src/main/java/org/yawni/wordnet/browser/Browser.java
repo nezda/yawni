@@ -16,13 +16,7 @@
  */
 package org.yawni.wordnet.browser;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -34,13 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yawni.wordnet.WordNetInterface.WordNetVersion;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.AccessControlException;
+import java.util.Objects;
 import java.util.Vector;
-import java.util.prefs.Preferences;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -65,6 +62,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.plaf.basic.BasicBorders;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A graphical interface to the WordNet online lexical database.
@@ -103,7 +102,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
   private MoveMouseListener searchWindowMouseListener;
   private SearchFrame searchWindow;
 
-  // FIXME ditch this magic number
+  // TODO ditch this magic number
   private static final Icon BLANK_ICON = new BlankIcon(14, 14);
   private final int pad = 5;
   private final Border textAreaBorder;
@@ -114,21 +113,27 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
 
   Browser(int browserNumber) {
     super(Application.getInstance().getName() + " Browser");
+    // this is the preferred way to set brushMetalRounded
+    // http://lists.apple.com/archives/Java-dev/2007/Nov/msg00081.html
+    this.getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
     this.setName(super.getName() + "-" + BROWSERS.size());
     // ⌾ \u233e APL FUNCTIONAL SYMBOL CIRCLE JOT
     // ⊚ \u229a CIRCLED RING OPERATOR
     // ◎ \u25ce BULLSEYE
     this.setName(getClass().getName());
-    // this is the preferred way to set brushMetalRounded
-    // http://lists.apple.com/archives/Java-dev/2007/Nov/msg00081.html
-    this.getRootPane().putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
     // allows drags to switch OS X Spaces, but also makes whole Window draggable which
     // is weird; discussed here (esp. the comments):
     // https://explodingpixels.wordpress.com/2008/05/03/sexy-swing-app-the-unified-toolbar-now-fully-draggable/
     //getRootPane().putClientProperty("apple.awt.draggableWindowBackground", Boolean.TRUE);
 
-    if (getAppIcon() != null) {
-      this.setIconImage(getAppIcon().getImage());
+    // requires JDK 9+
+//    final Taskbar taskbar = Taskbar.getTaskbar();
+//    if (getAppIcon() != null) {
+//      this.setIconImage(getAppIcon().getImage());
+//      taskbar.setIconImage(getAppIconImage());
+//    }
+    if (getAppIconImage() != null) {
+      this.setIconImage(getAppIconImage());
     }
 
     this.textAreaBorder = new BasicBorders.MarginBorder() {
@@ -271,7 +276,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
       }
       private String systemProperties() {
         final StringBuilder buffer = new StringBuilder();
-        //FIXME most of this logic should be in FileManager
+        //TODO most of this logic should be in FileManager
         // check WNHOME (env and System Property)
         // check WNSEARCHDIR (env and System Property)
         buffer.append("<br> ");
@@ -306,7 +311,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
         });
         // JLabel text cannot be selected with the mouse, so we use JEditorPane
         // format with table mainly so copy + paste will include newlines between rows
-        // FIXME increase white space/padding around the edges
+        // TODO increase white space/padding around the edges
         final JEditorPane info = new JEditorPane("text/html",
             "<table cellpadding=\"1\">" +
             "<tr><td>"+
@@ -412,19 +417,37 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     browserPanel.debug();
   }
 
-  //move to Application
+  // TODO move to Application
   private static ImageIcon APP_ICON;
+
+  // TODO move to Application
+  private static Image APP_IMAGE;
 
   private static ImageIcon getAppIcon() {
     if (APP_ICON == null) {
       try {
-        //APP_ICON = new ImageIcon(Browser.class.getResource("yawni_57x64_icon.png"));
-        APP_ICON = new ImageIcon(Browser.class.getResource("yawni_115x128_icon.png"));
+        //var resource = Browser.class.getResource("yawni_57x64_icon.png")
+        final URL resource = Browser.class.getResource("yawni_115x128_icon.png");
+        APP_ICON = new ImageIcon(requireNonNull(resource));
       } catch (NullPointerException npe) {
         log.warn("can't find icon", npe);
       }
     }
     return APP_ICON;
+  }
+
+  private static Image getAppIconImage() {
+    if (APP_IMAGE == null) {
+//      var imageName = "yawni_57x64_icon.png";
+      final String imageName = "yawni_115x128_icon.png";
+      try {
+        final URL resource = Browser.class.getResource(imageName);
+        APP_IMAGE = Toolkit.getDefaultToolkit().getImage(resource);
+      } catch (NullPointerException npe) {
+        log.warn("can't find image {}", imageName, npe);
+      }
+    }
+    return APP_IMAGE;
   }
 
   private static final Vector<Browser> BROWSERS = new Vector<>();
@@ -618,6 +641,14 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
       System.setProperty("apple.awt.brushMetalLook", "true");
       System.setProperty("apple.awt.brushMetalRounded", "true");
       System.setProperty("apple.awt.showGrowBox", "false");
+
+      // courtesy https://stackoverflow.com/a/63742948/689119
+      //
+      final String name = Application.getInstance().getName() + " Browser";
+      System.setProperty("apple.awt.application.name", name);
+
+      // doesn't seem to work
+      System.setProperty("com.apple.mrj.application.apple.menu.about.name", name);
     } catch (AccessControlException ace) {
       log.warn("can't set system properties :(", ace);
     }
@@ -647,7 +678,7 @@ class Browser extends JFrame implements Thread.UncaughtExceptionHandler {
     SwingUtilities.invokeLater(() -> {
       newWindow();
       final long guiLoadDone = System.currentTimeMillis();
-      System.err.println("guiLoadTime: "+(guiLoadDone - start)+"ms");
+      System.err.printf("guiLoadTime: %,d ms\n", guiLoadDone - start);
     });
   }
 }

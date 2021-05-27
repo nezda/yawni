@@ -3,7 +3,6 @@
 ## Introduction / Why Yawni and Why WordNet ?
 <img alt="Yawning!" align="right" src=".assets/yawni-logo.png">
 
-
 Yawni is an API to Princeton University's [WordNet®](https://wordnet.princeton.edu/).  WordNet is a graph; it is a potentially 
 invaluable resource for injecting knowledge into applications.  WordNet is
 probably the single most used NLP resource ; many companies have it as their

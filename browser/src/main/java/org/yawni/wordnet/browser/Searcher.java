@@ -59,10 +59,10 @@ import org.yawni.wordnet.RelationType;
  *   VerbSynsets
  *     VerbSynset
  *     VerbWordSense
- *   AjectiveSynsets
- *     AjectiveSynset
+ *   AdjectiveSynsets
+ *     AdjectiveSynset
  *     AdjectiveSatelliteSynset
- *     AjectiveWordSense
+ *     AdjectiveWordSense
  *     AdjectiveSatelliteWordSense
  *   AdverbSynsets
  *     AdverbSynset

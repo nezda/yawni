@@ -689,12 +689,12 @@ everything
 (:notabs:)
     + created Yawni pledgie campaign: https://pledgie.com/campaigns/7717
     + tag lines
-      1. Object-oriented API to the WordNet database of lexical relationships
+      1. Object-oriented API to the WordNet database of lexical and semantic relationships
       2. The commercial-grade WordNet Java API.
       3. The exciting, commercial-grade WordNet API.
     - descriptions
-      1. Yawni is a pure Java standalone object-oriented interface to the WordNet database of lexical relationships. This is the project formerly known as "JWordNet".
-      2. Yawni is a pure Java object-oriented interface to the WordNet database of lexical relationships. This is the project formerly known as "JWordNet".
+      1. Yawni is a pure Java standalone object-oriented interface to the WordNet database of lexical and semantic relationships. This is the project formerly known as "JWordNet".
+      2. Yawni is a pure Java object-oriented interface to the WordNet database of lexical and semantic relationships. This is the project formerly known as "JWordNet".
     - fix page <title>: currently 'Yawni Main/Home Page'
       Yawni / Home
     - make favicon

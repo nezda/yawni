@@ -28,6 +28,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.prefs.*;
 
+//import com.google.common.collect.Iterables;
+//import humanize.Humanize;
+//import humanize.ICUHumanize;
+
 // TODO add Meta + F everywhere we have "slash"
 class SearchFrame extends JDialog {
   private static final Preferences prefs = Preferences.userNodeForPackage(SearchFrame.class).node(SearchFrame.class.getSimpleName());
@@ -251,6 +255,8 @@ class SearchFrame extends JDialog {
       @Override
       public void searchDone(final String query, final int numHits) {
         if (numHits != 0) {
+//          System.err.printf("%s %s %s hits fpr [%s]\n",
+//              asCompactDecimal(numHits), searchType, pos.getLabel(), query);
           if (numHits != 1) {
             //updateStatusBar(Status.SUMMARY, numHits, searchType, pos);
             updateStatusBar(Status.SUMMARY, numHits);
@@ -283,20 +289,15 @@ class SearchFrame extends JDialog {
       }
       final int index = resultList.getSelectedIndex();
       final String lemma = searchListModel.getElementAt(index);
-      Word word;
+      Word word = null;
       if (pos != POS.ALL) {
         word = browserPanel.wordNet().lookupWord(lemma, pos);
       } else {
         // do lookup for all POS and return first hit
-        word = browserPanel.wordNet().lookupWord(lemma, POS.NOUN);
-        if (word == null) {
-          word = browserPanel.wordNet().lookupWord(lemma, POS.VERB);
-        }
-        if (word == null) {
-          word = browserPanel.wordNet().lookupWord(lemma, POS.ADJ);
-        }
-        if (word == null) {
-          word = browserPanel.wordNet().lookupWord(lemma, POS.ADV);
+        for (POS pos : POS.values()) {
+          if (word == null) {
+            word = browserPanel.wordNet().lookupWord(lemma, pos);
+          }
         }
       }
       if (word == null) {
@@ -576,4 +577,9 @@ class SearchFrame extends JDialog {
     //FIXME return searchField.getText().replaceAll("\\s+", " ");
     return searchField.getText();
   }
+
+//  static String asCompactDecimal(int num) {
+////    return Humanize.format("{compactDecimal}", num); // TODO requires SPI
+//    return ICUHumanize.compactDecimal(num);
+//  }
 }

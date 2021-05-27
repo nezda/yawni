@@ -26,6 +26,9 @@ import org.yawni.wordnet.RelationType;
 import org.yawni.wordnet.Synset;
 import org.yawni.wordnet.Word;
 import org.yawni.wordnet.WordSense;
+
+import static java.util.Objects.requireNonNull;
+import static javax.swing.KeyStroke.getKeyStroke;
 import static org.yawni.wordnet.RelationType.*;
 
 import org.slf4j.Logger;
@@ -47,29 +50,10 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.undo.CannotRedoException;
@@ -267,10 +251,13 @@ public class BrowserPanel extends JPanel {
     };
 
     // zoom support
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), resultEditorPane.biggerFont);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.biggerFont);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), resultEditorPane.smallerFont);
-    this.searchField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.smallerFont);
+    final InputMap zoomInput = this.searchField.getInputMap();
+    zoomInput.put(getKeyStroke(KeyEvent.VK_EQUALS, 0), resultEditorPane.biggerFont);
+    zoomInput.put(getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), resultEditorPane.biggerFont);
+    zoomInput.put(getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.biggerFont);
+    zoomInput.put(getKeyStroke(KeyEvent.VK_MINUS, 0), resultEditorPane.smallerFont);
+    zoomInput.put(getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), resultEditorPane.smallerFont);
+    zoomInput.put(getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), resultEditorPane.smallerFont);
 
     final String[] extraKeys = new String[] {
       "pressed",
@@ -279,29 +266,31 @@ public class BrowserPanel extends JPanel {
       "shift meta",
     };
     for (final String extraKey : extraKeys) {
-      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " UP"), scrollUp);
-      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " UP"), scrollUp);
+      zoomInput.put(getKeyStroke(extraKey + " UP"), scrollUp);
+      this.resultEditorPane.getInputMap().put(getKeyStroke(extraKey + " UP"), scrollUp);
 
-      this.searchField.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " DOWN"), scrollDown);
-      this.resultEditorPane.getInputMap().put(KeyStroke.getKeyStroke(extraKey + " DOWN"), scrollDown);
+      zoomInput.put(getKeyStroke(extraKey + " DOWN"), scrollDown);
+      this.resultEditorPane.getInputMap().put(getKeyStroke(extraKey + " DOWN"), scrollDown);
 
       for (final RelationTypeComboBox comboBox : this.posBoxes.values()) {
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey + " UP"), "scrollUp");
-        comboBox.getActionMap().put("scrollUp", scrollUp);
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(extraKey + " DOWN"), "scrollDown");
-        comboBox.getActionMap().put("scrollDown", scrollDown);
+        final InputMap focusAncestorInputMap = comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        final ActionMap actionMap = comboBox.getActionMap();
+        focusAncestorInputMap.put(getKeyStroke(extraKey + " UP"), "scrollUp");
+        actionMap.put("scrollUp", scrollUp);
+        focusAncestorInputMap.put(getKeyStroke(extraKey + " DOWN"), "scrollDown");
+        actionMap.put("scrollDown", scrollDown);
 
         // yea these don't use extraKey
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), "bigger");
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), "bigger");
-        comboBox.getActionMap().put("bigger", resultEditorPane.biggerFont);
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), "smaller");
-        comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), "smaller");
-        comboBox.getActionMap().put("smaller", resultEditorPane.smallerFont);
+        focusAncestorInputMap.put(getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK), "bigger");
+        focusAncestorInputMap.put(getKeyStroke(KeyEvent.VK_EQUALS, MENU_MASK | InputEvent.SHIFT_MASK), "bigger");
+        actionMap.put("bigger", resultEditorPane.biggerFont);
+        focusAncestorInputMap.put(getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK), "smaller");
+        focusAncestorInputMap.put(getKeyStroke(KeyEvent.VK_MINUS, MENU_MASK | InputEvent.SHIFT_MASK), "smaller");
+        actionMap.put("smaller", resultEditorPane.smallerFont);
       }
     }
     // search keyboard support
-    jsp.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+    jsp.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
     jsp.getActionMap().put("Slash", slashAction);
     jsp.getVerticalScrollBar().setFocusable(false);
     jsp.getHorizontalScrollBar().setFocusable(false);
@@ -323,8 +312,9 @@ public class BrowserPanel extends JPanel {
     preload();
   }
 
-  private static Icon createUndoIcon() {
-    final ImageIcon icon = new ImageIcon(BrowserPanel.class.getResource("Undo.png"));
+  private static Icon createIcon(String resourceName) {
+    final ImageIcon icon = new ImageIcon(
+        requireNonNull(BrowserPanel.class.getResource(resourceName)));
     assert icon.getImageLoadStatus() == MediaTracker.COMPLETE;
     assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
     final int height = 18;
@@ -333,14 +323,12 @@ public class BrowserPanel extends JPanel {
     return new ImageIcon(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
   }
 
+  private static Icon createUndoIcon() {
+    return createIcon("Undo.png");
+  }
+
   private static Icon createRedoIcon() {
-    final ImageIcon icon = new ImageIcon(BrowserPanel.class.getResource("Redo.png"));
-    assert icon.getImageLoadStatus() == MediaTracker.COMPLETE;
-    assert icon.getIconWidth() > 0 && icon.getIconHeight() > 0;
-    final int height = 18;
-    final int width = -1; // maintains aspect ratio
-    final Image img = icon.getImage();
-    return new ImageIcon(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
+    return createIcon("Redo.png");
   }
 
   static ImageIcon createFindIcon(final int dimension) {
@@ -367,15 +355,15 @@ public class BrowserPanel extends JPanel {
     //TODO move this stuff UndoAction / RedoAction
     //XXX item.setIcon(browser.BLANK_ICON);
     // Command+Z and Ctrl+Z undo on OS X, Windows
-    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, MENU_MASK));
+    item.setAccelerator(getKeyStroke(KeyEvent.VK_Z, MENU_MASK));
     item = fileMenu.add(redoAction);
     //XXX item.setIcon(browser.BLANK_ICON);
     // http://sketchup.google.com/support/bin/answer.py?hl=en&answer=70151
     // redo is Shift+Command+Z on OS X, Ctrl+Y on Windows (and everything else)
     if (MENU_MASK != java.awt.event.InputEvent.META_MASK) {
-      item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, MENU_MASK));
+      item.setAccelerator(getKeyStroke(KeyEvent.VK_Y, MENU_MASK));
     } else {
-      item.setAccelerator(KeyStroke.getKeyStroke(
+      item.setAccelerator(getKeyStroke(
         KeyEvent.VK_Z,
         MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
     }
@@ -623,7 +611,8 @@ public class BrowserPanel extends JPanel {
     final EnumMap<POS, RelationTypeComboBox> newPOSBoxes = new EnumMap<>(POS.class);
     for (final POS pos : POS.CATS) {
       final RelationTypeComboBox comboBox = new RelationTypeComboBox(pos);
-      comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
+      comboBox.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+          getKeyStroke(KeyEvent.VK_SLASH, 0, false), "Slash");
       comboBox.getActionMap().put("Slash", slashAction);
       newPOSBoxes.put(pos, comboBox);
       comboBox.setEnabled(false);
