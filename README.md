@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/nezda/yawni/workflows/Java%20CI/badge.svg?branch=master)](https://github.com/nezda/yawni/actions)
+[![Build Status](https://github.com/nezda/yawni/workflows/Java%20CI/badge.svg?branch=main)](https://github.com/nezda/yawni/actions)
 
 ## Introduction / Why Yawni and Why WordNet ?
 <img alt="Yawning!" align="right" src=".assets/yawni-logo.png">
@@ -15,15 +15,15 @@ The Yawni website is <https://www.yawni.org/>
 
 Yawni currently consists of 3 main modules:
 
-[`api/`](https://github.com/nezda/yawni/tree/master/api)
+[`api/`](https://github.com/nezda/yawni/tree/main/api)
   Yawni WordNet API: a pure Java standalone object-oriented interface to the WordNet
   database of lexical and semantic relationships.
 
-[`data*/`](https://github.com/nezda/yawni/tree/master/data30)
+[`data*/`](https://github.com/nezda/yawni/tree/main/data30)
   Yawni WordNet Data: Jar file containing the Princeton WordNet 3.0 data files, and derivative files to support efficient,
   exhaustive access to this information.
 
-[`browser/`](https://github.com/nezda/yawni/tree/master/browser)
+[`browser/`](https://github.com/nezda/yawni/tree/main/browser)
   Yawni WordNet Browser: A GUI browser of WordNet content using the Yawni API.
 
 ## 🚀 Quick Start
@@ -53,8 +53,8 @@ Yawni currently consists of 3 main modules:
     ```
 
    Numerous unit tests that serve as great executable examples are included 
-   in [`api/src/test/java/org/yawni/`](https://github.com/nezda/yawni/tree/master/api/src/test/java/org/yawni/).  For a more complex example application, check 
-   out the [`browser/`](https://github.com/nezda/yawni/tree/master/browser) sub-module.
+   in [`api/src/test/java/org/yawni/`](https://github.com/nezda/yawni/tree/main/api/src/test/java/org/yawni/).  For a more complex example application, check 
+   out the [`browser/`](https://github.com/nezda/yawni/tree/main/browser) sub-module.
      
 ## Yet Another WordNet Interface !? (get it?)
 
