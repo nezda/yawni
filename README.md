@@ -15,21 +15,21 @@ The Yawni website is <https://www.yawni.org/>
 
 Yawni currently consists of 3 main modules:
 
-[`api/`](https://github.com/nezda/yawni/tree/main/api)
+* [`api/`](https://github.com/nezda/yawni/tree/main/api)
   Yawni WordNet API: a pure Java standalone object-oriented interface to the WordNet
   database of lexical and semantic relationships.
 
-[`data*/`](https://github.com/nezda/yawni/tree/main/data30)
+* [`data*/`](https://github.com/nezda/yawni/tree/main/data30)
   Yawni WordNet Data: Jar file containing the Princeton WordNet 3.0 data files, and derivative files to support efficient,
   exhaustive access to this information.
 
-[`browser/`](https://github.com/nezda/yawni/tree/main/browser)
+* [`browser/`](https://github.com/nezda/yawni/tree/main/browser)
   Yawni WordNet Browser: A GUI browser of WordNet content using the Yawni API.
 
 ## 🚀 Quick Start
 
 ### Basic steps 👣
-0. Install JDK 11 (or greater), Apache Maven 3.0.3 (or greater)
+0. Install JDK 8 (or greater), Apache Maven 3.0.3 (or greater)
 1. Specify the following Apache Maven dependencies in your project
     
     ```xml
@@ -73,21 +73,22 @@ Here are 8 of the Java APIs, along with their URL and software license.
 - JWNL (Java WordNet Library) ; <http://sourceforge.net/projects/jwordnet/>; BSD
 - extJWNL (Extended Java WordNet Library) ; <http://sourceforge.net/projects/extjwnl/>; BSD
 
-Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Steele's original JWordNet. In fact, **Yawni** *is* the new name of that original Java WordNet, JWordNet.
+Many of the pure Java ones (like Yawni), are actually derivatives of [Oliver Steele](https://osteele.com/) 's original JWordNet. In fact, **Yawni** *is* the _“new”_ name of that original Java WordNet, JWordNet.
 
 # Why Yawni ?
 - commercial-grade implementation
   - 🚀 very fast & small memory footprint 👣
-  - pure Java ☕ so compatible with any JVM language! Scala, Clojure, Kotlin, …
+  - pure Java ☕ so it’s compatible with any JVM language! Scala, Clojure, Kotlin, …
   - facilitates access to all aspects of WordNet data and algorithms including "Morphy" morphological processing (i.e., lemmatization, i.e., stemming) routines
   - simple, intuitive, and well documented 📚 API
   - all required resources load from jars by default making deployment a snap 💥
-  - all query results are immutable 🔒; safely cached and/or accessed by concurrent threads
+  - all query results are immutable 🔒; safe for used in caches and/or accessed by concurrent threads
   - easy Apache Maven-based build with minimal dependencies
   - extensive unit tests 🧪 provide peace of mind (and great examples!)
 - includes refined GUI browser featuring
   - user-friendly 😊 🎛 🔍 & snappy 🚀
   - incremental find 🔍 (Ctrl+Shift+F / ⌘ ⇧ F)
+  - no limits on search: Never see “Search too large. Narrow search and try again...” again!  
   - comprehensive keyboard navigation ⌨ 🧭 support (arrows ⇦ ⇨ ⇧ ⇩, tab ↹, etc.)
   - multi-window 🪟🪟 support (Ctrl+N / ⌘ N)
   - cross-platform 🔀 including zero-install Java Web Start version
@@ -105,7 +106,7 @@ Many of the pure Java ones (like Yawni), are actually derivatives of Oliver Stee
 - Implemented `Morphy` stemming / lemmatization algorithms
 - Completely rewritten GUI browser in Java Swing featuring
   - incremental find
-  - no limits on search (Never see "Search too large.  Narrow search and try again..." again!)
+  - no limits on search: Never see “Search too large. Narrow search and try again...” again!
 - Support for WordNet 3.0 data files (and all older formats)
 - Support for numerous optional and extended WordNet resources
   - 'sense tagged frequencies' (`WordSense.getSensesTaggedFrequency()`)
