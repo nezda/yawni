@@ -7,8 +7,8 @@
     <version>2.0.0-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
-  <artifactId>yawni-wordnet-rest</artifactId>
-  <name>Yawni Online REST</name>
+  <artifactId>yawni-wordnet-rest-scala</artifactId>
+  <name>Yawni Online REST Scala</name>
   <packaging>war</packaging>
   <properties>
     <scala.major-minor-version>2.12</scala.major-minor-version>

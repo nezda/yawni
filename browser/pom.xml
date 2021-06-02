@@ -45,9 +45,12 @@
           <!-- appassembler bug: no way to do: -Xdock:name="Foo Browser" -->
           <!-- TODO consider just making a shaded "executable jar" -->
           <extraJvmArguments>-Xdock:name=Yawni -Dfile.encoding=US-ASCII -ea -Dswing.aatext=true -Dawt.useSystemAAFontSettings=on -Dapple.awt.textantialiasing=on -Dapple.laf.useScreenMenuBar=true -Dapple.awt.brushMetalLook=true -Dapple.awt.brushMetalRounded=true -Dapple.awt.showGrowBox=false</extraJvmArguments>
+          <assembleDirectory>${project.build.directory}/binary</assembleDirectory>
+          <repositoryLayout>flat</repositoryLayout>
+          <repositoryName>lib</repositoryName>
           <programs>
             <program>
-              <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
+              <mainClass>${app.main.class}</mainClass>
               <name>browser</name>
             </program>
           </programs>
@@ -74,20 +77,6 @@
       -->
     </plugins>
   </build>
-  <!-- <scm> -->
-    <!--
-    <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</connection>
-    <developerConnection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</developerConnection>
-    -->
-    <!--
-    <connection>scm:svn:file:///Users/nezda/code/svn/jwordnet</connection>
-    <developerConnection>scm:svn:file:///Users/nezda/code/svn/jwordnet</developerConnection>
-    -->
-    <!--
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</connection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</url>
-    -->
-  <!-- </scm> -->
   <dependencies>
     <dependency>
       <groupId>org.yawni</groupId>
@@ -154,7 +143,7 @@
                     <!--
                     for commandline usage
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
+                      <mainClass>${app.main.class}</mainClass>
                     </transformer>
                     -->
                   </transformers>
@@ -167,7 +156,7 @@
     </profile>
     <!-- 
     odd behavior: even though this is also in parent/pom, if this is deleted, parts of shaded jar artifact will not
-    be signed renderering it useless:
+    be signed rendering it useless:
     mvn -Dmaven.test.skip=true -PuseLog4j,makeShadedJar,makeSignedJar clean package
     jarsigner -verify -verbose target/signed/yawni-wordnet-browser-2.0.0-SNAPSHOT.jar
     -->
@@ -188,7 +177,7 @@
                 <!-- <compress>false</compress> -->
                 <index>true</index>
                 <manifest>
-                  <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
+                  <mainClass>${app.main.class}</mainClass>
                 </manifest>
                 <manifestEntries>
                   <Application-Name>Yawni WordNet Browser</Application-Name>

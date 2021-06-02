@@ -73,37 +73,7 @@
       </activation>
     </profile>
   </profiles>
-  <!-- <scm> -->
-    <!--
-    <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</connection>
-    <developerConnection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni</developerConnection>
-    -->
-    <!--
-    <connection>scm:svn:file:///Users/nezda/code/svn/jwordnet</connection>
-    <developerConnection>scm:svn:file:///Users/nezda/code/svn/jwordnet</developerConnection>
-    -->
-    <!--
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</connection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/trunk</url>
-    -->
-  <!-- </scm> -->
-  <!-- repo for apiviz -->
-  <!--
-  <repositories>
-    <repository>
-      <id>jboss.releases</id>
-      <name>JBoss releases</name>
-      <url>http://repository.jboss.org/maven2</url>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
-  -->
-  
+
   <dependencies>
     <dependency>
       <groupId>com.google.guava</groupId>

@@ -37,6 +37,8 @@
     <developer>
       <id>nezda</id>
       <name>Luke Nezda</name>
+      <organization>Yawni</organization>
+      <organizationUrl>https://www.yawni.org/</organizationUrl>
       <email>lnezda -at- gmail.com</email>
       <url>https://www.fatbread.com/</url>
       <roles>
@@ -48,7 +50,7 @@
       <id>mihai</id>
       <name>Dr. Mihai Surdeanu</name>
       <email>mihai -at- surdeanu.name</email>
-      <url>https://www.surdeanu.name/mihai</url>
+      <url>https://surdeanu.info/mihai/</url>
       <roles>
         <role>2.0 Developer</role>
       </roles>
@@ -76,12 +78,15 @@
     <url>https://www.apache.org/</url>
   </organization>
   <properties>
+    <java.version>1.8</java.version>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4jVersion>1.7.30</slf4jVersion>
     <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
     <junit-jupiter.version>5.6.2</junit-jupiter.version>
     <default-wordnet-data-version>yawni-wordnet-data30</default-wordnet-data-version>
+    <app.main.class>org.yawni.wordnet.browser.Browser</app.main.class>
+    <app.distribution.directory>${project.build.directory}/distributions/app</app.distribution.directory>
   </properties>
   <!-- specify dependency versions -->
   <dependencyManagement>
@@ -535,7 +540,7 @@
                 <!-- <compress>false</compress> -->
                 <index>true</index>
                 <manifest>
-                  <mainClass>org.yawni.wordnet.browser.Browser</mainClass>
+                  <mainClass>${app.main.class}</mainClass>
                 </manifest>
                 <manifestEntries>
                   <Permissions>sandbox</Permissions>

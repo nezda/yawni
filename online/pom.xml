@@ -17,8 +17,8 @@
     <scala-maven-plugin.version>4.5.1</scala-maven-plugin.version>
     <!-- for appengine -->
     <appengine-sdk-version>1.9.75</appengine-sdk-version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>{java.version}</maven.compiler.source>
+    <maven.compiler.target>{java.version}</maven.compiler.target>
   </properties>
   <dependencies>
     <dependency>

@@ -19,19 +19,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
-  </parent>
   <groupId>org.yawni</groupId>
   <artifactId>yawni</artifactId>
   <name>Yawni</name>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:git:git://yawni.git.sourceforge.net/gitroot/yawni/yawni</connection>
-    <developerConnection>scm:git:ssh://yawni.git.sourceforge.net/gitroot/yawni/yawni</developerConnection>
-    <url>https://yawni.git.sourceforge.net/git/gitweb.cgi?p=yawni/yawni;a=tree;f=yawni</url>
+    <connection>scm:git:https://github.com/nezda/yawni.git</connection>
+    <developerConnection>scm:git:git@github.com:nezda/yawni.git</developerConnection>
+    <url>https://github.com/nezda/yawni.git</url>
   </scm>
   <modules>
     <module>parent</module>

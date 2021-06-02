@@ -320,7 +320,7 @@ everything
       ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update online/target/yawni-wordnet-online-2.0.0-SNAPSHOT
       can tweak GAE "version" in WEB-INF/appengine-web.xml ; previous versions remain available and web accessisble! e.g., https://5.latest.yawni-online.appspot.com/rest.html
 
-      ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update rest/target/yawni-wordnet-rest-2.0.0-SNAPSHOT
+      ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update rest/target/yawni-wordnet-rest-scala-2.0.0-SNAPSHOT
   - online version features
     - autocomplete
       - show 'hint' text : conflicts with "default focus" behavior :/
