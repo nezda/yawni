@@ -25,7 +25,7 @@ import java.util.prefs.*;
 
 public class PreferencesManagerTest {
   /**
-   * Normally <code>ignore</code> this test so we don't clear the user preferences
+   * Normally {@code ignore} this test so we don't clear the user preferences
    * every time we run this test.
    */
   @Ignore
