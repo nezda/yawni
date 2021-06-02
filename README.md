@@ -3,12 +3,8 @@
 ## Introduction / Why Yawni and Why WordNet ?
 <img alt="Yawning!" align="right" src=".assets/yawni-logo.png">
 
-Yawni is an API to Princeton University's [WordNet®](https://wordnet.princeton.edu/).  WordNet is a graph; it is a potentially 
-invaluable resource for injecting knowledge into applications.  WordNet is
-probably the single most used NLP resource ; many companies have it as their
-cornerstone.  It embodies one of the most fundamental of all NLP problems:
-["word-sense disambiguation"](https://en.wikipedia.org/wiki/Word-sense_disambiguation).  The Yawni code library can be used to add lexical
-and semantic knowledge, primarily derived from WordNet, to your applications.  
+Yawni is an <abbr title="Application Programming Interface">API</abbr> to Princeton University's [WordNet®](https://wordnet.princeton.edu/). WordNet is a graph; it is a potentially invaluable resource for injecting knowledge into applications. WordNet is probably the single most used <abbr title="Natural Language Processing">NLP</abbr> resource ; many companies have it as their cornerstone.  It embodies one of the most fundamental of all NLP problems: ["word-sense disambiguation"](https://en.wikipedia.org/wiki/Word-sense_disambiguation). The Yawni code library can be used to add lexical and semantic knowledge, primarily derived from WordNet, to your applications.
+
 Yawni is written in the Java programming language.  
 
 The Yawni website is <https://www.yawni.org/>
@@ -32,7 +28,7 @@ Yawni currently consists of 3 main modules:
 0. Install JDK 8 (or greater), Apache Maven 3.0.3 (or greater)
 1. Specify the following Apache Maven dependencies in your project
     
-    ```xml
+```xml
     <dependency>
       <groupId>org.yawni</groupId>
       <artifactId>yawni-wordnet-api</artifactId>
@@ -43,35 +39,34 @@ Yawni currently consists of 3 main modules:
       <artifactId>yawni-wordnet-data30</artifactId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
-    ```
+```
     
-2. Start using the Yawni API!: all required resources are loaded on demand
+2. Start using the Yawni API!: all required resources are loaded on demand 
      from the classpath (i.e., jars) made accessible via a singleton:
      
-    ```java
-    final WordNetInterface wn = WordNet.getInstance();
-    ```
+```java
+    WordNetInterface wn = WordNet.getInstance();
+```
 
    Numerous unit tests that serve as great executable examples are included 
    in [`api/src/test/java/org/yawni/`](https://github.com/nezda/yawni/tree/main/api/src/test/java/org/yawni/).  For a more complex example application, check 
    out the [`browser/`](https://github.com/nezda/yawni/tree/main/browser) sub-module.
      
-## Yet Another WordNet Interface !? (get it?)
+## <ins>Y</ins>et <ins>A</ins>nother <ins>W</ins>ord<ins>N</ins>et <ins>I</ins>nterface !?
 
 WordNet consists of enough data to exceed the recommended capacity of Java Collections 
 (e.g., `java.util.SortedMap<String, X>`), but not enough to justify a full relational database.
 
 There are a lot of Java interfaces to WordNet already.
 Here are 8 of the Java APIs, along with their URL and software license.
-- Stanford NLP WordNet <https://nlp.stanford.edu/nlp/javadoc/wn/doc/> ; [“Academic User”](https://nlp.stanford.edu/nlp/javadoc/wn/LICENSE)
-- Java WordNet Library <http://www.cis.upenn.edu/~dbikel/software.html#wn> academic license
-- JAWS (Java API for WordNet Searching) <http://lyle.smu.edu/~tspell/jaws/index.html>; non-profit
-- Jawbone ; <http://sites.google.com/site/mfwallace/jawbone>; MIT license
-- JWI (MIT Java Wordnet Interface) ; <http://projects.csail.mit.edu/jwi/>; non-commercial license
-- Java WordNet Interface (javawn) <http://sourceforge.net/projects/javawn/>; GPL 2.0
+- Dr. Dan Bikel / Stanford NLP WordNet <https://nlp.stanford.edu/nlp/javadoc/wn/doc/> ; [“Academic User”](https://nlp.stanford.edu/nlp/javadoc/wn/LICENSE)
+- JAWS (Java API for WordNet Searching) <https://github.com/jaytaylor/jaws>; BSD-2-Clause License
+- Jawbone ; <https://sites.google.com/site/mfwallace/jawbone>; MIT license
+- JWI (MIT Java Wordnet Interface) ; <https://projects.csail.mit.edu/jwi/>; non-commercial license
+- Java WordNet Interface (javawn) <https://sourceforge.net/projects/javawn/>; GPL 2.0
 - WordNet JNI Java Native Support (WNJN) ; <http://wnjn.sourceforge.net/> ; GPL 2.0
-- JWNL (Java WordNet Library) ; <http://sourceforge.net/projects/jwordnet/>; BSD
-- extJWNL (Extended Java WordNet Library) ; <http://sourceforge.net/projects/extjwnl/>; BSD
+- JWNL (Java WordNet Library) ; <https://sourceforge.net/projects/jwordnet/>; BSD
+- extJWNL (Extended Java WordNet Library) ; <https://sourceforge.net/projects/extjwnl/>; BSD
 
 Many of the pure Java ones (like Yawni), are actually derivatives of [Oliver Steele](https://osteele.com/) 's original JWordNet. In fact, **Yawni** *is* the _“new”_ name of that original Java WordNet, JWordNet.
 
