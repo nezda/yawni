@@ -17,8 +17,10 @@
 package org.yawni.wordnet;
 
 import com.google.common.base.Stopwatch;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.hamcrest.MatcherAssert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.yawni.wordnet.HasLemma.*;
 
 import java.lang.management.ManagementFactory;
@@ -29,6 +31,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.yawni.util.Utils;
 import static org.yawni.util.Utils.first;
 import static com.google.common.collect.Iterables.transform;
@@ -157,19 +163,19 @@ public class IterationTest {
     //   + assert containsLemma(Iterable<Word> matches)
     final Iterable<Word> firstWord = WN.searchByPrefix("'hood", POS.NOUN);
     final Word first = first(firstWord);
-    assertThat("'hood", isLemmaOf(first));
+    MatcherAssert.assertThat("'hood", isLemmaOf(first));
     final Iterable<Word> firstWordPrefix = WN.searchByPrefix("'hoo", POS.NOUN);
     final Word firstPrefix = first(firstWordPrefix);
-    assertThat("'hood", isLemmaOf(firstPrefix));
+    MatcherAssert.assertThat("'hood", isLemmaOf(firstPrefix));
     final Iterable<Word> preFirstWord = WN.searchByPrefix("''", POS.NOUN);
     assertTrue(isEmpty(preFirstWord));
 
     final Iterable<Word> lastWord = WN.searchByPrefix("zyrian", POS.NOUN);
     final Word last = first(lastWord);
-    assertThat("zyrian", isLemmaOf(last));
+    MatcherAssert.assertThat("zyrian", isLemmaOf(last));
     final Iterable<Word> lastWordPrefix = WN.searchByPrefix("zyria", POS.NOUN);
     final Word lastPrefix = first(lastWordPrefix);
-    assertThat("zyrian", isLemmaOf(lastPrefix));
+    MatcherAssert.assertThat("zyrian", isLemmaOf(lastPrefix));
     final Iterable<Word> postLastWordPrefix = WN.searchByPrefix("zz", POS.NOUN);
     assertTrue(isEmpty(postLastWordPrefix));
 
@@ -310,7 +316,7 @@ public class IterationTest {
     // line), and g CTRL-g will report "Byte n of m" -- n is a 1 based file
     // offset - Word offsets are zero based so you would expect n-1
     assertEquals(1740, first.getOffset());
-    assertThat("'hood", isLemmaOf(first));
+    MatcherAssert.assertThat("'hood", isLemmaOf(first));
     Word last = null;
     for (final Word word : nounIndexWords) {
       last = word;
@@ -321,7 +327,7 @@ public class IterationTest {
       case WN21: assertEquals(4751460, last.getOffset()); break;
       case WN20: assertEquals(4637479, last.getOffset()); break;
     }
-    assertThat("zyrian", isLemmaOf(last));
+    MatcherAssert.assertThat("zyrian", isLemmaOf(last));
 
     assertEquals(first, first(nounIndexWords));
     // IF iteration used caching, this might or might not be the case
