@@ -12,7 +12,7 @@
   <packaging>war</packaging>
   <properties>
     <scala.major-minor-version>2.12</scala.major-minor-version>
-    <scala.version>${scala.major-minor-version}.10</scala.version>
+    <scala.version>${scala.major-minor-version}.15</scala.version>
     <lift.version>3.3.0</lift.version>
     <scala-maven-plugin.version>4.5.1</scala-maven-plugin.version>
     <!-- for appengine -->
@@ -118,8 +118,6 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src/main/scala</sourceDirectory>
-    <testSourceDirectory>src/test/scala</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>net.alchim31.maven</groupId>

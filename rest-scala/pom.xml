@@ -12,8 +12,8 @@
   <packaging>war</packaging>
   <properties>
     <scala.major-minor-version>2.12</scala.major-minor-version>
-    <scala.version>${scala.major-minor-version}.10</scala.version>
-    <scala-maven-plugin.version>4.5.1</scala-maven-plugin.version>
+    <scala.version>${scala.major-minor-version}.15</scala.version>
+    <scala-maven-plugin.version>4.6.1</scala-maven-plugin.version>
   </properties>
   <!--
   <repositories>
@@ -108,8 +108,6 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src/main/scala</sourceDirectory>
-    <testSourceDirectory>src/test/scala</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>net.alchim31.maven</groupId>

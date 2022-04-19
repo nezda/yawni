@@ -58,7 +58,7 @@
     <developer>
       <id>osteele</id>
       <name>Oliver Steele</name>
-      <email>osteele -at- sourceforget.net</email>
+      <email>osteele -at- sourceforge.net</email>
       <url>https://www.osteele.com/</url>
       <roles>
         <role>1.0 Architect</role>
@@ -83,7 +83,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4jVersion>1.7.30</slf4jVersion>
     <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
-    <junit-jupiter.version>5.6.2</junit-jupiter.version>
+    <junit-jupiter.version>5.8.2</junit-jupiter.version>
     <default-wordnet-data-version>yawni-wordnet-data30</default-wordnet-data-version>
     <app.main.class>org.yawni.wordnet.browser.Browser</app.main.class>
     <app.distribution.directory>${project.build.directory}/distributions/app</app.distribution.directory>
@@ -292,7 +292,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.0.0-M2</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -599,7 +599,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.1</version>
+            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
