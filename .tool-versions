@@ -1,0 +1,4 @@
+maven 3.8.1
+java adoptopenjdk-8.0.322+6
+sbt 1.2.7
+scala 2.12.15
