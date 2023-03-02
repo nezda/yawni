@@ -1,6 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: maven
-    directory: "/"
+    directory: '/'
     schedule:
-      interval: daily
+      interval: 'daily'
+    assignees:
+      - 'nezda'
