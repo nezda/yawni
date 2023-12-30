@@ -12,7 +12,7 @@ object RunWebApp extends App {
   context.setServer(server)
   context.setContextPath("/")
   //FIXME hardcoded path
-  context.setWar("target/yawni-wordnet-online-2.0.0-SNAPSHOT")
+  context.setWar("online/target/yawni-wordnet-online-2.0.0-SNAPSHOT")
 
   server.setHandler(context)
 
