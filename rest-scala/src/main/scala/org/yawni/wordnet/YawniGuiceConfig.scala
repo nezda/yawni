@@ -14,7 +14,7 @@ import com.sun.jersey.api.core.ResourceConfig
 class YawniGuiceConfig extends GuiceServletContextListener {
   override
   protected def getInjector(): Injector = {
-    return Guice.createInjector(new JerseyServletModule() {
+    Guice.createInjector(new JerseyServletModule() {
       override
       protected def configureServlets(): Unit = {
         bind(classOf[SearchResource])

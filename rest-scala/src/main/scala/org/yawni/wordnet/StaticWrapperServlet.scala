@@ -10,7 +10,7 @@ import com.google.inject.Singleton
 class StaticWrapperServlet extends HttpServlet { 
   override
   def service(req:HttpServletRequest, resp:HttpServletResponse): Unit = {
-    val rd:RequestDispatcher = getServletContext().getNamedDispatcher("default"); 
+    val rd:RequestDispatcher = getServletContext().getNamedDispatcher("default")
     val wrapped:HttpServletRequest = new HttpServletRequestWrapper(req) { 
       override
       def getPathInfo():String = null
