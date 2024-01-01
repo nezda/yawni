@@ -21,10 +21,9 @@ import net.liftweb.util._
 
 import net.liftweb.http._
 import Helpers._
-
+import org.yawni.wordnet.online.snippet.{Ajax, StatelessJson, Yawni}
 import provider._
 
-import org.yawni.wordnet.snippet._
 import scala.language.postfixOps
 
 /**
@@ -55,6 +54,10 @@ class Boot {
     LiftRules.ajaxEnd = Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
     
     LiftRules.early.append(makeUtf8)
+
+//    LiftRules.sessionCreator = LiftRules.sessionCreatorForMigratorySessions
+
+//    LiftRules.sessionInactivityTimeout.default.set(Full(0L))
 
     LiftRules.noticesAutoFadeOut.default.set((notices: NoticeType.Value) => {
       notices match {
@@ -88,12 +91,18 @@ object BrowserLogger {
   object HaveSeenYou extends SessionVar(false)
   object Log extends Logger
 
-  def haveSeenYou(session: LiftSession, request: Req) {
+  def haveSeenYou(session: LiftSession, request: Req): Unit = {
     if (! HaveSeenYou.is) {
-      Log.info("Created session " + session.uniqueId + 
-        " IP: {" + request.request.remoteAddress + 
-        "} UserAgent: {{" + request.userAgent.openOr("N/A") + "}}")
+      Log.info(s"Created session ${session.uniqueId} " +
+        s"IP: {${request.request.remoteAddress}} " +
+        s"UserAgent: {{${request.userAgent.openOr("N/A")}}}"
+      )
       HaveSeenYou(true)
+    } else {
+      Log.info(s"Existing session ${session.uniqueId} " +
+        s"IP: {${request.request.remoteAddress}} " +
+        s"UserAgent: {{${request.userAgent.openOr("N/A")}}}"
+      )
     }
   }
 }

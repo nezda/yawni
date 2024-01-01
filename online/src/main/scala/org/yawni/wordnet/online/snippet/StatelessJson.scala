@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.yawni.wordnet.snippet
+package org.yawni.wordnet.online.snippet
 
 import net.liftweb.json._
 import net.liftweb._

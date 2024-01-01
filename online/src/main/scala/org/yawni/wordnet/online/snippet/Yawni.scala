@@ -1,4 +1,4 @@
-package org.yawni.wordnet.snippet
+package org.yawni.wordnet.online.snippet
 
 import java.util
 

@@ -1,11 +1,12 @@
-package org.yawni.wordnet
+package org.yawni.wordnet.online
+
+import junit.framework._
+import net.liftweb.common._
+import net.liftweb.util._
+import org.junit.Assert._
 
 import java.io.File
-import junit.framework._
-import org.junit.Assert._
 import scala.xml.XML
-import net.liftweb.util._
-import net.liftweb.common._
 
 object AppTest {
   def suite: Test = {

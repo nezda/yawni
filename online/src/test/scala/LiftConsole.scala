@@ -1,4 +1,5 @@
 import bootstrap.liftweb.Boot
+
 import scala.tools.nsc.MainGenericRunner
 
 object LiftConsole {
