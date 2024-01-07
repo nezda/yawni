@@ -1,4 +1,5 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift="http://liftweb.net/">
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta content="en-us" http-equiv="Content-Language" />
@@ -8,10 +9,6 @@
     <title>Yawni Online</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <!--
-    <lift:CSS.blueprint />
-    <lift:CSS.fancyType />
-    -->
-    <!-- 
     <link rel="stylesheet" type="text/css" href="/assets/blueprint/reset.css" />
     <link rel="stylesheet" type="text/css" href="/assets/blueprint/typography.css" />
     <link rel="stylesheet" type="text/css" href="/assets/blueprint/grid.css" />
@@ -24,7 +21,7 @@
     <!--[if IE]><link rel="stylesheet" href="/assets/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
     <link href="/assets/blueprint/plugins/fancy-type/screen.css" type="text/css" rel="stylesheet" media="screen, projection" />
 
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" id="jquery"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" id="jquery"></script>
     <script type="text/javascript" src="/assets/jquery.bgiframe.min.js"></script>
     <!-- <script type="text/javascript" src="/assets/jquery.dimensions.js"></script> -->
     <script type="text/javascript" src="/assets/jquery.autocomplete.js"></script>
@@ -34,6 +31,7 @@
 
     <link type="text/css" href="/assets/style.css" rel="stylesheet" media="screen, projection" />
     <script type="text/javascript">
+      //<![CDATA[
       function doSearch() {
         $.ajax({
           url : 'search', 
@@ -41,6 +39,16 @@
           type : 'POST', dataType : 'script', contentType : 'application/json', timeout : 5000, cache : true,
           beforeSend : function() {$('#ajax-loader').show();}, 
           complete : function() {
+          url: 'search',
+          data: $.toJSON({command: 'show', params: $('#searchBoxID').val()}),
+          type: 'POST',
+          contentType: 'application/json',
+          timeout: 5000,
+          cache: true,
+          beforeSend: function() {
+            $('#ajax-loader').show();
+          },
+          complete: function() {
             $('#ajax-loader').hide();
             // hide completions menu when a search is initiated
             $('.ac_results').hide();
@@ -51,8 +59,14 @@
             try {
               $('#json_result').each(function(i) { this.innerHTML = data; });
             } catch (e) {}
+              $('#json_result').each(function() {
+                this.innerHTML = data;
+              });
+            } catch (e) {
+              console.warn('suppressed '+e);
+            }
           }
-          });
+        });
       }
       $(window).load(function () {
         $(':input:visible:enabled:first').focus();
@@ -61,20 +75,29 @@
         $('#searchBoxID').keyup(function(event) {
           if (event.which == 13) {
             /* forward to autocomplete 'result()' */
+          if (event.which === 13) {
+            // forward to autocomplete 'result()'
             $('#searchBoxID').search();
           }
-          /* TODO tab key (9) should be translated to arrow down */
-          if (event.which == 9) {
-            /* event.which = 40 */
+          // TODO tab key (9) should be translated to arrow down
+          if (event.which === 9) {
+            // event.which = 40
           }
-        });
-        $('#searchBoxID').autocomplete('autocomplete', {matchCase: false, max: 25, cacheLength: 100, autoFill: true, selectFirst: false}).
+        }).autocomplete('autocomplete', {
+          matchCase: false,
+          max: 25,
+          cacheLength: 100,
+          autoFill: true,
+          selectFirst: false,
+          // prevents warnings about "form parameters in the request body but the request body has been consumed by" ...
+          contentType: false,
+        }).
           result(function(event, data, formatted) {
             doSearch();
           });
       });
+      //]]>
     </script>
-  </head>
   </head>
   <body>
     <div class="container">
@@ -82,21 +105,17 @@
         <!-- <h1><img src="images/yawni_57x64_icon.png" alt="Yawni"/></h1> -->
         <h1>Yawni Online</h1>
       </div>
-      <!--  NOTE: this uses the Ajax.scala class!! -->
-      <lift:Ajax.searchField id_msgs="messages">
-        <div class="span-16 search_panel">
-          <div class="append-bottom">
-            <span class="input_bubble">
-              <input id="searchBoxID" class="span-12" tabindex="1" type="search"/>
-              <button id="searchButton" onclick="doSearch();">Search</button> 
-            </span>
-            <div class="column span-1 last" style="float:right"><img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/></div>
-          </div>
-          <div id="json_result" class="resultz"></div>
-          <!-- <div id="messages"></div> -->
+      <div class="span-16 search_panel">
+        <div class="append-bottom">
+          <span class="input_bubble">
+            <input id="searchBoxID" class="span-12" tabindex="1" type="search"/>
+            <button id="searchButton" onclick="doSearch();">Search</button>
+          </span>
+          <div class="column span-1 last" style="float:right"><img alt="" id="ajax-loader" style="display:none" src="/images/ajax-loader.gif"/></div>
         </div>
-        <div class="recentQueries span-8 last"></div>
-      </lift:Ajax.searchField>
+        <div id="json_result" class="resultz"></div>
+      </div>
+      <div class="recentQueries span-8 last"></div>
       <div class="span-16 last small footer"><a href="https://www.yawni.org/">Powered by Yawni</a> &copy; 2010</div>
     </div>
   </body>
