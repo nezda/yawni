@@ -364,6 +364,9 @@ $.Autocompleter = function(input, options) {
 				// limit abortion to this input
 				port: "autocomplete" + input.name,
 				dataType: options.dataType,
+				contentType: (options.contentType === undefined)
+						? 'application/x-www-form-urlencoded; charset=UTF-8'
+						: options.contentType,
 				url: options.url,
 				data: $.extend({
 					q: lastWord(term),
