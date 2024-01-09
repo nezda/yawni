@@ -14,7 +14,8 @@
     <scala.version>2.12</scala.version>
     <scala.major-minor-version>${scala.version}.15</scala.major-minor-version>
     <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
-    <jetty.version>11.0.19</jetty.version>
+<!--    <jetty.version>11.0.19</jetty.version>-->
+    <jetty.version>9.4.53.v20231009</jetty.version>
     <jersey.version>1.19.4</jersey.version>
   </properties>
   <!--
