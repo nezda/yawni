@@ -17,6 +17,7 @@
 <!--    <jetty.version>11.0.19</jetty.version>-->
     <jetty.version>9.4.53.v20231009</jetty.version>
     <jersey.version>1.19.4</jersey.version>
+    <guice.version>6.0.0</guice.version>
   </properties>
   <!--
   <repositories>
@@ -80,6 +81,16 @@
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>jersey-guice</artifactId>
       <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-servlet</artifactId>
+      <version>${guice.version}</version>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey</groupId>
