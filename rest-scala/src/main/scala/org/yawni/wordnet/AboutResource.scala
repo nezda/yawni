@@ -2,6 +2,7 @@ package org.yawni.wordnet
 
 import javax.ws.rs._
 import javax.ws.rs.core._
+import scala.xml.Elem
 
 @Path("/about")
 class AboutResource {
@@ -33,7 +34,8 @@ class AboutResource {
   //  read in META-INF/maven/org.yawni/yawni-wordnet-data30/pom.properties
 
   @GET
-  def aboutResponse() = {
+  @Produces(Array(MediaType.APPLICATION_XML))
+  def aboutResponse(): Elem = {
     <about>
       Yawni Online
       <serverStats>

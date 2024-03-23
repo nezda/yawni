@@ -81,7 +81,7 @@ object Yawni {
   // required data format described http://docs.jquery.com/Plugins/Autocomplete/autocomplete#url_or_dataoptions
   def autocomplete(prefix: String, limit: Int):String = {
     val wn = WordNet.getInstance
-    val toReturn = new util.TreeSet(String.CASE_INSENSITIVE_ORDER)
+    val toReturn = new util.TreeSet[String](String.CASE_INSENSITIVE_ORDER)
     for (pos <- List(NOUN, VERB, ADJ, ADV);
          forms <- wn.searchByPrefix(prefix, pos).asScala;
          form <- forms.asScala if toReturn.size < limit
@@ -97,7 +97,7 @@ object Yawni {
     val wn = WordNet.getInstance
     var results: NodeSeq = NodeSeq.Empty
     for (pos <- List(NOUN, VERB, ADJ, ADV)) {
-      val noCaseForms = new util.TreeSet(String.CASE_INSENSITIVE_ORDER)
+      val noCaseForms = new util.TreeSet[String](String.CASE_INSENSITIVE_ORDER)
       val forms = wn.lookupBaseForms(someString, pos)
       for (form <- forms.asScala) {
         if (! noCaseForms.contains(form)) {

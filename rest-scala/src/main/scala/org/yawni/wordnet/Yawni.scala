@@ -3,11 +3,12 @@ package org.yawni.wordnet
 import javax.ws.rs._
 import javax.ws.rs.core._
 import javax.ws.rs.core.Response.Status._
-
 import org.yawni.wordnet._
 import org.yawni.util._
 import org.yawni.wordnet.POS._
 import org.yawni.wordnet.GlossAndExampleUtils._
+
+import java.util
 import scala.xml._
 import scala.collection.JavaConverters._
 import java.util.TreeSet // don't want List
@@ -16,10 +17,11 @@ import java.util.TreeSet // don't want List
  * Functions to search WordNet and render results as XML NodeSeqs
  */
 object Yawni {
-  def init() = {
+  def init(): Unit = {
+    println("Yawni.init()!")
     // trigger preload
     val wn = WordNet.getInstance
-    val query = "was";
+    val query = "was"
     //System.err.println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
     //println("query: "+query+" results: "+wn.lookupBaseForms(query, POS.ALL));
   }
@@ -29,7 +31,7 @@ object Yawni {
     val wn = WordNet.getInstance
     var results: NodeSeq = NodeSeq.Empty
     for (pos <- List(NOUN, VERB, ADJ, ADV)) {
-      val noCaseForms = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+      val noCaseForms = new util.TreeSet[String](String.CASE_INSENSITIVE_ORDER)
       val forms = wn.lookupBaseForms(someString, pos)
       for (form <- forms.asScala) {
         if (! noCaseForms.contains(form)) {
@@ -42,7 +44,7 @@ object Yawni {
       }
     }
     if (results == NodeSeq.Empty) {
-      if (someString.trim.length != 0)
+      if (someString.trim.nonEmpty)
         results ++= <h4>No results found</h4>
     }
     //println(results)
@@ -113,7 +115,7 @@ object Yawni {
 
   private def renderExamples(synset: Synset) = {
     val examples = getExamplesChunk(synset)
-    if (! examples.isEmpty)
+    if (examples.nonEmpty)
       <div class="examples"> { examples } </div>
     else
       NodeSeq.Empty

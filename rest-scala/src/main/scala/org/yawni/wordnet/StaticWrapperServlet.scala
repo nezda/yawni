@@ -9,11 +9,11 @@ import com.google.inject.Singleton
 @Singleton
 class StaticWrapperServlet extends HttpServlet { 
   override
-  def service(req:HttpServletRequest, resp:HttpServletResponse): Unit = {
-    val rd:RequestDispatcher = getServletContext().getNamedDispatcher("default")
-    val wrapped:HttpServletRequest = new HttpServletRequestWrapper(req) { 
+  def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+    val rd: RequestDispatcher = getServletContext().getNamedDispatcher("default")
+    val wrapped: HttpServletRequest = new HttpServletRequestWrapper(req) {
       override
-      def getPathInfo():String = null
+      def getPathInfo(): String = null
     } 
     rd.forward(wrapped, resp)
   } 

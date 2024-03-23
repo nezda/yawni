@@ -316,10 +316,9 @@ everything
     -DartifactId=yawni-wordnet-online \
     -Dversion=2.0.0-SNAPSHOT
   - gae details
-    - update online version: 
-      ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update online/target/yawni-wordnet-online-2.0.0-SNAPSHOT
-      can tweak GAE "version" in WEB-INF/appengine-web.xml ; previous versions remain available and web accessisble! e.g., https://5.latest.yawni-online.appspot.com/rest.html
-
+    - test locally with: java_dev_appserver.sh online/target/yawni-wordnet-online-2.0.0-SNAPSHOT/
+    - update online version:
+      mvn appengine:deploy -Dapp.deploy.projectId=yawni-online-2 -Dapp.deploy.version=2 -Dapp.deploy.promote=True
       ./appengine-java-sdk/bin/appcfg.sh --enable_jar_splitting update rest/target/yawni-wordnet-rest-scala-2.0.0-SNAPSHOT
   - online version features
     - autocomplete

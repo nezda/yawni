@@ -7,7 +7,7 @@ import javax.ws.rs.core._
 class HelloWorldResource {
   @GET
   //@Produces(Array(MediaType.TEXT_PLAIN))
-  def sayHello() = {
-    "Hello, world!";
+  def sayHello(): String = {
+    "Hello, world!"
   }
 }
