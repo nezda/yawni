@@ -81,7 +81,7 @@
     <java.version>1.8</java.version>
     <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4jVersion>2.0.13</slf4jVersion>
+    <slf4jVersion>2.0.14</slf4jVersion>
     <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
     <junit-jupiter.version>5.10.3</junit-jupiter.version>
     <default-wordnet-data-version>yawni-wordnet-data30</default-wordnet-data-version>
