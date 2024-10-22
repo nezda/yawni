@@ -83,7 +83,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4jVersion>2.0.16</slf4jVersion>
     <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
-    <junit-jupiter.version>5.11.0</junit-jupiter.version>
+    <junit-jupiter.version>5.11.3</junit-jupiter.version>
     <default-wordnet-data-version>yawni-wordnet-data30</default-wordnet-data-version>
     <app.main.class>org.yawni.wordnet.browser.Browser</app.main.class>
     <app.distribution.directory>${project.build.directory}/distributions/app</app.distribution.directory>
